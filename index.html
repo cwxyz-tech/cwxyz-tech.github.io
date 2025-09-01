@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>coleswebsite.xyz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="coleswebsite.xyz — links projects and writings">
+  <link rel="canonical" href="https://coleswebsite.xyz/">
+  <link rel="alternate" type="application/rss+xml" title="coleswebsite.xyz rss" href="/index.xml">
+  <link rel="icon" href="/favicon.ico">
+  <style>
+    :root {
+      --bg: #111;
+      --sub: #aaa;
+      --card: #1a1a1a;
+      --br: 14px;
+    }
+    * { box-sizing: border-box; }
+    html, body { 
+      margin: 0; 
+      padding: 0; 
+      background: var(--bg); 
+      color: #fff; 
+      font: 16px/1.55 system-ui, -apple-system, segoe ui, roboto, ubuntu, cantarell, helvetica neue, arial, sans-serif; 
+    }
+    /* gradient text utility */
+    .gradient-text {
+      background: linear-gradient(135deg, #1e3c72, #ffffff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+    }
+    main { max-width: 980px; margin: 0 auto; padding: 24px; }
+    header { text-align: center; padding: 24px 0 8px; }
+    h1, h2, a, dt { font-weight: 700; }
+    h1.gradient-text { font-size: 2.2rem; margin: 0; }
+    h2.gradient-text { font-size: 1.4rem; margin: 1.6rem 0 .6rem; }
+    p.center { text-align: center; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .column { background: var(--card); border-radius: var(--br); padding: 16px; }
+    .imgfig { margin: 0 0 10px; text-align: center; cursor: pointer; }
+    .imgfig img {
+      width: 300px;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 50%;   /* circle */
+      border: 3px solid #fff; /* white border */
+      display: block;
+      margin: 0 auto;
+    }
+    .maintab { width: 100%; border-collapse: collapse; }
+    .maintab td { padding: 10px 8px; vertical-align: top; border-bottom: 1px solid #222; }
+    .maintab td:first-child { width: 38%; font-weight: 600; }
+    dl { margin: 0; }
+    dd { margin: .2rem 0 .8rem; color: var(--sub); }
+    footer { text-align: center; padding: 30px 0; color: var(--sub); }
+    @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+
+    /* link styling: force white */
+    a {
+      color: #fff;
+      text-decoration: none;
+    }
+    a:visited {
+      color: #fff;
+    }
+    a:hover,
+    a:focus {
+      color: #aaa;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+<main>
+  <a href="/"><header>
+    <h1 class="gradient-text">coleswebsite.xyz</h1>
+  </header></a>
+
+  <article class="grid">
+    <div class="column">
+      <figure class="imgfig" onclick="document.getElementById('coles-audio').play();">
+        <img src="https://media.discordapp.net/attachments/1159703785845821522/1411522615717396490/coleswebsite.png?ex=68b4f660&is=68b3a4e0&hm=81d3d5d1d485374f678943774a6ea3eff69872a9c49ffc8401b4a5d6cfc5db88&=&format=webp&quality=lossless" alt="site banner">
+      </figure>
+
+      <!-- hidden audio element -->
+      <audio id="coles-audio" src="https://files.catbox.moe/sf8ajn.mp3"></audio>
+
+      <p class="center">hello im cole and welcome to my corner of the web!! :D</p>
+
+      <h2 class="gradient-text">check these out</h2>
+      <table class="maintab">
+        <tr>
+          <td><a href="/about">About Me</a></td>
+          <td>who i am, what i am into, and how you can reach me!</td>
+        </tr>
+        <tr>
+          <td><a href="/podcast">Podcast</a></td>
+          <td>WIP</td>
+        </tr>
+        <tr>
+          <td><a href="/coleswebsite">coleswebsite</a></td>
+          <td>short manifesto about my beliefs</td>
+        </tr>
+        <tr>
+          <td><a href="/faq">FAQ</a></td>
+          <td>common questions</td>
+        </tr>
+        <tr>
+          <td><a href="/topster">Topster</a></td>
+          <td>my favorite albums</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="column">
+      <h2 class="gradient-text">latest writings</h2>
+      <dl>
+        <dt><a href="/articles/coleswebsite">coleswebsite - 8/30/2025</a></dt>
+        <dd>short manifesto about my beliefs</dd>
+        
+        <dt><a href="/articles/average-iq">average iq - 5/5/2025</a></dt>
+        <dd>we are all average</dd>
+
+        <dt><a href="/articles/complacency">complacency - 5/4/2025</a></dt>
+        <dd>thoughts on our generation</dd>
+      </dl>
+    </div>
+  </article>
+</main>
+
+<footer>
+  <a href="https://coleswebsite.xyz/">https://coleswebsite.xyz/</a>
+</footer>
+</body>
+</html>
