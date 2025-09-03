@@ -38,11 +38,22 @@
     .faq-img {
       display: block;
       margin: 20px auto;
-      width: 250px;        /* base size */
-      height: 250px;       /* square */
+      width: 250px;
+      height: 250px;
       border-radius: var(--br);
-      object-fit: cover;   /* crop nicely if not square */
-      max-width: 100%;     /* responsive scaling */
+      object-fit: cover;
+      max-width: 100%; /* keep responsive */
+    }
+
+    .qa {
+      margin: 2rem 0;
+      padding: 1.4rem;
+      background: var(--card);
+      border-radius: var(--br);
+    }
+    .qa strong {
+      display: block;
+      margin-bottom: 0.6rem;
     }
   </style>
 </head>
@@ -50,8 +61,7 @@
 <main>
   <a href="/"><h1 class="gradient-text">FAQ</h1></a>
 
-  <!-- Updated image -->
-  <img src="/faq.png" alt="FAQ" class="faq-img" loading="lazy">
+  <img src="/faq.png" alt="FAQ" class="faq-img" width="250" height="250" loading="lazy">
 
   <div class="qa">
     <strong>Q: Who made the art for your website?</strong>
@@ -207,6 +217,7 @@
     <strong>Q: What’s your dream gun?</strong>
     A: WWII German Luger.
   </div>
+
 </main>
 
 <footer>
