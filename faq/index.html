@@ -33,19 +33,17 @@
     footer { text-align: center; padding: 30px 0; color: var(--sub); font-size: 0.9rem; }
     a { color: #fff; text-decoration: none; }
     a:hover { color: #aaa; text-decoration: underline; }
+
+    /* Make this class work for an image, not a text box */
     .faq-img {
       display: block;
       margin: 20px auto;
       width: 300px;
       height: 300px;
       border-radius: var(--br);
-      background: #222;
-      color: #555;
-      font-size: 2rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      object-fit: cover;   /* crop nicely if not square */
     }
+
     .qa {
       margin: 2rem 0;
       padding: 1.4rem;
@@ -62,7 +60,8 @@
 <main>
   <a href="/"><h1 class="gradient-text">FAQ</h1></a>
 
-  <div class="faq-img">FAQ</div>
+  <!-- Use the actual image (assumes faq.png sits next to this HTML file) -->
+  <img src="faq.png" alt="FAQ" class="faq-img" width="300" height="300" loading="lazy">
 
   <div class="qa">
     <strong>Q: Who made the art for your website?</strong>
