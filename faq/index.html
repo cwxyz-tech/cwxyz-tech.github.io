@@ -34,25 +34,15 @@
     a { color: #fff; text-decoration: none; }
     a:hover { color: #aaa; text-decoration: underline; }
 
-    /* Make this class work for an image, not a text box */
+    /* FAQ image */
     .faq-img {
       display: block;
       margin: 20px auto;
-      width: 600px;
-      height: 600px;
+      width: 250px;        /* base size */
+      height: 250px;       /* square */
       border-radius: var(--br);
       object-fit: cover;   /* crop nicely if not square */
-    }
-
-    .qa {
-      margin: 2rem 0;
-      padding: 1.4rem;
-      background: var(--card);
-      border-radius: var(--br);
-    }
-    .qa strong {
-      display: block;
-      margin-bottom: 0.6rem;
+      max-width: 100%;     /* responsive scaling */
     }
   </style>
 </head>
@@ -60,8 +50,8 @@
 <main>
   <a href="/"><h1 class="gradient-text">FAQ</h1></a>
 
-  <!-- Use the actual image (assumes faq.png sits next to this HTML file) -->
-  <img src="/faq.png" alt="FAQ" class="faq-img" width="250" height="250" loading="lazy">
+  <!-- Updated image -->
+  <img src="/faq.png" alt="FAQ" class="faq-img" loading="lazy">
 
   <div class="qa">
     <strong>Q: Who made the art for your website?</strong>
