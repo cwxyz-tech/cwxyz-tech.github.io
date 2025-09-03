@@ -12,7 +12,14 @@
       --sub: #aaa;
       --card: #1a1a1a;
       --br: 14px;
+
+      /* Sunset ombré palette */
+      --sunset-1: #ffb36b; /* warm orange */
+      --sunset-2: #ff6a88; /* coral pink */
+      --sunset-3: #d16ba5; /* magenta */
+      --sunset-4: #5b3cc4; /* deep purple */
     }
+
     * { box-sizing: border-box; }
     html, body {
       margin: 0;
@@ -21,13 +28,44 @@
       color: #fff;
       font: 16px/1.55 system-ui, -apple-system, segoe ui, roboto, ubuntu, cantarell, helvetica neue, arial, sans-serif;
     }
+
+    /* Animated gradient text */
     .gradient-text {
-      background: linear-gradient(135deg, #a3beff, #ffffff);
+      background: linear-gradient(
+        135deg,
+        var(--sunset-1) 0%,
+        var(--sunset-2) 25%,
+        var(--sunset-3) 60%,
+        var(--sunset-4) 100%
+      );
+      background-size: 300% 300%;
+      background-position: 10% 50%;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
       color: transparent;
+
+      text-shadow: 0 0 16px rgba(255, 106, 136, 0.15);
+
+      animation: sunset-shift 12s ease-in-out infinite alternate;
+      will-change: background-position;
     }
+
+    @keyframes sunset-shift {
+      0% { background-position: 10% 50%; }
+      50% { background-position: 90% 50%; }
+      100% { background-position: 30% 50%; }
+    }
+
+    /* Accessibility: disable animation if user prefers reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .gradient-text {
+        animation: none;
+        background-size: 100% 100%;
+        background-position: 50% 50%;
+      }
+    }
+
     main { max-width: 1000px; margin: 0 auto; padding: 48px 20px; }
     h1.gradient-text { font-size: 2.2rem; margin-bottom: 1.4rem; text-align: center; }
 
