@@ -8,29 +8,72 @@
   <link rel="canonical" href="https://coleswebsite.xyz/">
   <link rel="alternate" type="application/rss+xml" title="coleswebsite.xyz rss" href="/index.xml">
   <link rel="icon" href="/favicon.ico">
+  <meta name="color-scheme" content="dark light">
   <style>
     :root {
       --bg: #111;
       --sub: #aaa;
       --card: #1a1a1a;
       --br: 14px;
+
+      /* Sunset ombré stops */
+      --sunset-1: #ffb36b; /* warm orange */
+      --sunset-2: #ff6a88; /* coral pink */
+      --sunset-3: #d16ba5; /* magenta */
+      --sunset-4: #5b3cc4; /* deep purple */
     }
+
     * { box-sizing: border-box; }
-    html, body { 
-      margin: 0; 
-      padding: 0; 
-      background: var(--bg); 
-      color: #fff; 
-      font: 16px/1.55 system-ui, -apple-system, segoe ui, roboto, ubuntu, cantarell, helvetica neue, arial, sans-serif; 
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: #fff;
+      font: 16px/1.55 system-ui, -apple-system, segoe ui, roboto, ubuntu, cantarell, helvetica neue, arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
     }
-    /* gradient text utility */
+
+    /* gradient text utility — animated sunset ombré */
     .gradient-text {
-      background: linear-gradient(135deg, #a3beff, #ffffff);
+      background: linear-gradient(
+        135deg,
+        var(--sunset-1) 0%,
+        var(--sunset-2) 25%,
+        var(--sunset-3) 60%,
+        var(--sunset-4) 100%
+      );
+      background-size: 300% 300%;
+      background-position: 10% 50%;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
       color: transparent;
+
+      /* subtle glow for contrast on dark bg */
+      text-shadow: 0 0 16px rgba(255, 106, 136, 0.15);
+
+      /* animation */
+      animation: sunset-shift 12s ease-in-out infinite alternate;
+      will-change: background-position;
     }
+
+    @keyframes sunset-shift {
+      0% { background-position: 10% 50%; }
+      50% { background-position: 90% 50%; }
+      100% { background-position: 30% 50%; }
+    }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .gradient-text {
+        animation: none;
+        background-size: 100% 100%;
+        background-position: 50% 50%;
+      }
+    }
+
     main { max-width: 980px; margin: 0 auto; padding: 24px; }
     header { text-align: center; padding: 24px 0 8px; }
     h1, h2, a, dt { font-weight: 700; }
@@ -62,13 +105,17 @@
       color: #fff;
       text-decoration: none;
     }
-    a:visited {
-      color: #fff;
-    }
+    a:visited { color: #fff; }
     a:hover,
     a:focus {
       color: #aaa;
       text-decoration: underline;
+    }
+
+    /* Optional: pause the header animation on hover/focus for fun & readability */
+    h1.gradient-text:hover,
+    h1.gradient-text:focus {
+      animation-play-state: paused;
     }
   </style>
 </head>
@@ -93,7 +140,7 @@
       <table class="maintab">
         <tr>
           <td><a href="/aboutme">About Me</a></td>
-          <td>who i am, what i am into, and how you can reach me!</td>
+          <td>who i am, what i am into, and how you can reach me</td>
         </tr>
         <tr>
           <td><a href="/faq">FAQ</a></td>
@@ -112,7 +159,7 @@
 
     <div class="column">
       <h2 class="gradient-text">latest writings</h2>
-      <dl>  
+      <dl>
         <dt><a href="/averageiq.pdf">average iq - 5/5/2025</a></dt>
         <dd>we are all average</dd>
 
