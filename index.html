@@ -1,180 +1,124 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>coleswebsite.xyz</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="coleswebsite.xyz — links projects and writings">
-  <link rel="canonical" href="https://coleswebsite.xyz/">
-  <link rel="alternate" type="application/rss+xml" title="coleswebsite.xyz rss" href="/index.xml">
-  <link rel="icon" href="/favicon.ico">
-  <meta name="color-scheme" content="dark light">
-  <style>
-    :root {
-      --bg: #111;
-      --sub: #aaa;
-      --card: #1a1a1a;
-      --br: 14px;
-
-      /* Sunset ombré stops */
-      --sunset-1: #ffb36b; /* warm orange */
-      --sunset-2: #ff6a88; /* coral pink */
-      --sunset-3: #d16ba5; /* magenta */
-      --sunset-4: #5b3cc4; /* deep purple */
-    }
-
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: var(--bg);
-      color: #fff;
-      font: 16px/1.55 system-ui, -apple-system, segoe ui, roboto, ubuntu, cantarell, helvetica neue, arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      text-rendering: optimizeLegibility;
-    }
-
-    /* gradient text utility — animated sunset ombré */
-    .gradient-text {
-      background: linear-gradient(
-        135deg,
-        var(--sunset-1) 0%,
-        var(--sunset-2) 25%,
-        var(--sunset-3) 60%,
-        var(--sunset-4) 100%
-      );
-      background-size: 300% 300%;
-      background-position: 10% 50%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      color: transparent;
-
-      /* subtle glow for contrast on dark bg */
-      text-shadow: 0 0 16px rgba(255, 106, 136, 0.15);
-
-      /* animation */
-      animation: sunset-shift 12s ease-in-out infinite alternate;
-      will-change: background-position;
-    }
-
-    @keyframes sunset-shift {
-      0% { background-position: 10% 50%; }
-      50% { background-position: 90% 50%; }
-      100% { background-position: 30% 50%; }
-    }
-
-    /* Respect reduced motion */
-    @media (prefers-reduced-motion: reduce) {
-      .gradient-text {
-        animation: none;
-        background-size: 100% 100%;
-        background-position: 50% 50%;
-      }
-    }
-
-    main { max-width: 980px; margin: 0 auto; padding: 24px; }
-    header { text-align: center; padding: 24px 0 8px; }
-    h1, h2, a, dt { font-weight: 700; }
-    h1.gradient-text { font-size: 2.2rem; margin: 0; }
-    h2.gradient-text { font-size: 1.4rem; margin: 1.6rem 0 .6rem; }
-    p.center { text-align: center; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .column { background: var(--card); border-radius: var(--br); padding: 16px; }
-    .imgfig { margin: 0 0 10px; text-align: center; cursor: pointer; }
-    .imgfig img {
-      width: 300px;
-      height: 300px;
-      object-fit: cover;
-      border-radius: 50%;   /* circle */
-      border: 3px solid #fff; /* white border */
-      display: block;
-      margin: 0 auto;
-    }
-    .maintab { width: 100%; border-collapse: collapse; }
-    .maintab td { padding: 10px 8px; vertical-align: top; border-bottom: 1px solid #222; }
-    .maintab td:first-child { width: 38%; font-weight: 600; }
-    dl { margin: 0; }
-    dd { margin: .2rem 0 .8rem; color: var(--sub); }
-    footer { text-align: center; padding: 30px 0; color: var(--sub); }
-    @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
-
-    /* link styling: force white */
-    a {
-      color: #fff;
-      text-decoration: none;
-    }
-    a:visited { color: #fff; }
-    a:hover,
-    a:focus {
-      color: #aaa;
-      text-decoration: underline;
-    }
-
-    /* Optional: pause the header animation on hover/focus for fun & readability */
-    h1.gradient-text:hover,
-    h1.gradient-text:focus {
-      animation-play-state: paused;
-    }
-  </style>
 </head>
-<body>
-<main>
-  <a href="/"><header>
-    <h1 class="gradient-text">coleswebsite.xyz</h1>
-  </header></a>
 
-  <article class="grid">
-    <div class="column">
-      <figure class="imgfig" onclick="document.getElementById('coles-audio').play();">
-        <img src="/coleswebsite.png" alt="site banner">
-      </figure>
+<body bgcolor="#FFFFFF" text="#000000" link="#0000EE" vlink="#551A8B" alink="#FF0000">
 
-      <!-- hidden audio element -->
-      <audio id="coles-audio" src="/coleswebsite.mp3"></audio>
+  <table width="900" align="center" cellpadding="12" cellspacing="0" border="0">
+    <tr>
+      <!-- LEFT COLUMN -->
+      <td valign="top" width="680">
+        <center>
+          <p align="center">
+            <b>
+              <font size="6" color="#6FBFB3">c</font>
+              <font size="4">oles</font>
+              <font size="6" color="#8FCF6A">w</font>
+              <font size="4">ebsite</font>
+              <font size="6" color="#9E84D8">.</font>
+              <font size="6" color="#8A95E6">x</font>
+              <font size="6" color="#E39AB8">y</font>
+              <font size="6" color="#6FBFB3">z</font>
+              <br />
+              <font size="2">© 1996 - 2026</font>
+            </b>
+            <font size="1">&nbsp;</font>
+          </p>
+        </center>
 
-      <p class="center">hello im cole and welcome to my freaking AWESOME website</p>
+          <hr />
 
-      <h2 class="gradient-text">check these out</h2>
-      <table class="maintab">
-        <tr>
-          <td><a href="/aboutme">About Me</a></td>
-          <td>who i am, what i am into, and how you can reach me</td>
-        </tr>
-        <tr>
-          <td><a href="/faq">FAQ</a></td>
-          <td>common questions</td>
-        </tr>
-        <tr>
-          <td><a href="/topster">Topster</a></td>
-          <td>my favorite albums</td>
-        </tr>
-        <tr>
-          <td>Podcast</td>
-          <td>soon™</td>
-        </tr>
-      </table>
-    </div>
+          <h2>check these out</h2>
+          <table width="100%" cellpadding="6" cellspacing="0" border="0">
+            <tr>
+              <td width="30%"><a href="/aboutme">About Me</a></td>
+              <td>who i am, what i am into, and how you can reach me</td>
+            </tr>
+            <tr>
+              <td><a href="/faq">FAQ</a></td>
+              <td>common questions</td>
+            </tr>
+            <tr>
+              <td><a href="/topster">Topster</a></td>
+              <td>my favorite albums</td>
+            </tr>
+            <tr>
+              <td>Podcast</td>
+              <td>soon™</td>
+            </tr>
+          </table>
 
-    <div class="column">
-      <h2 class="gradient-text">latest writings</h2>
-      <dl>
-        <dt><a href="/opsecguide2025v11.pdf">Cole's OPSEC Guide 2025 V1.1</a></dt>
-        <dd>my very basic opsec guide</dd>
+          <hr />
 
-        <dt><a href="/averageiq.pdf">average iq - 5/5/2025</a></dt>
-        <dd>we are all average</dd>
+          <h2>latest writings</h2>
 
-        <dt><a href="/complacency.pdf">complacency - 5/4/2025</a></dt>
-        <dd>thoughts on our generation</dd>
-      </dl>
-    </div>
-  </article>
-</main>
+          <p>
+            <b><a href="/opsecguide2025v11.pdf">Cole's OPSEC Guide 2025 V1.1</a></b><br />
+            my very basic opsec guide
+          </p>
 
-<footer>
-  <a href="https://coleswebsite.xyz/">https://coleswebsite.xyz/</a>
-</footer>
+          <p>
+            <b><a href="/averageiq.pdf">average iq - 5/5/2025</a></b><br />
+            we are all average
+          </p>
+
+          <p>
+            <b><a href="/complacency.pdf">complacency - 5/4/2025</a></b><br />
+            thoughts on our generation
+          </p>
+
+          <hr />
+
+          <center>
+            <font size="2">
+              <a href="https://coleswebsite.xyz/">https://coleswebsite.xyz/</a>
+            </font>
+          </center>
+
+          <br /><br />
+
+          <!-- bottom gifs side-by-side -->
+          <center>
+            <img src="/4HAEMROIDOMHICQWQLSMHD4FVRSY6I7T.gif" border="0" alt="" />
+            <img src="/2YP6EF3SS3A3234J5MSP6YQAIO5OISYP.gif" border="0" alt="" />
+            <img src="/X5U2MPBUNI2MSZETEIQW6JKNGF6KUEHP.gif" border="0" alt="" />
+            <img src="/2GAF74FB4GUQHFGLR5NNX26DYLYUSVT7.gif" border="0" alt="" />
+          </center>
+
+          <br />
+
+          <!-- audio player -->
+          <center>
+            <audio controls>
+              <source src="/audio.mp3" type="audio/mpeg" />
+              Your browser does not support the audio element.
+            </audio>
+          </center>
+
+        </font>
+      </td>
+
+      <!-- RIGHT COLUMN: ADS -->
+      <td valign="top" width="220" align="center">
+        <b>Sponsored</b>
+        <br /><br />
+        <img
+          src="/CDOOBUFCQ7NWJUGR7FJQBDHGAJL7GBYR.gif"
+          border="0"
+          alt=""
+        />
+        <br /><br />
+        <img
+          src="/2445PYAJG2TWMJCW3J3HD62RZGA6YSTG.gif"
+          border="0"
+          alt=""
+        />
+      </td>
+    </tr>
+  </table>
+
 </body>
 </html>
