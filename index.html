@@ -1,124 +1,469 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>coleswebsite.xyz</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cole's website</title>
+<style>
+  body {
+    background: #ffffff;
+    font-family: "Times New Roman", Times, serif;
+    color: #000;
+    margin: 0;
+    padding: 0;
+  }
+  a { color: #0000EE; text-decoration: underline; }
+  a:visited { color: #551A8B; }
+
+  .wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 18px 20px 10px 20px;
+  }
+  .logo {
+    font-size: 44px;
+    font-weight: bold;
+    letter-spacing: -1px;
+    color: #1a1a2e;
+  }
+  .logo .accent { color: #445d8e; }
+  .tagline {
+    font-size: 14px;
+    color: #333;
+    margin-left: 12px;
+  }
+  .searchbox {
+    text-align: right;
+  }
+  .searchbox input[type=text] {
+    font-family: "Times New Roman", serif;
+    font-size: 13px;
+    padding: 5px;
+    width: 220px;
+    border: 1px solid #888;
+  }
+  .searchbox input[type=submit] {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    padding: 5px 12px;
+    background: #ddd;
+    border: 1px solid #888;
+    cursor: pointer;
+  }
+
+  .goldbar { height: 6px; background: #E8A800; }
+
+  /* BANNER ADS */
+  .banners {
+    display: flex;
+    gap: 6px;
+    padding: 10px;
+    background: #f5f5f5;
+  }
+  .banner {
+    flex: 1;
+    border: 4px double #fff;
+    padding: 14px 8px;
+    text-align: center;
+    color: #ffee00;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #000;
+  }
+  .banner.blue { background: #1414c8; border-color: #6a6aff; }
+  .banner.green { background: #0a7d1e; border-color: #6aff8a; }
+  .banner .big { font-size: 20px; }
+  .banner .small { font-size: 12px; margin-top: 6px; color: #baffc9; }
+  .banner.blue .small { color: #c9d4ff; }
+
+  /* NAV */
+  .navbar {
+    background: #14149c;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 20px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .navbar a {
+    color: #fff;
+    text-decoration: none;
+    margin-right: 22px;
+    font-size: 14px;
+  }
+  .navbar a:visited { color: #fff; }
+  .navbar a:hover { text-decoration: underline; }
+  .navbar .signin { color: #ffcc00; margin-right: 0; }
+
+  /* LAYOUT */
+  .content {
+    display: flex;
+    padding: 18px 20px;
+    gap: 18px;
+    align-items: flex-start;
+  }
+  .col-left { width: 210px; flex-shrink: 0; }
+  .col-main { flex: 1; min-width: 0; }
+  .col-right { width: 240px; flex-shrink: 0; }
+
+  .box-title {
+    background: #E8A800;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    padding: 8px 10px;
+    border: 1px solid #b98600;
+  }
+  .box-title.blue {
+    background: #dce6f5;
+    border: 1px solid #a9c1e0;
+    color: #000;
+  }
+  .box-body {
+    border: 1px solid #ccc;
+    border-top: none;
+    padding: 10px;
+    margin-bottom: 18px;
+    font-size: 13px;
+  }
+  .col-left ul, .col-right ul { list-style: none; margin: 0; padding: 0; }
+  .col-left li { padding: 4px 0; border-bottom: 1px dotted #ccc; font-size: 13px; }
+  .col-left li:last-child { border-bottom: none; }
+  .col-left .count { color: #666; }
+
+  .intro {
+    font-size: 14px;
+    margin-bottom: 16px;
+    color: #222;
+  }
+
+  .featured-box {
+    border: 1px solid #E8A800;
+    background: #fffef0;
+    padding: 14px;
+    margin-bottom: 20px;
+  }
+  .featured-box h3 { margin: 0 0 6px 0; font-size: 20px; }
+  .featured-box h3 a { color: #14149c; }
+  .featured-box .meta { color: #0a7d1e; font-weight: bold; font-size: 13px; }
+  .featured-box .desc { color: #333; margin-top: 6px; font-size: 13px; }
+
+  table.listing {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+  table.listing th {
+    background: #6699cc;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  table.listing td {
+    padding: 10px;
+    border-bottom: 1px solid #dde;
+    vertical-align: top;
+  }
+  table.listing tr:nth-child(even) td { background: #eef3fa; }
+  table.listing tr:nth-child(odd) td { background: #f8fbff; }
+  table.listing a.title { font-weight: bold; font-size: 14px; }
+  .new-tag {
+    background: #cc0000;
+    color: #fff;
+    font-size: 10px;
+    font-family: Arial, sans-serif;
+    padding: 2px 5px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .writing-entry {
+    margin-bottom: 14px;
+  }
+  .writing-entry a { font-weight: bold; font-size: 14px; }
+  .writing-entry .date { color: #666; font-size: 12px; margin-left: 6px; }
+  .writing-entry .snippet { font-size: 13px; color: #333; margin-top: 2px; }
+
+  .col-right li {
+    padding: 5px 0;
+    border-bottom: 1px dotted #ccc;
+    font-size: 13px;
+  }
+  .col-right li:last-child { border-bottom: none; }
+
+  .footer {
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    padding: 16px;
+    border-top: 1px solid #ccc;
+    background: #f5f5f5;
+  }
+  .footer a { color: #333; }
+
+  @keyframes blinker {
+    50% { opacity: 0; }
+  }
+  .blink {
+    animation: blinker 1s step-start infinite;
+  }
+
+  .hitcounter {
+    text-align: center;
+    padding: 16px;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    color: #444;
+  }
+  .hitcounter .digits {
+    display: inline-block;
+    background: #000;
+    color: #00ff00;
+    font-family: "Courier New", monospace;
+    font-weight: bold;
+    font-size: 20px;
+    letter-spacing: 3px;
+    padding: 4px 10px;
+    border: 2px inset #999;
+    margin-top: 4px;
+  }
+  .counter-wrap {
+    position: relative;
+    display: inline-block;
+  }
+  .crack-overlay {
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    width: calc(100% + 12px);
+    height: calc(100% + 12px);
+    pointer-events: none;
+  }
+  .oops {
+    margin-top: 8px;
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    color: #cc0000;
+    font-size: 15px;
+    font-weight: bold;
+    transform: rotate(-2deg);
+  }
+
+  @media (max-width: 700px) {
+    .wrap { border-left: none; border-right: none; }
+
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .header > div:first-child {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .logo { font-size: 30px; }
+    .tagline { margin-left: 0; margin-top: 2px; font-size: 12px; }
+    .searchbox { width: 100%; text-align: left; }
+    .searchbox input[type=text] { width: 65%; }
+
+    .banners { flex-direction: column; padding: 8px; }
+    .banner { padding: 12px 8px; }
+    .banner .big { font-size: 16px; }
+    .banner .small { font-size: 11px; }
+
+    .navbar { flex-wrap: wrap; gap: 8px 0; padding: 10px 14px; }
+    .navbar a { margin-right: 14px; font-size: 13px; }
+
+    .content { flex-direction: column; padding: 14px; gap: 14px; }
+    .col-left, .col-right, .col-main { width: 100%; }
+
+    table.listing { font-size: 12px; }
+    table.listing th, table.listing td { padding: 8px 6px; }
+    table.listing a.title { font-size: 13px; }
+
+    .featured-box h3 { font-size: 17px; }
+
+    .crack-overlay { top: -4px; left: -4px; width: calc(100% + 8px); height: calc(100% + 8px); }
+  }
+</style>
 </head>
+<body>
+<div class="wrap">
 
-<body bgcolor="#FFFFFF" text="#000000" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+  <div class="header">
+    <div style="display:flex; align-items:flex-end;">
+      <div class="logo">coleswebsite<span class="accent">.xyz</span></div>
+      <div class="tagline">est 2023... thoughts lists and other nonsense!</div>
+    </div>
+    <div class="searchbox">
+      <form onsubmit="return false;">
+        <input type="text" placeholder="e.g. opsec, topster, faq">
+        <input type="submit" value="Search">
+      </form>
+    </div>
+  </div>
+  <div class="goldbar"></div>
 
-  <table width="900" align="center" cellpadding="12" cellspacing="0" border="0">
-    <tr>
-      <!-- LEFT COLUMN -->
-      <td valign="top" width="680">
-        <center>
-          <p align="center">
-            <b>
-              <font size="6" color="#6FBFB3">c</font>
-              <font size="4">oles</font>
-              <font size="6" color="#8FCF6A">w</font>
-              <font size="4">ebsite</font>
-              <font size="6" color="#9E84D8">.</font>
-              <font size="6" color="#8A95E6">x</font>
-              <font size="6" color="#E39AB8">y</font>
-              <font size="6" color="#6FBFB3">z</font>
-              <br />
-              <font size="2">© 1996 - 2026</font>
-            </b>
-            <font size="1">&nbsp;</font>
-          </p>
-        </center>
+  <div class="banners">
+    <div class="banner blue">
+      <div class="big">&#9733; HIRE ME I GUESS &#9733;</div>
+      <div class="small"><span class="blink">&#9656;</span> <a href="mailto:coleswebsitexyz@proton.me" style="color:#c9d4ff;">click to email</a> and pitch a job offer <span class="blink">&#9666;</span></div>
+    </div>
+    <div class="banner green">
+      <div class="big">&#9733; VIEW MY YOUTUBE CHANNEL &#9733;</div>
+      <div class="small"><span class="blink">&#9656;</span> <a href="https://www.youtube.com/watch?v=QDia3e12czc" target="_blank" style="color:#baffc9;">click to watch my latest videos</a> <span class="blink">&#9666;</span></div>
+    </div>
+  </div>
 
-          <hr />
+  <div class="navbar">
+    <div>
+      <a href="#">home</a>
+      <a href="#">about me</a>
+      <a href="#">faq</a>
+      <a href="#">topster</a>
+      <a href="#">podcast</a>
+      <a href="#">writings</a>
+    </div>
+    <div><a class="signin" href="mailto:hello@coleswebsite.xyz">contact me</a></div>
+  </div>
 
-          <h2>check these out</h2>
-          <table width="100%" cellpadding="6" cellspacing="0" border="0">
-            <tr>
-              <td width="30%"><a href="/aboutme">About Me</a></td>
-              <td>who i am, what i am into, and how you can reach me</td>
-            </tr>
-            <tr>
-              <td><a href="/faq">FAQ</a></td>
-              <td>common questions</td>
-            </tr>
-            <tr>
-              <td><a href="/topster">Topster</a></td>
-              <td>my favorite albums</td>
-            </tr>
-            <tr>
-              <td>Podcast</td>
-              <td>soon™</td>
-            </tr>
-          </table>
+  <div class="content">
 
-          <hr />
+    <div class="col-left">
+      <div class="box-title">Categories</div>
+      <div class="box-body">
+        <ul>
+          <li><a href="#">about me</a> <span class="count">(1)</span></li>
+          <li><a href="#">faq</a> <span class="count">(6)</span></li>
+          <li><a href="#">topster</a> <span class="count">(1)</span></li>
+          <li><a href="#">podcast</a> <span class="count">(0)</span></li>
+          <li><a href="#">security</a> <span class="count">(1)</span></li>
+          <li><a href="#">life &amp; rants</a> <span class="count">(2)</span></li>
+        </ul>
+      </div>
+    </div>
 
-          <h2>latest writings</h2>
+    <div class="col-main">
+      <div class="featured-box">
+        <span class="meta"><span class="blink">&#9733;</span> FEATURED</span>
+        <h3><a href="#">Cole's OPSEC Guide 2025 V1.1</a></h3>
+        <div class="desc">my very basic opsec guide stuff everyone should already be doing but probably is not</div>
+      </div>
 
-          <p>
-            <b><a href="/opsecguide2025v11.pdf">Cole's OPSEC Guide 2025 V1.1</a></b><br />
-            my very basic opsec guide
-          </p>
+      <div class="box-title blue">check these out</div>
+      <table class="listing" style="margin-top:0;">
+        <tr>
+          <th>Page</th>
+          <th>What's there</th>
+        </tr>
+        <tr>
+          <td><a class="title" href="#">about me</a></td>
+          <td>who i am what i am into and how you can reach me</td>
+        </tr>
+        <tr>
+          <td><a class="title" href="#">faq</a></td>
+          <td>common questions</td>
+        </tr>
+        <tr>
+          <td><a class="title" href="#">topster</a></td>
+          <td>my favorite albums</td>
+        </tr>
+        <tr>
+          <td><a class="title" href="#">podcast</a> <span class="new-tag">SOON&trade;</span></td>
+          <td>a podcast that does not exist yet</td>
+        </tr>
+        <tr>
+          <td><a class="title" href="https://youtube.com/@coleswebsite" target="_blank">youtube</a></td>
+          <td>view my channel</td>
+        </tr>
+      </table>
 
-          <p>
-            <b><a href="/averageiq.pdf">average iq - 5/5/2025</a></b><br />
-            we are all average
-          </p>
+      <div class="box-title">latest writings</div>
+      <div class="box-body">
+        <div class="writing-entry">
+          <a href="#">Cole's OPSEC Guide 2025 V1.1</a>
+          <div class="snippet">my very basic opsec guide</div>
+        </div>
+        <div class="writing-entry">
+          <a href="#">average iq</a><span class="date">5/5/2025</span>
+          <div class="snippet">we are all average</div>
+        </div>
+        <div class="writing-entry">
+          <a href="#">complacency</a><span class="date">5/4/2025</span>
+          <div class="snippet">thoughts on our generation</div>
+        </div>
+      </div>
+    </div>
 
-          <p>
-            <b><a href="/complacency.pdf">complacency - 5/4/2025</a></b><br />
-            thoughts on our generation
-          </p>
+    <div class="col-right">
+      <div class="box-title">Latest Writings</div>
+      <div class="box-body">
+        <ul>
+          <li><a href="#">Cole's OPSEC Guide 2025 V1.1</a></li>
+          <li><a href="#">average iq</a></li>
+          <li><a href="#">complacency</a></li>
+        </ul>
+        <div style="margin-top:8px;"><a href="#">all writings &raquo;</a></div>
+      </div>
 
-          <hr />
+      <div class="box-title">Get In Touch</div>
+      <div class="box-body">
+        got thoughts, feedback, or a job offer? <a href="mailto:coleswebsitexyz@proton.me">email me</a>.
+      </div>
+    </div>
 
-          <center>
-            <font size="2">
-              <a href="https://coleswebsite.xyz/">https://coleswebsite.xyz/</a>
-            </font>
-          </center>
+  </div>
 
-          <br /><br />
+  <div class="hitcounter">
+    you are visitor number
+    <br>
+    <div class="counter-wrap">
+      <span class="digits" id="hitcount">000000</span>
+      <svg class="crack-overlay" viewBox="0 0 152 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="88,20 152,0 152,18 100,26" fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.75)" stroke-width="0.8"/>
+        <polygon points="88,20 100,26 96,48 60,48 70,30" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.7)" stroke-width="0.8"/>
+        <polygon points="88,20 70,30 40,24 55,4 70,0" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.7)" stroke-width="0.8"/>
+        <polygon points="88,20 55,4 0,0 0,20 40,24" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.65)" stroke-width="0.8"/>
+        <polygon points="88,20 40,24 0,20 0,48 60,48 70,30" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.6)" stroke-width="0.8"/>
+        <polygon points="88,20 100,26 152,18 152,48 96,48" fill="rgba(255,255,255,0.09)" stroke="rgba(255,255,255,0.6)" stroke-width="0.8"/>
+        <line x1="88" y1="20" x2="76" y2="2" stroke="rgba(255,255,255,0.85)" stroke-width="0.6"/>
+        <line x1="88" y1="20" x2="112" y2="10" stroke="rgba(255,255,255,0.85)" stroke-width="0.6"/>
+        <line x1="88" y1="20" x2="130" y2="34" stroke="rgba(255,255,255,0.85)" stroke-width="0.6"/>
+        <line x1="88" y1="20" x2="82" y2="46" stroke="rgba(255,255,255,0.85)" stroke-width="0.6"/>
+        <line x1="88" y1="20" x2="20" y2="40" stroke="rgba(255,255,255,0.85)" stroke-width="0.6"/>
+        <line x1="88" y1="20" x2="14" y2="6" stroke="rgba(255,255,255,0.85)" stroke-width="0.6"/>
+        <circle cx="88" cy="20" r="2.2" fill="rgba(255,255,255,0.85)"/>
+      </svg>
+    </div>
+    <div class="oops">oops...</div>
+  </div>
 
-          <!-- bottom gifs side-by-side -->
-          <center>
-            <img src="/4HAEMROIDOMHICQWQLSMHD4FVRSY6I7T.gif" border="0" alt="" />
-            <img src="/2YP6EF3SS3A3234J5MSP6YQAIO5OISYP.gif" border="0" alt="" />
-            <img src="/X5U2MPBUNI2MSZETEIQW6JKNGF6KUEHP.gif" border="0" alt="" />
-            <img src="/2GAF74FB4GUQHFGLR5NNX26DYLYUSVT7.gif" border="0" alt="" />
-          </center>
+  <div class="footer">
+    &copy; 2023 - 2026 coleswebsite.xyz &nbsp;&middot;&nbsp; <a href="https://coleswebsite.xyz/">https://coleswebsite.xyz/</a>
+  </div>
 
-          <br />
-
-          <!-- audio player -->
-          <center>
-            <audio controls>
-              <source src="/audio.mp3" type="audio/mpeg" />
-              Your browser does not support the audio element.
-            </audio>
-          </center>
-
-        </font>
-      </td>
-
-      <!-- RIGHT COLUMN: ADS -->
-      <td valign="top" width="220" align="center">
-        <b>Sponsored</b>
-        <br /><br />
-        <img
-          src="/CDOOBUFCQ7NWJUGR7FJQBDHGAJL7GBYR.gif"
-          border="0"
-          alt=""
-        />
-        <br /><br />
-        <img
-          src="/2445PYAJG2TWMJCW3J3HD62RZGA6YSTG.gif"
-          border="0"
-          alt=""
-        />
-      </td>
-    </tr>
-  </table>
-
+</div>
+<script>
+  (function () {
+    var key = "coleswebsite_hits";
+    var start = 10482;
+    var count = parseInt(localStorage.getItem(key), 10);
+    if (isNaN(count)) {
+      count = start;
+    }
+    count += 1;
+    localStorage.setItem(key, count);
+    document.getElementById("hitcount").textContent = String(count).padStart(6, "0");
+  })();
+</script>
 </body>
 </html>
