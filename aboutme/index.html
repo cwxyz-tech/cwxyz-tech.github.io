@@ -1,97 +1,225 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>about me — coleswebsite.xyz</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="About Cole — coleswebsite.xyz">
-  <link rel="icon" href="/favicon.ico">
-  <style>
-    :root {
-      --bg: #111;
-      --sub: #aaa;
-      --card: #1a1a1a;
-      --br: 14px;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>about me - coleswebsite.xyz</title>
+<style>
+  body {
+    background: #ffffff;
+    font-family: "Times New Roman", Times, serif;
+    color: #000;
+    margin: 0;
+    padding: 0;
+  }
+  a { color: #0000EE; text-decoration: underline; }
+  a:visited { color: #551A8B; }
 
-      /* Sunset ombré palette */
-      --sunset-1: #ffb36b; /* warm orange */
-      --sunset-2: #ff6a88; /* coral pink */
-      --sunset-3: #d16ba5; /* magenta */
-      --sunset-4: #5b3cc4; /* deep purple */
-    }
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: var(--bg);
-      color: #fff;
-      font: 16px/1.55 system-ui, -apple-system, segoe ui, roboto, ubuntu, cantarell, helvetica neue, arial, sans-serif;
-    }
+  .wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+  }
 
-    /* Animated gradient text */
-    .gradient-text {
-      background: linear-gradient(
-        135deg,
-        var(--sunset-1) 0%,
-        var(--sunset-2) 25%,
-        var(--sunset-3) 60%,
-        var(--sunset-4) 100%
-      );
-      background-size: 300% 300%;
-      background-position: 10% 50%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      color: transparent;
+  /* HEADER */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 18px 20px 10px 20px;
+  }
+  .logo {
+    font-size: 44px;
+    font-weight: bold;
+    letter-spacing: -1px;
+    color: #1a1a2e;
+  }
+  .logo .accent { color: #445d8e; }
+  .tagline {
+    font-size: 14px;
+    color: #333;
+    margin-left: 12px;
+  }
+  .searchbox {
+    text-align: right;
+  }
+  .searchbox input[type=text] {
+    font-family: "Times New Roman", serif;
+    font-size: 13px;
+    padding: 5px;
+    width: 220px;
+    border: 1px solid #888;
+  }
+  .searchbox input[type=submit] {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    padding: 5px 12px;
+    background: #ddd;
+    border: 1px solid #888;
+    cursor: pointer;
+  }
 
-      text-shadow: 0 0 16px rgba(255, 106, 136, 0.15);
-      animation: sunset-shift 12s ease-in-out infinite alternate;
-      will-change: background-position;
-    }
-    @keyframes sunset-shift {
-      0% { background-position: 10% 50%; }
-      50% { background-position: 90% 50%; }
-      100% { background-position: 30% 50%; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .gradient-text {
-        animation: none;
-        background-size: 100% 100%;
-        background-position: 50% 50%;
-      }
-    }
+  .goldbar { height: 6px; background: #E8A800; }
 
-    main { max-width: 700px; margin: 0 auto; padding: 48px 20px; text-align: center; }
-    h1.gradient-text { font-size: 2.2rem; margin-bottom: 1.4rem; }
-    p { margin: 1rem 0; }
-    footer { text-align: center; padding: 30px 0; color: var(--sub); font-size: 0.9rem; }
-    a { color: #fff; text-decoration: none; }
-    a:hover { color: #aaa; text-decoration: underline; }
-    .profile-img {
-      display: block;
-      margin: 20px auto;
-      width: 360px; /* 3x bigger */
-      border-radius: var(--br);
+  /* NAV */
+  .navbar {
+    background: #14149c;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 20px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .navbar a {
+    color: #fff;
+    text-decoration: none;
+    margin-right: 22px;
+    font-size: 14px;
+  }
+  .navbar a:visited { color: #fff; }
+  .navbar a:hover { text-decoration: underline; }
+  .navbar .signin { color: #ffcc00; margin-right: 0; }
+
+  /* CONTENT */
+  .content {
+    padding: 24px 20px;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .box-title {
+    background: #E8A800;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    padding: 10px 14px;
+    border: 1px solid #b98600;
+  }
+  .box-body {
+    border: 1px solid #ccc;
+    border-top: none;
+    padding: 18px;
+    margin-bottom: 18px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .box-body p { margin: 0 0 14px 0; }
+  .box-body p:last-child { margin-bottom: 0; }
+
+  .footer {
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    padding: 16px;
+    border-top: 1px solid #ccc;
+    background: #f5f5f5;
+  }
+  .footer a { color: #333; }
+
+  .ascii-art {
+    font-family: "Courier New", monospace;
+    font-size: 13px;
+    line-height: 1.3;
+    color: #1a1a2e;
+    background: #f7f7f2;
+    border: 1px solid #ccc;
+    border-bottom: none;
+    padding: 14px;
+    text-align: center;
+    overflow-x: auto;
+    white-space: pre;
+    margin-bottom: 0;
+  }
+  .ascii-caption {
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    color: #777;
+    text-align: center;
+    background: #f7f7f2;
+    border: 1px solid #ccc;
+    border-top: none;
+    padding: 6px 14px 12px 14px;
+  }
+
+  @media (max-width: 700px) {
+    .wrap { border-left: none; border-right: none; }
+
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
     }
-  </style>
+    .header > div:first-child {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .logo { font-size: 30px; }
+    .tagline { margin-left: 0; margin-top: 2px; font-size: 12px; }
+    .searchbox { width: 100%; text-align: left; }
+    .searchbox input[type=text] { width: 65%; }
+
+    .navbar { flex-wrap: wrap; gap: 8px 0; padding: 10px 14px; }
+    .navbar a { margin-right: 14px; font-size: 13px; }
+
+    .content { padding: 14px; }
+    .box-body { font-size: 14px; padding: 14px; }
+    .ascii-art { font-size: 10px; }
+  }
+</style>
 </head>
 <body>
-<main>
-  <a href="/"><h1 class="gradient-text">About Me</h1></a>
+<div class="wrap">
 
-  <p>hi im cole. im 20 years old and currently in college for data analytics</p>
-  <p>im learning <strong>sql</strong> and <strong>python</strong> and i spend a lot of time with tech. i like both lenovo thinkpads and apple products, i also like linux a lot, i use ubuntu if you are curious</p>
-  <p>outside of computers im into <strong>plants</strong>, <strong>music</strong>, <strong>watches</strong>, <strong>investing</strong>, and <strong>cars</strong>. i drive a newer lexus that i love</p>
+  <div class="header">
+    <div style="display:flex; align-items:flex-end;">
+      <div class="logo">coleswebsite<span class="accent">.xyz</span></div>
+      <div class="tagline">est 2023... thoughts lists and other nonsense!</div>
+    </div>
+    <div class="searchbox">
+      <form onsubmit="return false;">
+        <input type="text" placeholder="e.g. opsec, topster, faq">
+        <input type="submit" value="Search">
+      </form>
+    </div>
+  </div>
+  <div class="goldbar"></div>
 
-  <p>due to opsec reasons i wont put any public information on this website regarding contact but i do have a protonmail email. message me at <strong>coleswebsitexyz@proton.me</strong> and ill try to get back to you</p>
+  <div class="navbar">
+    <div>
+      <a href="/">home</a>
+      <a href="/aboutme">about me</a>
+      <a href="/faq">faq</a>
+      <a href="/topster">topster</a>
+      <a href="/podcast">podcast</a>
+      <a href="/writings">writings</a>
+    </div>
+    <div><a class="signin" href="mailto:coleswebsitexyz@proton.me">contact me</a></div>
+  </div>
 
-  <img src="/cd.jpg" alt="Photo of Emergency & I CD" class="profile-img">
+  <div class="content">
+    <div class="box-title">about me</div>
+    <div class="box-body">
+      <p>Hi, I'm Cole. I'm 21 and just graduated college with a degree in Data Analytics.</p>
+      <p>I'm learning SQL and Python, and I spend a lot of time with tech. I like both Lenovo ThinkPads and Apple products, and I also like Linux a lot. I use Ubuntu, if you're curious.</p>
+      <p>Outside of computers, I'm into plants, music, watches, investing, and cars. I drive a newer Lexus that I love!</p>
+      <p>Due to OPSEC reasons, I won't put any public information on this website regarding contact, but I do have a ProtonMail email. Message me at <a href="mailto:coleswebsitexyz@proton.me">coleswebsitexyz@proton.me</a> and I'll try to get back to you.</p>
+      <p>I'm currently looking for a job, so if you know of anything, feel free to reach out!</p>
+    </div>
 
-  <p><em>since youve read this far, there is a little easter egg hidden on the homepage. heres a little hint: the homepage has a voice... if you know where to click</em></p>
-</main>
+    <pre class="ascii-art">
+        ,-,
+Pineapple the Betta   ,/.(     __
+   ,-'    `!._/ /
+  &gt; @ )&lt;|    _ &lt;
+   `-....,,;' \_\
+    </pre>
+    <div class="ascii-caption">(he's my pet betta fish)</div>
+  </div>
 
-<footer>
-  <a href="https://coleswebsite.xyz/">https://coleswebsite.xyz/</a>
-</footer>
+  <div class="footer">
+    &copy; 2023 - 2026 coleswebsite.xyz &nbsp;&middot;&nbsp; <a href="https://coleswebsite.xyz/">https://coleswebsite.xyz/</a>
+  </div>
+
+</div>
 </body>
 </html>
