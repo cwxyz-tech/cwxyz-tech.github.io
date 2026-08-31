@@ -1,358 +1,368 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>faq — coleswebsite.xyz</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="FAQ — coleswebsite.xyz">
-  <link rel="icon" href="/favicon.ico">
-  <style>
-    :root {
-      --bg: #111;
-      --sub: #aaa;
-      --card: #1a1a1a;
-      --br: 14px;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>faq - coleswebsite.xyz</title>
+<style>
+  body {
+    background: #ffffff;
+    font-family: "Times New Roman", Times, serif;
+    color: #000;
+    margin: 0;
+    padding: 0;
+  }
+  a { color: #0000EE; text-decoration: underline; }
+  a:visited { color: #551A8B; }
 
-      /* sunset ombre palette */
-      --sunset-1: #ffb36b;
-      --sunset-2: #ff6a88;
-      --sunset-3: #d16ba5;
-      --sunset-4: #5b3cc4;
-    }
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: var(--bg);
-      color: #fff;
-      font: 16px/1.55 system-ui, -apple-system, segoe ui, roboto, ubuntu, cantarell, helvetica neue, arial, sans-serif;
-    }
+  .wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+  }
 
-    .gradient-text {
-      background: linear-gradient(
-        135deg,
-        var(--sunset-1) 0%,
-        var(--sunset-2) 25%,
-        var(--sunset-3) 60%,
-        var(--sunset-4) 100%
-      );
-      background-size: 300% 300%;
-      background-position: 10% 50%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      color: transparent;
+  /* HEADER */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 18px 20px 10px 20px;
+  }
+  .logo {
+    font-size: 44px;
+    font-weight: bold;
+    letter-spacing: -1px;
+    color: #1a1a2e;
+  }
+  .logo .accent { color: #445d8e; }
+  .tagline {
+    font-size: 14px;
+    color: #333;
+    margin-left: 12px;
+  }
+  .searchbox {
+    text-align: right;
+  }
+  .searchbox input[type=text] {
+    font-family: "Times New Roman", serif;
+    font-size: 13px;
+    padding: 5px;
+    width: 220px;
+    border: 1px solid #888;
+  }
+  .searchbox input[type=submit] {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    padding: 5px 12px;
+    background: #ddd;
+    border: 1px solid #888;
+    cursor: pointer;
+  }
 
-      text-shadow: 0 0 16px rgba(255, 106, 136, 0.15);
-      animation: sunset-shift 12s ease-in-out infinite alternate;
-      will-change: background-position;
-    }
-    @keyframes sunset-shift {
-      0% { background-position: 10% 50%; }
-      50% { background-position: 90% 50%; }
-      100% { background-position: 30% 50%; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .gradient-text {
-        animation: none;
-        background-size: 100% 100%;
-        background-position: 50% 50%;
-      }
-    }
+  .goldbar { height: 6px; background: #E8A800; }
 
-    main { max-width: 700px; margin: 0 auto; padding: 48px 20px; }
-    h1.gradient-text { font-size: 2.2rem; margin-bottom: 1.4rem; text-align: center; }
-    p { margin: 1rem 0; }
-    footer { text-align: center; padding: 30px 0; color: var(--sub); font-size: 0.9rem; }
-    a { color: #fff; text-decoration: none; }
-    a:hover { color: #aaa; text-decoration: underline; }
+  /* NAV */
+  .navbar {
+    background: #14149c;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 20px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .navbar a {
+    color: #fff;
+    text-decoration: none;
+    margin-right: 22px;
+    font-size: 14px;
+  }
+  .navbar a:visited { color: #fff; }
+  .navbar a:hover { text-decoration: underline; }
+  .navbar .signin { color: #ffcc00; margin-right: 0; }
 
-    .faq-img {
-      display: block;
-      margin: 20px auto;
-      width: 350px;
-      height: 350px;
-      border-radius: var(--br);
-      object-fit: cover;
-      max-width: 100%;
-    }
+  /* CONTENT */
+  .content {
+    padding: 24px 20px;
+    max-width: 760px;
+    margin: 0 auto;
+  }
 
-    .qa {
-      margin: 2rem 0;
-      padding: 1.4rem;
-      background: var(--card);
-      border-radius: var(--br);
+  .page-title {
+    background: #E8A800;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    padding: 10px 14px;
+    border: 1px solid #b98600;
+    margin-bottom: 0;
+  }
+
+  .section-title {
+    background: #dce6f5;
+    border: 1px solid #a9c1e0;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    font-size: 14px;
+    padding: 8px 14px;
+    margin-top: 20px;
+  }
+
+  .faq-body {
+    border: 1px solid #ccc;
+    border-top: none;
+    padding: 18px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .faq-item {
+    margin-bottom: 16px;
+  }
+  .faq-item:last-child {
+    margin-bottom: 0;
+  }
+  .faq-item .q {
+    font-weight: bold;
+    margin: 0 0 4px 0;
+  }
+  .faq-item .a {
+    margin: 0;
+    color: #222;
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    padding: 16px;
+    border-top: 1px solid #ccc;
+    background: #f5f5f5;
+  }
+  .footer a { color: #333; }
+
+  @media (max-width: 700px) {
+    .wrap { border-left: none; border-right: none; }
+
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
     }
-    .qa strong {
-      display: block;
-      margin-bottom: 0.6rem;
+    .header > div:first-child {
+      flex-direction: column;
+      align-items: flex-start;
     }
-    .note {
-      text-align: center;
-      margin-top: 2rem;
-      color: var(--sub);
-      font-size: 0.9rem;
-    }
-  </style>
+    .logo { font-size: 30px; }
+    .tagline { margin-left: 0; margin-top: 2px; font-size: 12px; }
+    .searchbox { width: 100%; text-align: left; }
+    .searchbox input[type=text] { width: 65%; }
+
+    .navbar { flex-wrap: wrap; gap: 8px 0; padding: 10px 14px; }
+    .navbar a { margin-right: 14px; font-size: 13px; }
+
+    .content { padding: 14px; }
+    .faq-body { font-size: 14px; padding: 14px; }
+  }
+</style>
 </head>
 <body>
-<main>
-  <a href="/"><h1 class="gradient-text">faq</h1></a>
+<div class="wrap">
 
-  <div class="qa">
-    <strong>q: what’s your religion?</strong>
-    a: i'm faithfully christian but spiritually buddhist.
+  <div class="header">
+    <div style="display:flex; align-items:flex-end;">
+      <div class="logo">coleswebsite<span class="accent">.xyz</span></div>
+      <div class="tagline">est 2023... thoughts lists and other nonsense!</div>
+    </div>
+    <div class="searchbox">
+      <form onsubmit="return false;">
+        <input type="text" placeholder="e.g. opsec, topster, faq">
+        <input type="submit" value="Search">
+      </form>
+    </div>
+  </div>
+  <div class="goldbar"></div>
+
+  <div class="navbar">
+    <div>
+      <a href="/">home</a>
+      <a href="/aboutme">about me</a>
+      <a href="/faq">faq</a>
+      <a href="/topster">topster</a>
+      <a href="/podcast">podcast</a>
+      <a href="/writings">writings</a>
+    </div>
+    <div><a class="signin" href="mailto:coleswebsitexyz@proton.me">contact me</a></div>
   </div>
 
-  <div class="qa">
-    <strong>q: what do you believe happens after death?</strong>
-    a: i'd like to think that if you believe in christ and you're a good person, you go to heaven, but it's ultimately up to god. i know for sure we go somewhere, though.
+  <div class="content">
+    <div class="page-title">faq</div>
+    <div class="faq-body">
+      <div class="faq-item">
+        <p class="q">About Me</p>
+      </div>
+    </div>
+
+    <div class="section-title">about me</div>
+    <div class="faq-body">
+      <div class="faq-item">
+        <p class="q">Where are you from / where do you live?</p>
+        <p class="a">I'm from Dallas, and I currently live in Dallas!</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">What got you into data analytics?</p>
+        <p class="a">Originally I was doing a project management internship where I got exposed to it. I thought it was very interesting, so I just continued learning it!</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">What's your favorite part of tech?</p>
+        <p class="a">Oof, I don't know. I love every part of technology, honestly.</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">Windows, Mac, or Linux — pick one?</p>
+        <p class="a">MacOS, definitely.</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">What's on your current desk/workstation setup?</p>
+        <p class="a">I have a singular monitor and my gaming PC. I also have a MacBook Neo, but that's pretty much it!</p>
+      </div>
+    </div>
+
+    <div class="section-title">watches</div>
+    <div class="faq-body">
+      <div class="faq-item">
+        <p class="q">What got you into watches?</p>
+        <p class="a">I think my parents? I don't know, I have always been into watches.</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">What's your current daily watch?</p>
+        <p class="a">I wear 6 daily watches: an F91W, an A158, a G-Shock Square Solar, a Cartier Tank, and two Rolex Submariners, one black on black and one Starbucks.</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">What's the grail watch you're chasing?</p>
+        <p class="a">I'm content with what I got.</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">Automatic, quartz, or smart watch — preference?</p>
+        <p class="a">Sweeping quartz, like the VH31 movement.</p>
+      </div>
+    </div>
+
+    <div class="section-title">cars</div>
+    <div class="faq-body">
+      <div class="faq-item">
+        <p class="q">What's the story behind your Lexus?</p>
+        <p class="a">We bought it new. It was a graduation gift.</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">Dream car if money wasn't a factor?</p>
+        <p class="a">Lexus LFA, or some sort of Lotus.</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">Manual or automatic?</p>
+        <p class="a">Definitely automatic. Manual is a meme.</p>
+      </div>
+    </div>
+
+    <div class="section-title">music</div>
+    <div class="faq-body">
+      <div class="faq-item">
+        <p class="q">What are you currently listening to on repeat?</p>
+        <p class="a">I won't even answer this, because it'll quickly become outdated!</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">Favorite genre or artist of all time?</p>
+        <p class="a">Favorite genre is definitely either hip-hop or electronic. So much goes under those two umbrellas.</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">Do you play any instruments?</p>
+        <p class="a">I know a little bit of guitar and piano.</p>
+      </div>
+    </div>
+
+    <div class="section-title">investing</div>
+    <div class="faq-body">
+      <div class="faq-item">
+        <p class="q">How'd you get into investing?</p>
+        <p class="a">My brother.</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">Stocks, crypto, or both?</p>
+        <p class="a">Stocks, ETFs specifically.</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">Any advice for someone just starting out?</p>
+        <p class="a">Start a Roth IRA and invest in VOO.</p>
+      </div>
+    </div>
+
+    <div class="section-title">plants</div>
+    <div class="faq-body">
+      <div class="faq-item">
+        <p class="q">What plants do you currently have?</p>
+        <p class="a">I have 2 pothos and 2 snake plants.</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">Hardest plant you've kept alive (or killed)?</p>
+        <p class="a">Definitely my large snake plant, not because it'll never die, but the fungus gnats are a pain to kill!</p>
+      </div>
+    </div>
+
+    <div class="section-title">pineapple the betta</div>
+    <div class="faq-body">
+      <div class="faq-item">
+        <p class="q">How long have you had Pineapple?</p>
+        <p class="a">As of August 31st, only a little over a month!</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">Why the name Pineapple?</p>
+        <p class="a">My girlfriend named him. He's a crowntail, so his fins are spiky and green at the tips.</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">What's Pineapple's tank setup like?</p>
+        <p class="a">I have 2 pothos growing in a 10 gallon tank!</p>
+      </div>
+    </div>
+
+    <div class="section-title">opsec / privacy</div>
+    <div class="faq-body">
+      <div class="faq-item">
+        <p class="q">Why do you care about OPSEC?</p>
+        <p class="a">I am paranoid.</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">What's one OPSEC tip everyone should follow?</p>
+        <p class="a">Don't share any personal information online.</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">Do you use a VPN / password manager?</p>
+        <p class="a">Not answering this, it's not OPSEC if I do!</p>
+      </div>
+    </div>
+
+    <div class="section-title">the website / content</div>
+    <div class="faq-body">
+      <div class="faq-item">
+        <p class="q">Why'd you start this website?</p>
+        <p class="a">It's fun.</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">What's the podcast going to be about?</p>
+        <p class="a">I don't know.</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">What kind of videos will be on your YouTube channel?</p>
+        <p class="a">I don't know.</p>
+      </div>
+      <div class="faq-item">
+        <p class="q">Any future plans for the site?</p>
+        <p class="a">I don't know.</p>
+      </div>
+    </div>
   </div>
 
-  <div class="qa">
-    <strong>q: what do you think the purpose of life is?</strong>
-    a: finding inner peace, being a good person, not letting bullshit affect you, and making your family your priority.
+  <div class="footer">
+    &copy; 2023 - 2026 coleswebsite.xyz &nbsp;&middot;&nbsp; <a href="https://coleswebsite.xyz/">https://coleswebsite.xyz/</a>
   </div>
 
-  <div class="qa">
-    <strong>q: do you believe people are inherently good or inherently flawed?</strong>
-    a: people are absolutely inherently good, and they are affected by evil.
-  </div>
-
-  <div class="qa">
-    <strong>q: what’s a philosophical idea you strongly agree with?</strong>
-    a: i'm a strong believer in karma and partially reincarnation, as both have happened before my eyes. while this goes against the bible, the bible is god breathed.
-  </div>
-
-  <div class="qa">
-    <strong>q: what’s a philosophical idea you disagree with?</strong>
-    a: nihilistic ideology is dumb.
-  </div>
-
-  <div class="qa">
-    <strong>q: what motivates you the most?</strong>
-    a: happiness and determination.
-  </div>
-
-  <div class="qa">
-    <strong>q: what does happiness mean to you?</strong>
-    a: quite a lot of things that can't be put into words.
-  </div>
-
-  <div class="qa">
-    <strong>q: how do you handle stress?</strong>
-    a: i'm bad at managing stress because i've got an anxiety disorder, but i've been trying to mindfully meditate. thich nhat hanh has a few good books on this.
-  </div>
-
-  <div class="qa">
-    <strong>q: what do you do when you feel overwhelmed?</strong>
-    a: i try to backtrack and reassess.
-  </div>
-
-  <div class="qa">
-    <strong>q: what do you value most in life?</strong>
-    a: people and nature.
-  </div>
-
-  <div class="qa">
-    <strong>q: what’s one thing you wish people understood about you?</strong>
-    a: i'm a reserved person by nature, and my internet footprint is always changing.
-  </div>
-
-  <div class="qa">
-    <strong>q: what’s a belief that changed your life?</strong>
-    a: i'd for sure say christian ideology, but buddhist meditation and spirituality have been life changing for me and my adult life.
-  </div>
-
-  <div class="qa">
-    <strong>q: what’s your biggest strength?</strong>
-    a: i've been told i'm an old soul and have a captivating yet polarizing personality, so maybe that.
-  </div>
-
-  <div class="qa">
-    <strong>q: what’s your biggest weakness?</strong>
-    a: impulsivity.
-  </div>
-
-  <div class="qa">
-    <strong>q: what challenges you the most at age 20?</strong>
-    a: money and college.
-  </div>
-
-  <div class="qa">
-    <strong>q: what makes you feel genuinely alive?</strong>
-    a: probably just sitting outside, looking at everything, and taking it in or getting something stressful off my shoulders.
-  </div>
-
-  <div class="qa">
-    <strong>q: what’s a fear you’re trying to overcome?</strong>
-    a: miscellaneous anxieties throughout my life.
-  </div>
-
-  <div class="qa">
-    <strong>q: what’s something you’re currently trying to improve about yourself?</strong>
-    a: definitely trying to be less online and more present in the real world.
-  </div>
-
-  <div class="qa">
-    <strong>q: what’s your definition of success?</strong>
-    a: happiness and successful investments.
-  </div>
-
-  <div class="qa">
-    <strong>q: what’s your approach to self-improvement?</strong>
-    a: critically look at yourself and change what you find flawed.
-  </div>
-
-  <div class="qa">
-    <strong>q: what’s something people misunderstand about mental health?</strong>
-    a: it varies and affects everyone, but it is not an excuse for your problems.
-  </div>
-
-  <div class="qa">
-    <strong>q: how do you deal with self-doubt?</strong>
-    a: i think to myself and wonder why i'm doubting myself.
-  </div>
-
-  <div class="qa">
-    <strong>q: what helps you stay focused?</strong>
-    a: it's hard for me to stay focused, but interest in the topic keeps me going.
-  </div>
-
-  <div class="qa">
-    <strong>q: what do you do when you feel unmotivated?</strong>
-    a: i recoup and try to come back to it later.
-  </div>
-
-  <div class="qa">
-    <strong>q: what do you do when you feel lost?</strong>
-    a: i read psychology books and try to get back in touch with myself or dive into any of my interests.
-  </div>
-
-  <div class="qa">
-    <strong>q: what’s one thing you’re grateful for today?</strong>
-    a: life under this beautiful sun.
-  </div>
-
-  <div class="qa">
-    <strong>q: what’s something people overthink too much?</strong>
-    a: being someone else.
-  </div>
-
-  <div class="qa">
-    <strong>q: what makes you instantly feel better?</strong>
-    a: listening to music i love.
-  </div>
-
-  <div class="qa">
-    <strong>q: what’s the best advice you’ve ever received?</strong>
-    a: food is fuel and your body is an engine. take care of it physically and mentally, and you will be reliable.
-  </div>
-
-  <div class="qa">
-    <strong>q: what do you wish you knew earlier in life?</strong>
-    a: you will make it.
-  </div>
-
-  <div class="qa">
-    <strong>q: what’s your biggest long-term goal?</strong>
-    a: a managerial it position, stable income, a paid off house, and rental properties.
-  </div>
-
-  <div class="qa">
-    <strong>q: how do you stay consistent with habits?</strong>
-    a: i think about how much it will positively affect me.
-  </div>
-
-  <div class="qa">
-    <strong>q: what’s a skill you think everyone should learn?</strong>
-    a: coding, specifically python and sql, as well as people skills.
-  </div>
-
-  <div class="qa">
-    <strong>q: what’s your favorite way to relax?</strong>
-    a: laying down and watching tv or listening to music.
-  </div>
-
-  <div class="qa">
-    <strong>q: what drains your energy the fastest?</strong>
-    a: definitely social situations when i'm not in the mood.
-  </div>
-
-  <div class="qa">
-    <strong>q: what helps you sleep better after long days?</strong>
-    a: melatonin.
-  </div>
-
-  <div class="qa">
-    <strong>q: why did you choose to study data analytics?</strong>
-    a: my end goal is it pm, and data analytics is a versatile degree that opens doors even outside of it since the job market sucks.
-  </div>
-
-  <div class="qa">
-    <strong>q: what do you enjoy about sql and python?</strong>
-    a: the relief of everything working after hours of tedious editing.
-  </div>
-
-  <div class="qa">
-    <strong>q: what do you like about thinkpads, apple products, and linux?</strong>
-    a: the reliability and the modularity, thinkpads and linux.
-  </div>
-
-  <div class="qa">
-    <strong>q: why is ubuntu your distro of choice?</strong>
-    a: it is the easiest and most polished.
-  </div>
-
-  <div class="qa">
-    <strong>q: what’s your ideal tech setup?</strong>
-    a: one monitor, ergonomic wireless keyboard and mouse, and my gaming pc.
-  </div>
-
-  <div class="qa">
-    <strong>q: what do you like most about your lexus?</strong>
-    a: the reliability, also the a/c seats and the looks.
-  </div>
-
-  <div class="qa">
-    <strong>q: how did you get into plants, watches, investing, and cars?</strong>
-    a: not sure, i stumbled into it, got hyperfixated, and that was it.
-  </div>
-
-  <div class="qa">
-    <strong>q: what kind of music do you connect with the most?</strong>
-    a: dude, literally everything. look at my topster.
-  </div>
-
-  <div class="qa">
-    <strong>q: what attracts you to privacy and opsec?</strong>
-    a: i'm a private individual.
-  </div>
-
-  <div class="qa">
-    <strong>q: why do you avoid putting personal contact info on your site?</strong>
-    a: see above.
-  </div>
-
-  <div class="qa">
-    <strong>q: why did you choose protonmail for communication?</strong>
-    a: same as 46.
-  </div>
-
-  <div class="qa">
-    <strong>q: what inspired you to hide an easter egg on the homepage?</strong>
-    a: it is fun having secrets.
-  </div>
-
-  <div class="qa">
-    <strong>q: what’s one thing you want people to take away from your site?</strong>
-    a: make your own and have your own section of the internet.
-  </div>
-
-</main>
-
-<footer>
-  <a href="https://coleswebsite.xyz/">https://coleswebsite.xyz/</a>
-</footer>
+</div>
 </body>
 </html>
