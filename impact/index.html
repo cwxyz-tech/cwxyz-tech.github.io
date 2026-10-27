@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/tos.js"></script>
+<title>impact - coleswebsite.xyz</title>
+<link rel="stylesheet" href="/site.css">
+<style>
+  .content.wide { max-width: 900px; }
+  .stats { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  .stat {
+    flex: 1; min-width: 150px;
+    border: 1px solid #a9c1e0; background: #f8fbff;
+    padding: 14px; text-align: center; font-family: Arial, sans-serif;
+  }
+  .stat .num { font-size: 28px; font-weight: bold; color: #14149c; }
+  .stat .lbl { font-size: 12px; color: #444; margin-top: 4px; }
+
+  table.listing { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.listing th {
+    background: #6699cc; color: #fff; font-family: Arial, sans-serif;
+    text-align: left; padding: 8px 10px; font-size: 12px;
+  }
+  table.listing td { padding: 9px 10px; border-bottom: 1px solid #dde; vertical-align: top; }
+  table.listing tr:nth-child(even) td { background: #eef3fa; }
+  table.listing tr:nth-child(odd) td { background: #f8fbff; }
+  table.listing td.amt, table.listing th.amt { text-align: right; white-space: nowrap; }
+
+  .org-row { margin-bottom: 12px; font-size: 14px; }
+  .org-row .top { display: flex; justify-content: space-between; gap: 10px; }
+  .bar { height: 12px; background: #eee; border: 1px solid #ccc; margin-top: 4px; }
+  .bar span { display: block; height: 100%; background: #0a7d1e; }
+
+  .empty { text-align: center; padding: 22px 10px; color: #444; }
+  .empty .oops { font-family: "Comic Sans MS", "Comic Sans", cursive; color: #cc0000; font-weight: bold; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div style="display:flex; align-items:flex-end;">
+      <div class="logo">coleswebsite<span class="accent">.xyz</span></div>
+      <div class="tagline">est 2023... thoughts lists and other nonsense!</div>
+    </div>
+    <div class="searchbox">
+      <form onsubmit="return false;">
+        <input type="text" placeholder="e.g. opsec, impact, faq">
+        <input type="submit" value="Search">
+      </form>
+    </div>
+  </div>
+  <div class="goldbar"></div>
+
+  <div class="navbar">
+    <div>
+      <a href="/">home</a>
+      <a href="/aboutme">about me</a>
+      <a href="/faq">faq</a>
+      <a href="/impact">impact</a>
+      <a href="/podcast">podcast</a>
+      <a href="/writings">writings</a>
+    </div>
+    <div><a class="signin" href="mailto:coleswebsitexyz@proton.me">contact me</a></div>
+  </div>
+
+  <div class="content wide">
+    <div class="box-title">impact</div>
+    <div class="box-body">
+      <p>This is where my donations go. I keep this page updated so it's easy to see what I've given and who it went to.</p>
+    </div>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="box-title blue">by organization</div>
+    <div class="box-body" id="orgs"></div>
+
+    <div class="box-title blue">all donations</div>
+    <div class="box-body" style="padding:0;" id="all"></div>
+  </div>
+
+  <div class="footer">
+    &copy; 2023 - 2026 coleswebsite.xyz &nbsp;&middot;&nbsp; <a href="https://coleswebsite.xyz/">https://coleswebsite.xyz/</a> &nbsp;&middot;&nbsp; <a href="/terms">terms</a>
+  </div>
+
+</div>
+
+<script src="/impact/donations.js"></script>
+<script>
+(function () {
+  var data = (window.DONATIONS || []).slice().sort(function (a, b) {
+    return a.date < b.date ? 1 : a.date > b.date ? -1 : 0;
+  });
+  var money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+  function fmtDate(s) {
+    var p = String(s).split("-");
+    return p.length === 3 ? Number(p[1]) + "/" + Number(p[2]) + "/" + p[0] : s;
+  }
+
+  var stats = document.getElementById("stats");
+  var orgs = document.getElementById("orgs");
+  var all = document.getElementById("all");
+
+  if (!data.length) {
+    var emptyMsg = "No donations are listed yet. Check back soon.";
+    [orgs, all].forEach(function (box) {
+      var d = el("div", "empty", emptyMsg);
+      box.appendChild(d);
+    });
+    [["$0", "total donated"], ["0", "donations"], ["0", "organizations"]].forEach(function (s) {
+      var d = el("div", "stat");
+      d.appendChild(el("div", "num", s[0]));
+      d.appendChild(el("div", "lbl", s[1]));
+      stats.appendChild(d);
+    });
+    return;
+  }
+
+  var total = 0, byOrg = {};
+  data.forEach(function (d) {
+    var amt = Number(d.amount) || 0;
+    total += amt;
+    byOrg[d.org] = (byOrg[d.org] || 0) + amt;
+  });
+  var orgNames = Object.keys(byOrg).sort(function (a, b) { return byOrg[b] - byOrg[a]; });
+
+  [[money.format(total), "total donated"],
+   [String(data.length), data.length === 1 ? "donation" : "donations"],
+   [String(orgNames.length), orgNames.length === 1 ? "organization" : "organizations"]
+  ].forEach(function (s) {
+    var d = el("div", "stat");
+    d.appendChild(el("div", "num", s[0]));
+    d.appendChild(el("div", "lbl", s[1]));
+    stats.appendChild(d);
+  });
+
+  var max = byOrg[orgNames[0]] || 1;
+  orgNames.forEach(function (name) {
+    var row = el("div", "org-row");
+    var top = el("div", "top");
+    top.appendChild(el("strong", "", name));
+    top.appendChild(el("span", "", money.format(byOrg[name])));
+    row.appendChild(top);
+    var bar = el("div", "bar");
+    var fill = document.createElement("span");
+    fill.style.width = Math.max(2, Math.round((byOrg[name] / max) * 100)) + "%";
+    bar.appendChild(fill);
+    row.appendChild(bar);
+    orgs.appendChild(row);
+  });
+
+  var table = el("table", "listing");
+  var head = el("tr");
+  [["Date", ""], ["Organization", ""], ["Note", ""], ["Amount", "amt"]].forEach(function (h) {
+    head.appendChild(el("th", h[1], h[0]));
+  });
+  table.appendChild(head);
+  data.forEach(function (d) {
+    var tr = el("tr");
+    tr.appendChild(el("td", "", fmtDate(d.date)));
+    var tdOrg = el("td");
+    if (d.url && /^https?:\/\//i.test(d.url)) {
+      var a = el("a", "", d.org);
+      a.href = d.url;
+      a.target = "_blank";
+      a.rel = "noopener";
+      tdOrg.appendChild(a);
+    } else {
+      tdOrg.textContent = d.org;
+    }
+    tr.appendChild(tdOrg);
+    tr.appendChild(el("td", "", d.note || ""));
+    tr.appendChild(el("td", "amt", money.format(Number(d.amount) || 0)));
+    table.appendChild(tr);
+  });
+  all.appendChild(table);
+})();
+</script>
+</body>
+</html>
