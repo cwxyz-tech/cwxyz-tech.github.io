@@ -188,6 +188,34 @@
           if (w.parentNode) w.parentNode.removeChild(w);
         }, 6000);
       }
+      // Let mobile visitors know the site is desktop-first after they accept the terms.
+      if (window.matchMedia && window.matchMedia("(max-width: 700px)").matches) {
+        var notice = document.createElement("div");
+        notice.id = "cw-mobile-notice";
+        notice.setAttribute("role", "dialog");
+        notice.setAttribute("aria-modal", "true");
+        notice.style.cssText = "position:fixed;inset:0;z-index:2147483646;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;color:#111";
+        var panel = document.createElement("div");
+        panel.style.cssText = "width:100%;max-width:420px;background:#fff;border:1px solid #ccc;border-radius:8px;padding:22px;box-sizing:border-box;line-height:1.5";
+        var heading = document.createElement("div");
+        heading.style.cssText = "font-size:18px;font-weight:bold;margin-bottom:10px";
+        heading.textContent = "Quick heads-up";
+        var message = document.createElement("p");
+        message.style.cssText = "font-size:15px;margin:0 0 18px";
+        message.textContent = "Hey, this site is optimized for desktop, so some things might look a little weird on your phone. Just enter knowing that!";
+        var enter = document.createElement("button");
+        enter.type = "button";
+        enter.textContent = "Enter site";
+        enter.style.cssText = "font-family:Arial,sans-serif;font-size:14px;padding:9px 18px;border:1px solid #0c0c6a;border-radius:4px;background:#14149c;color:#fff;cursor:pointer";
+        enter.addEventListener("click", function () {
+          if (notice.parentNode) notice.parentNode.removeChild(notice);
+        });
+        panel.appendChild(heading);
+        panel.appendChild(message);
+        panel.appendChild(enter);
+        notice.appendChild(panel);
+        document.body.appendChild(notice);
+      }
     });
     no.addEventListener("click", function () {
       window.location.replace("about:blank");
