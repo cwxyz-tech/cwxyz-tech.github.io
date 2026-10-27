@@ -7,26 +7,73 @@
 <title>music - coleswebsite.xyz</title>
 <link rel="stylesheet" href="/site.css">
 <style>
+  /* Normal page: clean, readable, and no space effects until playback. */
   body.music-space {
     min-height: 100vh;
-    color: #f3f0ff;
-    background:
-      radial-gradient(ellipse at 50% 115%, rgba(67, 25, 125, .62), transparent 52%),
-      radial-gradient(ellipse at 12% 22%, rgba(0, 114, 190, .22), transparent 38%),
-      radial-gradient(ellipse at 85% 32%, rgba(151, 33, 154, .23), transparent 36%),
-      #03030d;
+    background: #f5f5f5;
+    color: #222;
     overflow-x: hidden;
   }
-  body.music-space::before {
+  body.music-space { background: #f5f5f5; }
+  body.music-space .wrap {
+    width: min(1100px, calc(100% - 28px));
+    border: 0;
+    background: transparent;
+  }
+  body.music-space .header { padding-inline: 0; }
+  body.music-space .goldbar { height: 3px; }
+  body.music-space .content { max-width: 760px; padding: 24px 0; }
+  body.music-space .col-main { width: 100%; }
+  body.music-space .box-title {
+    font-size: 28px;
+    border: 0;
+    border-radius: 8px 8px 0 0;
+  }
+  body.music-space .box-body {
+    min-height: 240px;
+    padding: 24px;
+    border: 1px solid #e4e4e7;
+    border-top: 0;
+    border-radius: 0 0 8px 8px;
+    background: #fff;
+  }
+  body.music-space .footer {
+    border: 0;
+    border-radius: 8px;
+  }
+  .space-caption {
+    margin: 0 auto 20px;
+    max-width: 520px;
+    text-align: center;
+    color: #555;
+    font-size: 15px;
+  }
+  .music-preview {
+    width: min(540px, 100%);
+    box-sizing: border-box;
+    margin: 22px auto;
+    padding: 12px;
+    border: 1px solid #d6d6d6;
+    border-radius: 8px;
+    background: #fff;
+  }
+  .music-preview audio { display: block; width: 100%; }
+  /* During playback, the site disappears into a black starfield. */
+  body.audio-playing {
+    background: #02030a !important;
+    color: #fff;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  body.audio-playing::before {
     content: "";
     position: fixed;
-    inset: 0;
-    z-index: 0;
+    inset: -10%;
+    z-index: 10000;
     pointer-events: none;
-    opacity: .8;
     background-image:
       radial-gradient(1px 1px at 8% 17%, #fff, transparent 2px),
-      radial-gradient(2px 2px at 21% 72%, #b8d9ff, transparent 3px),
+      radial-gradient(1px 1px at 21% 72%, #c9ddff, transparent 2px),
       radial-gradient(1px 1px at 37% 31%, #fff, transparent 2px),
       radial-gradient(1px 1px at 49% 83%, #fff, transparent 2px),
       radial-gradient(2px 2px at 63% 13%, #d8c5ff, transparent 3px),
@@ -36,125 +83,76 @@
       radial-gradient(1px 1px at 15% 49%, #fff, transparent 2px),
       radial-gradient(1px 1px at 57% 54%, #fff, transparent 2px);
     background-size: 290px 240px, 370px 310px, 230px 290px, 410px 350px, 330px 270px, 260px 320px, 390px 280px, 310px 360px, 350px 260px, 280px 300px;
-    animation: star-drift 90s linear infinite;
+    animation: stars-travel 100s linear infinite;
   }
-  body.music-space::after {
+  body.audio-playing::after {
     content: "";
     position: fixed;
-    inset: -20%;
-    z-index: 0;
+    inset: 0;
+    z-index: 10001;
     pointer-events: none;
-    background:
-      radial-gradient(ellipse at 20% 48%, rgba(36, 88, 255, .13), transparent 27%),
-      radial-gradient(ellipse at 78% 38%, rgba(204, 43, 255, .12), transparent 30%),
-      radial-gradient(ellipse at 52% 78%, rgba(21, 210, 255, .09), transparent 32%);
-    filter: blur(25px);
-    animation: nebula-breathe 14s ease-in-out infinite alternate;
+    background: radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,.5) 100%);
   }
-  body.music-space .wrap {
-    position: relative;
-    z-index: 1;
-    width: min(1100px, calc(100% - 28px));
-    color: #f3f0ff;
-    background: transparent;
+  /* Hide every site element while preserving the actual audio controls. */
+  body.audio-playing .wrap,
+  body.audio-playing .wrap * {
+    animation: fade-into-black .45s ease forwards !important;
+    pointer-events: none !important;
   }
-  body.music-space .header,
-  body.music-space .navbar,
-  body.music-space .content,
-  body.music-space .footer {
-    background: rgba(7, 8, 28, .72);
-    border-color: rgba(156, 132, 255, .32);
-    color: #f3f0ff;
-    backdrop-filter: blur(12px);
+  @keyframes fade-into-black {
+    from { opacity: 1; }
+    to { opacity: 0; }
   }
-  body.music-space .logo { color: #fff; text-shadow: 0 0 18px rgba(143, 115, 255, .65); }
-  body.music-space .tagline { color: #b7b8df; }
-  body.music-space .navbar a,
-  body.music-space .footer a { color: #c5caff; }
-  body.music-space .goldbar {
-    background: linear-gradient(90deg, #2b1c70, #50d5ff, #a94bff, #2b1c70);
-    box-shadow: 0 0 22px rgba(92, 104, 255, .55);
+  body.audio-playing #music-preview-player,
+  body.audio-playing #music-preview-audio {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    animation: none !important;
   }
-  body.music-space .col-main { width: 100%; }
-  body.music-space .box-title {
-    color: #fff;
-    background: transparent;
-    border: 0;
-    text-align: center;
-    font-size: clamp(32px, 7vw, 62px);
-    letter-spacing: .18em;
-    text-transform: uppercase;
-    text-shadow: 0 0 12px #657bff, 0 0 35px #a94bff;
-    padding: 30px 10px 12px;
-  }
-  body.music-space .box-body {
-    min-height: 55vh;
-    padding: 30px 18px 180px;
-    background: transparent;
-    border: 0;
-    text-align: center;
-  }
-  .space-caption {
-    margin: 0 auto;
-    max-width: 520px;
-    color: #c6c9ec;
-    font-size: 15px;
-    letter-spacing: .04em;
-  }
-  .music-preview {
-    width: min(590px, calc(100vw - 32px));
+  body.audio-playing #music-preview-player {
+    position: fixed;
+    z-index: 10010;
+    left: 50%;
+    top: 50%;
+    width: min(540px, calc(100vw - 36px));
+    margin: 0;
+    padding: 10px;
     box-sizing: border-box;
-    margin: 32px auto 0;
-    padding: 20px;
-    border: 1px solid rgba(172, 158, 255, .58);
-    border-radius: 18px;
-    background: linear-gradient(135deg, rgba(18, 20, 58, .94), rgba(37, 14, 61, .88));
-    box-shadow: 0 0 35px rgba(83, 80, 255, .18), inset 0 0 30px rgba(139, 88, 255, .08);
-    backdrop-filter: blur(18px);
-    transition: width .5s ease, padding .5s ease, border-radius .5s ease, box-shadow .5s ease;
+    border: 1px solid #35394a;
+    border-radius: 8px;
+    background: #11131b;
+    box-shadow: none;
+    backdrop-filter: none;
+    transform: translate(-50%, -50%);
+    animation: zero-gravity 18s ease-in-out infinite;
   }
-  .music-preview audio {
+  body.audio-playing #music-preview-audio {
     display: block;
     width: 100%;
-    filter: drop-shadow(0 0 10px rgba(120, 190, 255, .22));
+    filter: none;
   }
-  body.audio-playing .music-preview {
-    position: fixed;
-    z-index: 10020;
-    left: 50%;
-    bottom: max(28px, 7vh);
-    width: min(620px, calc(100vw - 28px));
-    margin: 0;
-    transform: translateX(-50%);
-    border-color: rgba(150, 208, 255, .9);
-    border-radius: 24px;
-    background: linear-gradient(115deg, rgba(11, 18, 51, .96), rgba(55, 18, 85, .96), rgba(10, 37, 67, .96));
-    box-shadow: 0 0 25px rgba(73, 151, 255, .5), 0 0 75px rgba(161, 66, 255, .28), inset 0 0 22px rgba(143, 193, 255, .1);
-    animation: player-float 4.5s ease-in-out infinite;
+  @keyframes stars-travel {
+    from { transform: translateY(0); }
+    to { transform: translateY(-160px); }
   }
-  body.audio-playing .music-preview::before {
-    content: "";
-    position: absolute;
-    inset: -5px;
-    z-index: -1;
-    border: 1px solid rgba(132, 167, 255, .35);
-    border-radius: inherit;
-    filter: blur(5px);
-    pointer-events: none;
+  @keyframes zero-gravity {
+    0%   { left: 50%; top: 52%; transform: translate(-50%, -50%) rotate(-1deg); }
+    17%  { left: 68%; top: 39%; transform: translate(-50%, -50%) rotate(2deg); }
+    34%  { left: 72%; top: 62%; transform: translate(-50%, -50%) rotate(1deg); }
+    51%  { left: 43%; top: 68%; transform: translate(-50%, -50%) rotate(-2deg); }
+    68%  { left: 27%; top: 45%; transform: translate(-50%, -50%) rotate(1deg); }
+    84%  { left: 39%; top: 31%; transform: translate(-50%, -50%) rotate(-1deg); }
+    100% { left: 50%; top: 52%; transform: translate(-50%, -50%) rotate(-1deg); }
   }
-  body.audio-playing::before { animation-duration: 120s; }
-  @keyframes star-drift { from { transform: translateY(0); } to { transform: translateY(-100px); } }
-  @keyframes nebula-breathe { from { transform: rotate(-5deg) scale(.96); opacity: .6; } to { transform: rotate(5deg) scale(1.08); opacity: 1; } }
-  @keyframes player-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -12px; } }
   @media (max-width: 600px) {
     body.music-space .header { display: block; }
-    body.music-space .box-body { min-height: 48vh; padding: 22px 8px 150px; }
-    .music-preview { padding: 14px; }
-    body.audio-playing .music-preview { bottom: 22px; }
+    body.music-space .box-body { padding: 18px 10px; }
+    body.audio-playing #music-preview-player { width: calc(100vw - 28px); }
   }
   @media (prefers-reduced-motion: reduce) {
-    body.music-space::before, body.music-space::after, body.audio-playing .music-preview { animation: none !important; }
-    .music-preview { transition: none; }
+    body.audio-playing::before,
+    body.audio-playing #music-preview-player { animation: none !important; }
   }
 </style>
 </head>
@@ -188,7 +186,7 @@
     <div class="col-main">
       <div class="box-title">music</div>
       <div class="box-body">
-        <p class="space-caption">Somewhere in the dark between stars, something is coming.</p>
+        <p class="space-caption">A preview of what's coming next.</p>
         <div class="music-preview" id="music-preview-player">
           <audio id="music-preview-audio" controls preload="metadata">
             <source src="/sample102726.mp3" type="audio/mpeg">
@@ -213,9 +211,7 @@
     audio.addEventListener("ended", stopSpacePlayer);
     audio.addEventListener("error", stopSpacePlayer);
     window.addEventListener("pagehide", stopSpacePlayer);
-    audio.addEventListener("canplay", function () {
-      audio.dataset.ready = "true";
-    });
+    if (!audio.paused && !audio.ended) startSpacePlayer();
   })();
 </script>
 </body>
