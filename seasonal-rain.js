@@ -1,119 +1,181 @@
-/* Seasonal retro rain — injected on the homepage */
+/* A tiny retro seasonal welcome splash for the homepage */
 (function () {
   "use strict";
 
-  var now = new Date();
-  var month = now.getMonth(); // 0 = January
-  var date = now.getDate();
-
-  // Thanksgiving gets its own turkey rain from the fourth Thursday through November 30.
-  function isThanksgivingSeason() {
-    if (month !== 10) return false;
-    var firstDay = new Date(now.getFullYear(), 10, 1).getDay();
-    var firstThursday = 1 + ((4 - firstDay + 7) % 7);
-    var thanksgiving = firstThursday + 21;
-    return date >= thanksgiving;
+  // Show once per browser tab session, and leave the rest of the website alone.
+  try {
+    if (sessionStorage.getItem("coles-seasonal-intro-seen")) return;
+    sessionStorage.setItem("coles-seasonal-intro-seen", "1");
+  } catch (error) {
+    // If storage is unavailable, show the brief intro for this page load.
   }
 
-  var season;
-  if (month === 11) {
-    season = "christmas";
-  } else if (isThanksgivingSeason()) {
-    season = "thanksgiving";
-  } else if (month === 9) {
-    season = "halloween";
-  } else {
-    return; // Keep the site's usual look for the rest of the year.
-  }
-
-  var settings = {
-    halloween: {
-      label: "October pumpkin rain",
-      items: ["🎃", "🎃", "🟠", "🍂"],
-      colors: ["#ff7b00", "#f59e0b", "#9b5de5"],
-      count: 22
+  var month = new Date().getMonth(); // 0 = January
+  var season = {
+    9: {
+      name: "OCTOBER MODE",
+      headline: "PUMPKIN RAIN!",
+      note: "Spooky season has entered the chat.",
+      icons: ["🎃", "🎃", "🍂", "🎃"],
+      color: "#ff8c00",
+      accent: "#b7ff00",
+      background: "#170d2e"
     },
-    thanksgiving: {
-      label: "Thanksgiving turkey rain",
-      items: ["🦃", "🍁", "🍂"],
-      colors: ["#9a3412", "#b45309", "#d97706"],
-      count: 18
+    10: {
+      name: "THANKSGIVING MODE",
+      headline: "TURKEY TIME!",
+      note: "Gobble gobble, internet friend.",
+      icons: ["🦃", "🍁", "🦃", "🍂"],
+      color: "#ffb347",
+      accent: "#f7ff75",
+      background: "#2d160d"
     },
-    christmas: {
-      label: "Christmas snowfall",
-      items: ["🎄", "🎁", "❄", "⭐"],
-      colors: ["#c1121f", "#0b7a46", "#f4d35e", "#ffffff"],
-      count: 24
+    11: {
+      name: "DECEMBER MODE",
+      headline: "HAPPY HOLIDAYS!",
+      note: "A little retro Christmas cheer.",
+      icons: ["🎄", "❄️", "🎁", "⭐"],
+      color: "#39e58c",
+      accent: "#fff36b",
+      background: "#071f2a"
     }
-  }[season];
+  }[month];
+
+  if (!season || !document.body) return;
 
   var style = document.createElement("style");
   style.textContent = `
-    #seasonal-rain {
+    #cole-seasonal-intro {
       position: fixed;
       inset: 0;
+      z-index: 10000;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(0, 0, 0, .42);
+      font-family: "Courier New", Courier, monospace;
+      opacity: 1;
+      transition: opacity .35s ease;
+    }
+    #cole-seasonal-intro.is-leaving { opacity: 0; pointer-events: none; }
+    #cole-seasonal-intro .intro-window {
+      position: relative;
+      width: min(390px, 100%);
       overflow: hidden;
-      pointer-events: none;
-      z-index: 999;
-      contain: strict;
+      color: #fff;
+      background: ${season.background};
+      border: 3px solid #fff;
+      outline: 3px solid #151515;
+      box-shadow: 8px 8px 0 rgba(0,0,0,.45);
+      text-align: center;
     }
-    #seasonal-rain .seasonal-item {
-      position: absolute;
-      top: -12vh;
-      left: var(--left);
+    #cole-seasonal-intro .intro-titlebar {
+      padding: 7px 10px;
+      background: linear-gradient(90deg, ${season.color}, #5b2aa8);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-align: left;
+      text-shadow: 1px 1px #111;
+    }
+    #cole-seasonal-intro .intro-content { padding: 18px 20px 16px; }
+    #cole-seasonal-intro .intro-icons {
+      display: flex;
+      justify-content: center;
+      gap: 13px;
+      min-height: 32px;
+      margin-bottom: 8px;
+      font-family: sans-serif;
+      font-size: 24px;
+    }
+    #cole-seasonal-intro .intro-icons span {
+      display: inline-block;
+      animation: cole-intro-bounce .65s steps(2, end) infinite alternate;
+    }
+    #cole-seasonal-intro .intro-icons span:nth-child(even) { animation-delay: .2s; }
+    #cole-seasonal-intro h2 {
+      margin: 5px 0 8px;
+      color: ${season.accent};
+      font-size: clamp(20px, 6vw, 26px);
+      line-height: 1.15;
+      text-shadow: 3px 3px 0 #d12cff;
+    }
+    #cole-seasonal-intro .intro-note {
+      margin: 0 0 15px;
+      color: #eee;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    #cole-seasonal-intro .intro-meter {
+      height: 12px;
+      padding: 2px;
+      margin: 0 0 14px;
+      border: 2px inset #bbb;
+      background: #111;
+    }
+    #cole-seasonal-intro .intro-meter span {
       display: block;
-      font-family: "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
-      font-size: var(--size);
-      line-height: 1;
-      opacity: .92;
-      filter: drop-shadow(2px 2px 0 rgba(0,0,0,.16));
-      animation: seasonal-fall var(--duration) linear var(--delay) infinite;
-      will-change: transform;
-      user-select: none;
+      width: 100%;
+      height: 100%;
+      transform-origin: left;
+      background: repeating-linear-gradient(90deg, ${season.color} 0 12px, #fff 12px 14px);
+      animation: cole-intro-load 2.25s linear forwards;
     }
-    #seasonal-rain[data-season="halloween"] .seasonal-item {
-      image-rendering: pixelated;
-      text-shadow: 2px 0 #5a2600, -2px 0 #5a2600, 0 2px #5a2600, 0 -2px #5a2600;
+    #cole-seasonal-intro button {
+      padding: 8px 13px;
+      border: 3px outset #eee;
+      border-radius: 0;
+      background: #ddd;
+      color: #111;
+      font: bold 12px "Courier New", Courier, monospace;
+      cursor: pointer;
+      box-shadow: 2px 2px 0 #111;
     }
-    #seasonal-rain[data-season="thanksgiving"] .seasonal-item {
-      text-shadow: 1px 1px 0 #fff0d0;
+    #cole-seasonal-intro button:active { border-style: inset; transform: translate(1px, 1px); }
+    @keyframes cole-intro-bounce {
+      from { transform: translateY(2px) rotate(-5deg); }
+      to { transform: translateY(-4px) rotate(5deg); }
     }
-    #seasonal-rain[data-season="christmas"] .seasonal-item {
-      filter: drop-shadow(1px 2px 0 rgba(0,0,0,.2));
-    }
-    @keyframes seasonal-fall {
-      0% { transform: translate3d(0, -8vh, 0) rotate(0deg); }
-      50% { transform: translate3d(28px, 54vh, 0) rotate(180deg); }
-      100% { transform: translate3d(-18px, 112vh, 0) rotate(360deg); }
-    }
+    @keyframes cole-intro-load { from { transform: scaleX(.08); } to { transform: scaleX(1); } }
     @media (prefers-reduced-motion: reduce) {
-      #seasonal-rain .seasonal-item { animation: none; }
-      #seasonal-rain .seasonal-item:nth-child(n+7) { display: none; }
+      #cole-seasonal-intro, #cole-seasonal-intro * {
+        animation: none !important;
+        transition: none !important;
+      }
     }
   `;
   document.head.appendChild(style);
 
-  var layer = document.createElement("div");
-  layer.id = "seasonal-rain";
-  layer.dataset.season = season;
-  layer.setAttribute("aria-hidden", "true");
-  layer.setAttribute("role", "presentation");
+  var overlay = document.createElement("div");
+  overlay.id = "cole-seasonal-intro";
+  overlay.setAttribute("role", "dialog");
+  overlay.setAttribute("aria-modal", "true");
+  overlay.setAttribute("aria-label", "Seasonal welcome");
+  overlay.innerHTML =
+    '<div class="intro-window">' +
+      '<div class="intro-titlebar">★ COLESWEBSITE.XYZ — SEASONAL.EXE ★</div>' +
+      '<div class="intro-content">' +
+        '<div class="intro-icons" aria-hidden="true">' +
+          season.icons.map(function (icon) { return '<span>' + icon + '</span>'; }).join("") +
+        '</div>' +
+        '<div style="color:' + season.color + ';font-size:10px;font-weight:bold;letter-spacing:2px;">' + season.name + '</div>' +
+        '<h2>' + season.headline + '</h2>' +
+        '<p class="intro-note">' + season.note + '</p>' +
+        '<div class="intro-meter" aria-hidden="true"><span></span></div>' +
+        '<button type="button">ENTER SITE &raquo;</button>' +
+      '</div>' +
+    '</div>';
 
-  var reduceMotion = window.matchMedia &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var itemCount = reduceMotion ? Math.min(6, settings.count) : settings.count;
-
-  for (var i = 0; i < itemCount; i++) {
-    var item = document.createElement("span");
-    item.className = "seasonal-item";
-    item.textContent = settings.items[i % settings.items.length];
-    item.style.setProperty("--left", (Math.random() * 100) + "vw");
-    item.style.setProperty("--size", (18 + Math.random() * 18) + "px");
-    item.style.setProperty("--duration", (8 + Math.random() * 12) + "s");
-    item.style.setProperty("--delay", (-Math.random() * 18) + "s");
-    item.style.color = settings.colors[i % settings.colors.length];
-    layer.appendChild(item);
+  function closeIntro() {
+    if (!overlay.isConnected || overlay.classList.contains("is-leaving")) return;
+    overlay.classList.add("is-leaving");
+    window.setTimeout(function () {
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, 380);
   }
 
-  document.body.appendChild(layer);
+  overlay.querySelector("button").addEventListener("click", closeIntro);
+  document.body.appendChild(overlay);
+  window.setTimeout(closeIntro, 2600);
 })();
