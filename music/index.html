@@ -6,6 +6,58 @@
 <script src="/tos.js"></script>
 <title>music - coleswebsite.xyz</title>
 <link rel="stylesheet" href="/site.css">
+<style>
+  .music-preview {
+    border: 1px solid #b98600;
+    background: #fffef0;
+    padding: 16px;
+    margin-top: 14px;
+    position: relative;
+    isolation: isolate;
+  }
+  .music-preview h3 { margin: 0 0 6px; font-size: 19px; }
+  .music-preview p { margin: 6px 0 12px; }
+  .music-preview audio { display: block; width: 100%; max-width: 520px; }
+  body.disco-active::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    pointer-events: none;
+    background: rgba(0,0,0,.68);
+    animation: disco-dim 1.8s ease-in-out infinite alternate;
+  }
+  body.disco-active::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    pointer-events: none;
+    opacity: .72;
+    background:
+      radial-gradient(ellipse at 12% 18%, rgba(255,0,90,.48), transparent 32%),
+      radial-gradient(ellipse at 86% 20%, rgba(0,220,255,.44), transparent 30%),
+      radial-gradient(ellipse at 70% 85%, rgba(170,0,255,.42), transparent 34%),
+      radial-gradient(ellipse at 22% 78%, rgba(255,220,0,.36), transparent 32%);
+    mix-blend-mode: screen;
+    animation: disco-lights 3.2s linear infinite alternate;
+  }
+  body.disco-active .wrap {
+    position: relative;
+    z-index: 1001;
+    animation: disco-pulse 1.2s ease-in-out infinite alternate;
+  }
+  @keyframes disco-dim { from { background-color: rgba(0,0,0,.58); } to { background-color: rgba(0,0,0,.78); } }
+  @keyframes disco-lights {
+    0% { filter: hue-rotate(0deg); transform: scale(1); }
+    50% { filter: hue-rotate(120deg); transform: scale(1.06); }
+    100% { filter: hue-rotate(260deg); transform: scale(1); }
+  }
+  @keyframes disco-pulse { from { box-shadow: 0 0 0 rgba(255,0,200,0); } to { box-shadow: 0 0 32px rgba(255,0,200,.45); } }
+  @media (prefers-reduced-motion: reduce) {
+    body.disco-active::before, body.disco-active::after, body.disco-active .wrap { animation: none; }
+  }
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -37,7 +89,15 @@
     <div class="col-main">
       <div class="box-title">music</div>
       <div class="box-body">
-        <p>Music I like and playlists will go here.</p>
+        <p>A sneak peek at what's coming next.</p>
+        <div class="music-preview">
+          <h3>🎧 Perfect Cell — preview</h3>
+          <p>A preview of future music. Press play for the disco lights; pause to turn them off.</p>
+          <audio id="music-preview-audio" controls preload="metadata">
+            <source src="/perfect-cell.mp3" type="audio/mpeg">
+            Your browser does not support the audio player.
+          </audio>
+        </div>
       </div>
     </div>
   </div>
@@ -45,5 +105,18 @@
     &copy; 2023 - 2026 coleswebsite.xyz &nbsp;&middot;&nbsp; <a href="https://coleswebsite.xyz/">https://coleswebsite.xyz/</a> &nbsp;&middot;&nbsp; <a href="/terms">terms</a>
   </div>
 </div>
+<script>
+  (function () {
+    var audio = document.getElementById("music-preview-audio");
+    if (!audio) return;
+    function startDisco() { document.body.classList.add("disco-active"); }
+    function stopDisco() { document.body.classList.remove("disco-active"); }
+    audio.addEventListener("play", startDisco);
+    audio.addEventListener("pause", stopDisco);
+    audio.addEventListener("ended", stopDisco);
+    audio.addEventListener("error", stopDisco);
+    window.addEventListener("pagehide", stopDisco);
+  })();
+</script>
 </body>
 </html>
