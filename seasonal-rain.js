@@ -13,27 +13,21 @@
   var month = new Date().getMonth(); // 0 = January
   var season = {
     9: {
-      name: "OCTOBER MODE",
-      headline: "PUMPKIN RAIN!",
-      note: "Spooky season has entered the chat.",
+      headline: "HAPPY HALLOWEEN!",
       icons: ["🎃", "🎃", "🍂", "🎃"],
       color: "#ff8c00",
       accent: "#b7ff00",
       background: "#170d2e"
     },
     10: {
-      name: "THANKSGIVING MODE",
-      headline: "TURKEY TIME!",
-      note: "Gobble gobble, internet friend.",
+      headline: "HAPPY THANKSGIVING!",
       icons: ["🦃", "🍁", "🦃", "🍂"],
       color: "#ffb347",
       accent: "#f7ff75",
       background: "#2d160d"
     },
     11: {
-      name: "DECEMBER MODE",
       headline: "HAPPY HOLIDAYS!",
-      note: "A little retro Christmas cheer.",
       icons: ["🎄", "❄️", "🎁", "⭐"],
       color: "#39e58c",
       accent: "#fff36b",
@@ -101,12 +95,6 @@
       line-height: 1.15;
       text-shadow: 3px 3px 0 #d12cff;
     }
-    #cole-seasonal-intro .intro-note {
-      margin: 0 0 15px;
-      color: #eee;
-      font-size: 12px;
-      line-height: 1.5;
-    }
     #cole-seasonal-intro .intro-meter {
       height: 12px;
       padding: 2px;
@@ -154,14 +142,12 @@
   overlay.setAttribute("aria-label", "Seasonal welcome");
   overlay.innerHTML =
     '<div class="intro-window">' +
-      '<div class="intro-titlebar">★ COLESWEBSITE.XYZ — SEASONAL.EXE ★</div>' +
+      '<div class="intro-titlebar">★ COLESWEBSITE.XYZ ★</div>' +
       '<div class="intro-content">' +
         '<div class="intro-icons" aria-hidden="true">' +
           season.icons.map(function (icon) { return '<span>' + icon + '</span>'; }).join("") +
         '</div>' +
-        '<div style="color:' + season.color + ';font-size:10px;font-weight:bold;letter-spacing:2px;">' + season.name + '</div>' +
         '<h2>' + season.headline + '</h2>' +
-        '<p class="intro-note">' + season.note + '</p>' +
         '<div class="intro-meter" aria-hidden="true"><span></span></div>' +
         '<button type="button">ENTER SITE &raquo;</button>' +
       '</div>' +
@@ -177,5 +163,5 @@
 
   overlay.querySelector("button").addEventListener("click", closeIntro);
   document.body.appendChild(overlay);
-  window.setTimeout(closeIntro, 2600);
+  window.setTimeout(closeIntro, 10000);
 })();
