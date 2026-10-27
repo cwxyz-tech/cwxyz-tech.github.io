@@ -163,5 +163,5 @@
 
   overlay.querySelector("button").addEventListener("click", closeIntro);
   document.body.appendChild(overlay);
-  window.setTimeout(closeIntro, 2600);
+  window.setTimeout(closeIntro, 10000);
 })();
