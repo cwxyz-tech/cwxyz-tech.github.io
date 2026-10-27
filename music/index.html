@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="/tos.js"></script>
+<script src="/search.js" defer></script>
 <title>music - coleswebsite.xyz</title>
 <link rel="stylesheet" href="/site.css">
 <style>
@@ -167,8 +168,8 @@
       <div class="tagline">est 2023... thoughts lists and other nonsense!</div>
     </div>
     <div class="searchbox">
-      <form onsubmit="return false;">
-        <input type="text" placeholder="e.g. opsec, impact, faq">
+      <form onsubmit="return siteSearch(this);">
+        <input type="search" name="q" placeholder="Search this site…" aria-label="Search this site" required>
         <input type="submit" value="Search">
       </form>
     </div>
