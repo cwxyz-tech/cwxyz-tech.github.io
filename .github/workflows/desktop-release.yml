@@ -1,10 +1,12 @@
-# Builds the Cole's Games desktop downloads and publishes them as a release
-# when a version tag like v1.0 is pushed. Uses no third-party actions.
+# Builds the Cole's Games desktop downloads and publishes them as a release.
+# Runs when _desktop/VERSION changes on main; the release gets that version's tag (like v1.0).
+# Uses no third-party actions.
 name: Desktop release
 
 on:
   push:
-    tags: ["v*"]
+    branches: [main]
+    paths: ["_desktop/VERSION"]
 
 permissions:
   contents: write
@@ -16,16 +18,31 @@ jobs:
     steps:
       - name: Get the code
         run: |
-          git clone --depth 1 --branch "$GITHUB_REF_NAME" "https://github.com/$GITHUB_REPOSITORY.git" .
+          git clone --depth 1 --branch main "https://github.com/$GITHUB_REPOSITORY.git" .
+          git checkout --quiet "$GITHUB_SHA" 2>/dev/null || true
 
-      - name: Build the downloads
-        run: bash _desktop/build.sh
-
-      - name: Publish the release
+      - name: Check the version
+        id: v
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" _desktop/out/release/* \
-            --repo "$GITHUB_REPOSITORY" \
-            --title "Cole's Games ${GITHUB_REF_NAME#v}" \
+          v="v$(tr -d ' \n\r' < _desktop/VERSION)"
+          echo "tag=$v" >> "$GITHUB_OUTPUT"
+          if gh release view "$v" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $v already exists; nothing to do."; echo "skip=1" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build the downloads
+        if: steps.v.outputs.skip != '1'
+        run: bash _desktop/build.sh
+
+      - name: Publish the release
+        if: steps.v.outputs.skip != '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.v.outputs.tag }}
+        run: |
+          gh release create "$TAG" _desktop/out/release/* \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Cole's Games ${TAG#v}" \
             --notes "Blackjack DX, Lines DX and Lucky Flip as a desktop app for Windows, Mac and Linux. Install steps: https://coleswebsite.xyz/downloads"
