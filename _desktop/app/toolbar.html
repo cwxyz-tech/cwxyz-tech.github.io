@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+<title>Toolbar</title>
+<style>
+  :root { color-scheme: light dark; --bar: #f3f3f3; --text: #1a1a1a; --text2: #5f5f5f; --hover: rgba(0,0,0,.055); --press: rgba(0,0,0,.09);
+    --sel: #ffffff; --sel-line: rgba(0,0,0,.08); --accent: #0067c0; --line: rgba(0,0,0,.09); }
+  @media (prefers-color-scheme: dark) {
+    :root { --bar: #202020; --text: #ffffff; --text2: #c5c5c5; --hover: rgba(255,255,255,.06); --press: rgba(255,255,255,.1);
+      --sel: rgba(255,255,255,.08); --sel-line: rgba(255,255,255,.07); --accent: #4cc2ff; --line: rgba(255,255,255,.08); }
+  }
+  /* GNOME (Adwaita) on Linux */
+  .linux { --bar: #ebebed; --text: #2e3436; --text2: #5e5c64; --hover: rgba(0,0,0,.07); --press: rgba(0,0,0,.12);
+    --sel: rgba(0,0,0,.1); --sel-line: transparent; --accent: #3584e4; --line: rgba(0,0,0,.1); }
+  @media (prefers-color-scheme: dark) {
+    .linux { --bar: #2e2e32; --text: #ffffff; --text2: #c0bfc4; --hover: rgba(255,255,255,.07); --press: rgba(255,255,255,.12);
+      --sel: rgba(255,255,255,.12); --accent: #78aeed; --line: rgba(0,0,0,.36); }
+  }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bar); color: var(--text); user-select: none; cursor: default; }
+  body { font: 13px "Segoe UI Variable Text", "Segoe UI", system-ui, Cantarell, Ubuntu, sans-serif; -webkit-font-smoothing: antialiased; }
+  .bar { height: 100%; box-sizing: border-box; display: flex; align-items: center; gap: 4px; padding: 0 8px; border-bottom: 1px solid var(--line); }
+  .tabs { display: flex; gap: 2px; }
+  button { font: inherit; color: inherit; background: transparent; border: 0; height: 32px; padding: 0 12px; border-radius: 4px;
+    display: inline-flex; align-items: center; gap: 8px; outline: none; }
+  .linux button { border-radius: 6px; font-weight: 600; }
+  button:hover { background: var(--hover); }
+  button:active { background: var(--press); }
+  button:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
+  button svg { width: 16px; height: 16px; flex: none; fill: currentColor; }
+  .tab { color: var(--text2); position: relative; }
+  .tab.on { color: var(--text); background: var(--sel); box-shadow: 0 0 0 1px var(--sel-line) inset; }
+  .tab.on::after { content: ""; position: absolute; left: 50%; bottom: 3px; width: 16px; height: 3px; margin-left: -8px; border-radius: 2px; background: var(--accent); }
+  .linux .tab.on::after { display: none; }
+  .tab.on svg { fill: var(--accent); }
+  .linux .tab.on svg { fill: currentColor; }
+  .spacer { flex: 1; }
+  .icon { width: 36px; padding: 0; justify-content: center; }
+  .label { white-space: nowrap; }
+  @media (max-width: 760px) { .tab .label { display: none; } .tab { padding: 0 10px; } }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <div class="tabs" role="tablist" aria-label="Games">
+      <button class="tab on" data-i="0" role="tab" title="Home (Ctrl+0)"><svg viewBox="0 0 16 16"><path d="M8 1.6 1.2 7.4l.9 1 .9-.8V14h3.8v-4h2.4v4H13V7.6l.9.8.9-1z"/></svg><span class="label">Home</span></button>
+      <button class="tab" data-i="1" role="tab" title="Blackjack DX (Ctrl+1)"><svg viewBox="0 0 16 16"><path d="M8 1C6 3.6 2 6 2 9a3 3 0 0 0 5 2.2L6 15h4l-1-3.8A3 3 0 0 0 14 9c0-3-4-5.4-6-8z"/></svg><span class="label">Blackjack</span></button>
+      <button class="tab" data-i="2" role="tab" title="Lines DX (Ctrl+2)"><svg viewBox="0 0 16 16"><path d="M2 2h3.5v3.5H2zm4.25 0h3.5v3.5h-3.5zm4.25 0H14v3.5h-3.5zM2 6.25h3.5v3.5H2zm4.25 0h3.5v3.5h-3.5zm4.25 0H14v3.5h-3.5zM2 10.5h3.5V14H2zm4.25 0h3.5V14h-3.5zm4.25 0H14V14h-3.5z"/></svg><span class="label">Lines</span></button>
+      <button class="tab" data-i="3" role="tab" title="Lucky Flip (Ctrl+3)"><svg viewBox="0 0 16 16"><path d="M6 1l1.2 3.8L11 6 7.2 7.2 6 11 4.8 7.2 1 6l3.8-1.2zm6 6.5.7 2.1 2.1.7-2.1.7-.7 2.1-.7-2.1-2.1-.7 2.1-.7z"/></svg><span class="label">Lucky Flip</span></button>
+      <button class="tab" data-i="4" role="tab" title="Music (Ctrl+4)"><svg viewBox="0 0 16 16"><path d="M13.5 1.5v9.2A2.3 2.3 0 1 1 12 8.6V4.4L6.5 5.6v6.6A2.3 2.3 0 1 1 5 10.1V3.3z"/></svg><span class="label">Music</span></button>
+    </div>
+    <div class="spacer"></div>
+    <button class="icon" id="restart" title="Restart game (Ctrl+R)" aria-label="Restart game"><svg viewBox="0 0 16 16"><path d="M8 2.5a5.5 5.5 0 1 0 5.4 6.5h-1.5A4 4 0 1 1 8 4c1.1 0 2.1.45 2.8 1.2L9 7h5V2l-1.8 1.8A5.5 5.5 0 0 0 8 2.5z"/></svg></button>
+    <button class="icon" id="full" title="Full screen (F11)" aria-label="Full screen"><svg viewBox="0 0 16 16"><path d="M2 2h4.5v1.5h-3v3H2zm7.5 0H14v4.5h-1.5v-3h-3zM2 9.5h1.5v3h3V14H2zm10.5 0H14V14H9.5v-1.5h3z"/></svg></button>
+    <button class="icon" id="menu" title="Menu" aria-label="Menu"><svg viewBox="0 0 16 16"><path d="M2 3.5h12V5H2zm0 3.75h12v1.5H2zM2 11h12v1.5H2z"/></svg></button>
+  </div>
+<script>
+  "use strict";
+  var api = window.cg;
+  if (api.platform === "linux") document.documentElement.classList.add("linux");
+  var tabs = document.querySelectorAll(".tab");
+  tabs.forEach(function (t) { t.addEventListener("click", function () { api.nav(t.dataset.i); }); });
+  api.onActive(function (i) { tabs.forEach(function (t) { var on = Number(t.dataset.i) === i; t.classList.toggle("on", on); t.setAttribute("aria-selected", on); }); });
+  document.getElementById("restart").addEventListener("click", function () { api.restart(); });
+  document.getElementById("full").addEventListener("click", function () { api.fullscreen(); });
+  document.getElementById("menu").addEventListener("click", function () {
+    var r = this.getBoundingClientRect(); api.menu(r.left, r.bottom + 2);
+  });
+  document.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+  api.ready();
+</script>
+</body>
+</html>

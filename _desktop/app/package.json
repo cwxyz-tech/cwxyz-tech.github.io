@@ -1,0 +1,10 @@
+{
+  "name": "coles-games",
+  "productName": "Cole's Games",
+  "version": "1.0.0",
+  "description": "Blackjack DX, Lines DX and Lucky Flip from coleswebsite.xyz",
+  "main": "main.js",
+  "author": "coleswebsite.xyz",
+  "license": "UNLICENSED",
+  "private": true
+}

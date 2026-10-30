@@ -1,0 +1,31 @@
+# Builds the Cole's Games desktop downloads and publishes them as a release
+# when a version tag like v1.0 is pushed. Uses no third-party actions.
+name: Desktop release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Get the code
+        run: |
+          git clone --depth 1 --branch "$GITHUB_REF_NAME" "https://github.com/$GITHUB_REPOSITORY.git" .
+
+      - name: Build the downloads
+        run: bash _desktop/build.sh
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" _desktop/out/release/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Cole's Games ${GITHUB_REF_NAME#v}" \
+            --notes "Blackjack DX, Lines DX and Lucky Flip as a desktop app for Windows, Mac and Linux. Install steps: https://coleswebsite.xyz/downloads"
