@@ -1,0 +1,1283 @@
+<div class="wrap">
+
+  <div class="header">
+    <div style="display:flex; align-items:flex-end;">
+      <div class="logo"><a href="/"><img src="/logo.png" alt="coleswebsite.xyz" width="394" height="56"></a></div>
+      <div class="tagline">Est. 2023... thoughts, lists, and other nonsense!</div>
+    </div>
+  </div>
+  <div class="goldbar"></div>
+
+  <div class="navbar">
+    <div>
+      <a href="/">Home</a>
+      <a href="/aboutme">About Me</a>
+      <a href="/faq">FAQ</a>
+      <a href="/impact">Impact</a>
+      <a href="/music">Music</a>
+      <a href="/reviews">Reviews</a>
+      <a href="/games">Games</a>
+    </div>
+    <div><a class="signin" href="mailto:coleswebsitexyz@proton.me">Contact Me</a></div>
+  </div>
+
+  <div class="content fl">
+    <div class="box-title"><span id="flTitle">Lucky Flip</span>
+      <span class="fl-tbs">
+        <button class="fl-tb" id="flHelpBtn" aria-label="How to play">?</button>
+        <button class="fl-tb" id="flSoundM" aria-label="Toggle sound">&#9834;</button>
+        <button class="fl-tb" id="flMusicM" aria-label="Toggle music">&#9835;</button>
+        <button class="fl-tb" id="flFxM" aria-label="Toggle effects">FX</button>
+        <a class="fl-tb" href="/games" aria-label="Back to the games">&times;</a>
+      </span>
+    </div>
+    <div class="box-body fl-body">
+
+      <div class="fl-boardwrap">
+        <div class="fl-frame" id="flFrame">
+          <div class="fl-grid" id="flGrid" role="grid" aria-label="Lucky Flip board"></div>
+          <div class="fl-flash" id="flFlash"></div>
+        </div>
+        <div class="fl-meter" id="flMeter">
+          <span class="fl-mlbl">Found</span><span class="fl-pips" id="flPips"></span>
+          <span class="fl-combo" id="flCombo"></span>
+        </div>
+        <div class="fl-callout" id="flCallout"></div>
+        <div class="fl-overlay" id="flOverlay" hidden><div class="fl-dialog" id="flDialog" role="dialog" aria-live="polite"></div></div>
+      </div>
+
+      <div class="fl-side">
+        <div class="fl-stwin">
+          <div class="fl-win-title">Stats</div>
+          <div class="fl-win-body">
+            <div class="fl-stats">
+              <div class="k">Level</div><div class="v" id="flLevel">1</div>
+              <div class="k">Coins</div><div class="v big" id="flRound">0</div>
+              <div class="k">Bank</div><div class="v" id="flTotal">0</div>
+              <div class="k">Best</div><div class="v" id="flBest">0</div>
+              <div class="k wl">W / L</div><div class="v wl" id="flWL">0 / 0</div>
+              <div class="k">Streak</div><div class="v" id="flStreak">0</div>
+            </div>
+          </div>
+        </div>
+        <div class="fl-notewin">
+          <div class="fl-win-title">Notes</div>
+          <div class="fl-win-body">
+            <button class="fl-btn" id="flMemo" aria-pressed="false">Notes: Off</button>
+            <div class="fl-marks off" id="flMarks">
+              <button class="fl-btn on" data-mark="1" aria-label="Bomb note"></button>
+              <button class="fl-btn" data-mark="2" aria-label="1 note">1</button>
+              <button class="fl-btn m2" data-mark="4" aria-label="2 note">2</button>
+              <button class="fl-btn m3" data-mark="8" aria-label="3 note">3</button>
+            </div>
+            <div class="fl-tip mouse">Right-click a tile to mark a bomb.</div>
+            <div class="fl-tip touch">Hold a tile to mark a bomb.</div>
+          </div>
+        </div>
+        <div class="fl-wide fl-gamewin">
+          <div class="fl-win-title">Game</div>
+          <div class="fl-win-body">
+            <button class="fl-btn" id="flCash" disabled>Cash Out</button>
+            <button class="fl-btn" id="flSound">Sound: On</button>
+            <button class="fl-btn" id="flMusic">Music: On</button>
+            <button class="fl-btn" id="flFx">Effects: On</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="box-title fl-helptitle">How to Play</div>
+    <div class="box-body fl-help" id="flHelp">
+      <h3 class="fl-helphead">How to Play</h3>
+      <p>Every tile hides a <b>1</b>, <b>2</b>, <b>3</b> or a <b>bomb</b> <span class="bomb-slot"></span>. Click a tile to flip it. The first number you flip becomes your coins, and every number after that <b>multiplies</b> them. 1s don't hurt, 2s double you, 3s triple you.</p>
+      <p>The boxes on the edge are your clues: the top number is what that row or column adds up to, and the bottom is how many bombs are hiding in it. A row with 0 bombs is free money. A row that adds up to 5 with 0 bombs is all 1s, so don't bother.</p>
+      <p>Find every 2 and 3 to clear the level and bank your coins. Flip a bomb and you lose this round's coins, and you might drop a level. Getting nervous? <b>Cash Out</b> keeps what you've got. Higher levels hide more bombs but pay way more. There are 8 levels.</p>
+      <p>Turn on <b>Notes</b> to mark what you think a tile is without flipping it. <span class="fl-kbhelp">Keyboard works too: arrows to move, Space to flip, N for notes, and B / 1 / 2 / 3 to mark.</span><span class="fl-touchhelp">Hold down on a tile to quickly mark it as a bomb.</span></p>
+      <div class="fl-helpbtns"><button class="fl-btn" id="flTutReplay">Replay Tutorial</button><button class="fl-btn go fl-helpx" id="flHelpClose">Got it!</button></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    &copy; 2023 - 2026 coleswebsite.xyz &nbsp;&middot;&nbsp; <a href="https://coleswebsite.xyz/">https://coleswebsite.xyz/</a> &nbsp;&middot;&nbsp; <a href="/terms">Terms</a>
+  </div>
+
+</div>
+<script>
+(function () {
+  "use strict";
+
+  // [how many 2s, how many 3s, how many bombs]; every level has 5 possible layouts
+  var LEVELS = [
+    [[3,1,6],[0,3,6],[5,0,6],[2,2,6],[4,1,6]],
+    [[1,3,7],[6,0,7],[3,2,7],[0,4,7],[5,1,7]],
+    [[2,3,8],[7,0,8],[4,2,8],[1,4,8],[6,1,8]],
+    [[3,3,8],[0,5,8],[8,0,10],[5,2,10],[2,4,10]],
+    [[7,1,10],[4,3,10],[1,5,10],[9,0,10],[6,2,10]],
+    [[3,4,10],[0,6,10],[8,1,10],[5,3,10],[2,5,10]],
+    [[7,2,10],[4,4,10],[1,6,13],[9,1,13],[6,3,10]],
+    [[0,7,10],[8,2,10],[5,4,10],[2,6,10],[7,3,10]]
+  ];
+  var MAX_LEVEL = LEVELS.length, N = 5, KEY = "cw_flip";
+  var MILESTONES = [50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000];
+  var RAINBOW = ["#ff0000", "#ff9900", "#ffff00", "#00cc00", "#00cccc", "#0000ff", "#cc00cc"];
+  var BOMB = '<svg class="bomb" viewBox="0 0 16 16" aria-hidden="true" shape-rendering="crispEdges">' +
+    '<rect x="4" y="5" width="6" height="10" fill="#000"/><rect x="2" y="7" width="10" height="6" fill="#000"/>' +
+    '<rect x="3" y="6" width="8" height="8" fill="#000"/><rect x="9" y="3" width="3" height="3" fill="#000"/>' +
+    '<rect x="11" y="2" width="1" height="1" fill="#000"/><rect x="12" y="1" width="2" height="1" fill="#000"/>' +
+    '<rect x="14" y="0" width="1" height="1" fill="#ff9900"/><rect x="15" y="1" width="1" height="1" fill="#ffee00"/>' +
+    '<rect x="14" y="2" width="1" height="1" fill="#ff3300"/><rect x="5" y="7" width="2" height="2" fill="#fff"/></svg>';
+
+  var $ = function (id) { return document.getElementById(id); };
+  var gridEl = $("flGrid"), frame = $("flFrame"), overlay = $("flOverlay"), dialog = $("flDialog"), callout = $("flCallout");
+  if (!gridEl) return;
+  var boardwrap = frame.parentNode, flashEl = $("flFlash"), pipsEl = $("flPips"), comboEl = $("flCombo");
+  var roundEl = $("flRound"), bankEl = $("flTotal"), bestEl = $("flBest");
+  // "reduce" = the Effects setting is OFF. The phone's Reduce Motion setting only turns off the page shake + screen flashes (in CSS).
+  var reduce = false;
+  // phones / weaker devices get the same effects with fewer particles so it stays smooth
+  var LOW = false;
+  try {
+    LOW = window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 720 ||
+      (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) || (navigator.deviceMemory && navigator.deviceMemory <= 4);
+  } catch (e) {}
+  var PM = LOW ? 0.5 : 1, MAX_PARTS = LOW ? 170 : 420, MAX_FLOATS = LOW ? 5 : 10;
+  function many(n) { return Math.max(1, Math.round(n * PM)); }
+
+  // ---------- saved stuff ----------
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { saved = {}; }
+  var level = clampInt(saved.level, 1, MAX_LEVEL, 1);
+  var bank = clampInt(saved.bank, 0, 1e9, 0);
+  var best = clampInt(saved.best, 0, 1e9, 0);
+  var wins = clampInt(saved.wins, 0, 1e9, 0);
+  var losses = clampInt(saved.losses, 0, 1e9, 0);
+  var streak = clampInt(saved.streak, 0, 1e9, 0);
+  var mute = !!saved.mute, musicOff = !!saved.musicOff;
+  reduce = saved.fx === false;
+  var tutDone = !!saved.tut;
+  function clampInt(v, lo, hi, d) { v = parseInt(v, 10); return isNaN(v) ? d : Math.max(lo, Math.min(hi, v)); }
+  function save(over) {
+    // the round in progress is saved too, so refreshing brings back the same board instead of a new one
+    var round = (state === "play" || state === "winning") && vals.length === N * N
+      ? { lv: level, vals: vals, open: open, marks: marks, coins: coins, flips: flips, combo: combo } : null;
+    var data = { level: level, bank: bank, best: best, wins: wins, losses: losses, streak: streak, mute: mute, musicOff: musicOff, fx: !reduce, tut: tutDone, round: round };
+    if (over) for (var k in over) data[k] = over[k];
+    try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {}
+  }
+
+  // ---------- round state ----------
+  var vals = [], open = [], marks = [], rowSum = [], rowBombs = [], colSum = [], colBombs = [], rowDone = [], colDone = [];
+  var state = "play", coins = 0, flips = 0, need = 0, found = 0, combo = 0, lastLevel = level;
+  var memo = false, memoMark = 1, cur = 0, boomAt = -1;
+
+  // ---------- build the board once ----------
+  var tiles = [], rowHints = [], colHints = [], corner;
+  for (var r = 0; r <= N; r++) {
+    for (var c = 0; c <= N; c++) {
+      var el;
+      if (r < N && c < N) {
+        el = document.createElement("button");
+        el.type = "button";
+        el.className = "fl-tile";
+        el.setAttribute("data-i", r * N + c);
+        tiles.push(el);
+      } else if (r < N || c < N) {
+        el = document.createElement("div");
+        el.className = "fl-hint";
+        (c === N ? rowHints : colHints).push(el);
+      } else {
+        el = document.createElement("div");
+        el.className = "fl-corner";
+        corner = el;
+      }
+      gridEl.appendChild(el);
+    }
+  }
+  var slot = document.querySelector("#flHelp .bomb-slot");
+  if (slot) slot.outerHTML = BOMB;
+  $("flMarks").querySelector('[data-mark="1"]').innerHTML = BOMB;
+
+  // ---------- effects layer: pixel particles + flying coins ----------
+  var fx = document.createElement("canvas");
+  fx.className = "fl-fx"; fx.setAttribute("aria-hidden", "true");
+  var floats = document.createElement("div");
+  floats.className = "fl-floats"; floats.setAttribute("aria-hidden", "true");
+  document.body.appendChild(fx); document.body.appendChild(floats);
+  var g = fx.getContext("2d"), parts = [], dpr = 0, cw = 0, ch = 0, running = false, lastT = 0;
+  // Phones fire "resize" every time the address bar slides in or out, and resizing a canvas throws away its whole
+  // bitmap and makes a new one. So the canvas only gets a new size when the width changes or it needs to grow taller.
+  function sizeFx() {
+    var nd = LOW ? 1 : Math.min(2, window.devicePixelRatio || 1), w = window.innerWidth, h = window.innerHeight;
+    if (nd === dpr && w === cw && h <= ch) return;
+    ch = (nd !== dpr || w !== cw) ? h : Math.max(ch, h);
+    cw = w; dpr = nd;
+    fx.width = Math.round(cw * dpr); fx.height = Math.round(ch * dpr);
+    fx.style.width = cw + "px"; fx.style.height = ch + "px";
+    dirty = null;
+  }
+  // last frame's drawn area, so each frame only clears what it drew instead of the whole screen
+  var dirty = null, slow = 1 / 60, frames = 0;
+  sizeFx();
+  window.addEventListener("resize", sizeFx);
+
+  function rnd(a, b) { return a + Math.random() * (b - a); }
+  function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function center(el) { var q = el.getBoundingClientRect(); return { x: q.left + q.width / 2, y: q.top + q.height / 2, w: q.width, h: q.height }; }
+  function kick() { if (!running) { running = true; lastT = performance.now(); frames = 0; requestAnimationFrame(tick); } }
+
+  function chip(x, y, o) {
+    if (reduce || parts.length >= MAX_PARTS) return;
+    var sp = o.sp || 260;
+    parts.push({ k: "chip", x: x, y: y,
+      vx: o.vx != null ? o.vx : rnd(-1, 1) * sp,
+      vy: o.vy != null ? o.vy : rnd(-1, 0.3) * sp - (o.up != null ? o.up : 120),
+      g: o.g != null ? o.g : 900, s: o.s || rnd(3, 7), c: o.c, life: o.life || rnd(0.5, 1.1),
+      age: 0, drag: o.drag || 0, grow: o.grow || 0, blink: !!o.blink });
+    kick();
+  }
+  function ring(x, y, n, sp, cols, s) {
+    for (var k = 0; k < n; k++) {
+      var a = k / n * Math.PI * 2;
+      chip(x, y, { vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 0, drag: 5, c: cols[k % cols.length], life: 0.45, s: s || 5 });
+    }
+  }
+  function coin(x, y, target, delay, onArrive) {
+    if (reduce) { if (onArrive) setTimeout(onArrive, 150 + delay * 300); return; }
+    // measure the target once per burst (not once per coin mid-animation, which forces extra layout work)
+    var now = performance.now();
+    if (!target._fxAt || now - target._fxAt > 300) { target._fxRect = center(target); target._fxAt = now; }
+    parts.push({ k: "coin", x: x, y: y, vx: rnd(-240, 240), vy: rnd(-420, -150), g: 1000, age: 0,
+      delay: delay, target: target, t: target._fxRect, onArrive: onArrive, spin: rnd(0, 6) });
+    kick();
+  }
+  function drawCoin(x, y, spin) {
+    var w = [10, 8, 4, 2, 4, 8][Math.floor(spin) % 6], h = 10;
+    x = Math.round(x - w / 2); y = Math.round(y - h / 2);
+    g.fillStyle = "#6a4a00";
+    g.fillRect(x, y + 1, w, h - 2);
+    if (w > 2) g.fillRect(x + 1, y, w - 2, h);
+    if (w > 2) {
+      g.fillStyle = "#ffd700"; g.fillRect(x + 1, y + 1, w - 2, h - 2);
+      g.fillStyle = "#fff6a0"; g.fillRect(x + 2, y + 2, w > 4 ? 2 : 1, 3);
+    }
+  }
+  // particles are drawn grouped by colour: switching colours is the slow part of canvas drawing on phones
+  var buckets = {}, used = [], arrived = [];
+  function tick(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000), W = cw, H = ch;
+    lastT = now;
+    // if frames keep running slow while effects play, quietly use fewer particles from then on
+    if (parts.length > 30 && ++frames > 10) {
+      slow = slow * 0.9 + dt * 0.1;
+      if (slow > 0.026 && PM > 0.25) { PM = Math.max(0.25, PM * 0.75); MAX_PARTS = Math.max(60, Math.round(MAX_PARTS * 0.75)); slow = 1 / 60; }
+    }
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (dirty) g.clearRect(dirty[0], dirty[1], dirty[2] - dirty[0], dirty[3] - dirty[1]);
+    var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, j = 0, i, p, s, px, py, b;
+    used.length = 0; arrived.length = 0;
+    for (i = 0; i < parts.length; i++) {
+      p = parts[i];
+      p.age += dt;
+      if (p.k === "chip") {
+        if (p.age >= p.life || p.y > H + 40 || p.x < -40 || p.x > W + 40) continue;
+        p.vy += p.g * dt;
+        if (p.drag) { p.vx *= Math.max(0, 1 - p.drag * dt); p.vy *= Math.max(0, 1 - p.drag * dt); }
+        p.x += p.vx * dt; p.y += p.vy * dt; p.s += p.grow * dt;
+        parts[j++] = p;
+        if (p.blink && p.age > p.life * 0.6 && Math.floor(p.age * 20) % 2) continue;
+        s = Math.max(1, Math.round(p.s)); px = Math.round(p.x - s / 2); py = Math.round(p.y - s / 2);
+        b = buckets[p.c];
+        if (!b) b = buckets[p.c] = [];
+        if (!b.length) used.push(p.c);
+        b.push(px, py, s);
+        if (px < x0) x0 = px; if (py < y0) y0 = py; if (px + s > x1) x1 = px + s; if (py + s > y1) y1 = py + s;
+      } else {
+        p.spin += dt * 16;
+        if (p.age < p.delay) {
+          p.vy += p.g * dt; p.vx *= Math.max(0, 1 - 2 * dt);
+          p.x += p.vx * dt; p.y += p.vy * dt;
+        } else {
+          if (!p.sp) p.sp = 250;
+          p.sp += 3000 * dt;
+          var dx = p.t.x - p.x, dy = p.t.y - p.y, d = Math.sqrt(dx * dx + dy * dy);
+          if (d <= p.sp * dt + 4) { if (p.onArrive) arrived.push(p.onArrive); continue; }
+          p.x += dx / d * p.sp * dt; p.y += dy / d * p.sp * dt;
+        }
+        parts[j++] = p;
+        drawCoin(p.x, p.y, p.spin);
+        if (p.x - 6 < x0) x0 = p.x - 6; if (p.y - 6 < y0) y0 = p.y - 6; if (p.x + 6 > x1) x1 = p.x + 6; if (p.y + 6 > y1) y1 = p.y + 6;
+      }
+    }
+    parts.length = j;
+    for (i = 0; i < used.length; i++) {
+      b = buckets[used[i]];
+      g.fillStyle = used[i];
+      for (var k = 0; k < b.length; k += 3) g.fillRect(b[k], b[k + 1], b[k + 2], b[k + 2]);
+      b.length = 0;
+    }
+    dirty = x1 > x0 ? [Math.floor(x0) - 2, Math.floor(y0) - 2, Math.ceil(x1) + 2, Math.ceil(y1) + 2] : null;
+    if (parts.length) requestAnimationFrame(tick);
+    else { running = false; g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, fx.width, fx.height); dirty = null; }
+    for (i = 0; i < arrived.length; i++) arrived[i]();
+  }
+
+  function burst(el, v) {
+    var c = center(el), k;
+    if (v === 1) {
+      for (k = 0; k < many(8); k++) chip(c.x, c.y, { sp: 150, up: 60, c: pick(["#808080", "#c0c0c0", "#ffffff"]), life: rnd(0.3, 0.6), s: rnd(2, 5) });
+    } else if (v === 2) {
+      for (k = 0; k < many(24); k++) chip(c.x, c.y, { sp: 320, c: pick(["#0000aa", "#4080ff", "#ffffff", "#ffd700"]), blink: true });
+      ring(c.x, c.y, many(12), 330, ["#4080ff", "#ffffff"]);
+    } else {
+      for (k = 0; k < many(44); k++) chip(c.x, c.y, { sp: 440, up: 180, c: pick(["#cc0000", "#ff9900", "#ffff00", "#ffffff"]), s: rnd(3, 8), blink: true });
+      ring(c.x, c.y, many(18), 460, ["#ffff00", "#ff0000", "#ffffff"], 6);
+    }
+  }
+  function explode(el) {
+    var c = center(el), k;
+    // a small, tight blast around the tile: quick debris and one ring, nothing that lingers over the board
+    for (k = 0; k < many(26); k++) chip(c.x, c.y, { sp: 300, up: 120, c: pick(["#202020", "#606060", "#ff3300", "#ff9900", "#ffee00"]), s: rnd(3, 6), life: rnd(0.35, 0.6) });
+    ring(c.x, c.y, many(14), 300, ["#ffee00", "#ff9900", "#ff3300"], 5);
+  }
+  function confetti(amount) {
+    var q = boardwrap.getBoundingClientRect(), n = many(amount || 70);
+    for (var side = 0; side < 2; side++) {
+      for (var k = 0; k < n; k++) {
+        chip(side ? q.right : q.left, q.bottom, { vx: (side ? -1 : 1) * rnd(80, 440), vy: -rnd(500, 950), g: 700, drag: 1.3,
+          c: pick(RAINBOW), s: rnd(4, 8), life: rnd(1.4, 2.4), blink: true });
+      }
+    }
+  }
+  function floatText(x, y, html, cls) {
+    // too many at once just pile up unreadably and cost a lot on phones, so the oldest makes room
+    while (floats.childElementCount >= MAX_FLOATS) floats.removeChild(floats.firstChild);
+    var d = document.createElement("div");
+    d.className = "fl-float " + (cls || "");
+    d.innerHTML = html;
+    d.style.left = Math.round(x) + "px"; d.style.top = Math.round(y) + "px";
+    floats.appendChild(d);
+    setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 1400);
+  }
+  function restart(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+  function flash(kind) { flashEl.className = "fl-flash"; void flashEl.offsetWidth; flashEl.className = "fl-flash " + kind; }
+  function quake() { frame.classList.remove("bump"); restart(frame, "quake"); }
+
+  // rolling numbers
+  var disp = { r: 0, b: bank };
+  function roll(key, el, to, ms) {
+    var from = disp[key], t0 = performance.now(), id = (el._roll || 0) + 1;
+    el._roll = id;
+    if (reduce || from === to) { disp[key] = to; el.textContent = to; return; }
+    (function step(now) {
+      if (el._roll !== id) return;
+      var k = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - k, 3), v = Math.round(from + (to - from) * e);
+      disp[key] = v; el.textContent = v;
+      if (k < 1) requestAnimationFrame(step);
+    })(t0);
+  }
+  function countUp(el, to, ms, sound) {
+    var t0 = performance.now(), lastV = -1;
+    if (reduce) { el.textContent = to; return; }
+    (function step(now) {
+      var k = Math.min(1, (now - t0) / ms), v = Math.round(to * (1 - Math.pow(1 - k, 2)));
+      if (v !== lastV) { el.textContent = v; lastV = v; if (sound) tickSnd(); }
+      if (k < 1) requestAnimationFrame(step);
+    })(t0);
+  }
+
+  // ---------- sound (tiny square-wave bleeps) ----------
+  var ac = null, lastTick = 0;
+  function audio() {
+    if (mute || document.hidden) return null;
+    try {
+      if (!ac) { var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; ac = new AC(); }
+      if (ac.state !== "running") ac.resume();   // iPhones report "interrupted" after a call or the app switcher
+    } catch (e) { return null; }
+    return ac;
+  }
+  function tone(freq, start, dur, vol, type, endFreq) {
+    var a = audio(); if (!a) return;
+    var t = a.currentTime + start, o = a.createOscillator(), gn = a.createGain();
+    o.type = type || "square"; o.frequency.setValueAtTime(freq, t);
+    if (endFreq) o.frequency.exponentialRampToValueAtTime(endFreq, t + dur);
+    gn.gain.setValueAtTime(vol || 0.06, t); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(gn); gn.connect(a.destination); o.start(t); o.stop(t + dur + 0.02);
+  }
+  function tickSnd() {
+    var n = performance.now();
+    if (n - lastTick < 38) return;
+    lastTick = n;
+    tone(1500 + Math.random() * 400, 0, 0.03, 0.025);
+  }
+  var boomBuf = null;
+  function boomSound() {
+    var a = audio(); if (!a) return;
+    try {
+      if (!boomBuf) {
+        var len = Math.floor(a.sampleRate * 0.9), d;
+        boomBuf = a.createBuffer(1, len, a.sampleRate); d = boomBuf.getChannelData(0);
+        for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
+      }
+      var buf = boomBuf;
+      var src = a.createBufferSource(), f = a.createBiquadFilter(), gn = a.createGain();
+      f.type = "lowpass"; f.frequency.value = 1000; gn.gain.value = 0.4;
+      src.buffer = buf; src.connect(f); f.connect(gn); gn.connect(a.destination); src.start();
+    } catch (e) {}
+    tone(420, 0, 0.7, 0.1, "square", 35);
+  }
+  // ---------- music: a looping swing tune (luckyflip/music.mp3) ----------
+  // The file is one seamless 16-bar loop with half a second of padding on both ends.
+  // Flipping a bomb winds it down like a tape stopping; the next round starts it fresh.
+  var MUSIC = { src: "/luckyflip/music.mp3", loop: 64 * 60 / 150, pad: 0.5, vol: 0.4 };
+  var mus = { buf: null, loading: false, src: null, gain: null, want: false };
+  function musicLoad(a) {
+    if (mus.buf || mus.loading) return;
+    mus.loading = true;
+    fetch(MUSIC.src).then(function (r) { return r.arrayBuffer(); })
+      .then(function (data) { return new Promise(function (ok, bad) { var pr = a.decodeAudioData(data, ok, bad); if (pr && pr.catch) pr.catch(bad); }); })
+      .then(function (buf) { mus.buf = buf; mus.loading = false; if (mus.want && !mus.src) musicStart(); })
+      .catch(function () { mus.loading = false; });
+  }
+  function musicStart() {
+    if (mute || musicOff) return;
+    mus.want = true;
+    var a = audio(); if (!a || mus.src) return;
+    // browsers keep sound locked until a tap: wait for it to unlock instead of starting into a locked context
+    if (!a.onstatechange) a.onstatechange = function () { if (a.state === "running" && mus.want && !mus.src) musicStart(); };
+    if (!mus.buf) { musicLoad(a); return; }   // starts by itself once it has loaded
+    if (a.state !== "running") return;
+    var src = a.createBufferSource(), gn = a.createGain();
+    src.buffer = mus.buf; src.loop = true;
+    src.loopStart = MUSIC.pad; src.loopEnd = MUSIC.pad + MUSIC.loop;
+    gn.gain.value = MUSIC.vol;
+    src.connect(gn); gn.connect(a.destination);
+    src.start(a.currentTime + 0.03, MUSIC.pad);
+    mus.src = src; mus.gain = gn;
+  }
+  function musicStop() {
+    mus.want = false;
+    if (!mus.src) return;
+    try { mus.src.stop(); } catch (e) {}
+    mus.src = null;
+  }
+  // bomb: the song slows down and drops in pitch until it stops
+  function musicWindDown() {
+    mus.want = false;
+    if (!mus.src || !ac) return;
+    var src = mus.src, gn = mus.gain, t = ac.currentTime, d = 1.4;
+    mus.src = null;
+    try {
+      src.playbackRate.cancelScheduledValues(t);
+      src.playbackRate.setValueAtTime(1, t);
+      src.playbackRate.exponentialRampToValueAtTime(0.06, t + d);
+      gn.gain.setValueAtTime(MUSIC.vol, t + d * 0.45);
+      gn.gain.linearRampToValueAtTime(0, t + d);
+      src.stop(t + d + 0.05);
+    } catch (e) { try { src.stop(); } catch (e2) {} }
+  }
+  // Konami fake-out: the song sinks, slowing and fading like something spooky is coming...
+  function musicSpooky(d) {
+    if (!mus.src || !ac) return;
+    var t = ac.currentTime;
+    try {
+      mus.src.playbackRate.cancelScheduledValues(t); mus.src.playbackRate.setValueAtTime(mus.src.playbackRate.value, t);
+      mus.src.playbackRate.linearRampToValueAtTime(0.62, t + d);
+      mus.gain.gain.cancelScheduledValues(t); mus.gain.gain.setValueAtTime(mus.gain.gain.value, t);
+      mus.gain.gain.linearRampToValueAtTime(MUSIC.vol * 0.25, t + d);
+    } catch (e) {}
+  }
+  // ...then snaps right back to normal
+  function musicUnspooky() {
+    if (!mus.src || !ac) return;
+    var t = ac.currentTime;
+    try {
+      mus.src.playbackRate.cancelScheduledValues(t); mus.src.playbackRate.setValueAtTime(mus.src.playbackRate.value, t);
+      mus.src.playbackRate.linearRampToValueAtTime(1, t + 0.12);
+      mus.gain.gain.cancelScheduledValues(t); mus.gain.gain.setValueAtTime(mus.gain.gain.value, t);
+      mus.gain.gain.linearRampToValueAtTime(MUSIC.vol, t + 0.12);
+    } catch (e) {}
+  }
+  // any tap or key press unlocks sound if it's still locked (phones only count some kinds of touch, so listen to all of them)
+  function musicKick() { if (!mute && !musicOff && mus.want && !mus.src) musicStart(); }
+  ["pointerdown", "touchend", "click", "keydown"].forEach(function (ev) { document.addEventListener(ev, musicKick, true); });
+  // leaving the page (another page on the site, another tab, or the app in the background) shuts the sound off completely.
+  // Phones (iPhones especially) can hand a paused sound engine back broken, so resuming it gives a loud buzz.
+  // Instead the old engine is thrown away and a fresh one is made on return; the loaded song is kept, so nothing re-downloads.
+  var musicWasOn = false;
+  function silence() {
+    if (mus.src) { try { mus.src.stop(); } catch (e) {} mus.src = null; mus.gain = null; }
+    var old = ac; ac = null; boomBuf = null;
+    if (old) { try { old.onstatechange = null; old.close(); } catch (e) {} }
+  }
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) { silence(); return; }
+    if (!mute && !musicOff && mus.want && state === "play") musicStart();   // plays now, or on the next tap if the phone wants one
+  });
+  window.addEventListener("pagehide", function () {
+    musicWasOn = mus.want;
+    musicStop();
+    silence();
+  });
+  window.addEventListener("pageshow", function (e) {
+    if (!e.persisted) return;   // came back with the back button and the page was kept in memory
+    if (musicWasOn && state === "play" && !mute) musicStart();
+    musicWasOn = false;
+  });
+  function up(base) { return base * Math.pow(2, Math.min(combo - 1, 6) / 6); }
+  var sfx = {
+    deal: function () { for (var k = 0; k < 5; k++) tone(300 + k * 90, k * 0.06, 0.04, 0.03); },
+    one: function () { tone(330, 0, 0.05); tone(494, 0.04, 0.06); },
+    two: function () { var b = up(587); tone(b, 0, 0.06); tone(b * 1.5, 0.06, 0.14); },
+    three: function () { var b = up(659); tone(b, 0, 0.05); tone(b * 1.26, 0.05, 0.05); tone(b * 1.5, 0.1, 0.05); tone(b * 2, 0.15, 0.22); },
+    mark: function () { tone(1200, 0, 0.03, 0.03); },
+    line: function () { tone(784, 0, 0.07, 0.05); tone(1047, 0.07, 0.16, 0.05); },
+    milestone: function () { [784, 988, 1175, 1568].forEach(function (f, i) { tone(f, i * 0.07, 0.12, 0.06); }); },
+    heart: function () { tone(80, 0, 0.12, 0.2, "sine"); tone(70, 0.2, 0.14, 0.16, "sine"); },
+    win: function () {
+      [[523, 0, 0.1], [659, 0.1, 0.1], [784, 0.2, 0.1], [1047, 0.3, 0.22], [784, 0.56, 0.08], [1047, 0.66, 0.08], [1319, 0.76, 0.4]]
+        .forEach(function (n) { tone(n[0], n[1], n[2], 0.07); tone(n[0] / 2, n[1], n[2], 0.04, "triangle"); });
+    },
+    cash: function () { tone(988, 0, 0.08); tone(1319, 0.08, 0.25); },
+    boom: boomSound
+  };
+  function play(name) { if (!mute) sfx[name](); }
+
+  // ---------- rounds ----------
+  // early levels guarantee some rows/columns with no bombs at all, then it eases off as you level up
+  var SAFE_LINES = [3, 2, 2, 1, 1, 0, 0, 0];
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function makeBoard(pick5, safe) {
+    var bombs = pick5[2], cells = [], i;
+    for (i = 0; i < N * N; i++) cells.push(i);
+    // pick which lines (rows 0-4, columns 5-9) stay bomb-free, leaving enough room for every bomb
+    var safeRows = {}, safeCols = {}, allowed = cells;
+    for (var tries = 0; tries < 50 && safe > 0; tries++) {
+      var lines = shuffle([0,1,2,3,4,5,6,7,8,9]).slice(0, safe);
+      safeRows = {}; safeCols = {};
+      lines.forEach(function (l) { if (l < N) safeRows[l] = true; else safeCols[l - N] = true; });
+      allowed = cells.filter(function (k) { return !safeRows[Math.floor(k / N)] && !safeCols[k % N]; });
+      if (allowed.length >= bombs + 2) break;
+      allowed = cells;
+    }
+    var out = new Array(N * N), bombAt = {};
+    shuffle(allowed.slice()).slice(0, bombs).forEach(function (k) { out[k] = 0; bombAt[k] = true; });
+    var rest = shuffle(cells.filter(function (k) { return !bombAt[k]; })), n = 0;
+    for (i = 0; i < pick5[0]; i++) out[rest[n++]] = 2;
+    for (i = 0; i < pick5[1]; i++) out[rest[n++]] = 3;
+    while (n < rest.length) out[rest[n++]] = 1;
+    return out;
+  }
+  // a saved round from before a refresh, if it's still good
+  function savedRound() {
+    var r = saved.round; saved.round = null;
+    if (!r || r.lv !== level || !Array.isArray(r.vals) || !Array.isArray(r.open) || !Array.isArray(r.marks)) return null;
+    if (r.vals.length !== N * N || r.open.length !== N * N || r.marks.length !== N * N) return null;
+    for (var k = 0; k < N * N; k++) {
+      if ([0, 1, 2, 3].indexOf(r.vals[k]) < 0 || typeof r.open[k] !== "boolean") return null;
+      if (r.open[k] && r.vals[k] === 0) return null;   // a bomb was flipped: that round is over
+    }
+    return r;
+  }
+  function newRound(resume) {
+    var sets = LEVELS[level - 1], pick5 = sets[Math.floor(Math.random() * sets.length)];
+    var i;
+    vals = resume ? resume.vals.slice() : makeBoard(pick5, SAFE_LINES[level - 1] || 0);
+    open = []; marks = [];
+    for (i = 0; i < N * N; i++) { open.push(resume ? resume.open[i] : false); marks.push(resume ? clampInt(resume.marks[i], 0, 15, 0) : 0); }
+    rowSum = [0,0,0,0,0]; rowBombs = [0,0,0,0,0]; colSum = [0,0,0,0,0]; colBombs = [0,0,0,0,0];
+    rowDone = [false,false,false,false,false]; colDone = [false,false,false,false,false];
+    for (i = 0; i < N * N; i++) {
+      var rr = Math.floor(i / N), cc = i % N;
+      if (vals[i] === 0) { rowBombs[rr]++; colBombs[cc]++; } else { rowSum[rr] += vals[i]; colSum[cc] += vals[i]; }
+    }
+    need = pick5[0] + pick5[1]; found = 0; flips = 0; coins = 0; combo = 0; boomAt = -1;
+    if (resume) {
+      need = 0;
+      for (i = 0; i < N * N; i++) { if (vals[i] > 1) { need++; if (open[i]) found++; } }
+      flips = clampInt(resume.flips, 0, N * N, 0); coins = clampInt(resume.coins, 0, 1e9, 0); combo = clampInt(resume.combo, 0, N * N, 0);
+    }
+    state = "play";
+    closeDialog();
+    renderHints();
+    if (resume) for (i = 0; i < N; i++) {   // rows and columns already finished before the refresh
+      var rowOk = true, colOk = true;
+      for (var k = 0; k < N; k++) { if (vals[i * N + k] !== 0 && !open[i * N + k]) rowOk = false; if (vals[k * N + i] !== 0 && !open[k * N + i]) colOk = false; }
+      if (rowOk) { rowDone[i] = true; rowHints[i].classList.add("done"); }
+      if (colOk) { colDone[i] = true; colHints[i].classList.add("done"); }
+    }
+    renderAll();
+    roll("r", roundEl, coins, 1);
+    renderStats();
+    pipsEl.innerHTML = new Array(need + 1).join("<i></i>");
+    updateMeter();
+    save();
+    // deal the tiles in
+    if (!reduce) {
+      tiles.forEach(function (t, k) {
+        t.style.animationDelay = ((Math.floor(k / N) + k % N) * 35) + "ms";
+        t.classList.add("deal");
+      });
+      setTimeout(function () { tiles.forEach(function (t) { t.classList.remove("deal"); t.style.animationDelay = ""; }); }, 700);
+    }
+    play("deal");
+    musicStart();
+    if (level !== lastLevel) {
+      if (level > lastLevel) { restart(corner, "lvup"); pop("Level " + level, "gold"); }
+      lastLevel = level;
+    }
+  }
+
+  function flipFx(i, after) {
+    if (reduce) { after(); return; }
+    tiles[i].classList.add("squash");
+    tone(220, 0, 0.05, 0.02, "triangle", 440);
+    setTimeout(after, 140);
+  }
+
+  function flip(i) {
+    if (state !== "play" || open[i]) return;
+    if (tut && tut.allow !== i) return;
+    if (memo && !tut) { toggleMark(i, memoMark); return; }
+    open[i] = true;
+    var v = vals[i];
+    if (v === 0) {
+      state = "dying";
+      // the penalty counts right away, not after the explosion, so refreshing can't dodge it
+      save({ level: dropTo(), streak: 0, losses: losses + 1, round: null });
+      renderStats();
+      flipFx(i, function () { lose(i); });
+      return;
+    }
+    flips++;
+    var prev = coins;
+    coins = coins === 0 ? v : coins * v;
+    if (v > 1) { found++; combo++; } else combo = 0;
+    var cleared = found === need;
+    if (cleared) state = "winning";
+    save();
+    renderStats();
+    flipFx(i, function () {
+      renderTile(i);
+      var el = tiles[i], c = center(el);
+      el.classList.add(v === 3 ? "shine3" : v === 2 ? "shine2" : "pop");
+      burst(el, v);
+      play(v === 3 ? "three" : v === 2 ? "two" : "one");
+      if (v > 1) {
+        floatText(c.x, c.y - c.h * 0.3, "x" + v + (v === 3 ? "!!" : "!") + (combo > 1 ? "<small>Combo x" + combo + "</small>" : ""), "x" + v);
+        var n = many(v === 3 ? 9 : 5);
+        for (var k = 0; k < n; k++) coin(c.x, c.y, roundEl, 0.22 + k * 0.035, function () { tickSnd(); restart(roundEl, "bump"); });
+        if (v === 3) restart(frame, "bump");
+        roll("r", roundEl, coins, 900);
+      } else {
+        floatText(c.x, c.y - c.h * 0.3, prev === 0 ? "+1" : "x1", "x1");
+        roll("r", roundEl, coins, 200);
+      }
+      updateMeter();
+      checkLines(i);
+      if (cleared) { win(i); return; }
+      var hit = 0;
+      MILESTONES.forEach(function (m) { if (prev < m && coins >= m) hit = m; });
+      if (hit) setTimeout(function () { if (state === "play") { pop(hit + " Coins!!", "gold"); play("milestone"); confetti(14); } }, 380);
+      else if (v > 1 && need - found === 1) setTimeout(function () { if (state === "play") { pop("One Left!", "red"); play("heart"); } }, 300);
+    });
+  }
+
+  function checkLines(i) {
+    var r0 = Math.floor(i / N), c0 = i % N, rowOk = true, colOk = true, k;
+    for (k = 0; k < N; k++) {
+      if (vals[r0 * N + k] !== 0 && !open[r0 * N + k]) rowOk = false;
+      if (vals[k * N + c0] !== 0 && !open[k * N + c0]) colOk = false;
+    }
+    var any = false;
+    if (rowOk && !rowDone[r0]) { rowDone[r0] = true; lineDone(rowHints[r0], "Row!"); any = true; }
+    if (colOk && !colDone[c0]) { colDone[c0] = true; lineDone(colHints[c0], "Column!"); any = true; }
+    if (any) setTimeout(function () { play("line"); }, 120);
+  }
+  function lineDone(hint, word) {
+    hint.classList.add("done");
+    restart(hint, "ding");
+    var c = center(hint);
+    ring(c.x, c.y, 14, 260, ["#00cc00", "#ffff00", "#ffffff"], 4);
+    floatText(c.x, c.y - 10, word, "line");
+  }
+
+  function toggleMark(i, m) {
+    if (state !== "play" || open[i] || tut) return;
+    marks[i] ^= m;
+    save();
+    renderTile(i);
+    play("mark");
+  }
+
+  function dropTo() { return Math.max(1, Math.min(level, flips)); }
+
+  function waveReveal(origin, quick) {
+    var or = Math.floor(origin / N), oc = origin % N, longest = 0;
+    for (var i = 0; i < N * N; i++) {
+      if (open[i]) continue;
+      var d = Math.abs(Math.floor(i / N) - or) + Math.abs(i % N - oc), delay = reduce ? 0 : d * 70;
+      longest = Math.max(longest, delay);
+      (function (i, delay) {
+        setTimeout(function () { renderTile(i); if (!reduce) tiles[i].classList.add(LOW ? "reveal2d" : "reveal"); if (delay && Math.round(delay / 70) % 2 === 0) tone(500 + delay, 0, 0.02, 0.015); }, delay);
+      })(i, delay);
+    }
+    return longest + 350;
+  }
+
+  var BLAST = '<svg class="blast" viewBox="0 0 32 32" aria-hidden="true" shape-rendering="crispEdges">' +
+    '<polygon points="16,0 19,9 29,4 23,13 32,16 23,19 29,28 19,23 16,32 13,23 3,28 9,19 0,16 9,13 3,4 13,9" fill="#ff2000"/>' +
+    '<polygon points="16,5 18,11 25,8 21,14 27,16 21,18 25,24 18,21 16,27 14,21 7,24 11,18 5,16 11,14 7,8 14,11" fill="#ff9900"/>' +
+    '<polygon points="16,9 17.5,13 21,11.5 19,15 23,16 19,17 21,20.5 17.5,19 16,23 14.5,19 11,20.5 13,17 9,16 13,15 11,11.5 14.5,13" fill="#ffee00"/>' +
+    '<rect x="14" y="14" width="4" height="4" fill="#ffffff"/></svg>';
+
+  // the bomb you flipped: fuse fizzes, it swells up, then pops
+  function lose(i) {
+    var el = tiles[i];
+    renderTile(i);
+    musicWindDown();
+    if (reduce) { blowUp(i); return; }
+    el.classList.add("fuse");
+    var a = audio();
+    if (a) { tone(1800, 0, 0.38, 0.025, "sawtooth", 2600); tone(90, 0, 0.38, 0.05, "square", 180); }
+    var c = center(el), sparks = setInterval(function () {
+      for (var k = 0; k < 3; k++) chip(c.x + c.w * 0.3, c.y - c.h * 0.32, { sp: 120, up: 80, g: 300, c: pick(["#ffee00", "#ff9900", "#ffffff"]), s: rnd(2, 4), life: rnd(0.2, 0.4) });
+    }, 40);
+    setTimeout(function () { clearInterval(sparks); blowUp(i); }, 420);
+  }
+
+  function blowUp(i) {
+    state = "lost";
+    boomAt = i;
+    losses++;
+    var lost = coins, from = level, hadStreak = streak;
+    streak = 0; combo = 0;
+    level = dropTo();
+    coins = 0;
+    save();
+    renderTile(i);
+    var el = tiles[i];
+    el.classList.add("boomfx");
+    if (!reduce) {
+      var bl = document.createElement("span");
+      bl.className = "fl-blast";
+      bl.innerHTML = BLAST;
+      el.appendChild(bl);
+      setTimeout(function () { if (bl.parentNode) bl.parentNode.removeChild(bl); }, 700);
+    }
+    explode(el);
+    play("boom");
+    flash("red");
+    quake();
+    pop("Boom!", "red");
+    roundEl.classList.add("lose");
+    roll("r", roundEl, 0, 700);
+    setTimeout(function () { roundEl.classList.remove("lose"); }, 1000);
+    renderStats();
+    updateMeter();
+    setTimeout(function () {
+      var wait = waveReveal(i, true);
+      setTimeout(function () {
+        var msg = lost > 0 ? "That bomb just ate <b>" + lost + "</b> coin" + (lost === 1 ? "" : "s") + "." : "Boom. Didn't even get started.";
+        var lv = level < from ? "You dropped to level <b>" + level + "</b>." : "You're still on level <b>" + level + "</b>.";
+        var st = hadStreak >= 2 ? "<p>Your x" + hadStreak + " streak is gone.</p>" : "";
+        showDialog("Kaboom!", '<h2 class="oops">oops...</h2><p>' + msg + "</p><p>" + lv + "</p>" + st, "Try Again");
+      }, wait);
+    }, 800);
+  }
+
+  function win(i) {
+    state = "won";
+    wins++;
+    streak++;
+    var bonusPct = Math.min(50, (streak - 1) * 10), bonus = Math.floor(coins * bonusPct / 100), payout = coins + bonus;
+    bank += payout;
+    var newBest = payout > best;
+    if (newBest) best = payout;
+    var from = level;
+    if (level < MAX_LEVEL) level++;
+    save();
+    renderStats();
+    setTimeout(function () {
+      flash("white");
+      play("win");
+      pop("Cleared!", "gold big");
+      confetti();
+      quake();
+      setTimeout(function () { waveReveal(i); }, reduce ? 0 : 400);
+    }, 260);
+    setTimeout(function () {
+      var c = center(roundEl), n = many(Math.min(40, 10 + Math.round(Math.log(payout + 1) * 3)));
+      for (var k = 0; k < n; k++) coin(c.x, c.y, bankEl, 0.12 + k * 0.03, function () { tickSnd(); restart(bankEl, "bump"); });
+      roll("b", bankEl, bank, 1300);
+      if (bonus > 0) floatText(c.x, c.y - 24, "Streak Bonus<small>+" + bonus + "</small>", "x3");
+      if (newBest) setTimeout(function () { var b = center(bestEl); floatText(b.x, b.y, "New Best!!", "x2"); restart(bestEl, "bump"); play("milestone"); }, 700);
+    }, 1000);
+    setTimeout(function () {
+      var lv = from < MAX_LEVEL ? '<p class="fl-lvup">Level Up! &rarr; ' + level + "</p>" : "<p>Max level. You're a legend.</p>";
+      var st = streak >= 2 ? '<p class="fl-hot">&#9733; x' + streak + " Win Streak &#9733;</p>" : "";
+      var bn = bonus > 0 ? '<p class="muted">includes +' + bonus + " streak bonus</p>" : "";
+      showDialog("Level Cleared", '<h2>Cleared!</h2><div class="big" data-count="' + payout + '">0</div><p>coins banked</p>' + bn + st + lv, "Next Level");
+    }, 2300);
+  }
+
+  function askCashOut() {
+    if (state !== "play" || coins <= 0) return;
+    var to = dropTo();
+    var lv = to < level ? "You'll drop to level <b>" + to + "</b>." : "You'll stay on level <b>" + level + "</b>.";
+    var st = streak >= 2 ? "<p>This ends your x" + streak + " streak.</p>" : "";
+    showDialog("Cash Out?", '<p>Walk away with</p><div class="big">' + coins + "</div><p>" + lv + "</p>" + st, "Cash Out", cashOut, "Keep Going");
+  }
+  function cashOut() {
+    state = "cashed";
+    var got = coins;
+    bank += got;
+    if (got > best) best = got;
+    level = dropTo();
+    streak = 0;
+    save();
+    renderStats();
+    play("cash");
+    var c = center(roundEl);
+    for (var k = 0; k < many(Math.min(30, 8 + Math.round(Math.log(got + 1) * 3))); k++) coin(c.x, c.y, bankEl, 0.1 + k * 0.03, function () { tickSnd(); restart(bankEl, "bump"); });
+    roll("b", bankEl, bank, 1100);
+    var wait = waveReveal(cur);
+    setTimeout(function () {
+      showDialog("Cashed Out", '<h2>Cha-Ching!</h2><div class="big" data-count="' + got + '">0</div><p>coins banked</p><p class="muted">Here\'s where everything was.</p>', "Next Round");
+    }, Math.max(1100, wait));
+  }
+
+  // ---------- drawing ----------
+  function renderHints() {
+    for (var k = 0; k < N; k++) {
+      setHint(rowHints[k], rowSum[k], rowBombs[k], "Row " + (k + 1));
+      setHint(colHints[k], colSum[k], colBombs[k], "Column " + (k + 1));
+    }
+    corner.innerHTML = "<small>Lv</small><b>" + level + "</b>";
+  }
+  function setHint(el, sum, bombs, name) {
+    el.classList.remove("done", "ding");
+    if (!el._built) { el.innerHTML = "<b>0</b><i></i><span>" + BOMB + "<em>0</em></span>"; el._built = true; }
+    el.setAttribute("aria-label", name + ": adds up to " + sum + ", " + bombs + " bombs");
+    countUp(el.querySelector("b"), sum, 450);
+    countUp(el.querySelector("em"), bombs, 450);
+  }
+
+  function renderTile(i) {
+    var el = tiles[i], v = vals[i], over = state !== "play" && state !== "winning" && state !== "dying";
+    var shown = open[i] || over;
+    var cls = "fl-tile";
+    var rr = Math.floor(i / N) + 1, cc = (i % N) + 1, label, h = "";
+    if (shown) {
+      cls += " open v" + v;
+      if (!open[i]) cls += " ghost";
+      if (i === boomAt) cls += " boom";
+      h = v === 0 ? BOMB : "<span>" + v + "</span>";
+      if (el._html !== h) { el.innerHTML = h; }
+      label = v === 0 ? "bomb" : String(v);
+    } else {
+      var m = marks[i];
+      if (m & 1) h += '<span class="mk b">' + BOMB + "</span>";
+      if (m & 2) h += '<span class="mk n1">1</span>';
+      if (m & 4) h += '<span class="mk n2">2</span>';
+      if (m & 8) h += '<span class="mk n3">3</span>';
+      if (el._html !== h) { el.innerHTML = h; }
+      label = "face down" + (m ? ", noted" : "");
+    }
+    el._html = h;
+    if (i === cur) cls += " cur";
+    el.className = cls;
+    el.style.animationDelay = "";
+    el.setAttribute("aria-label", "Row " + rr + " column " + cc + ": " + label);
+  }
+
+  function renderAll() { for (var i = 0; i < N * N; i++) renderTile(i); }
+
+  function renderStats() {
+    $("flLevel").textContent = level;
+    bestEl.textContent = best;
+    $("flWL").textContent = wins + " / " + losses;
+    $("flStreak").textContent = streak;
+    $("flCash").disabled = !(state === "play" && coins > 0);
+  }
+
+  function updateMeter() {
+    var kids = pipsEl.children;
+    for (var k = 0; k < kids.length; k++) kids[k].classList.toggle("on", k < found);
+    pipsEl.classList.toggle("last", state === "play" && need - found === 1);
+    if (combo >= 2 && state !== "lost") { comboEl.textContent = "Combo x" + combo; restart(comboEl, "bump"); }
+    else comboEl.textContent = "";
+  }
+
+  function pop(text, cls) {
+    var h = "";
+    for (var k = 0; k < text.length; k++) {
+      var ch = text.charAt(k);
+      h += ch === " " ? "&nbsp;" : '<span style="animation-delay:' + (k * 40) + 'ms">' + ch + "</span>";
+    }
+    callout.innerHTML = h;
+    callout.className = "fl-callout " + (cls || "");
+    void callout.offsetWidth;
+    callout.classList.add("show");
+  }
+
+  // ---------- dialog ----------
+  var dialogMain = null;
+  function showDialog(title, body, mainLabel, mainFn, altLabel) {
+    dialog.innerHTML = '<div class="dt">' + title + '</div><div class="db">' + body +
+      '<div class="fl-row"><button class="fl-btn go" id="flDlgMain">' + mainLabel + "</button>" +
+      (altLabel ? '<button class="fl-btn" id="flDlgAlt">' + altLabel + "</button>" : "") + "</div></div>";
+    overlay.hidden = false;
+    restart(dialog, "in");
+    dialogMain = mainFn || newRound;
+    $("flDlgMain").addEventListener("click", function () { var f = dialogMain; closeDialog(); f(); });
+    if (altLabel) $("flDlgAlt").addEventListener("click", closeDialog);
+    var cnt = dialog.querySelector("[data-count]");
+    if (cnt) countUp(cnt, +cnt.getAttribute("data-count"), 700, true);
+    try { $("flDlgMain").focus({ preventScroll: true }); } catch (e) {}
+  }
+  function closeDialog() { overlay.hidden = true; dialog.innerHTML = ""; dialogMain = null; }
+
+  // ---------- input ----------
+  var held = null, heldFired = false;
+  gridEl.addEventListener("click", function (e) {
+    var t = e.target.closest(".fl-tile");
+    if (!t) return;
+    if (heldFired) { heldFired = false; return; }
+    gridEl.classList.remove("kb");
+    setCur(+t.getAttribute("data-i"));
+    flip(+t.getAttribute("data-i"));
+  });
+  gridEl.addEventListener("contextmenu", function (e) {
+    var t = e.target.closest(".fl-tile");
+    if (!t) return;
+    e.preventDefault();
+    if (heldFired) return;
+    toggleMark(+t.getAttribute("data-i"), 1);
+  });
+  // hold a tile on a phone to mark it as a bomb
+  gridEl.addEventListener("pointerdown", function (e) {
+    var t = e.target.closest(".fl-tile");
+    if (!t || e.pointerType === "mouse") return;
+    heldFired = false;
+    clearTimeout(held);
+    held = setTimeout(function () {
+      heldFired = true;
+      toggleMark(+t.getAttribute("data-i"), 1);
+      try { if (navigator.vibrate) navigator.vibrate(15); } catch (er) {}
+    }, 420);
+  });
+  ["pointerup", "pointercancel", "pointerleave"].forEach(function (ev) {
+    gridEl.addEventListener(ev, function () { clearTimeout(held); });
+  });
+  gridEl.addEventListener("pointerover", function (e) {
+    var t = e.target.closest(".fl-tile");
+    if (t) highlight(+t.getAttribute("data-i"));
+  });
+  gridEl.addEventListener("pointerleave", function () { highlight(gridEl.classList.contains("kb") ? cur : -1); });
+
+  function highlight(i) {
+    for (var k = 0; k < N; k++) {
+      rowHints[k].classList.toggle("hl", i >= 0 && Math.floor(i / N) === k);
+      colHints[k].classList.toggle("hl", i >= 0 && i % N === k);
+    }
+  }
+  function setCur(i) {
+    var old = cur; cur = i;
+    tiles[old].classList.remove("cur");
+    tiles[cur].classList.add("cur");
+  }
+
+  function setMemo(on) {
+    memo = on;
+    var b = $("flMemo");
+    b.textContent = "Notes: " + (on ? "On" : "Off");
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", on ? "true" : "false");
+    $("flMarks").classList.toggle("off", !on);
+  }
+  $("flMemo").addEventListener("click", function () { setMemo(!memo); });
+  Array.prototype.forEach.call($("flMarks").querySelectorAll("[data-mark]"), function (b) {
+    b.addEventListener("click", function () {
+      memoMark = +b.getAttribute("data-mark");
+      Array.prototype.forEach.call($("flMarks").querySelectorAll("[data-mark]"), function (o) { o.classList.toggle("on", o === b); });
+      setMemo(true);
+    });
+  });
+  $("flCash").addEventListener("click", askCashOut);
+  function setSound() {
+    $("flSound").textContent = "Sound: " + (mute ? "Off" : "On");
+    $("flSoundM").innerHTML = mute ? "<s>&#9834;</s>" : "&#9834;";
+    $("flSoundM").classList.toggle("on", mute);
+  }
+  function toggleSound() { mute = !mute; save(); setSound(); if (mute) musicStop(); else { play("mark"); if (state === "play") musicStart(); } }
+  // music has its own switch, so you can keep the sound effects and lose the song
+  function setMusic() {
+    $("flMusic").textContent = "Music: " + (musicOff ? "Off" : "On");
+    $("flMusicM").innerHTML = musicOff ? "<s>&#9835;</s>" : "&#9835;";
+    $("flMusicM").classList.toggle("on", musicOff);
+  }
+  function toggleMusic() { musicOff = !musicOff; save(); setMusic(); if (musicOff) musicStop(); else if (state === "play" && !mute) musicStart(); }
+  $("flMusic").addEventListener("click", toggleMusic);
+  $("flMusicM").addEventListener("click", toggleMusic);
+  $("flSound").addEventListener("click", toggleSound);
+  $("flSoundM").addEventListener("click", toggleSound);
+  function setFx() {
+    $("flFx").textContent = "Effects: " + (reduce ? "Off" : "On");
+    $("flFxM").innerHTML = reduce ? "<s>FX</s>" : "FX";
+    document.body.classList.toggle("fl-nofx", reduce);
+  }
+  function toggleFx() { reduce = !reduce; save(); setFx(); if (!reduce) { var c = center($("flFxM").offsetParent ? $("flFxM") : $("flFx")); ring(c.x, c.y, 12, 200, RAINBOW, 4); } }
+  $("flFx").addEventListener("click", toggleFx);
+  $("flFxM").addEventListener("click", toggleFx);
+  setFx();
+  $("flHelpBtn").addEventListener("click", function () { document.body.classList.add("fl-helpopen"); });
+  $("flHelpClose").addEventListener("click", function () { document.body.classList.remove("fl-helpopen"); });
+  document.addEventListener("click", function (e) {
+    if (document.body.classList.contains("fl-helpopen") && !e.target.closest(".fl-help, #flHelpBtn")) document.body.classList.remove("fl-helpopen");
+  });
+
+  document.addEventListener("keydown", function (e) {
+    var tag = (e.target && e.target.tagName) || "";
+    if (tag === "INPUT" || tag === "TEXTAREA" || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (!document.body.contains(gridEl)) return;
+    var k = e.key;
+    if (tut) {
+      if (k === "Escape") { e.preventDefault(); endTut(); }
+      else if ((k === "Enter" || k === "ArrowRight" || k === " ") && tut.allow == null) { e.preventDefault(); tutNext(); }
+      return;
+    }
+    if (!overlay.hidden) {
+      if (k === "Enter" || k === " ") { e.preventDefault(); var b = $("flDlgMain"); if (b) b.click(); }
+      else if (k === "Escape" && $("flDlgAlt")) closeDialog();
+      return;
+    }
+    var rr = Math.floor(cur / N), cc = cur % N, moved = true;
+    if (k === "ArrowUp") rr = (rr + N - 1) % N;
+    else if (k === "ArrowDown") rr = (rr + 1) % N;
+    else if (k === "ArrowLeft") cc = (cc + N - 1) % N;
+    else if (k === "ArrowRight") cc = (cc + 1) % N;
+    else moved = false;
+    if (moved) {
+      e.preventDefault();
+      gridEl.classList.add("kb");
+      setCur(rr * N + cc);
+      highlight(cur);
+      return;
+    }
+    var lk = k.toLowerCase();
+    if (k === " " || k === "Enter") {
+      if (e.target && e.target.closest && e.target.closest("button, a") && !e.target.closest(".fl-tile")) return;
+      e.preventDefault(); gridEl.classList.add("kb"); flip(cur);
+    }
+    else if (lk === "n") setMemo(!memo);
+    else if (lk === "b" || k === "0") { var was = marks[cur]; toggleMark(cur, 1); if (marks[cur] !== was) lastB = { i: cur, t: Date.now() }; }
+    else if (k === "1") toggleMark(cur, 2);
+    else if (k === "2") toggleMark(cur, 4);
+    else if (k === "3") toggleMark(cur, 8);
+  });
+
+  // ---------- tutorial ----------
+  var tut = null, touchy = false;
+  try { touchy = window.matchMedia("(pointer: coarse)").matches; } catch (e) {}
+  var TAP = touchy ? "Tap" : "Click", tapW = touchy ? "tap" : "click";
+  var tutBlock = document.createElement("div"), tutSpot = document.createElement("div"), tutBox = document.createElement("div");
+  tutBlock.className = "fl-tutblock"; tutSpot.className = "fl-tutspot"; tutBox.className = "fl-tutbox";
+  tutBox.setAttribute("role", "dialog"); tutBox.setAttribute("aria-live", "polite");
+  [tutBlock, tutSpot, tutBox].forEach(function (x) { x.hidden = true; document.body.appendChild(x); });
+
+  function safeTile() {
+    var best = -1;
+    for (var i = 0; i < N * N; i++) {
+      if (open[i] || vals[i] === 0) continue;
+      if (best < 0 || vals[i] > vals[best]) best = i;
+    }
+    return best;
+  }
+  function freeLine() {
+    for (var k = 0; k < N; k++) if (rowBombs[k] === 0) return { el: rowHints[k], word: "row" };
+    for (k = 0; k < N; k++) if (colBombs[k] === 0) return { el: colHints[k], word: "column" };
+    return null;
+  }
+  function buildSteps() {
+    var tile = safeTile(), free = freeLine();
+    var steps = [
+      { title: "Welcome!", text: "<b>Welcome to Lucky Flip!</b> Want a quick tutorial? It takes about 30 seconds.", next: "Show me!" },
+      { el: function () { return frame; }, text: "This is the board. Every tile is hiding a <b>1</b>, <b>2</b>, <b>3</b> or a <b>bomb</b> " + BOMB + "." },
+      { el: function () { return rowHints[0]; }, text: "These are your <b>clues</b>. The top number is what this row adds up to. The bottom is how many bombs are hiding in it. The ones along the bottom do the same for each column." },
+      { el: function () { return tiles[tile]; }, allow: tile, text: "Let's try one! " + TAP + " this tile. Don't worry, it's safe." },
+      { el: function () { return document.querySelector(".fl-stats"); }, text: "Nice! That's your <b>Coins</b>. The first number you flip starts them, then every <b>2</b> doubles them and every <b>3</b> triples them. 1s just keep you going." },
+      { el: function () { return $("flMeter"); }, text: "Find every 2 and 3 to <b>clear the level</b> and bank your coins. Flip a bomb and this round's coins go boom." },
+      { el: function () { return document.querySelector(".fl-notewin .fl-win-body"); }, text: "Not sure about a tile? Turn on <b>Notes</b> to mark what you think it is. " + (touchy ? "Holding down on a tile" : "Right-clicking a tile") + " marks it as a bomb fast." },
+      { el: function () { return $("flCash"); }, text: "Getting nervous? <b>Cash Out</b> banks what you have and starts a new round." }
+    ];
+    if (free) steps.push({ el: function () { return free.el; }, text: "<b>Pro tip:</b> this " + free.word + " has <b>0 bombs</b>, so every tile in it is safe. Free money!", next: "Let's go!" });
+    else steps.push({ text: "<b>Pro tip:</b> look for rows and columns with 0 bombs. Every tile in them is safe!", next: "Let's go!" });
+    steps[steps.length - 1].next = "Let's go!";
+    return steps;
+  }
+
+  function startTut() {
+    if (tut) return;
+    if (!(state === "play" && flips === 0 && overlay.hidden)) {
+      newRound();
+      setTimeout(startTut, reduce ? 50 : 750);
+      return;
+    }
+    setMemo(false);
+    tut = { i: 0, steps: buildSteps(), allow: null };
+    tutBlock.hidden = false; tutBox.hidden = false;
+    showTutStep();
+  }
+  function tutNext() {
+    if (!tut) return;
+    if (tut.i >= tut.steps.length - 1) { endTut(); return; }
+    tut.i++;
+    showTutStep();
+  }
+  function endTut() {
+    if (!tut) return;
+    tut = null;
+    tutDone = true; save();
+    cancelAnimationFrame(tutRaf);
+    tutBlock.hidden = true; tutSpot.hidden = true; tutBox.hidden = true;
+    tutBlock.style.pointerEvents = "";
+  }
+  function showTutStep() {
+    var st = tut.steps[tut.i], n = tut.steps.length, last = tut.i === n - 1;
+    tut.allow = st.allow != null ? st.allow : null;
+    var btns = "";
+    if (tut.allow == null) btns += '<button class="fl-btn go" id="flTutNext">' + (st.next || "Next &rarr;") + "</button>";
+    if (!last) btns += '<button class="fl-btn" id="flTutSkip">Skip Tutorial</button>';
+    tutBox.innerHTML = '<div class="dt"><span>' + (st.title || "Tutorial") + "</span><span>" + (tut.i ? tut.i + " / " + (n - 1) : "") + '</span></div>' +
+      '<div class="db"><p>' + st.text + "</p>" + (tut.allow != null ? '<p class="fl-tutwait">&#9758; ' + tapW + " the flashing tile</p>" : "") +
+      '<div class="fl-row">' + btns + "</div></div>";
+    if ($("flTutNext")) $("flTutNext").addEventListener("click", tutNext);
+    if ($("flTutSkip")) $("flTutSkip").addEventListener("click", endTut);
+    tutBlock.style.pointerEvents = tut.allow != null ? "none" : "";
+    var el = st.el ? st.el() : null;
+    if (el) {
+      var q = el.getBoundingClientRect();
+      if (q.top < 0 || q.bottom > window.innerHeight) { try { el.scrollIntoView({ block: "center" }); } catch (e) { el.scrollIntoView(); } }
+    }
+    restart(tutBox, "in");
+    lastSpot = "";
+    placeTut();
+    followTut();
+    play("mark");
+    try { var f = $("flTutNext"); if (f) f.focus({ preventScroll: true }); } catch (e) {}
+  }
+  // the spotlight follows its target every frame, so it always wraps the whole thing
+  // (even if the phone's toolbar slides away, the page scrolls, or the target is mid-animation)
+  var tutRaf = 0, lastSpot = "";
+  function placeTut() {
+    if (!tut) return;
+    var st = tut.steps[tut.i], el = st.el ? st.el() : null, W = document.documentElement.clientWidth || window.innerWidth, H = window.innerHeight;
+    var bw = tutBox.offsetWidth, bh = tutBox.offsetHeight, x, y, css;
+    tutSpot.classList.toggle("allow", tut.allow != null);
+    tutSpot.classList.toggle("none", !el);
+    if (!el) {
+      css = "left:" + Math.round(W / 2) + "px;top:" + Math.round(H / 2) + "px;width:0;height:0";
+      x = (W - bw) / 2; y = (H - bh) / 2;
+    } else {
+      var q = el.getBoundingClientRect(), pad = 5;
+      var L = Math.max(2, Math.floor(q.left - pad)), T = Math.max(2, Math.floor(q.top - pad));
+      var R = Math.min(W - 2, Math.ceil(q.right + pad)), B = Math.min(H - 2, Math.ceil(q.bottom + pad));
+      css = "left:" + L + "px;top:" + T + "px;width:" + Math.max(0, R - L) + "px;height:" + Math.max(0, B - T) + "px";
+      x = Math.max(8, Math.min(W - bw - 8, (L + R) / 2 - bw / 2));
+      if (B + 10 + bh <= H - 6) y = B + 10;
+      else if (T - 10 - bh >= 6) y = T - 10 - bh;
+      else y = H - bh - 10;
+    }
+    if (tutSpot.hidden) tutSpot.hidden = false;
+    var key = css + "|" + Math.round(x) + "," + Math.round(y);
+    if (key !== lastSpot) {
+      lastSpot = key;
+      tutSpot.style.cssText = css;
+      tutBox.style.left = Math.round(x) + "px"; tutBox.style.top = Math.round(y) + "px";
+    }
+  }
+  function followTut() {
+    cancelAnimationFrame(tutRaf);
+    (function loop() {
+      if (!tut) return;
+      if (!tutBox.hidden) placeTut();
+      tutRaf = requestAnimationFrame(loop);
+    })();
+  }
+  // the tutorial flip: wait for the coins to land, then keep going
+  var origFlip = flip;
+  flip = function (i) {
+    var wasTut = tut && tut.allow === i;
+    origFlip(i);
+    if (wasTut && open[i]) {
+      tut.allow = null;
+      tutSpot.hidden = true; tutBox.hidden = true;
+      setTimeout(function () { if (tut) { tutBox.hidden = false; tutNext(); } }, 1300);
+    }
+  };
+  $("flTutReplay").addEventListener("click", function () {
+    document.body.classList.remove("fl-helpopen");
+    startTut();
+  });
+
+  // ---------- the Konami code: there is no hard mode ----------
+  var lastB = null, nopeBusy = false;
+  window.cwKonami = function () {
+    if (nopeBusy) return;
+    nopeBusy = true;
+    // the B in the code marked a bomb on the board; quietly undo that
+    if (lastB && Date.now() - lastB.t < 4000 && state === "play" && !open[lastB.i]) { marks[lastB.i] ^= 1; renderTile(lastB.i); }
+    lastB = null;
+    // fake-out: start the same spooky fade Lines DX does...
+    var dark = document.createElement("div");
+    dark.className = "fl-fakeout";
+    document.body.appendChild(dark);
+    tone(110, 0, 0.6, 0.06, "sawtooth", 55);
+    musicSpooky(0.9);
+    setTimeout(function () {
+      // ...then snap out of it
+      dark.parentNode && dark.parentNode.removeChild(dark);
+      musicUnspooky();
+      var box = document.createElement("div");
+      box.className = "fl-nope";
+      box.setAttribute("role", "alertdialog");
+      box.innerHTML = '<div class="fl-nopewin"><div class="dt"><span>Hard Mode</span><span>&times;</span></div>' +
+        '<div class="db"><p class="fl-nopetxt">&hellip; you really thought this had a hard mode?</p>' +
+        '<button class="fl-btn go" id="flNopeOk">Yeah, my bad</button></div></div>';
+      document.body.appendChild(box);
+      // sad trombone
+      [[392, 0, 0.32], [370, 0.34, 0.32], [349, 0.68, 0.32], [330, 1.02, 0.9]].forEach(function (n) { tone(n[0], n[1], n[2], 0.07, "sawtooth", n[2] > 0.5 ? n[0] * 0.94 : 0); });
+      var close = function () {
+        if (!box.parentNode) return;
+        box.parentNode.removeChild(box);
+        nopeBusy = false;
+        document.removeEventListener("keydown", onKey, true);
+      };
+      var onKey = function (e) { if (e.key === "Enter" || e.key === "Escape" || e.key === " ") { e.preventDefault(); e.stopPropagation(); close(); } };
+      document.addEventListener("keydown", onKey, true);
+      box.addEventListener("click", function (e) { if (e.target === box || e.target.id === "flNopeOk") close(); });
+      try { $("flNopeOk").focus({ preventScroll: true }); } catch (e) {}
+    }, 950);
+  };
+
+  // phones have no keyboard for the Konami code: tapping the title 5 times quickly does the same joke
+  var titleTaps = [];
+  $("flTitle").addEventListener("click", function () {
+    var now = Date.now();
+    titleTaps = titleTaps.filter(function (t) { return now - t < 2500; });
+    titleTaps.push(now);
+    if (titleTaps.length >= 5) { titleTaps = []; window.cwKonami(); }
+    else if (titleTaps.length >= 3) { tone(1400 + titleTaps.length * 200, 0, 0.03, 0.03); try { if (navigator.vibrate) navigator.vibrate(15); } catch (e) {} }
+  });
+
+  setSound();
+  setMusic();
+  bankEl.textContent = bank;
+  var resume = savedRound();
+  newRound(resume);
+  // refreshed right after finding the last 2 or 3: finish the win
+  if (resume && found >= need) { state = "winning"; win(cur); }
+  if (!tutDone) setTimeout(startTut, reduce ? 100 : 800);
+})();
+</script>

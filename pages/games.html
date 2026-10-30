@@ -1,0 +1,215 @@
+<style>
+  .gm-intro { margin: 0 0 14px; }
+  .gm-card { display: flex; gap: 16px; align-items: flex-start; padding: 12px; margin: 0 0 14px; background: #c0c0c0; border: 2px outset #fff; }
+  .gm-card:last-child { margin-bottom: 0; }
+  .gm-shot { display: block; flex-shrink: 0; width: 360px; border: 3px inset #fff; background: #000; line-height: 0; }
+  .gm-shot img { display: block; width: 100%; height: auto; }
+  .gm-shot:hover { border-color: #ffff00; }
+  .gm-info { flex: 1; min-width: 0; }
+  .gm-info h2 { margin: 0 0 6px; font-size: 22px; }
+  .gm-info h2 a { color: #000080; }
+  .gm-info p { margin: 0 0 10px; line-height: 1.35; }
+  .gm-info ul { margin: 0 0 12px; padding-left: 20px; line-height: 1.4; }
+  .gm-play { display: inline-block; font: bold 16px "Times New Roman", Times, serif; color: #000 !important; text-decoration: none; background: #b4ebcf; border: 2px outset #fff; padding: 6px 16px; }
+  .gm-play:active { border-style: inset; }
+  .gm-new { color: #cc0000; font-size: 14px; font-weight: bold; animation: cw-blink 1s step-start infinite; vertical-align: 3px; margin-left: 4px; }
+
+  /* "Get the app" box for phones (only shown by the script below) */
+  .gm-install { display: none; margin: 0 0 16px; background: #ffffcc; border: 2px outset #fff; box-shadow: 3px 3px 0 #000; }
+  .gm-install.show { display: block; }
+  .gm-install-bar { display: flex; justify-content: space-between; align-items: center; background: #000080; color: #fff; font-weight: bold; font-size: 18px; padding: 6px 10px; }
+  .gm-install-x { font: bold 18px "Times New Roman", Times, serif; background: #c0c0c0; color: #000; border: 2px outset #fff; width: 34px; height: 30px; padding: 0; cursor: pointer; }
+  .gm-install-body { padding: 12px 14px; font-size: 18px; line-height: 1.45; }
+  .gm-install-body p { margin: 0 0 8px; }
+  .gm-install-body ol { margin: 0 0 8px; padding-left: 26px; }
+  .gm-install-body li { margin-bottom: 6px; }
+  .gm-install-btn { display: inline-block; font: bold 18px "Times New Roman", Times, serif; color: #000; background: #b4ebcf; border: 2px outset #fff; padding: 10px 18px; cursor: pointer; }
+  .gm-install-btn:active { border-style: inset; }
+  .gm-share { display: inline-block; vertical-align: -4px; }
+  .gm-install-done { color: #006400; font-weight: bold; }
+
+  /* Mini app layout: only when opened from the home screen icon */
+  .gm-appbar { display: none; }
+  html.cw-app body { background: #008080; }
+  html.cw-app .header, html.cw-app .goldbar, html.cw-app .navbar, html.cw-app .footer,
+  html.cw-app .gm-intro, html.cw-app .gm-install, html.cw-app .content > .box-title,
+  html.cw-app .gm-info ul, html.cw-app .gm-new { display: none !important; }
+  html.cw-app .wrap { margin: 0; max-width: none; border: none; box-shadow: none; background: transparent; min-height: 100vh; }
+  html.cw-app .gm-appbar { display: flex; align-items: center; background: #ffffff; border-bottom: 3px solid #000080; padding: calc(10px + env(safe-area-inset-top)) 14px 10px; }
+  html.cw-app .gm-appbar a { display: block; line-height: 0; }
+  html.cw-app .gm-appbar img { width: auto; height: 34px; }
+  html.cw-app body:not(.home) .content { padding: 12px 12px calc(16px + env(safe-area-inset-bottom)); }
+  html.cw-app body:not(.home) .box-body { padding: 0; background: transparent; border: none; }
+  html.cw-app .gm-card { flex-direction: column; gap: 10px; }
+  html.cw-app .gm-shot { width: 100%; box-sizing: border-box; }
+  html.cw-app .gm-info h2 { font-size: 24px; }
+  html.cw-app .gm-info p { font-size: 17px; }
+  html.cw-app .gm-play { display: block; text-align: center; font-size: 20px; padding: 12px; }
+  html.cw-app .gm-appfoot { display: block; text-align: center; font-size: 15px; margin-top: 14px; }
+  .gm-appfoot { display: none; }
+  .gm-appfoot a { color: #fff; }
+</style>
+
+<div class="wrap">
+
+  <div class="gm-appbar"><a href="/games/?app=1"><img src="/logo.png" alt="coleswebsite.xyz" width="239" height="34"></a></div>
+
+  <div class="header">
+    <div style="display:flex; align-items:flex-end;">
+      <div class="logo"><a href="/"><img src="/logo.png" alt="coleswebsite.xyz" width="394" height="56"></a></div>
+      <div class="tagline">Est. 2023... thoughts, lists, and other nonsense!</div>
+    </div>
+  </div>
+  <div class="goldbar"></div>
+
+  <div class="navbar">
+    <div>
+      <a href="/">Home</a>
+      <a href="/aboutme">About Me</a>
+      <a href="/faq">FAQ</a>
+      <a href="/impact">Impact</a>
+      <a href="/music">Music</a>
+      <a href="/reviews">Reviews</a>
+      <a href="/games">Games</a>
+    </div>
+    <div><a class="signin" href="mailto:coleswebsitexyz@proton.me">Contact Me</a></div>
+  </div>
+
+  <div class="content">
+    <div class="box-title">Games</div>
+    <div class="box-body">
+      <div class="gm-install" id="gm-install" role="region" aria-label="Get the games app">
+        <div class="gm-install-bar"><span>&#9733; Get the Games app!</span><button type="button" class="gm-install-x" id="gm-install-x" aria-label="Close">&times;</button></div>
+        <div class="gm-install-body" id="gm-install-body"></div>
+      </div>
+
+      <p class="gm-intro">Free games I made, right here on the site. No downloads, no sign up, and they work on your phone too. Click a game to play!</p>
+
+      <div class="gm-card">
+        <a class="gm-shot" href="/blackjack"><img src="/games/blackjack.gif?v=1" alt="Blackjack DX gameplay" width="480" height="398"></a>
+        <div class="gm-info">
+          <h2><a href="/blackjack">Blackjack DX</a> <span class="gm-new">NEW!</span></h2>
+          <p>Beat the dealer to 21 and stack up your chips. Win in a row to heat up and multiply your winnings.</p>
+          <ul>
+            <li>Heat streaks that pay up to 3x</li>
+            <li>A Lucky Card every hand for bonus chips</li>
+            <li>Levels, bigger chips and daily free chips</li>
+          </ul>
+          <a class="gm-play" href="/blackjack">&#9654; Play</a>
+        </div>
+      </div>
+
+      <div class="gm-card">
+        <a class="gm-shot" href="/linesdx"><img src="/games/linesdx.gif?v=2" alt="Lines DX gameplay" width="480" height="398"></a>
+        <div class="gm-info">
+          <h2><a href="/linesdx">Lines DX</a></h2>
+          <p>My falling-block puzzle game. Stack the pieces, clear lines and land T-spins.</p>
+          <ul>
+            <li>Special moves: bombs, drills, lasers and a nuke</li>
+            <li>A Daily Challenge with the same pieces for everyone</li>
+            <li>Skins, rebirths and ranks to climb</li>
+            <li>There might be a secret hard mode...</li>
+          </ul>
+          <a class="gm-play" href="/linesdx">&#9654; Play</a>
+        </div>
+      </div>
+
+      <div class="gm-card">
+        <a class="gm-shot" href="/luckyflip"><img src="/games/luckyflip.gif?v=4" alt="Lucky Flip gameplay" width="480" height="398"></a>
+        <div class="gm-info">
+          <h2><a href="/luckyflip">Lucky Flip</a></h2>
+          <p>Flip tiles, dodge bombs and multiply your coins. Use the number clues to figure out where the bombs are hiding.</p>
+          <ul>
+            <li>Every tile multiplies your coins</li>
+            <li>Cash out or push your luck</li>
+            <li>Notes to mark where you think the bombs are</li>
+          </ul>
+          <a class="gm-play" href="/luckyflip">&#9654; Play</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gm-appfoot"><a href="/">coleswebsite.xyz</a></div>
+
+  <div class="footer">
+    &copy; 2023 - 2026 coleswebsite.xyz &nbsp;&middot;&nbsp; <a href="https://coleswebsite.xyz/">https://coleswebsite.xyz/</a> &nbsp;&middot;&nbsp; <a href="/terms">Terms</a>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var box = document.getElementById("gm-install");
+  var body = document.getElementById("gm-install-body");
+  if (!box || !body) return;
+
+  var ua = navigator.userAgent || "";
+  var isIOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  var isAndroid = /Android/.test(ua);
+  var isApp = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+  var KEY = "cw_app_hint_closed";
+
+  // Already running as the mini app, or not on a phone: nothing to show
+  if (isApp || (!isIOS && !isAndroid)) return;
+
+  // Closed it recently? Stay out of the way for 2 weeks
+  try {
+    var closed = +localStorage.getItem(KEY);
+    if (closed && Date.now() - closed < 14 * 864e5) return;
+  } catch (e) {}
+
+  var shareIcon = '<svg class="gm-share" width="20" height="24" viewBox="0 0 20 24" aria-label="Share" role="img"><path d="M10 2v13M5 7l5-5 5 5" fill="none" stroke="#0a60ff" stroke-width="2.2"/><path d="M6 10H3v12h14V10h-3" fill="none" stroke="#0a60ff" stroke-width="2.2"/></svg>';
+
+  function show(html) { body.innerHTML = html; box.classList.add("show"); }
+  function added() {
+    show('<p class="gm-install-done">&#10004; Added! Open <b>XYZ Games</b> from your home screen to play it like an app.</p>');
+  }
+
+  document.getElementById("gm-install-x").addEventListener("click", function () {
+    box.classList.remove("show");
+    try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
+  });
+
+  if (isIOS) {
+    show('<p>Put my games on your home screen and play them like an app!</p>' +
+      '<ol><li>Tap the <b>Share</b> button ' + shareIcon + ' (in Safari it might be under the <b>&bull;&bull;&bull;</b> button)</li>' +
+      '<li>Scroll down and tap <b>Add to Home Screen</b></li>' +
+      '<li>Tap <b>Add</b>, then open <b>XYZ Games</b> from your home screen</li></ol>');
+    return;
+  }
+
+  // Android
+  var deferred = null;
+  show('<p>Put my games on your home screen and play them like an app!</p>' +
+    '<ol><li>Tap the <b>&#8942;</b> menu at the top of your browser</li>' +
+    '<li>Tap <b>Add to Home screen</b> (or <b>Install app</b>)</li>' +
+    '<li>Open <b>XYZ Games</b> from your home screen</li></ol>');
+
+  // Chrome can install it with one tap (the prompt is caught early in the page head)
+  function offerButton() {
+    deferred = window.cwInstallPrompt;
+    if (!deferred) return;
+    show('<p>Put my games on your home screen and play them like an app!</p>' +
+      '<button type="button" class="gm-install-btn" id="gm-install-go">&#9654; Add to Home Screen</button>');
+    document.getElementById("gm-install-go").addEventListener("click", function () {
+      if (!deferred) return;
+      deferred.prompt();
+      deferred.userChoice.then(function (c) { if (c && c.outcome === "accepted") added(); });
+      deferred = null;
+      window.cwInstallPrompt = null;
+    });
+  }
+  offerButton();
+  document.addEventListener("cw:install-ready", offerButton);
+
+  window.addEventListener("appinstalled", added);
+
+  // Already installed on this phone? Say so instead of asking again
+  if (navigator.getInstalledRelatedApps) {
+    navigator.getInstalledRelatedApps().then(function (apps) {
+      if (apps && apps.length) show('<p class="gm-install-done">&#10004; You already have the app! Open <b>XYZ Games</b> from your home screen.</p>');
+    }).catch(function () {});
+  }
+})();
+</script>

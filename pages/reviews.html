@@ -1,0 +1,196 @@
+<div class="wrap">
+
+  <div class="header">
+    <div style="display:flex; align-items:flex-end;">
+      <div class="logo"><a href="/"><img src="/logo.png" alt="coleswebsite.xyz" width="394" height="56"></a></div>
+      <div class="tagline">Est. 2023... thoughts, lists, and other nonsense!</div>
+    </div>
+  </div>
+  <div class="goldbar"></div>
+
+  <div class="navbar">
+    <div>
+      <a href="/">Home</a>
+      <a href="/aboutme">About Me</a>
+      <a href="/faq">FAQ</a>
+      <a href="/impact">Impact</a>
+      <a href="/music">Music</a>
+      <a href="/reviews">Reviews</a>
+      <a href="/games">Games</a>
+    </div>
+    <div><a class="signin" href="mailto:coleswebsitexyz@proton.me">Contact Me</a></div>
+  </div>
+
+  <div class="content">
+    <div class="box-title">Reviews</div>
+    <div class="box-body">
+      <div class="uc-stripe"></div>
+      <div class="uc-stage">
+        <canvas id="uc-scene" width="128" height="72" role="img" aria-label="An 8-bit construction worker hammering next to an Under Construction sign"></canvas>
+      </div>
+      <p class="uc-oops">Oops! This page is still being built.</p>
+      <p class="uc-text">Soon this is where my reviews go:</p>
+      <p class="uc-text"><span class="uc-list">
+        &#9654;&#xFE0E; Movie reviews<br>
+        &#9654;&#xFE0E; Book reviews<br>
+        &#9654;&#xFE0E; Music reviews
+      </span></p>
+      <p class="uc-text">Hard hats required. Check back soon!</p>
+      <div class="uc-stripe"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    &copy; 2023 - 2026 coleswebsite.xyz &nbsp;&middot;&nbsp; <a href="https://coleswebsite.xyz/">https://coleswebsite.xyz/</a> &nbsp;&middot;&nbsp; <a href="/terms">Terms</a>
+  </div>
+
+</div>
+<script>
+(function () {
+  // An 8-bit worker in a hard hat hammering a nail into an Under Construction sign, drawn pixel by pixel.
+  var cv = document.getElementById("uc-scene");
+  if (!cv) return;
+  var cx = cv.getContext("2d"), W = 128, H = 72;
+  var C = {
+    Y: "#ffcc00", y: "#c89600", S: "#f0b080", K: "#000000", O: "#ff6a00", W: "#e8e8e8",
+    B: "#3050c0", D: "#203070", N: "#6a3a10", H: "#8a5a20", M: "#9a9a9a", m: "#5a5a5a"
+  };
+  function px(x, y, c) { cx.fillStyle = c; cx.fillRect(x | 0, y | 0, 1, 1); }
+  function rect(x, y, w, h, c) { cx.fillStyle = c; cx.fillRect(x, y, w, h); }
+  function sprite(rows, x, y, flip) {
+    for (var j = 0; j < rows.length; j++) for (var i = 0; i < rows[j].length; i++) {
+      var ch = rows[j][i]; if (ch === ".") continue;
+      px(flip ? x + rows[j].length - 1 - i : x + i, y + j, C[ch]);
+    }
+  }
+  function line(x0, y0, x1, y1, c) {
+    var n = Math.ceil(Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0))) || 1;
+    for (var i = 0; i <= n; i++) px(Math.round(x0 + (x1 - x0) * i / n), Math.round(y0 + (y1 - y0) * i / n), c);
+  }
+  var FONT = {
+    U: ["#.#", "#.#", "#.#", "#.#", "###"], N: ["##.", "#.#", "#.#", "#.#", "#.#"], D: ["##.", "#.#", "#.#", "#.#", "##."],
+    E: ["###", "#..", "##.", "#..", "###"], R: ["##.", "#.#", "##.", "#.#", "#.#"], C: [".##", "#..", "#..", "#..", ".##"],
+    O: [".#.", "#.#", "#.#", "#.#", ".#."], S: [".##", "#..", ".#.", "..#", "##."], T: ["###", ".#.", ".#.", ".#.", ".#."],
+    I: ["###", ".#.", ".#.", ".#.", "###"]
+  };
+  function text(s, x, y, c) {
+    for (var k = 0; k < s.length; k++) {
+      var g = FONT[s[k]]; if (!g) continue;
+      for (var j = 0; j < 5; j++) for (var i = 0; i < 3; i++) if (g[j][i] === "#") px(x + k * 4 + i, y + j, c);
+    }
+  }
+  // the worker, facing right (arm and hammer are drawn separately so they can swing)
+  var WORKER = [
+    ".....YYYY.......",
+    "....YYYYYY......",
+    "...YYYYYYYY.....",
+    "..yyyyyyyyyy....",
+    "....SSSSSS......",
+    "....SSSSKS......",
+    "....SSSSSS......",
+    ".....SSSS.......",
+    "...OOOOOOOO.....",
+    "..OOOOOOOOOO....",
+    "..OWWWWWWWWO....",
+    "..OOOOOOOOOO....",
+    "..SOOOOOOOOO....",
+    "..SOOOOOOOOO....",
+    "...DDDDDDDD.....",
+    "...DDDDDDDD.....",
+    "...DDD..DDD.....",
+    "...DDD..DDD.....",
+    "...DDD..DDD.....",
+    "...DDD..DDD.....",
+    "..NNNN..NNNN....",
+    "..NNNN..NNNN...."
+  ];
+  var CONE = [
+    "...O...",
+    "..OOO..",
+    "..WWW..",
+    ".OOOOO.",
+    ".WWWWW.",
+    "OOOOOOO",
+    "KKKKKKK"
+  ];
+  var GROUND = 58, WX = 16, WY = GROUND - WORKER.length;
+  var SX = 42, SY = 14, SW = 76, SH = 22;            // the sign board
+  var NAIL = { x: SX - 3, y: WY + 9 };                // a nail in the left post, right where the hammer lands
+  var sparks = [];
+
+  function scene(t) {
+    // sky, a few clouds, the ground
+    rect(0, 0, W, H, "#87ceeb");
+    var cl = (t * 3) % (W + 30);
+    [[cl - 20, 8], [(cl + 70) % (W + 30) - 20, 4]].forEach(function (c) {
+      rect(c[0], c[1] + 1, 14, 3, "#ffffff"); rect(c[0] + 3, c[1], 8, 1, "#ffffff");
+    });
+    rect(0, GROUND, W, H - GROUND, "#8a6a3a");
+    for (var x = 0; x < W; x += 2) px(x + (x >> 1) % 2, GROUND, "#6a4e28");
+    for (x = 3; x < W; x += 7) px(x, GROUND + 4 + (x % 3), "#6a4e28");
+
+    // sign posts, rail and board
+    rect(SX - 2, SY + 4, 3, GROUND - SY - 4, C.H);          // left post
+    rect(SX + SW - 1, SY + 4, 3, GROUND - SY - 4, C.H);     // right post
+    rect(SX - 3, SY + SH + 12, SW + 6, 6, C.K);              // striped rail
+    for (var i = 0; i < SW + 4; i++) for (var j = 0; j < 4; j++)
+      px(SX - 2 + i, SY + SH + 13 + j, ((i + j) >> 2) % 2 ? C.O : C.W);
+    rect(SX, SY, SW, SH, C.K);
+    rect(SX + 1, SY + 1, SW - 2, SH - 2, C.Y);
+    for (i = 0; i < SW - 2; i++) { px(SX + 1 + i, SY + 2, (i >> 2) % 2 ? C.K : C.Y); px(SX + 1 + i, SY + SH - 3, (i >> 2) % 2 ? C.K : C.Y); }
+    text("UNDER", SX + (SW - 19) / 2, SY + 5, C.K);
+    text("CONSTRUCTION", SX + (SW - 47) / 2, SY + 12, C.K);
+    // flashing amber light on top
+    var on = Math.floor(t * 2) % 2 === 0;
+    rect(SX + SW / 2 - 2, SY - 3, 4, 3, C.K);
+    rect(SX + SW / 2 - 1, SY - 5, 2, 2, on ? "#ffaa00" : "#7a4a00");
+    if (on) { px(SX + SW / 2 - 2, SY - 6, "#ffe080"); px(SX + SW / 2 + 1, SY - 6, "#ffe080"); }
+    // the nail
+    rect(NAIL.x - 1, NAIL.y, 2, 1, C.m); px(NAIL.x - 1, NAIL.y - 1, C.M); px(NAIL.x - 1, NAIL.y + 1, C.M);
+
+    // cones
+    sprite(CONE, 2, GROUND - CONE.length);
+    sprite(CONE, SX + SW + 3, GROUND - CONE.length);
+
+    // the worker and his swing: a quick downstroke, a short rest, a slower lift
+    var beat = 0.9, ph = (t % beat) / beat, ang;
+    if (ph < 0.18) ang = -2.0 + (ph / 0.18) * 2.0;           // swing down
+    else if (ph < 0.4) ang = 0;                               // hit
+    else ang = -((ph - 0.4) / 0.6) * 2.0;                     // lift back up
+    sprite(WORKER, WX, WY);
+    var shx = WX + 10, shy = WY + 9;                          // shoulder
+    var hx = shx + Math.cos(ang) * 5, hy = shy + Math.sin(ang) * 5;
+    line(shx, shy, hx, hy, C.O);                              // sleeve
+    px(hx, hy, C.S);                                          // hand
+    var ex = hx + Math.cos(ang) * 8, ey = hy + Math.sin(ang) * 8;
+    line(hx, hy, ex, ey, C.H);                                // handle
+    var nx = -Math.sin(ang), ny = Math.cos(ang);              // the head sits across the handle
+    for (var k = -2; k <= 2; k++) { px(ex + nx * k, ey + ny * k, C.M); px(ex + nx * k + Math.cos(ang), ey + ny * k + Math.sin(ang), C.m); }
+
+    // sparks and a little dust on each hit
+    if (lastPh > ph || (lastPh < 0.18 && ph >= 0.18)) {
+      if (ph >= 0.18 && ph < 0.4) for (k = 0; k < 6; k++)
+        sparks.push({ x: NAIL.x, y: NAIL.y, vx: (Math.random() - 0.7) * 30, vy: -Math.random() * 30 - 8, life: 0.35 });
+    }
+    lastPh = ph;
+    sparks = sparks.filter(function (s) { return s.life > 0; });
+    sparks.forEach(function (s) { px(s.x, s.y, s.life > 0.2 ? "#ffffff" : "#ffcc00"); });
+  }
+  var lastPh = 0, last = performance.now(), t0 = last;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - last) / 1000); last = now;
+    sparks.forEach(function (s) { s.x += s.vx * dt; s.y += s.vy * dt; s.vy += 90 * dt; s.life -= dt; });
+    scene((now - t0) / 1000);
+    if (!document.hidden) requestAnimationFrame(frame); else waitForShow();
+  }
+  function waitForShow() {
+    document.addEventListener("visibilitychange", function on() {
+      if (document.hidden) return;
+      document.removeEventListener("visibilitychange", on);
+      last = performance.now(); requestAnimationFrame(frame);
+    });
+  }
+  var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (still) scene(0.3); else requestAnimationFrame(frame);
+})();
+</script>

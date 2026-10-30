@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=1000">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cole's Website">
+<meta property="og:title" content="Cole's Website">
+<meta property="og:description" content="est 2023... thoughts lists and other nonsense!">
+<meta property="og:url" content="https://coleswebsite.xyz/">
+<meta property="og:image" content="https://coleswebsite.xyz/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cole's Website">
+<meta name="twitter:image" content="https://coleswebsite.xyz/og-image.png">
+<meta name="theme-color" content="#008080">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script src="/tos.js?v=5" data-page="/pages/music.html"></script>
+<script src="/konami.js?v=2" defer></script>
+<title>Music - coleswebsite.xyz</title>
+<style>
+  /* Normal page: same vintage look as the rest of the site, no effects until playback. */
+  body.music-page { min-height: 100vh; }
+  body.music-page .content { max-width: 760px; }
+  body.music-page .col-main { width: 100%; }
+  body.music-page .box-body { min-height: 240px; }
+  .music-caption {
+    margin: 0 auto 20px;
+    max-width: 520px;
+    text-align: center;
+    color: #555;
+    font-size: 15px;
+  }
+  .music-preview {
+    width: min(540px, 100%);
+    box-sizing: border-box;
+    margin: 22px auto;
+    padding: 12px;
+    border: 1px solid #d6d6d6;
+    border-radius: 8px;
+    background: #fff;
+  }
+  .music-preview audio { display: block; width: 100%; }
+  /* ===== SPACE MODE: the moment the song plays, the page slowly fades into empty space with twinkling stars.
+     Once it has fully faded in, the player starts floating in zero gravity. ===== */
+  body.space-on { overflow: hidden; }
+  :root { --beat: 0; }
+
+  #space-stage {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 9000; pointer-events: none; opacity: 0;
+    transition: opacity .7s ease;                  /* quick fade back to the normal page on pause */
+    background: radial-gradient(ellipse at 50% 50%, #05060f 0%, #000 85%);
+  }
+  body.space-on #space-stage { opacity: 1; pointer-events: auto; transition: opacity 3s ease-in-out; }
+  #space-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+  /* the player: stays exactly where it is while the page fades, blends into the dark, then floats */
+  #music-preview-player { transition: background-color 3s ease, box-shadow 3s ease, border-color 3s ease; }
+  body.space-on #music-preview-player {
+    position: fixed; z-index: 10010;
+    left: 0; top: 0; bottom: auto;
+    width: min(540px, calc(100vw - 36px));
+    margin: 0; padding: 10px; box-sizing: border-box;
+    border: 3px outset #9aa; border-radius: 0;
+    background-color: rgba(40,44,70,.55);
+    box-shadow: 0 0 30px 4px rgba(120,170,255,.35), 0 0 90px 16px rgba(150,110,255,.22);
+    will-change: transform;
+  }
+  body.space-on #music-preview-audio { display: block; width: 100%; }
+</style>
+<link rel="stylesheet" href="/site.css">
+</head>
+<body class="music-page">
+<noscript><div style="max-width:600px;margin:60px auto;padding:20px;background:#c0c0c0;border:3px outset #fff;font-family:'Times New Roman',Times,serif;font-size:16px;color:#000"><b>coleswebsite.xyz</b><br><br>This site needs JavaScript turned on, and you need to accept the <a href="/terms/">Terms of Service</a> to see it.</div></noscript>
+</body>
+</html>

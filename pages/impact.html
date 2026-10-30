@@ -1,0 +1,142 @@
+<div class="wrap">
+
+  <div class="header">
+    <div style="display:flex; align-items:flex-end;">
+      <div class="logo"><a href="/"><img src="/logo.png" alt="coleswebsite.xyz" width="394" height="56"></a></div>
+      <div class="tagline">Est. 2023... thoughts, lists, and other nonsense!</div>
+    </div>
+  </div>
+  <div class="goldbar"></div>
+
+  <div class="navbar">
+    <div>
+      <a href="/">Home</a>
+      <a href="/aboutme">About Me</a>
+      <a href="/faq">FAQ</a>
+      <a href="/impact">Impact</a>
+      <a href="/music">Music</a>
+      <a href="/reviews">Reviews</a>
+      <a href="/games">Games</a>
+    </div>
+    <div><a class="signin" href="mailto:coleswebsitexyz@proton.me">Contact Me</a></div>
+  </div>
+
+  <div class="content wide">
+    <div class="box-title">Impact</div>
+    <div class="box-body">
+      <div class="empty"><strong>Impact page: soon™</strong><p>I’m still getting this set up. Check back later for updates.</p></div>
+    </div>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="box-title blue">By Organization</div>
+    <div class="box-body" id="orgs"></div>
+
+    <div class="box-title blue">All Donations</div>
+    <div class="box-body" style="padding:0;" id="all"></div>
+  </div>
+
+  <div class="footer">
+    &copy; 2023 - 2026 coleswebsite.xyz &nbsp;&middot;&nbsp; <a href="https://coleswebsite.xyz/">https://coleswebsite.xyz/</a> &nbsp;&middot;&nbsp; <a href="/terms">Terms</a>
+  </div>
+
+</div>
+
+<script src="/impact/donations.js"></script>
+<script>
+(function () {
+  var data = (window.DONATIONS || []).slice().sort(function (a, b) {
+    return a.date < b.date ? 1 : a.date > b.date ? -1 : 0;
+  });
+  var money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+  function fmtDate(s) {
+    var p = String(s).split("-");
+    return p.length === 3 ? Number(p[1]) + "/" + Number(p[2]) + "/" + p[0] : s;
+  }
+
+  var stats = document.getElementById("stats");
+  var orgs = document.getElementById("orgs");
+  var all = document.getElementById("all");
+
+  if (!data.length) {
+    var emptyMsg = "I will start donating in December 2026. Check back then!";
+    [orgs, all].forEach(function (box) {
+      var d = el("div", "empty", emptyMsg);
+      box.appendChild(d);
+    });
+    [["$0", "Total donated"], ["0", "Donations"], ["0", "Organizations"]].forEach(function (s) {
+      var d = el("div", "stat");
+      d.appendChild(el("div", "num", s[0]));
+      d.appendChild(el("div", "lbl", s[1]));
+      stats.appendChild(d);
+    });
+    return;
+  }
+
+  var total = 0, byOrg = {};
+  data.forEach(function (d) {
+    var amt = Number(d.amount) || 0;
+    total += amt;
+    byOrg[d.org] = (byOrg[d.org] || 0) + amt;
+  });
+  var orgNames = Object.keys(byOrg).sort(function (a, b) { return byOrg[b] - byOrg[a]; });
+
+  [[money.format(total), "Total donated"],
+   [String(data.length), data.length === 1 ? "donation" : "Donations"],
+   [String(orgNames.length), orgNames.length === 1 ? "organization" : "Organizations"]
+  ].forEach(function (s) {
+    var d = el("div", "stat");
+    d.appendChild(el("div", "num", s[0]));
+    d.appendChild(el("div", "lbl", s[1]));
+    stats.appendChild(d);
+  });
+
+  var max = byOrg[orgNames[0]] || 1;
+  orgNames.forEach(function (name) {
+    var row = el("div", "org-row");
+    var top = el("div", "top");
+    top.appendChild(el("strong", "", name));
+    top.appendChild(el("span", "", money.format(byOrg[name])));
+    row.appendChild(top);
+    var bar = el("div", "bar");
+    var fill = document.createElement("span");
+    fill.style.width = Math.max(2, Math.round((byOrg[name] / max) * 100)) + "%";
+    bar.appendChild(fill);
+    row.appendChild(bar);
+    orgs.appendChild(row);
+  });
+
+  var table = el("table", "listing");
+  var head = el("tr");
+  [["Date", ""], ["Organization", ""], ["Note", ""], ["Amount", "amt"]].forEach(function (h) {
+    head.appendChild(el("th", h[1], h[0]));
+  });
+  table.appendChild(head);
+  data.forEach(function (d) {
+    var tr = el("tr");
+    tr.appendChild(el("td", "", fmtDate(d.date)));
+    var tdOrg = el("td");
+    if (d.url && /^https?:\/\//i.test(d.url)) {
+      var a = el("a", "", d.org);
+      a.href = d.url;
+      a.target = "_blank";
+      a.rel = "noopener";
+      tdOrg.appendChild(a);
+    } else {
+      tdOrg.textContent = d.org;
+    }
+    tr.appendChild(tdOrg);
+    tr.appendChild(el("td", "", d.note || ""));
+    tr.appendChild(el("td", "amt", money.format(Number(d.amount) || 0)));
+    table.appendChild(tr);
+  });
+  all.appendChild(table);
+})();
+</script>

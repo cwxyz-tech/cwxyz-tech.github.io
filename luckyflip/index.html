@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="/appmode.js?v=2"></script>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cole's Website">
+<meta property="og:title" content="Lucky Flip">
+<meta property="og:description" content="Flip tiles, dodge bombs, multiply your coins. A puzzle game on coleswebsite.xyz">
+<meta property="og:url" content="https://coleswebsite.xyz/luckyflip">
+<meta property="og:image" content="https://coleswebsite.xyz/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lucky Flip">
+<meta name="twitter:image" content="https://coleswebsite.xyz/og-image.png">
+<meta name="theme-color" content="#008080">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script src="/tos.js?v=5" data-page="/pages/luckyflip.html"></script>
+<script src="/konami.js?v=3" defer></script>
+<title>Lucky Flip - coleswebsite.xyz</title>
+<style>
+  body {
+    font-family: "Times New Roman", Times, serif;
+    color: #000;
+    margin: 0;
+    padding: 0;
+  }
+  [hidden] { display: none !important; }
+
+  /* ===== Lucky Flip ===== */
+  .fl-body { display: flex; gap: 18px; justify-content: center; align-items: flex-start; }
+  .fl-boardwrap { position: relative; width: 456px; max-width: 100%; flex-shrink: 1; }
+  .fl-frame { background: #008080; border: 3px inset #ffffff; padding: 8px; }
+  .fl-frame.shake { animation: fl-jolt .32s steps(2) 2; }
+  @keyframes fl-jolt { 25% { transform: translate(4px, 2px); } 50% { transform: translate(-3px, -2px); } 75% { transform: translate(2px, -3px); } }
+  .fl-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+
+  .fl-tile, .fl-hint, .fl-corner { aspect-ratio: 1 / 1; min-width: 0; box-sizing: border-box; }
+  .fl-tile { position: relative; padding: 0; margin: 0; background: #c0c0c0; color: #000; border: 3px outset #ffffff;
+    font: bold 30px "Times New Roman", Times, serif; line-height: 1; display: flex; align-items: center; justify-content: center;
+    touch-action: manipulation; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+  @media (hover: hover) { .fl-tile:hover { background: #d4d4d4; } }
+  .fl-tile:active { border-style: inset; }
+  .fl-tile:focus { outline: none; }
+  .fl-grid.kb .fl-tile.cur { outline: 2px dotted #ffff00; outline-offset: 1px; }
+  .fl-tile.open { background: #ffffff; border: 3px inset #808080; cursor: default; }
+  .fl-tile.open:hover { background: #ffffff; }
+  .fl-tile.v1 { color: #000000; }
+  .fl-tile.v2 { color: #0000aa; }
+  .fl-tile.v3 { color: #cc0000; }
+  .fl-tile.boom { background: #ff0000 !important; }
+  .fl-tile.ghost { background: #e0e0e0; border: 3px solid #a0a0a0; }
+  .fl-tile.ghost > * { opacity: .5; }
+  .fl-tile.flipping { animation: fl-flip .2s steps(3) 1; }
+  @keyframes fl-flip { 0% { transform: scaleX(.1); } 100% { transform: scaleX(1); } }
+  .fl-tile .bomb { width: 62%; height: 62%; display: block; }
+
+  /* memo marks in the corners of face-down tiles */
+  .fl-tile .mk { position: absolute; font-size: 13px; line-height: 1; font-weight: bold; pointer-events: none; }
+  .fl-tile .mk.b { top: 3px; left: 3px; width: 13px; height: 13px; }
+  .fl-tile .mk.b .bomb { width: 13px; height: 13px; }
+  .fl-tile .mk.n1 { top: 3px; right: 4px; color: #000; }
+  .fl-tile .mk.n2 { bottom: 3px; left: 4px; color: #0000aa; }
+  .fl-tile .mk.n3 { bottom: 3px; right: 4px; color: #cc0000; }
+
+  .fl-hint { background: #ffffff; border: 2px inset #808080; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 2px; }
+  .fl-hint b { font-size: 22px; line-height: 1; color: #000080; font-variant-numeric: tabular-nums; }
+  .fl-hint span { display: flex; align-items: center; gap: 3px; font-size: 17px; font-weight: bold; line-height: 1; }
+  .fl-hint span .bomb { width: 15px; height: 15px; }
+  .fl-hint i { display: block; width: 70%; border-top: 1px solid #808080; }
+  .fl-hint.hl { background: #ffff99; }
+  .fl-corner { background: #c0c0c0; border: 2px outset #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
+  .fl-corner small { font-size: 12px; font-weight: bold; }
+  .fl-corner b { font-size: 26px; color: #000080; }
+
+  .fl-side { width: 190px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; font-size: 14px; }
+  .fl-win-title { background: #000080; color: #fff; font-weight: bold; font-size: 13px; padding: 2px 6px; border: 2px outset #fff; border-bottom: none; }
+  .fl-win-body { background: #c0c0c0; border: 2px outset #fff; padding: 6px; display: grid; gap: 6px; }
+  .fl-stats { display: grid; grid-template-columns: 1fr auto; border: 2px inset #808080; background: #fff; }
+  .fl-stats > div { padding: 3px 6px; border-bottom: 1px solid #c0c0c0; }
+  .fl-stats > div:nth-last-child(-n+2) { border-bottom: 0; }
+  .fl-stats .k { font-weight: bold; }
+  .fl-stats .v { text-align: right; white-space: nowrap; font-weight: bold; font-variant-numeric: tabular-nums; color: #000080; }
+  .fl-stats .v.big { font-size: 18px; }
+  .fl-stats .v.flash { animation: fl-blink .5s steps(1) 2; }
+  @keyframes fl-blink { 50% { background: #ffff00; } }
+
+  .fl-btn { font: bold 14px "Times New Roman", Times, serif; color: #000; background: #c0c0c0; border: 2px outset #ffffff;
+    padding: 5px 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; line-height: 1; touch-action: manipulation; }
+  .fl-btn:active, .fl-btn.on { border-style: inset; }
+  .fl-btn.on { background: #ffff99; }
+  .fl-btn[disabled] { color: #808080; text-shadow: 1px 1px 0 #fff; cursor: default; }
+  .fl-btn[disabled]:active { border-style: outset; }
+  .fl-btn.go { background: #b4ebcf; }
+  .fl-marks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+  .fl-marks .fl-btn { padding: 5px 0; font-size: 16px; height: 32px; }
+  .fl-marks .fl-btn .bomb { width: 16px; height: 16px; }
+  .fl-marks .m2 { color: #0000aa; } .fl-marks .m3 { color: #cc0000; }
+  .fl-marks.off .fl-btn { opacity: .45; }
+  .fl-tip { font-size: 12px; line-height: 1.3; color: #000; }
+  .fl-tip.touch { display: none; }
+  @media (pointer: coarse) { .fl-tip.mouse { display: none; } .fl-tip.touch { display: block; } }
+
+  .fl-callout { position: absolute; left: 0; right: 0; top: 40%; text-align: center; pointer-events: none; line-height: 1;
+    font: bold 34px "Times New Roman", Times, serif; color: #ffee00; text-shadow: 2px 2px 0 #000; opacity: 0; }
+  .fl-callout.show { animation: fl-pop 1s steps(1) forwards; }
+  @keyframes fl-pop { 0% { opacity: 1; } 15% { opacity: 0; } 25% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+
+  .fl-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 10px; background: rgba(0,0,0,.45); }
+  .fl-dialog { width: 100%; max-width: 260px; background: #c0c0c0; border: 3px outset #fff; box-shadow: 3px 3px 0 #000; }
+  .fl-dialog .dt { background: #000080; color: #fff; font-weight: bold; font-size: 14px; padding: 3px 6px; }
+  .fl-dialog .db { padding: 14px 12px 12px; text-align: center; display: grid; gap: 10px; justify-items: center; font-size: 15px; line-height: 1.3; }
+  .fl-dialog h2 { margin: 0; font-size: 26px; }
+  .fl-dialog h2.oops { font-family: "Comic Sans MS", "Comic Sans", cursive; color: #cc0000; transform: rotate(-2deg); }
+  .fl-dialog .big { font-size: 32px; font-weight: bold; font-variant-numeric: tabular-nums; color: #000080; }
+  .fl-dialog p { margin: 0; }
+  .fl-dialog .fl-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .fl-dialog .fl-btn { padding: 6px 14px; font-size: 15px; }
+
+  .fl-help { font-size: 14px; line-height: 1.45; }
+  .fl-help p { margin: 0 0 8px; }
+  .fl-help p:last-child { margin-bottom: 0; }
+  .fl-help .bomb { width: 14px; height: 14px; vertical-align: -2px; display: inline-block; }
+
+  /* ===== juice ===== */
+  .fl-frame { position: relative; }
+  @media (hover: hover) { .fl-tile:not(.open):hover { transform: translate(-1px, -2px); box-shadow: 2px 3px 0 #000; } }
+  .fl-tile:not(.open):active { transform: none; box-shadow: none; }
+  /* real card flip: the tile turns on its edge, swaps faces, and lands */
+  .fl-grid { perspective: 900px; }
+  .fl-tile.squash { animation: fl-turn .14s cubic-bezier(.5, 0, 1, .6) forwards; z-index: 2; }
+  @keyframes fl-turn {
+    0% { transform: perspective(500px) rotateY(0deg) scale(1); }
+    30% { transform: perspective(500px) rotateY(18deg) scale(1.12) translateY(-3px); }
+    100% { transform: perspective(500px) rotateY(90deg) scale(1.12) translateY(-3px); }
+  }
+  /* performance: tile animations only touch transform/opacity so phones can run them on the GPU */
+  .fl-tile::after { content: ""; position: absolute; top: -3px; left: -3px; right: -3px; bottom: -3px; background: #000; opacity: 0; pointer-events: none; }
+  .fl-tile.squash::after { animation: fl-shade-in .14s linear forwards; }
+  .fl-tile.pop::after, .fl-tile.shine2::after, .fl-tile.shine3::after { animation: fl-shade-out .18s linear 1; }
+  @keyframes fl-shade-in { 30% { opacity: 0; } 100% { opacity: .45; } }
+  @keyframes fl-shade-out { 0% { opacity: .45; } 100% { opacity: 0; } }
+  .fl-tile.squash, .fl-tile.shine2, .fl-tile.shine3, .fl-tile.fuse, .fl-frame.quake, .fl-tile.boomfx, .fl-blast, .fl-float, .fl-callout span { will-change: transform; }
+  .wrap.fl-quake { will-change: transform; }
+  .fl-fx { image-rendering: pixelated; image-rendering: crisp-edges; }
+  .fl-tile.pop, .fl-tile.shine2, .fl-tile.shine3 { z-index: 2; }
+  .fl-tile.pop { animation: fl-land .3s cubic-bezier(0, .6, .4, 1) 1; }
+  .fl-tile.shine2 { animation: fl-land .34s cubic-bezier(0, .6, .4, 1) 1, fl-shine2 .5s steps(1) .25s 1; }
+  .fl-tile.shine3 { animation: fl-land3 .5s cubic-bezier(0, .6, .4, 1) 1, fl-shine3 .7s steps(1) .3s 1; }
+  @keyframes fl-land {
+    0% { transform: perspective(500px) rotateY(-90deg) scale(1.12) translateY(-3px); }
+    55% { transform: perspective(500px) rotateY(12deg) scale(1.16); }
+    80% { transform: perspective(500px) rotateY(-4deg) scale(.96); }
+    100% { transform: perspective(500px) rotateY(0deg) scale(1); }
+  }
+  @keyframes fl-land3 {
+    0% { transform: perspective(500px) rotateY(-90deg) scale(1.15) translateY(-4px); }
+    40% { transform: perspective(500px) rotateY(20deg) scale(1.45) rotate(-5deg); }
+    65% { transform: perspective(500px) rotateY(-8deg) scale(.9) rotate(3deg); }
+    85% { transform: perspective(500px) rotateY(3deg) scale(1.07); }
+    100% { transform: perspective(500px) rotateY(0deg) scale(1); }
+  }
+  @keyframes fl-shine2 { 0%, 50% { background: #a0c8ff; } 25%, 75% { background: #ffffff; } }
+  @keyframes fl-shine3 { 0%, 40%, 80% { background: #ffff00; } 20%, 60% { background: #ffffff; } }
+  .fl-tile.deal { animation: fl-deal .3s steps(4) backwards; }
+  @keyframes fl-deal { 0% { transform: translateY(-26px) scale(.4); opacity: 0; } 60% { transform: translateY(4px) scale(1.06); opacity: 1; } 100% { transform: none; } }
+  .fl-tile.fuse { animation: fl-fuse .42s steps(7) forwards; z-index: 3; }
+  .fl-tile.fuse .bomb { animation: fl-swell .42s steps(7) forwards; }
+  @keyframes fl-fuse { 0%, 100% { transform: none; } 14% { transform: translate(-2px, 1px) rotate(-3deg); } 28% { transform: translate(2px, -1px) rotate(3deg); } 42% { transform: translate(-3px, 0) rotate(-4deg); } 57% { transform: translate(3px, 1px) rotate(4deg); } 71% { transform: translate(-3px, -1px) rotate(-5deg); background: #ffcccc; } 85% { transform: translate(3px, 0) rotate(5deg); background: #ff8080; } }
+  @keyframes fl-swell { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 70% { transform: scale(1.1); } 100% { transform: scale(1.5); } }
+  .fl-blast { position: absolute; left: -45%; top: -45%; width: 190%; height: 190%; pointer-events: none; z-index: 4; animation: fl-blast .6s steps(6) forwards; }
+  .fl-blast .blast { display: block; width: 100%; height: 100%; }
+  @keyframes fl-blast { 0% { transform: scale(.2) rotate(0deg); } 30% { transform: scale(1) rotate(15deg); } 60% { transform: scale(1.15) rotate(25deg); opacity: 1; } 100% { transform: scale(1.3) rotate(35deg); opacity: 0; } }
+  .fl-tile.boom .bomb { opacity: .55; transform: rotate(20deg) scale(.85); }
+  .fl-tile.boomfx { animation: fl-boomtile .6s steps(1) 1; z-index: 2; }
+  @keyframes fl-boomtile { 0% { background: #ffffff; transform: scale(1.5); } 15% { background: #ffff00; transform: scale(1.3); } 30% { background: #ff9900; transform: scale(1.15); } 50% { background: #000; } 65% { background: #ff0000; transform: scale(1); } }
+  .fl-frame.bump { animation: fl-bump .16s steps(2) 1; }
+  @keyframes fl-bump { 50% { transform: translate(2px, 3px); } }
+  .wrap.fl-quake { animation: fl-quake .6s steps(12) 1; }
+  /* the shake stays on the board (not the whole page) and finishes before the reveal starts */
+  .fl-frame.quake { animation: fl-bquake .3s steps(6) 1; }
+  @keyframes fl-bquake { 16% { transform: translate(-3px, 1px); } 33% { transform: translate(3px, -2px); } 50% { transform: translate(-2px, -1px); } 66% { transform: translate(2px, 1px); } 83% { transform: translate(-1px, 0); } 100% { transform: none; } }
+  /* end-of-round reveal: one clean turn, no bounce, so the board doesn't look jittery */
+  .fl-tile.reveal { animation: fl-reveal .24s ease-out 1; }
+  .fl-tile.reveal::after { animation: fl-shade-out .24s linear 1; }
+  /* phones: a flat pop-in instead of 24 tiles turning in 3D at once */
+  .fl-tile.reveal2d { animation: fl-reveal2d .2s ease-out 1; }
+  .fl-tile.reveal2d::after { animation: fl-shade-out .2s linear 1; }
+  @keyframes fl-reveal2d { 0% { transform: scale(.82); } 100% { transform: none; } }
+  @keyframes fl-reveal { 0% { transform: perspective(500px) rotateY(-90deg); } 100% { transform: perspective(500px) rotateY(0deg); } }
+  @keyframes fl-quake { 10% { transform: translate(-8px, 4px); } 20% { transform: translate(7px, -6px); } 30% { transform: translate(-6px, -3px); } 40% { transform: translate(6px, 5px); } 50% { transform: translate(-4px, 2px); } 60% { transform: translate(4px, -3px); } 70% { transform: translate(-2px, 2px); } 80% { transform: translate(2px, -1px); } 100% { transform: none; } }
+  .fl-flash { position: absolute; inset: 0; pointer-events: none; opacity: 0; z-index: 3; }
+  .fl-flash.white { animation: fl-fw .3s steps(1) 1; }
+  .fl-flash.red { animation: fl-fr .35s ease-out 1; }
+  @keyframes fl-fw { 0% { background: #fff; opacity: .9; } 33% { opacity: 0; } 66% { background: #fff; opacity: .5; } 100% { opacity: 0; } }
+  @keyframes fl-fr { 0% { background: #ff2000; opacity: .35; } 100% { background: #ff2000; opacity: 0; } }
+
+  .fl-hint em { font-style: normal; }
+  .fl-hint.done { background: #b4ebcf; }
+  .fl-hint.ding { animation: fl-ding .6s steps(1) 1; }
+  @keyframes fl-ding { 0% { background: #ffff00; transform: scale(1.18); } 25% { background: #b4ebcf; transform: scale(1); } 50% { background: #ffff00; } 75% { background: #b4ebcf; } }
+  .fl-corner.lvup { animation: fl-lvup .9s steps(1) 1; }
+  @keyframes fl-lvup { 0%, 50% { background: #ffff00; transform: scale(1.2); } 25%, 75% { background: #c0c0c0; transform: scale(1); } }
+
+  .fl-meter { display: flex; align-items: center; gap: 8px; margin-top: 8px; background: #c0c0c0; border: 2px outset #fff; padding: 5px 8px;
+    font-weight: bold; font-size: 13px; min-height: 22px; }
+  .fl-pips { display: flex; gap: 4px; flex-wrap: wrap; }
+  .fl-pips i { width: 14px; height: 14px; border: 2px inset #808080; background: #fff; box-sizing: border-box; }
+  .fl-pips i.on { background: #ffd700; border: 2px outset #fff6a0; animation: fl-grow .3s steps(3) 1; }
+  .fl-pips.last i:not(.on) { animation: fl-alarm .5s steps(1) infinite; }
+  @keyframes fl-alarm { 50% { background: #ff0000; } }
+  .fl-combo { margin-left: auto; color: #cc0000; font-size: 15px; white-space: nowrap; }
+  .fl-combo.bump, .fl-stats .v.bump { animation: fl-grow .25s steps(3) 1; }
+  .fl-stats .v { display: block; }
+  .fl-stats .v.lose { color: #cc0000; }
+  @keyframes fl-grow { 0% { transform: scale(1.7); } 100% { transform: scale(1); } }
+
+  .fl-callout span { display: inline-block; animation: fl-hop .4s steps(4) backwards; }
+  @keyframes fl-hop { 0% { transform: translateY(-34px) scale(2.2); opacity: 0; } 60% { transform: translateY(4px) scale(.9); opacity: 1; } 100% { transform: none; } }
+  .fl-callout.gold { color: #ffee00; }
+  .fl-callout.red { color: #ff2020; }
+  .fl-callout.big { font-size: 48px; }
+  .fl-callout.big.show { animation-duration: 1.7s; }
+
+  .fl-fx { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 90; }
+  .fl-floats { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 91; overflow: hidden; }
+  .fl-float { position: absolute; transform: translate(-50%, -50%); font: bold 26px "Times New Roman", Times, serif; line-height: 1; color: #ffffff;
+    text-shadow: 2px 2px 0 #000, -1px -1px 0 #000; white-space: nowrap; text-align: center;
+    animation: fl-rise 1.1s steps(11) forwards; }
+  .fl-float small { display: block; font-size: 14px; color: #ffffff; margin-top: 2px; }
+  .fl-float.x1 { font-size: 18px; color: #e0e0e0; animation-duration: .7s; }
+  .fl-float.x2 { font-size: 32px; color: #60a0ff; }
+  .fl-float.x3 { font-size: 40px; color: #ff3030; }
+  .fl-float.x3 small { color: #ffee00; }
+  .fl-float.line { font-size: 18px; color: #00ff00; }
+  @keyframes fl-rise { 0% { transform: translate(-50%, -30%) scale(.5); } 18% { transform: translate(-50%, -80%) scale(1.3); } 30% { transform: translate(-50%, -90%) scale(1); opacity: 1; } 100% { transform: translate(-50%, -280%) scale(1); opacity: 0; } }
+
+  .fl-dialog.in { animation: fl-dlg .3s steps(4) 1; }
+  @keyframes fl-dlg { 0% { transform: scale(.3); } 70% { transform: scale(1.06); } 100% { transform: scale(1); } }
+  .fl-dialog .fl-lvup { color: #cc0000; font-weight: bold; font-size: 18px; animation: fl-blinky .6s steps(1) infinite; }
+  .fl-dialog .fl-hot { color: #ff6600; font-weight: bold; font-size: 17px; }
+  @keyframes fl-blinky { 50% { opacity: 0; } }
+
+  /* Konami code joke */
+  .fl-tbs a.fl-tb { font-family: "Times New Roman", Times, serif !important; font-size: 22px !important; }
+  .content.fl .box-title::after { font-family: "Times New Roman", Times, serif; }
+  #flTitle { touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: default; }
+  .fl-fakeout { position: fixed; inset: 0; z-index: 2147483000; background: #000; pointer-events: none; animation: fl-fake .95s ease-in forwards; }
+  @keyframes fl-fake { 0% { opacity: 0; } 55% { opacity: .75; background: #200000; } 70% { opacity: .55; background: #500000; } 85% { opacity: .85; background: #200000; } 100% { opacity: .9; background: #000; } }
+  .fl-nope { position: fixed; inset: 0; z-index: 2147483001; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(0, 0, 0, .35); }
+  .fl-nopewin { width: 100%; max-width: 320px; background: #c0c0c0; border: 3px outset #fff; box-shadow: 4px 4px 0 #000; animation: fl-dlg .3s steps(4) 1; }
+  .fl-nopewin .dt { background: #000080; color: #fff; font-weight: bold; font-size: 14px; padding: 3px 6px; display: flex; justify-content: space-between; }
+  .fl-nopewin .db { padding: 16px 14px 14px; display: grid; gap: 14px; justify-items: center; text-align: center; }
+  .fl-nopetxt { margin: 0; font-size: 20px; font-weight: bold; color: #cc0000; transform: rotate(-2deg); line-height: 1.3; }
+  .fl-nopewin .fl-btn { padding: 7px 16px; font-size: 15px; }
+  .fl-nope, .fl-nope * { font-family: "FlipComic", "Comic Sans MS", "Comic Sans", cursive !important; }
+
+  /* tutorial */
+  .fl-tutblock { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 80; }
+  /* the dim shade stays still; only the dashed border blinks, on its own layer, so the blink never repaints the whole screen */
+  .fl-tutspot { position: fixed; z-index: 81; pointer-events: none; box-sizing: border-box; box-shadow: 0 0 0 9999px rgba(0, 0, 0, .6); }
+  .fl-tutspot::after { content: ""; position: absolute; inset: 0; box-sizing: border-box; border: 3px dashed #ffff00; animation: fl-tutblink .6s steps(1) infinite; will-change: transform; }
+  .fl-tutspot.allow::after { animation-duration: .3s; border-width: 4px; }
+  .fl-tutspot.none::after { display: none; }
+  @keyframes fl-tutblink { 50% { border-color: #ff0000; } }
+  .fl-tutbox { position: fixed; z-index: 82; width: 300px; max-width: calc(100vw - 16px); box-sizing: border-box; background: #c0c0c0; border: 3px outset #fff; box-shadow: 3px 3px 0 #000;
+    font-family: "Times New Roman", Times, serif; color: #000; }
+  .fl-tutbox .dt { background: #000080; color: #fff; font-weight: bold; font-size: 14px; padding: 3px 6px; display: flex; justify-content: space-between; }
+  .fl-tutbox .db { padding: 10px 12px 12px; display: grid; gap: 10px; font-size: 15px; line-height: 1.35; }
+  .fl-tutbox p { margin: 0; }
+  .fl-tutbox .bomb { width: 14px; height: 14px; vertical-align: -2px; display: inline-block; }
+  .fl-tutbox .fl-row { display: flex; gap: 8px; flex-direction: row-reverse; justify-content: flex-start; flex-wrap: wrap; }
+  .fl-tutbox .fl-btn { padding: 6px 12px; font-size: 15px; min-height: 34px; }
+  .fl-tutwait { color: #cc0000; font-weight: bold; animation: fl-blinky .6s steps(1) infinite; }
+  .fl-tutbox.in { animation: fl-dlg .25s steps(4) 1; }
+  .fl-helpbtns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .fl-helpbtns .fl-btn { padding: 6px 12px; }
+
+  /* phones with Reduce Motion / battery saver still get the game animations, just no page shake or screen flashes */
+  @media (prefers-reduced-motion: reduce) {
+    .wrap.fl-quake, .fl-frame.quake, .fl-flash { animation: none !important; }
+  }
+  /* Effects: OFF turns everything off */
+  body.fl-nofx .fl-frame.shake, body.fl-nofx .fl-tile.flipping, body.fl-nofx .fl-callout.show, body.fl-nofx .fl-stats .v.flash, body.fl-nofx .fl-tile.squash, body.fl-nofx .fl-tile.pop, body.fl-nofx .fl-tile.shine2, body.fl-nofx .fl-tile.shine3, body.fl-nofx .fl-tile.deal, body.fl-nofx .fl-tile.boomfx, body.fl-nofx .fl-tile.fuse, body.fl-nofx .fl-tile.fuse .bomb, body.fl-nofx .fl-blast, body.fl-nofx .fl-frame.bump, body.fl-nofx .wrap.fl-quake, body.fl-nofx .fl-flash, body.fl-nofx .fl-hint.ding, body.fl-nofx .fl-corner.lvup, body.fl-nofx .fl-pips i.on, body.fl-nofx .fl-combo.bump, body.fl-nofx .fl-stats .v.bump, body.fl-nofx .fl-callout span, body.fl-nofx .fl-float, body.fl-nofx .fl-dialog.in, body.fl-nofx .fl-dialog .fl-lvup, body.fl-nofx .fl-tutbox.in, body.fl-nofx .fl-tutspot::after, body.fl-nofx .fl-tile::after, body.fl-nofx .fl-frame.quake, body.fl-nofx .fl-tile.reveal, body.fl-nofx .fl-tile.reveal2d { animation: none !important; }
+  body.fl-nofx .fl-callout.show { opacity: 0; }
+  body.fl-nofx .fl-tile:not(.open):hover { transform: none; box-shadow: none; }
+</style>
+<link rel="stylesheet" href="/site.css">
+<style>
+  /* Lucky Flip is all Comic Sans. Phones don't ship Comic Sans, so they get Comic Neue (a free lookalike) from /fonts */
+  @font-face { font-family: "FlipComic"; font-weight: 400; font-display: swap;
+    src: local("Comic Sans MS"), local("ComicSansMS"), local("ComicSansMS-Regular"), url("/fonts/ComicNeue-Regular.woff2") format("woff2"); }
+  @font-face { font-family: "FlipComic"; font-weight: 700; font-display: swap;
+    src: local("Comic Sans MS Bold"), local("ComicSansMS-Bold"), url("/fonts/ComicNeue-Bold.woff2") format("woff2"); }
+  .content.fl, .content.fl *, .fl-tutbox, .fl-tutbox *, .fl-float, .fl-float * {
+    font-family: "FlipComic", "Comic Sans MS", "Comic Sans", cursive !important;
+  }
+
+  /* after site.css */
+  body:not(.home) .content.fl { max-width: 700px; }
+  body:not(.home) .fl .box-body { padding: 16px; line-height: 1.3; }
+  body:not(.home) .fl .box-body.fl-help { line-height: 1.45; }
+
+  .fl-tbs, .fl-helpx, .fl-helphead, .fl-touchhelp { display: none; }
+  @media (pointer: coarse) { .fl-kbhelp { display: none; } .fl-touchhelp { display: inline; } }
+  .fl button { touch-action: manipulation; }
+
+  /* ===== phones: the game takes the whole screen, like Lines DX ===== */
+  @media (max-width: 720px) {
+    html, body { height: 100%; }
+    body { overflow: hidden; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent;
+      padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px); box-sizing: border-box; }
+    .wrap { height: 100%; margin: 0 !important; display: flex; flex-direction: column; border: 0 !important; box-shadow: none !important; }
+    .header, .goldbar, .navbar, .footer { display: none !important; }
+    body:not(.home) .content.fl { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 4px; max-width: none; width: 100%; box-sizing: border-box; }
+    .fl > .box-title { display: flex; align-items: center; justify-content: space-between; padding: 2px 3px 2px 8px; }
+    .fl > .box-title::after { display: none; }
+    .fl-tbs { display: flex; gap: 4px; }
+    .fl-tb { font: bold 15px "Times New Roman", Times, serif; color: #000 !important; background: #c0c0c0; border: 2px outset #fff;
+      min-width: 34px; height: 28px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box; }
+    .fl-tb:active { border-style: inset; }
+
+    body:not(.home) .fl .box-body.fl-body { flex: 1; min-height: 0; margin: 0; padding: 6px; background: #c0c0c0; box-sizing: border-box;
+      display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 6px; overflow-y: auto; }
+    .fl-side, .fl-side > div { display: contents; }
+    .fl-win-title, .fl-tip, #flSound, #flFx { display: none !important; }
+    .fl-stwin .fl-win-body, .fl-notewin .fl-win-body, .fl-gamewin .fl-win-body { padding: 0; border: 0; background: transparent; }
+
+    /* stats: one strip above the board */
+    .fl-stwin .fl-win-body { order: 1; }
+    .fl-stats { grid-template-columns: none; grid-template-rows: auto auto; grid-auto-flow: column; grid-auto-columns: 1fr; }
+    .fl-stats > div { border-bottom: 0; padding: 2px 4px; text-align: center; }
+    .fl-stats .k { font-size: 11px; border-right: 1px solid #c0c0c0; }
+    .fl-stats .v { text-align: center; font-size: 16px; border-right: 1px solid #c0c0c0; }
+    .fl-stats .v.big { font-size: 18px; }
+    .fl-stats .k.wl, .fl-stats .v.wl { display: none; }
+
+    /* board: as big as fits */
+    .fl-boardwrap { order: 2; width: min(100%, calc(100vh - 230px)); width: min(100%, calc(100dvh - 230px)); min-width: 250px; max-width: 520px; margin: 0 auto; }
+    .fl-frame { padding: 4px; }
+    .fl-grid { gap: 4px; }
+    .fl-meter { margin-top: 6px; padding: 3px 6px; min-height: 20px; }
+    .fl-tile { font-size: clamp(18px, 7vw, 32px); }
+    .fl-hint b { font-size: clamp(14px, 5vw, 22px); }
+    .fl-hint span { font-size: clamp(11px, 4vw, 17px); }
+    .fl-hint span .bomb { width: clamp(10px, 3.4vw, 15px); height: clamp(10px, 3.4vw, 15px); }
+    .fl-corner b { font-size: clamp(16px, 6vw, 26px); }
+    .fl-tile .mk { font-size: clamp(9px, 2.8vw, 13px); }
+    .fl-tile .mk.b, .fl-tile .mk.b .bomb { width: clamp(9px, 2.8vw, 13px); height: clamp(9px, 2.8vw, 13px); }
+
+    /* controls under the thumbs */
+    .fl-notewin .fl-win-body { order: 3; display: grid; grid-template-columns: 1.1fr 2fr; gap: 6px; width: 100%; max-width: 520px; margin: 0 auto; }
+    .fl-notewin .fl-btn, .fl-marks .fl-btn { height: 46px; font-size: 16px; }
+    .fl-marks .fl-btn .bomb { width: 20px; height: 20px; }
+    .fl-gamewin .fl-win-body { order: 4; width: 100%; max-width: 520px; margin: 0 auto; }
+    #flCash { height: 46px; font-size: 17px; width: 100%; }
+
+    /* How to Play opens from the ? button */
+    .fl-help, .fl-help + .box-title, .fl > .box-title.fl-helptitle { display: none; }
+    body.fl-helpopen .fl-help { display: block; position: fixed; z-index: 70; left: 10px; right: 10px; top: 50%; transform: translateY(-50%);
+      max-height: 80vh; overflow-y: auto; margin: 0; border: 3px outset #fff; box-shadow: 4px 4px 0 #000; padding: 14px 14px 10px; }
+    body.fl-helpopen::after { content: ""; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 69; }
+    body.fl-helpopen .fl-help { font-size: 14px; line-height: 1.4; }
+    body.fl-helpopen .fl-helphead { display: block; margin: 0 0 8px; font-size: 20px; color: #000080; }
+    body.fl-helpopen .fl-helpx { display: flex; height: 42px; }
+    .fl-helpbtns .fl-btn { flex: 1; height: 42px; }
+  }
+  @media (max-width: 720px) and (max-height: 560px) {
+    .fl-stats .k { display: none; }
+  }
+</style>
+</head>
+<body>
+<noscript><div style="max-width:600px;margin:60px auto;padding:20px;background:#c0c0c0;border:3px outset #fff;font-family:'Times New Roman',Times,serif;font-size:16px;color:#000"><b>coleswebsite.xyz</b><br><br>This site needs JavaScript turned on, and you need to accept the <a href="/terms/">Terms of Service</a> to see it.</div></noscript>
+</body>
+</html>

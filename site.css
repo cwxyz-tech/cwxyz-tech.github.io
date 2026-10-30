@@ -1,0 +1,223 @@
+/* coleswebsite.xyz -- straight out of 1997.
+   Loaded LAST on every page (home included) so it wins over each page's local styles.
+   Fonts: Times New Roman everywhere, Comic Sans only for the "oops". */
+
+html { scrollbar-color: #c0c0c0 #808080; }
+
+/* ---------- PAGE: teal desktop with a dithered pattern ---------- */
+body {
+  background-color: #008080;
+  background-image:
+    linear-gradient(45deg, #007272 25%, transparent 25%, transparent 75%, #007272 75%),
+    linear-gradient(45deg, #007272 25%, transparent 25%, transparent 75%, #007272 75%);
+  background-size: 4px 4px;
+  background-position: 0 0, 2px 2px;
+  font-family: "Times New Roman", Times, serif;
+  color: #000;
+  margin: 0;
+  padding: 0;
+}
+a { color: #0000FF; text-decoration: underline; }
+a:visited { color: #800080; }
+a:hover { color: #FF0000; }
+a:active { color: #FF8000; }
+
+/* ---------- THE BIG GREY WINDOW ---------- */
+.wrap {
+  max-width: 1100px;
+  margin: 14px auto;
+  background: #c0c0c0;
+  border: 3px outset #ffffff;
+  box-shadow: 4px 4px 0 #000;
+}
+
+/* ---------- HEADER ---------- */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  background: #c0c0c0;
+  padding: 14px 16px 10px 16px;
+}
+.logo a { display: block; line-height: 0; }
+.logo img { display: block; height: 56px; width: auto; border: 0; }
+.tagline { color: #000; font-style: italic; font-size: 14px; margin-left: 12px; }
+
+/* rainbow divider instead of the plain gold bar */
+.goldbar {
+  height: 8px;
+  background: repeating-linear-gradient(90deg,
+    #ff0000 0 24px, #ff9900 24px 48px, #ffff00 48px 72px,
+    #00cc00 72px 96px, #00cccc 96px 120px, #0000ff 120px 144px, #cc00cc 144px 168px);
+  border-top: 1px solid #000;
+  border-bottom: 1px solid #000;
+}
+
+/* ---------- SCROLLING MARQUEE (home) ---------- */
+.cw-marquee {
+  display: block;
+  background: #000;
+  color: #00ff00;
+  font-family: "Times New Roman", Times, serif;
+  font-weight: bold;
+  font-size: 15px;
+  padding: 4px 0;
+  border-bottom: 2px solid #808080;
+}
+
+/* ---------- NAV: chunky 3D buttons ---------- */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  background: #c0c0c0;
+  padding: 8px 12px;
+  border-top: 2px groove #ffffff;
+  border-bottom: 2px groove #ffffff;
+  font-family: "Times New Roman", Times, serif;
+}
+.navbar a,
+.navbar a:visited {
+  display: inline-block;
+  margin: 0 4px 0 0;
+  padding: 3px 14px;
+  background: #c0c0c0;
+  color: #000;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: none;
+  border: 2px outset #ffffff;
+}
+.navbar a:hover { color: #cc0000; text-decoration: none; }
+.navbar a:active { border-style: inset; }
+.navbar .signin,
+.navbar .signin:visited { background: #ffff00; color: #000; margin-right: 0; }
+
+/* ---------- BANNERS (home) ---------- */
+.banners { background: #c0c0c0; border-bottom: 2px groove #fff; }
+
+/* ---------- INNER-PAGE LAYOUT ---------- */
+body:not(.home) .content {
+  padding: 20px 16px;
+  max-width: 780px;
+  margin: 0 auto;
+}
+body:not(.home) .content.wide { max-width: 900px; }
+.col-main { min-width: 0; }
+body:not(.home) .box-body,
+body:not(.home) .faq-body {
+  padding: 16px;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.box-body p { margin: 0 0 14px 0; }
+.box-body p:last-child { margin-bottom: 0; }
+
+/* ---------- WINDOW TITLE BARS ---------- */
+.box-title {
+  position: relative;
+  font-size: 14px;
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: #ffffff;
+  font-family: "Times New Roman", Times, serif;
+  font-weight: bold;
+  padding: 4px 8px;
+  border: 2px outset #ffffff;
+  border-bottom: none;
+  text-shadow: none;
+}
+body:not(.home) .box-title { font-size: 17px; }
+.box-title::after {
+  content: "_ \25A1 \00D7";
+  float: right;
+  letter-spacing: 4px;
+  font-size: 13px;
+  color: #000;
+  background: #c0c0c0;
+  padding: 0 4px;
+  border: 1px outset #fff;
+  line-height: 1.25;
+}
+.box-title.blue,
+.section-title {
+  background: linear-gradient(90deg, #008080, #40c0c0);
+  color: #fff;
+  border: 2px outset #ffffff;
+  border-bottom: none;
+  font-family: "Times New Roman", Times, serif;
+  font-weight: bold;
+  padding: 4px 8px;
+}
+
+/* ---------- WINDOW BODIES ---------- */
+.box-body,
+.faq-body {
+  background: #ffffff;
+  border: 2px inset #808080;
+  margin-bottom: 18px;
+}
+.col-left li, .col-right li { border-bottom: 1px dotted #808080; }
+.col-left li:last-child, .col-right li:last-child { border-bottom: none; }
+
+/* ---------- TABLES ---------- */
+table.listing {
+  border: 2px outset #ffffff;
+  border-collapse: collapse;
+}
+table.listing th {
+  background: #000080;
+  color: #ffffff;
+  font-family: "Times New Roman", Times, serif;
+  border: 1px solid #000;
+}
+table.listing td { border: 1px solid #808080; }
+table.listing tr:nth-child(odd) td { background: #ffffff; }
+table.listing tr:nth-child(even) td { background: #e0e0ff; }
+
+/* ---------- BLINKING "SOON" TAGS ---------- */
+@keyframes cw-blink { 50% { opacity: 0; } }
+.new-tag { animation: cw-blink 1s step-start infinite; }
+
+/* ---------- IMPACT PAGE BITS ---------- */
+.stat { border: 2px outset #ffffff !important; background: #c0c0c0 !important; }
+.stat .num { color: #000080 !important; }
+.bar { border: 2px inset #808080 !important; background: #fff !important; }
+
+/* ---------- FOOTER ---------- */
+.footer {
+  text-align: center;
+  font-size: 12px;
+  padding: 16px;
+  background: #c0c0c0;
+  color: #000;
+  border-top: 2px groove #ffffff;
+}
+.footer a { color: #0000ff; }
+.footer::after {
+  content: "Best viewed in Netscape Navigator 4.0 at 800x600";
+  display: block;
+  margin-top: 8px;
+  color: #800000;
+  font-style: italic;
+}
+
+/* ---------- HIT COUNTER (home) ---------- */
+.hitcounter { background: #c0c0c0; border-top: 2px groove #fff; color: #000; }
+.hitcounter .digits { border: 2px inset #808080; }
+
+@media (max-width: 700px) {
+  .wrap { margin: 0; border-width: 2px; box-shadow: none; }
+  .header { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .header > div:first-child { flex-direction: column; align-items: flex-start; }
+  .logo img { height: 40px; }
+  .tagline { margin-left: 0; margin-top: 2px; font-size: 12px; }
+  .navbar { flex-wrap: wrap; gap: 8px 0; }
+  .navbar a, .navbar a:visited { padding: 3px 10px; font-size: 13px; margin-bottom: 4px; }
+  body:not(.home) .content { padding: 12px 8px; }
+  body:not(.home) .box-body,
+  body:not(.home) .faq-body { padding: 12px; font-size: 14px; }
+}
+
+/* ---------- CUSTOM CURSOR: chunky yellow arrow, pink over links/buttons ---------- */
+html, body { cursor: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M3 2 L3 24 L9 18.5 L13.5 28.5 L18 26.5 L13.6 16.8 L22 16.8 Z' fill='%23ffff00' stroke='%23000' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M6 8 L6 18 L9 15.4' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3C/svg%3E") 3 2, auto; }
+a, a *, button, input[type=submit], input[type=button], label, summary, select, audio { cursor: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M3 2 L3 24 L9 18.5 L13.5 28.5 L18 26.5 L13.6 16.8 L22 16.8 Z' fill='%23ff2bd6' stroke='%23000' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M6 8 L6 18 L9 15.4' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3C/svg%3E") 3 2, pointer; }
+input[type=text], input[type=search], textarea { cursor: text; }

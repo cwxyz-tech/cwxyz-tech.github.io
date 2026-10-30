@@ -1,0 +1,1854 @@
+<div class="wrap">
+
+  <div class="header">
+    <div style="display:flex; align-items:flex-end;">
+      <div class="logo"><a href="/"><img src="/logo.png" alt="coleswebsite.xyz" width="394" height="56"></a></div>
+      <div class="tagline">Est. 2023... thoughts, lists, and other nonsense!</div>
+    </div>
+  </div>
+  <div class="goldbar"></div>
+
+  <div class="navbar">
+    <div>
+      <a href="/">Home</a>
+      <a href="/aboutme">About Me</a>
+      <a href="/faq">FAQ</a>
+      <a href="/impact">Impact</a>
+      <a href="/music">Music</a>
+      <a href="/reviews">Reviews</a>
+      <a href="/games">Games</a>
+    </div>
+    <div><a class="signin" href="mailto:coleswebsitexyz@proton.me">Contact Me</a></div>
+  </div>
+
+  <style>
+    /* desktop layout lives here (fetched fresh every time) so it never gets out of sync with this markup */
+    @media (min-width: 721px) {
+      body:not(.home) .content.pf { max-width: 780px; }
+      .pf-body { gap: 16px; }
+      .pf-board-area { flex-shrink: 0; }
+      .pf-side { width: 170px; flex-shrink: 1; min-width: 140px; }
+      .pf-well { height: clamp(486px, calc(100vh - 250px), 686px); }
+      .pf-buttons #pauseBtn { width: 100%; }
+      .pf-keys { padding: 2px 4px; }
+      .pf-overlay { padding: 6px; }
+      .pf-dialog .db { padding: 10px; gap: 8px; }
+    }
+  </style>
+  <div class="content pf">
+    <div class="box-title">
+      <span><span id="gameTitle">Lines DX</span> <span class="pf-stars" id="stars"></span></span>
+      <span class="pf-tbs">
+        <button class="pf-tb" id="shopBtnM" aria-label="Shop"></button>
+        <button class="pf-tb" id="pauseBtnM" aria-label="Pause">II</button>
+        <a class="pf-tb" href="/games" aria-label="Back to the games">&times;</a>
+      </span>
+    </div>
+    <div class="box-body pf-body">
+
+      <div class="pf-side pf-left">
+        <div class="pf-hold">
+          <div class="pf-win-title">Hold</div>
+          <div class="pf-win-body"><canvas id="hold" class="pf-mini" aria-label="Held piece"></canvas></div>
+        </div>
+        <div class="pf-stats-wrap">
+          <div class="pf-stats">
+            <div class="k">Score</div><div class="v big" id="score">0</div>
+            <div class="k">Level</div><div class="v" id="level">1</div>
+            <div class="pf-lvlbar" title="Lines to next level"><i id="lvlbar"></i></div>
+            <div class="k">Lines</div><div class="v" id="lines">0</div>
+            <div class="k">Coins</div><div class="v coin" id="coins">0</div>
+            <div class="k pf-best">Best</div><div class="v pf-best" id="best">0</div>
+            <div class="k pf-rank">Rank</div><div class="v pf-rank" id="rank">Newbie</div>
+          </div>
+        </div>
+        <div class="pf-buttons">
+          <button id="pauseBtn">II&nbsp; Pause / Menu</button>
+        </div>
+      </div>
+
+      <div class="pf-board-area">
+        <div class="pf-well" id="well">
+          <div class="pf-frame" id="frame">
+            <canvas id="board" aria-label="Game board"></canvas>
+            <div class="pf-callout" id="callout"></div>
+            <div class="pf-overlay" id="overlay"><div class="pf-dialog" id="sheet"></div></div>
+          </div>
+        </div>
+        <div class="pf-strip" id="specStrip"></div>
+        <div class="pf-pads">
+          <div class="pf-cluster pf-dpad">
+            <button class="pad" data-act="left" aria-label="Move left"><span class="glyph"><svg class="tri" viewBox="0 0 10 10" aria-hidden="true"><polygon points="8,1 8,9 1.5,5" fill="currentColor"/></svg></span></button>
+            <button class="pad" data-act="right" aria-label="Move right"><span class="glyph"><svg class="tri" viewBox="0 0 10 10" aria-hidden="true"><polygon points="2,1 2,9 8.5,5" fill="currentColor"/></svg></span></button>
+            <button class="pad" data-act="down" aria-label="Soft drop"><span class="glyph"><svg class="tri" viewBox="0 0 10 10" aria-hidden="true"><polygon points="1,2 9,2 5,8.5" fill="currentColor"/></svg></span></button>
+          </div>
+          <div class="pf-cluster pf-actions">
+            <button class="pad" data-act="hold" aria-label="Hold"><small>Hold</small></button>
+            <button class="pad" data-act="ccw" aria-label="Spin left"><span class="glyph">&#8634;</span></button>
+            <button class="pad drop" data-act="drop" aria-label="Hard drop"><span class="glyph"><svg class="tri wide" viewBox="0 0 20 10" aria-hidden="true"><polygon points="1,1 9,1 5,8.5" fill="currentColor"/><polygon points="11,1 19,1 15,8.5" fill="currentColor"/></svg></span><small>Drop</small></button>
+            <button class="pad spin" data-act="cw" aria-label="Spin right"><span class="glyph">&#8635;</span><small>Spin</small></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pf-side pf-right">
+        <div class="pf-next">
+          <div class="pf-win-title">Next</div>
+          <div class="pf-win-body"><canvas id="next" class="pf-mini" aria-label="Next pieces"></canvas></div>
+        </div>
+        <div class="pf-specials">
+          <div class="pf-win-title">&#9733; Special Moves &#9733;</div>
+          <div class="pf-win-body" id="specPanel"></div>
+        </div>
+        <div class="pf-keys">
+          <b>&larr; &rarr;</b><span>Move</span>
+          <b>&uarr; / Z</b><span>Spin</span>
+          <b>&darr;</b><span>Soft drop</span>
+          <b>Space</b><span>Drop</span>
+          <b>C</b><span>Hold</span>
+          <b class="hot">1 - 3</b><span class="hot">Special moves</span>
+          <b>P</b><span>Pause</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer">
+    &copy; 2023 - 2026 coleswebsite.xyz &nbsp;&middot;&nbsp; <a href="https://coleswebsite.xyz/">https://coleswebsite.xyz/</a> &nbsp;&middot;&nbsp; <a href="/terms">Terms</a>
+  </div>
+
+</div>
+
+<div class="pf-shop" id="shop" hidden>
+  <div class="pf-shopwin" role="dialog" aria-label="Lines DX Shop">
+    <div class="dt"><span>Lines DX Shop</span><button class="pf-x" id="shopClose" aria-label="Close shop">&times;</button></div>
+    <div class="pf-tabs" id="shopTabs">
+      <button data-tab="specials" class="on">Specials</button>
+      <button data-tab="skins">Skins</button>
+      <button data-tab="rebirth">Rebirth</button>
+    </div>
+    <div class="pf-shopcoins" id="shopCoins"></div>
+    <div class="pf-shoplist" id="shopList"></div>
+    <div class="pf-shopnote" id="shopNote"></div>
+  </div>
+</div>
+
+<script src="/juice.js?v=2"></script>
+<script>
+(() => {
+"use strict";
+
+const COLS = 10, ROWS = 22, HIDDEN = 2, VIS = ROWS - HIDDEN;
+
+const SHAPES = {
+  I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
+  J: [[1,0,0],[1,1,1],[0,0,0]],
+  L: [[0,0,1],[1,1,1],[0,0,0]],
+  O: [[1,1],[1,1]],
+  S: [[0,1,1],[1,1,0],[0,0,0]],
+  T: [[0,1,0],[1,1,1],[0,0,0]],
+  Z: [[1,1,0],[0,1,1],[0,0,0]],
+};
+
+// ---------- skins (bought in the shop)
+const SKINS = {
+  pastel:  { name: "Pastel",      price: 0,  bg: "#111522", dot: "#202638", cell: "#202638",
+             colors: { I: "#52D6E8", J: "#668CFF", L: "#FFAA69", O: "#FFD166", S: "#63D6A5", T: "#B69CFF", Z: "#FF6B83" } },
+  vga:     { name: "Classic VGA", price: 20, bg: "#000000", dot: "#2a2a2a",
+             colors: { I: "#00e0e0", J: "#2850ff", L: "#ff8000", O: "#ffff00", S: "#00c000", T: "#c000c0", Z: "#ff0000" } },
+  mono:    { name: "Monochrome",  price: 25, bg: "#000000", dot: "#303030",
+             colors: { I: "#f0f0f0", J: "#9a9a9a", L: "#c8c8c8", O: "#ffffff", S: "#b0b0b0", T: "#d8d8d8", Z: "#888888" } },
+  gameboy: { name: "Pocket Green",    price: 30, bg: "#9bbc0f", dot: "#8bac0f",
+             colors: { I: "#306230", J: "#0f380f", L: "#306230", O: "#0f380f", S: "#306230", T: "#0f380f", Z: "#306230" } },
+  sunset:  { name: "Sunset",      price: 40, bg: "#2b1b33", dot: "#4a3352",
+             colors: { I: "#ffd6a5", J: "#ff9aa2", L: "#ffb347", O: "#fdffb6", S: "#ffc6ff", T: "#c77dff", Z: "#ff6b6b" } },
+  candy:   { name: "Candy",       price: 50, bg: "#3d2c4e", dot: "#5a4670",
+             colors: { I: "#7bdff2", J: "#b2f7ef", L: "#f7d6e0", O: "#f2b5d4", S: "#d0f4de", T: "#cdb4db", Z: "#ffafcc" } },
+};
+const SPECIAL_TILE = { BOMB: "#ff7a7a", DRILL: "#c8c8d8", X: "#6a5a50" };   // X = disaster rubble
+// hard mode: the same pieces, sunk into the dark
+const HARD_SKIN = { name: "Hard Mode", bg: "#050203", dot: "#170a0d", cell: "#170a0d",
+  colors: { I: "#2f7f8a", J: "#33489a", L: "#a5532a", O: "#a8862a", S: "#2f7d55", T: "#5c3f96", Z: "#a3222f" } };
+const curSkin = () => hard ? HARD_SKIN : SKINS[save.skin];
+
+// ---------- special moves (bought in the shop; 3 slots, Laser and Nuke take 2 each)
+const MAX_SLOTS = 3, MAX_POWER = 30;
+const SPECIALS = {
+  bomb:   { name: "Bomb",       cost: 6,  slots: 1, price: 0,   desc: "Swaps your piece for a bomb that blasts a 3x4 hole where it lands." },
+  reroll: { name: "Line Piece", cost: 4,  slots: 1, price: 15,  desc: "Swaps your piece for a long I piece. Perfect for a 4 Lines." },
+  slow:   { name: "Slow-Mo",    cost: 7,  slots: 1, price: 25,  desc: "Pieces fall 3x slower for 12 seconds." },
+  drill:  { name: "Drill",      cost: 7,  slots: 1, price: 35,  desc: "A drill bit that bores out its whole column on landing." },
+  laser:  { name: "Laser",      cost: 10, slots: 2, price: 45,  desc: "Zaps the bottom 2 rows away instantly." },
+  nuke:   { name: "Nuke",       cost: 24, slots: 2, price: 120, desc: "Wipes the whole board clean." },
+};
+const SPECIAL_ORDER = ["bomb", "reroll", "slow", "drill", "laser", "nuke"];
+const slotsUsed = (list = save.equipped) => list.reduce((t, id) => t + SPECIALS[id].slots, 0);
+const slotWord = n => n + " slot" + (n === 1 ? "" : "s");
+// 8x8 pixel-art icons. K black, W white, Y yellow, R red, C cyan, G grey, O orange, P purple, N green
+const PIX = { K: "#000000", W: "#ffffff", Y: "#ffd800", R: "#ff3030", C: "#3fd0d0", G: "#9a9a9a", O: "#ff9a3c", P: "#b07be0", N: "#2bbf5a" };
+const ICONS = {
+  bomb:   ["......YO..", ".....K.Y..", "....K.....", "..KKKKKK..", ".KKKKKKKK.", ".KWWKKKKK.", ".KWKKKKKK.", ".KKKKKKKK.", ".KKKKKKKK.", "..KKKKKK.."],
+  reroll: [".............", ".............", ".............", ".............", "KKKKKKKKKKKKK", "KWCKWCKWCKWCK", "KCCKCCKCCKCCK", "KKKKKKKKKKKKK", ".............", ".............", ".............", "............."],
+  slow:   ["..KKKK..", ".KWWWWK.", "KWWKWWWK", "KWWKWWWK", "KWWKKKWK", "KWWWWWWK", ".KWWWWK.", "..KKKK.."],
+  drill:  ["KKKKKKKK", ".GGGGGG.", ".GWGGGG.", "..GGGG..", "..GWGG..", "...GG...", "...GG...", "...K...."],
+  laser:  ["........", "KK...R..", "KKRRRRRR", "KKYYYYYY", "KKRRRRRR", "KK...R..", "........", "........"],
+  nuke:   ["..YYYY..", ".YKYYKY.", "YKKYYKKY", "YYYKKYYY", "YYKKKKYY", ".YKKKKY.", "..YYYY..", "........"],
+  play:   ["..KK......", "..KNKK....", "..KNNNKK..", "..KNNNNNKK", "..KNNNNNNK", "..KNNNNNNK", "..KNNNNNKK", "..KNNNKK..", "..KNKK....", "..KK......"],
+  newg:   ["........", "..KKKK..", "..KPPK..", "KKKPPKKK", "KPPPPPPK", "KPPPPPPK", "KKKKKKKK", "........"],
+  sound:  ["....K...", "...KK.Y.", "KKKWK..Y", "KWWWK.Y.", "KWWWK.Y.", "KKKWK..Y", "...KK.Y.", "....K..."],
+  mute:   ["....K...", "...KK...", "KKKWKR.R", "KWWWK.R.", "KWWWK.R.", "KKKWKR.R", "...KK...", "....K..."],
+  shop:   ["..KKKK..", "..K..K..", "KKKKKKKK", "KYYYYYYK", "KYYKKYYK", "KYYYYYYK", "KYYYYYYK", "KKKKKKKK"],
+};
+function pixIcon(name, size = 16) {
+  const rows = ICONS[name]; if (!rows) return "";
+  let r = "";
+  rows.forEach((row, y) => [...row].forEach((ch, x) => { if (PIX[ch]) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${PIX[ch]}"/>`; }));
+  const w = rows[0].length, h = rows.length;
+  return `<svg class="pix" width="${size}" height="${size}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
+}
+const REBIRTH_LEVEL = 12;
+
+// ---------- save data (this browser only)
+const SAVE_KEY = "lines-plus-save";
+const save = { coins: 0, skins: ["pastel"], skin: "pastel", specials: ["bomb"], equipped: ["bomb"], rebirths: 0, bestLevel: 0, gift: false };
+try { Object.assign(save, JSON.parse(localStorage.getItem(SAVE_KEY) || "{}")); } catch (e) {}
+if (!SKINS[save.skin]) save.skin = "pastel";
+// saves are plain browser storage, so treat them as untrusted: keep only known ids and real numbers
+const num = (v, max) => Math.max(0, Math.min(max, Math.floor(+v) || 0));
+save.coins = num(save.coins, 1e9); save.rebirths = num(save.rebirths, 1000); save.bestLevel = num(save.bestLevel, 1000);
+save.skins = (Array.isArray(save.skins) ? save.skins : []).filter(id => SKINS[id]); if (!save.skins.includes("pastel")) save.skins.unshift("pastel");
+save.specials = (Array.isArray(save.specials) ? save.specials : []).filter(id => SPECIALS[id]); if (!save.specials.includes("bomb")) save.specials.unshift("bomb");
+if (!save.skins.includes(save.skin)) save.skin = "pastel";
+save.equipped = (Array.isArray(save.equipped) ? save.equipped : []).filter(id => SPECIALS[id] && save.specials.includes(id))
+  .reduce((kept, id) => slotsUsed(kept) + SPECIALS[id].slots <= MAX_SLOTS ? kept.concat(id) : kept, []);
+function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} }
+const coinMult = () => (1 + 0.5 * save.rebirths) * (hard ? 2 : 1);
+const scoreMult = () => daily ? 1 : (1 + 0.1 * save.rebirths) * (hard ? 2 : 1);   // the daily is the same for everyone: no bonuses
+let hard = false;
+// hard mode music (linesdx/music-hard.mp3) is in Bb minor, 96 BPM, 4/4: hard mode sounds and the red pulse follow it
+const BPM = 96, BEAT = 60 / BPM;
+const ROOT = 466.164;   // Bb4
+
+let COLORS = {};
+function applySkin() { COLORS = { ...curSkin().colors, ...SPECIAL_TILE }; }
+applySkin();
+
+const KICK_JLSTZ = {
+  "0>1": [[0,0],[-1,0],[-1,1],[0,-2],[-1,-2]], "1>0": [[0,0],[1,0],[1,-1],[0,2],[1,2]],
+  "1>2": [[0,0],[1,0],[1,-1],[0,2],[1,2]],     "2>1": [[0,0],[-1,0],[-1,1],[0,-2],[-1,-2]],
+  "2>3": [[0,0],[1,0],[1,1],[0,-2],[1,-2]],    "3>2": [[0,0],[-1,0],[-1,-1],[0,2],[-1,2]],
+  "3>0": [[0,0],[-1,0],[-1,-1],[0,2],[-1,2]],  "0>3": [[0,0],[1,0],[1,1],[0,-2],[1,-2]],
+};
+const KICK_I = {
+  "0>1": [[0,0],[-2,0],[1,0],[-2,-1],[1,2]], "1>0": [[0,0],[2,0],[-1,0],[2,1],[-1,-2]],
+  "1>2": [[0,0],[-1,0],[2,0],[-1,2],[2,-1]], "2>1": [[0,0],[1,0],[-2,0],[1,-2],[-2,1]],
+  "2>3": [[0,0],[2,0],[-1,0],[2,1],[-1,-2]], "3>2": [[0,0],[-2,0],[1,0],[-2,-1],[1,2]],
+  "3>0": [[0,0],[1,0],[-2,0],[1,-2],[-2,1]], "0>3": [[0,0],[-1,0],[2,0],[-1,2],[2,-1]],
+};
+
+const LOCK_DELAY = 500, MAX_LOCK_RESETS = 15, CLEAR_MS = 300;
+const LINE_SCORES = [0, 100, 300, 500, 800];
+const LINE_NAMES = ["", "Single", "Double", "Triple", "4 Lines!!"];
+const TSPIN_SCORES = { full: [400, 800, 1200, 1600], mini: [100, 200, 400, 400] };
+const PC_SCORES = [0, 800, 1200, 1800, 2000];
+const RANKS = [[0, "Newbie"], [2000, "Stacker"], [6000, "Line Cook"], [15000, "Pro"], [30000, "Expert"], [60000, "Master"], [100000, "Legend"]];
+const rankOf = s => { let r = RANKS[0][1]; for (const [min, name] of RANKS) if (s >= min) r = name; return r; };
+const touchy = matchMedia("(pointer: coarse)").matches;
+const DAS = touchy ? 170 : 150, ARR = touchy ? 45 : 40;
+
+// ---------- dom
+const $ = id => document.getElementById(id);
+const boardC = $("board"), bctx = boardC.getContext("2d", { alpha: false });
+const holdC = $("hold"), hctx = holdC.getContext("2d");
+const nextC = $("next"), nctx = nextC.getContext("2d");
+const frame = $("frame"), well = $("well"), overlay = $("overlay"), sheet = $("sheet"), callout = $("callout");
+const elScore = $("score"), elLevel = $("level"), elLines = $("lines"), elBest = $("best"), elRank = $("rank"), elCoins = $("coins"), lvlbar = $("lvlbar");
+
+// ---------- state
+let board, piece, queue, bag, hold, canHold, score, lines, level, combo, b2b;
+let mode = "title";
+let fallT = 0, lockT = 0, lockResets = 0, clearing = null;
+let particles = [], best = 0, startBest = 0, bestCalled = false;
+let lastSpin = null, floaters = [], flash = null, rank = "Newbie", b2bCount = 0;
+let power = 0, powerBank = 0, slowUntil = 0, coinsThisGame = 0;
+// hard mode disasters: one every minute of play, picked at random, each one worse than the last
+const DISASTER_EVERY = 60000, DISASTER_WARN = 5000;
+let disasterT = 0, disasterWarned = false, lastDisaster = null, storm = null, disasterCount = 0;
+// each game gets an id, so delayed effects (meteors, aftershocks) from an old game never land in a new one
+let gameId = 0;
+// while paused the clock stands still for timed effects (Slow-Mo, the lightning storm)
+let pausedAt = 0;
+const clockNow = () => mode === "pause" && pausedAt ? pausedAt : performance.now();
+// hard mode: power charges at a quarter of the normal rate, so specials are rare
+const HARD_POWER_RATE = 0.25;
+let cell = 28, dpr = 1, tiles = {}, miniTiles = {}, miniCell = 16;
+let soundOn = true, actx = null, giftShown = false;
+
+try { best = +localStorage.getItem("prismfall-best") || 0; } catch (e) {}
+// save a new best the moment it happens, so restarting or leaving mid-game never loses it
+function keepBest() {
+  if (!board || score <= best) return;
+  best = score; try { localStorage.setItem("prismfall-best", best); } catch (e) {}
+}
+try { soundOn = localStorage.getItem("prismfall-sound") !== "off"; } catch (e) {}
+let musicOn = true;   // its own switch, so the sound effects can stay on without the songs
+try { musicOn = localStorage.getItem("prismfall-music") !== "off"; } catch (e) {}
+if (!save.gift) { save.coins += 20; save.gift = true; giftShown = true; persist(); }
+
+const emptyRow = () => Array(COLS).fill(null);
+const clone = m => m.map(r => r.slice());
+const isSpecialPiece = t => t === "BOMB" || t === "DRILL";
+
+function refillBag() {
+  const b = Object.keys(SHAPES);
+  for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; }
+  return b;
+}
+function pullType() { if (!bag.length) bag = refillBag(); return bag.pop(); }
+
+function newGame() {
+  board = Array.from({ length: ROWS }, emptyRow);
+  bag = []; queue = []; while (queue.length < 5) queue.push(pullType());
+  hold = null; canHold = true; score = 0; lines = 0; level = 1; combo = -1; b2b = false;
+  particles = []; clearing = null; floaters = []; flash = null;
+  startBest = best; bestCalled = false; lastSpin = null; rank = rankOf(0); b2bCount = 0;
+  power = hard || daily ? 0 : Math.min(10, 2 * save.rebirths); powerBank = 0; slowUntil = 0; coinsThisGame = 0;
+  disasterT = 0; disasterWarned = false; lastDisaster = null; storm = null; disasterCount = 0; stopSiren();
+  gameId++; pausedAt = 0;
+  spawn(); updateHud(); renderSpecials();
+}
+
+function spawn(type) {
+  const t = type || queue.shift();
+  const m = SHAPES[t] ? clone(SHAPES[t]) : [[1]];
+  piece = { type: t, m, r: 0, x: t === "O" || m.length === 1 ? 4 : 3, y: 0 };
+  if (!type) queue.push(pullType());
+  fallT = 0; lockT = 0; lockResets = 0; lastSpin = null;
+  if (collide(piece.m, piece.x, piece.y)) { gameOver(); return; }
+  if (!collide(piece.m, piece.x, piece.y + 1)) piece.y++;
+  drawMinis();
+}
+
+function collide(m, x, y) {
+  for (let r = 0; r < m.length; r++) for (let c = 0; c < m.length; c++) {
+    if (!m[r][c]) continue;
+    const bx = x + c, by = y + r;
+    if (bx < 0 || bx >= COLS || by >= ROWS) return true;
+    if (by >= 0 && board[by][bx]) return true;
+  }
+  return false;
+}
+
+function rotated(m, dir) {
+  const n = m.length, out = Array.from({ length: n }, () => Array(n).fill(0));
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++)
+    if (dir > 0) out[c][n - 1 - r] = m[r][c]; else out[n - 1 - c][r] = m[r][c];
+  return out;
+}
+
+function onGround() { return collide(piece.m, piece.x, piece.y + 1); }
+function touchLock() { if (onGround() && lockResets < MAX_LOCK_RESETS) { lockT = 0; lockResets++; } }
+
+function move(dx) {
+  if (mode !== "play" || clearing) return false;
+  if (!collide(piece.m, piece.x + dx, piece.y)) { piece.x += dx; lastSpin = null; touchLock(); sfx("move"); return true; }
+  return false;
+}
+
+function rotate(dir) {
+  if (mode !== "play" || clearing || piece.type === "O" || piece.m.length === 1) return;
+  const to = (piece.r + dir + 4) % 4, m = rotated(piece.m, dir);
+  const kicks = (piece.type === "I" ? KICK_I : KICK_JLSTZ)[piece.r + ">" + to];
+  for (let i = 0; i < kicks.length; i++) {
+    const [kx, ky] = kicks[i];
+    if (!collide(m, piece.x + kx, piece.y - ky)) {
+      piece.m = m; piece.x += kx; piece.y -= ky; piece.r = to; lastSpin = { kick: i }; touchLock();
+      sfx(tSpinType() ? "tspinready" : "rotate"); return;
+    }
+  }
+}
+
+function softStep() {
+  if (!collide(piece.m, piece.x, piece.y + 1)) { piece.y++; lastSpin = null; score += 1; updateHud(); return true; }
+  return false;
+}
+
+function hardDrop() {
+  if (mode !== "play" || clearing) return;
+  const startY = piece.y;
+  while (!collide(piece.m, piece.x, piece.y + 1)) piece.y++;
+  const dist = piece.y - startY;
+  if (dist > 0) lastSpin = null;
+  score += dist * 2;
+  updateHud();
+  eachCell(piece, (bx, by) => {
+    if (by < HIDDEN) return;
+    for (let k = 0; k < 2; k++) particles.push({
+      x: (bx + Math.random()) * cell, y: (by - HIDDEN + 1) * cell, vx: (Math.random() - .5) * 40,
+      vy: -50 - Math.random() * 90, life: 0, max: .3 + Math.random() * .15, color: COLORS[piece.type], size: Math.max(2, cell / 7) });
+  });
+  if (dist > 2) shakeBoard();
+  if (dist > 4 && juicy()) {
+    eachCell(piece, (bx, by) => { if (by >= HIDDEN) { const p = onPage((bx + .5) * cell, (by - HIDDEN + 1) * cell); fx.chip(p.x, p.y, { sp: 120, up: 140, c: COLORS[piece.type], s: 4, life: .4 }); } });
+  }
+  buzz(12);
+  sfx("drop", dist);
+  lock();
+}
+function shakeBoard() { frame.classList.remove("shake"); void frame.offsetWidth; frame.classList.add("shake"); }
+
+function holdPiece() {
+  if (mode !== "play" || clearing || !canHold || isSpecialPiece(piece.type)) return;
+  const cur = piece.type;
+  if (hold) spawn(hold); else spawn();
+  hold = cur; canHold = false; sfx("hold"); drawMinis();
+}
+
+function eachCell(p, fn) {
+  for (let r = 0; r < p.m.length; r++) for (let c = 0; c < p.m.length; c++) if (p.m[r][c]) fn(p.x + c, p.y + r);
+}
+
+// T-spin check (3-corner rule): the T's last move was a spin and 3 of the 4 corners around its centre are filled.
+// Both "front" corners filled (or the big 5th kick) makes it a full T-spin, otherwise a mini.
+const T_FRONT = [[[0, 0], [2, 0]], [[2, 0], [2, 2]], [[0, 2], [2, 2]], [[0, 0], [0, 2]]];
+function filledAt(x, y) { return x < 0 || x >= COLS || y >= ROWS || (y >= 0 && !!board[y][x]); }
+function tSpinType() {
+  if (!piece || piece.type !== "T" || !lastSpin) return null;
+  const corners = [[0, 0], [2, 0], [0, 2], [2, 2]].filter(([cx, cy]) => filledAt(piece.x + cx, piece.y + cy)).length;
+  if (corners < 3) return null;
+  const front = T_FRONT[piece.r].filter(([cx, cy]) => filledAt(piece.x + cx, piece.y + cy)).length;
+  return front === 2 || lastSpin.kick === 4 ? "full" : "mini";
+}
+
+function blast(cells, color) {
+  let n = 0;
+  for (const [x, y] of cells) {
+    if (x < 0 || x >= COLS || y < 0 || y >= ROWS || !board[y][x]) continue;
+    const c = COLORS[board[y][x]] || color;
+    board[y][x] = null; n++;
+    if (y >= HIDDEN) for (let k = 0; k < 4; k++) particles.push({
+      x: (x + .5) * cell, y: (y - HIDDEN + .5) * cell, vx: (Math.random() - .5) * 420, vy: (Math.random() - .7) * 380,
+      life: 0, max: .5 + Math.random() * .4, color: c, size: Math.max(3, cell / 5) });
+  }
+  return n;
+}
+
+function lock() {
+  const spin = tSpinType();
+  const cx = (piece.x + piece.m.length / 2) * cell;
+  let topY = 99; eachCell(piece, (bx, by) => { topY = Math.min(topY, by); });
+  const floatY = (Math.max(topY, HIDDEN) - HIDDEN) * cell;
+
+  // special pieces explode instead of sticking
+  if (isSpecialPiece(piece.type)) {
+    const { x, y } = piece, cells = [];
+    if (piece.type === "BOMB") { for (let dy = -1; dy <= 2; dy++) for (let dx = -1; dx <= 1; dx++) cells.push([x + dx, y + dy]); }
+    else for (let yy = y; yy < ROWS; yy++) cells.push([x, yy]);
+    const n = blast(cells, COLORS[piece.type]);
+    const gained = Math.round(10 * Math.max(1, n) * level * scoreMult());
+    score += gained;
+    floatText("+" + gained, cx, floatY, "#ff9a9a", true);
+    showCallout(piece.type === "BOMB" ? "Ka-Boom!" : "Drilled!", n + " blocks gone");
+    sfx(piece.type === "BOMB" ? "boom" : "drill"); buzz([50, 30, 80]); flashBoard("#ffffff", 180); shakeBoard();
+    if (juicy()) {
+      const p = onPage((x + .5) * cell, (Math.max(y, HIDDEN) - HIDDEN + 1) * cell);
+      fx.explode(p.x, p.y, piece.type === "BOMB"); fx.flash(frame, "white"); fx.quake(frame, piece.type === "BOMB");
+    }
+    updateHud();
+    canHold = true;
+    spawn();
+    return;
+  }
+
+  let above = true;
+  eachCell(piece, (bx, by) => { if (by >= 0) board[by][bx] = piece.type; if (by >= HIDDEN) above = false; });
+  if (above) { gameOver(); return; }
+  canHold = true;
+  const full = [];
+  for (let r = 0; r < ROWS; r++) if (board[r].every(Boolean)) full.push(r);
+  const n = full.length;
+  const spinName = spin ? (spin === "mini" ? "Mini T-Spin" : "T-Spin") : "";
+
+  if (!n) {
+    combo = -1;
+    if (spin) {
+      const gained = Math.round(TSPIN_SCORES[spin][0] * level * scoreMult());
+      score += gained; addPower(1);
+      floatText("+" + gained, cx, floatY, "#ff99ff");
+      showCallout(spinName + "!", "+" + gained.toLocaleString());
+      sfx("tspin", 0); buzz(20); flashBoard("#d8b6f2", 120);
+      if (juicy()) { const p = pieceCenter(); fx.burst(p.x, p.y, "purple"); }
+      updateHud();
+    } else sfx("lock");
+    spawn();
+    return;
+  }
+
+  const difficult = n === 4 || !!spin;
+  combo++;
+  let gained = (spin ? TSPIN_SCORES[spin][n] : LINE_SCORES[n]) * level;
+  const wasB2B = difficult && b2b;
+  if (wasB2B) { gained = Math.floor(gained * 1.5); b2bCount++; } else if (difficult) b2bCount = 0;
+  b2b = difficult;
+  if (combo > 0) gained += 50 * combo * level;
+  const perfect = board.every((row, r) => full.includes(r) || row.every(v => !v));
+  if (perfect) gained += PC_SCORES[n] * level;
+  gained = Math.round(gained * scoreMult());
+  score += gained;
+  addPower(n + (spin ? 2 : 0) + (n === 4 ? 2 : 0) + (perfect ? 5 : 0));
+  const oldLevel = level;
+  lines += n;
+  level = Math.floor(lines / 10) + 1;
+  const pc = pieceCenter();
+  juiceRows(full, perfect || difficult);
+  clearing = { rows: full, t: 0 };
+  burst(full, perfect || difficult ? 5 : 3);
+  if (juicy()) {
+    if (perfect) { fx.confetti(frameRect(), 90); fx.flash(frame, "white"); fx.quake(frame, true); fx.burst(pc.x, pc.y, 3); }
+    else if (spin) { fx.burst(pc.x, pc.y, "purple"); fx.flash(frame, "white"); fx.quake(frame, n >= 2); }
+    else if (n === 4) { fx.burst(pc.x, pc.y, 3); fx.ring(pc.x, pc.y, 20, 420, ["#9fe7e4", "#ffffff", "#52d6e8"], 6); fx.flash(frame, "white"); fx.quake(frame, true); }
+    else if (n >= 2) { fx.burst(pc.x, pc.y, 2); fx.quake(frame); }
+    if (wasB2B) fx.ring(pc.x, pc.y, 16, 340, ["#ffd700", "#ffffff"]);
+    if (combo >= 2) fx.ring(pc.x, pc.y, Math.min(28, 8 + combo * 2), 260 + combo * 20, fx.RAINBOW);
+  }
+
+  const title = perfect ? "Perfect Clear!!" : spin ? spinName + " " + LINE_NAMES[n] + "!" : n === 4 ? LINE_NAMES[4] : LINE_NAMES[n] + "!";
+  const subs = [];
+  if (perfect) subs.push(spin ? spinName + " " + LINE_NAMES[n] : LINE_NAMES[n].replace("!!", ""));
+  if (wasB2B) subs.push(b2bCount > 1 ? "Back-to-back x" + b2bCount : "Back-to-back");
+  if (combo > 0) subs.push(combo + " combo");
+  if (!subs.length) subs.push("+" + gained.toLocaleString());
+  showCallout(title, subs.join(" · "));
+  floatText("+" + gained.toLocaleString(), cx, floatY, perfect ? "#ffffff" : spin ? "#ff99ff" : n === 4 ? "#9fe7e4" : "#fff0a0", difficult || perfect);
+
+  if (perfect) { sfx("pc"); buzz([40, 30, 40, 30, 80]); flashBoard("#ffffff", 260); }
+  else if (spin) { sfx("tspin", n); buzz([30, 30, 50]); flashBoard("#d8b6f2", 160); }
+  else if (n === 4) { sfx("quad"); buzz([30, 40, 60]); flashBoard("#9fe7e4", 160); }
+  else { sfx("clear", n); buzz(25); }
+  if (combo > 0) setTimeout(() => sfx("combo", combo), 140);
+  if (level > oldLevel) levelUp(oldLevel, level);
+  updateHud();
+}
+
+function levelUp(from, to) {
+  showCallout("Level " + to + "!", "Speeding up...");
+  setTimeout(() => sfx("level"), 380);
+  save.bestLevel = Math.max(save.bestLevel, to);
+  // checkpoint every 5 levels pays out coins
+  for (let lv = from + 1; lv <= to; lv++) {
+    // every level pays a little; every 5th level is a checkpoint that pays big
+    const checkpoint = lv % 5 === 0;
+    const coins = Math.round((2 + (checkpoint ? 10 * (lv / 5) : 0)) * coinMult());
+    save.coins += coins; coinsThisGame += coins;
+    if (checkpoint) {
+      showCallout("Checkpoint!", "+" + coins + " coins");
+      setTimeout(() => sfx("coins", Math.min(8, Math.ceil(coins / 5))), 900);
+    } else floatText("+" + coins + " coins", COLS * cell / 2, cell * 3, "#ffd800");
+    flyCoins(coins);
+    if (checkpoint && juicy()) { fx.shower(frameRect(), 40); fx.confetti(frameRect(), 40); fx.flash(frame, "gold"); }
+  }
+  if (juicy()) fx.blink(elLevel);
+  persist();
+}
+
+function addPower(n) {
+  if (daily) return;   // no specials in the daily challenge
+  const before = power;
+  if (hard) { powerBank += n * HARD_POWER_RATE; n = Math.floor(powerBank); powerBank -= n; if (!n) return; }
+  power = Math.min(MAX_POWER, power + n);
+  // little chime when a special becomes affordable
+  const newly = save.equipped.filter(id => SPECIALS[id].cost > before && SPECIALS[id].cost <= power);
+  if (newly.length) {
+    setTimeout(() => sfx("ready"), 260);
+    const id = newly[newly.length - 1], k = save.equipped.indexOf(id) + 1;
+    showCallout(SPECIALS[id].name + " Ready!", touchy ? "Tap it under the board" : "Press " + k + " to use it");
+  }
+  renderPower();
+}
+
+// ---------- specials
+function useSpecial(i) {
+  ensureAudio();
+  const id = save.equipped[i];
+  if (!id || mode !== "play" || clearing) return;
+  if (daily) { sfx("nope"); showCallout("No Specials", "It's the Daily Challenge"); return; }
+  const sp = SPECIALS[id];
+  if (power < sp.cost) { sfx("nope"); showCallout("Not Yet", "Need " + (sp.cost - power) + " more power"); return; }
+  // already holding that exact piece: don't spend power on a second copy that would replace it
+  const swapTo = id === "bomb" ? "BOMB" : id === "drill" ? "DRILL" : id === "reroll" ? "I" : null;
+  if (swapTo && piece && piece.type === swapTo) { sfx("nope"); return; }
+  power -= sp.cost;
+  buzz([15, 20, 15]);
+  if (id === "bomb") swapPiece("BOMB");
+  else if (id === "drill") swapPiece("DRILL");
+  else if (id === "reroll") swapPiece("I");
+  else if (id === "slow") { slowUntil = performance.now() + 12000; showCallout("Slow-Mo!", "12 seconds"); sfx("slow"); }
+  else if (id === "laser") { zap([ROWS - 1, ROWS - 2], true, "Laser!"); sfx("laser"); }
+  else if (id === "nuke") {
+    const rows = []; for (let r = 0; r < ROWS; r++) if (board[r].some(Boolean)) rows.push(r);
+    zap(rows, false, "Nuke!!"); sfx("nuke");
+  }
+  if (id === "bomb" || id === "drill" || id === "reroll") sfx("special");
+  renderPower();
+}
+function swapPiece(type) {
+  if (piece.type !== type) queue.unshift(piece.type);
+  spawn(type);
+  showCallout(type === "BOMB" ? "Bomb Ready" : type === "DRILL" ? "Drill Ready" : "Line Piece!", "Drop it somewhere good");
+}
+function zap(rows, countLines, title) {
+  const filledRows = rows.filter(r => board[r].some(Boolean));
+  if (!filledRows.length) { showCallout(title, "Nothing to hit!"); return; }
+  const gained = Math.round((countLines ? 100 : 50) * filledRows.length * level * scoreMult());
+  score += gained;
+  juiceRows(filledRows, true);
+  burst(filledRows, 4);
+  if (juicy()) {
+    if (title === "Nuke!!") { fx.confetti(frameRect(), 70); fx.flash(frame, "white"); fx.quake(frame, true); const c = fx.center(frame); fx.explode(c.x, c.y, true); }
+    else { fx.flash(frame, "red"); fx.quake(frame); }
+  }
+  clearing = { rows: filledRows, t: 0, keep: true };
+  if (countLines) { const old = level; lines += filledRows.length; level = Math.floor(lines / 10) + 1; if (level > old) levelUp(old, level); }
+  showCallout(title, "+" + gained.toLocaleString());
+  flashBoard(title === "Nuke!!" ? "#ffffff" : "#ff7a7a", 220); shakeBoard();
+  updateHud();
+}
+
+function finishClear() {
+  const { rows, keep } = clearing;
+  for (const r of [...rows].sort((a, b) => b - a)) board.splice(r, 1);
+  for (let i = 0; i < rows.length; i++) board.unshift(emptyRow());
+  clearing = null;
+  if (keep) { while (collide(piece.m, piece.x, piece.y) && piece.y > -2) piece.y--; }
+  else spawn();
+}
+
+// ---------- hard mode disasters
+const DISASTERS = {
+  quake:   { name: "Earthquake",     warn: "The ground is shaking...", run: doQuake },
+  flood:   { name: "Flood",          warn: "The water is rising...",   run: doFlood },
+  meteor:  { name: "Meteor Shower",  warn: "Look up...",               run: doMeteors },
+  tornado: { name: "Tornado",        warn: "The wind is picking up...", run: doTornado },
+  storm:   { name: "Lightning Storm", warn: "The lights are flickering...", run: doStorm },
+};
+function nextDisasterId() {
+  const ids = Object.keys(DISASTERS).filter(id => id !== lastDisaster);
+  return ids[Math.floor(Math.random() * ids.length)];
+}
+let pendingDisaster = null;
+// severity goes up by one with every disaster this game: 1, 2, 3...
+const disasterSev = () => disasterCount + 1;
+function disasterTick(dt) {
+  disasterT += dt;
+  if (!disasterWarned && disasterT >= DISASTER_EVERY - DISASTER_WARN) {
+    disasterWarned = true; pendingDisaster = nextDisasterId();
+    showCallout("Warning! Severity " + disasterSev(), DISASTERS[pendingDisaster].warn);
+    startSiren((DISASTER_EVERY - disasterT) / 1000); buzz([300, 150, 300, 150, 300, 150, 300]);
+  }
+  if (disasterT >= DISASTER_EVERY) {
+    const id = pendingDisaster || nextDisasterId(), sev = disasterSev();
+    disasterT = 0; disasterWarned = false; pendingDisaster = null; lastDisaster = id; disasterCount++;
+    stopSiren();
+    showCallout(DISASTERS[id].name + "!", "Severity " + sev);
+    DISASTERS[id].run(sev);
+    settleAfterDisaster();
+    updateHud();
+  }
+}
+// board changed under the falling piece: nudge it up out of the blocks, or end the game if there's no room
+function settleAfterDisaster() {
+  if (mode !== "play" || !piece) return;
+  while (collide(piece.m, piece.x, piece.y) && piece.y > -3) piece.y--;
+  if (collide(piece.m, piece.x, piece.y)) { gameOver(); return; }
+  for (let r = 0; r < HIDDEN; r++) if (board[r].some(Boolean)) { gameOver(); return; }
+  lockT = 0;
+}
+function topOfColumn(col) { for (let r = 0; r < ROWS; r++) if (board[r][col]) return r; return ROWS; }
+const pick = a => a[Math.floor(Math.random() * a.length)];
+// slide every row left or right by a random amount from the list (blocks wrap around)
+function shiftRows(shifts) {
+  for (let r = 0; r < ROWS; r++) {
+    if (!board[r].some(Boolean)) continue;
+    const shift = pick(shifts), row = board[r], out = emptyRow();
+    for (let c = 0; c < COLS; c++) out[(c + shift + COLS) % COLS] = row[c];
+    board[r] = out;
+  }
+}
+// rows slide sideways; bigger slides as severity climbs, and an aftershock from severity 4
+function doQuake(sev) {
+  shiftRows(sev <= 1 ? [-1, 1] : sev === 2 ? [-2, -1, 1, 2] : [-3, -2, -1, 1, 2, 3]);
+  sfx("quake"); buzz([200, 60, 200, 60, 300]);
+  shakeBoard(); setTimeout(shakeBoard, 350); setTimeout(shakeBoard, 700);
+  flashBoard("#8a5a2a", 400);
+  const gid = gameId;
+  if (sev >= 4) setTimeout(() => {
+    if (mode !== "play" || !hard || gid !== gameId) return;
+    shiftRows(sev >= 6 ? [-2, -1, 1, 2] : [-1, 1]);
+    showCallout("Aftershock!", ""); sfx("quake"); buzz([150, 50, 250]);
+    shakeBoard(); setTimeout(shakeBoard, 300); flashBoard("#8a5a2a", 300);
+    settleAfterDisaster();
+  }, 1800);
+}
+// rubble rises from the bottom: one row per severity level (max 5); from severity 3 the gap moves every row
+function doFlood(sev) {
+  let gap = Math.floor(Math.random() * COLS);
+  for (let k = 0; k < Math.min(sev, 5); k++) {
+    if (sev >= 3 && k) gap = Math.floor(Math.random() * COLS);
+    board.shift();
+    const row = Array(COLS).fill("X"); row[gap] = null; board.push(row);
+  }
+  sfx("flood"); buzz([120, 40, 120]);
+  flashBoard("#2a5aa0", 500); shakeBoard();
+}
+// rocks drop onto random columns: more and faster each time, and two blocks tall from severity 4
+function doMeteors(sev) {
+  const count = Math.min(3 + 2 * sev, COLS), gapMs = Math.max(180, 470 - 50 * sev), big = sev >= 4;
+  const cols = []; while (cols.length < count) { const c = Math.floor(Math.random() * COLS); if (!cols.includes(c)) cols.push(c); }
+  const gid = gameId;
+  cols.forEach((col, i) => setTimeout(() => {
+    if (mode !== "play" || !hard || gid !== gameId) return;
+    const r = topOfColumn(col) - 1;
+    if (r < HIDDEN) return;
+    board[r][col] = "X";
+    if (big && r - 1 >= HIDDEN) board[r - 1][col] = "X";
+    for (let k = 0; k < 6; k++) particles.push({ x: (col + .5) * cell, y: (r - HIDDEN + .5) * cell, vx: (Math.random() - .5) * 300,
+      vy: -Math.random() * 260, life: 0, max: .4 + Math.random() * .3, color: k % 2 ? "#ff9a3c" : "#ffd800", size: Math.max(3, cell / 5) });
+    sfx("meteor"); buzz(40); shakeBoard();
+    settleAfterDisaster();
+    const full = []; for (let rr = 0; rr < ROWS; rr++) if (board[rr].every(Boolean)) full.push(rr);
+    if (full.length && !clearing) zap(full, true, "Lucky!");
+  }, i * gapMs));
+  flashBoard("#ff9a3c", 250);
+}
+// the whole board gets flipped left to right; from severity 3 the wind also knocks rows sideways
+function doTornado(sev) {
+  for (let r = 0; r < ROWS; r++) board[r].reverse();
+  if (sev >= 3) shiftRows(sev >= 5 ? [-2, -1, 0, 1, 2] : [-1, 0, 1]);
+  sfx("tornado"); buzz([60, 40, 60, 40, 60]);
+  frame.classList.add("pf-spin"); setTimeout(() => frame.classList.remove("pf-spin"), 700);
+  flashBoard("#9a9a9a", 300);
+}
+// the board goes dark; lasts longer with fewer lightning flashes as severity climbs (12s at severity 1, max 30s)
+function doStorm(sev) {
+  const now = performance.now(), len = Math.min(30000, 8000 + 4000 * sev), gap = Math.min(4000, 1700 + 300 * sev);
+  const flashes = []; for (let t = 300; t < len - 400; t += gap * (.8 + Math.random() * .4)) flashes.push(now + t);
+  storm = { until: now + len, flashes, next: 0 };
+  sfx("thunder"); buzz([40, 40, 120]);
+}
+function stormTick(now) {
+  if (!storm) return;
+  if (now > storm.until) { storm = null; return; }
+  if (storm.next < storm.flashes.length && now >= storm.flashes[storm.next]) { storm.next++; sfx("thunder"); }
+}
+function stormLit(now) { return storm ? storm.flashes.some(t => now >= t && now < t + 220) : true; }
+
+function burst(rows, per = 3) {
+  for (const r of rows) {
+    const y = (r - HIDDEN + .5) * cell;
+    for (let c = 0; c < COLS; c++) {
+      if (!board[r][c]) continue;
+      const color = COLORS[board[r][c]] || "#fff";
+      for (let k = 0; k < per; k++) particles.push({
+        x: (c + .5) * cell, y, vx: (Math.random() - .5) * (per > 3 ? 520 : 360), vy: (Math.random() - .8) * 300,
+        life: 0, max: .5 + Math.random() * .4, color, size: Math.max(3, cell / 5) });
+    }
+  }
+}
+
+function floatText(text, x, y, color, big) {
+  if (juicy()) {
+    const p = onPage(Math.min(Math.max(x, cell * 2), COLS * cell - cell * 2), y);
+    fx.float(p.x, p.y, text, big ? "x2" : "", color);
+    return;
+  }
+  floaters.push({ text, x: Math.min(Math.max(x, cell * 2), COLS * cell - cell * 2), y, color, big, t: 0 });
+}
+function flashBoard(color, ms) { flash = { color, t: 0, ms }; }
+
+// ---------- Lucky Flip effects (from /juice.js): pixel sparks, flying coins, confetti and floating numbers over the page
+if (save.fx === undefined) save.fx = true;
+const fx = window.CwJuice ? CwJuice.create({ font: '"CwComic", "Comic Sans MS", "Comic Sans", cursive', off: () => !save.fx }) : null;
+const juicy = () => !!fx && save.fx;
+// board pixels -> page pixels
+function onPage(x, y) {
+  const r = boardC.getBoundingClientRect();
+  return { x: r.left + x * r.width / (COLS * cell), y: r.top + y * r.height / (VIS * cell) };
+}
+function pieceCenter() {
+  let sx = 0, sy = 0, n = 0;
+  if (piece) eachCell(piece, (bx, by) => { sx += bx + .5; sy += by - HIDDEN + .5; n++; });
+  return onPage((n ? sx / n : COLS / 2) * cell, (n ? sy / n : VIS / 2) * cell);
+}
+function juiceRows(rows, hot) {
+  if (!juicy()) return;
+  const r = boardC.getBoundingClientRect();
+  for (const row of rows) {
+    if (row < HIDDEN) continue;
+    const y = r.top + (row - HIDDEN + .5) * r.height / VIS;
+    fx.strip(r.left, r.right, y, board[row].map(v => v ? COLORS[v] || "#fff" : null), hot ? 3 : 2, hot);
+  }
+}
+function frameRect() { return frame.getBoundingClientRect(); }
+// coins fly from the board to the Coins counter (or just pop if the counter is hidden)
+function flyCoins(n, from) {
+  if (!juicy() || n <= 0) return;
+  const p = from || onPage(COLS * cell / 2, cell * 3), tgt = elCoins.getBoundingClientRect().width ? elCoins : null;
+  if (tgt) fx.coins(p.x, p.y, tgt, Math.min(24, 4 + n), () => { sfx("tick"); fx.bump(elCoins); });
+  else fx.shower(frameRect(), Math.min(30, 6 + n));
+}
+let shownScore = 0;
+
+function gravityMs() {
+  // hard mode starts around level 9 speed (~95ms a row) and hits max speed within a few levels
+  const lv = level + (hard ? 8 : 0);
+  // normal mode ramps more gently so the mid levels stay playable; hard mode uses the full curve
+  const g = Math.max(16, Math.pow(Math.max(0.01, 0.8 - (lv - 1) * 0.007), (lv - 1) * (hard ? 1 : 0.8)) * 1000) || 16;
+  return clockNow() < slowUntil ? g * 3 : g;
+}
+
+function gameOver() {
+  mode = "over"; stopSiren();
+  if (daily && ranked) {
+    const reward = Math.round(dailyReward(dstate.streak) * coinMult());
+    save.coins += reward; coinsThisGame += reward;
+  }
+  if (score > best) { best = score; try { localStorage.setItem("prismfall-best", best); } catch (e) {} }
+  persist();
+  updateHud(); sfx("over"); buzz([40, 60, 40]);
+  if (juicy()) {
+    fx.flash(frame, "red"); fx.quake(frame, true);
+    let top = ROWS; for (let r = HIDDEN; r < ROWS; r++) if (board[r].some(Boolean)) { top = r; break; }
+    const p = onPage(COLS * cell / 2, (Math.min(top, ROWS - 1) - HIDDEN + .5) * cell);
+    fx.explode(p.x, p.y, true);
+    if (score > startBest && startBest > 0) setTimeout(() => fx.confetti(frameRect(), 70), 300);
+  }
+  musicFade();
+  setTimeout(showSheet, 450);
+}
+
+// ---------- input
+const held = { left: false, right: false, down: false };
+let dasDir = 0, dasT = 0, arrT = 0, softT = 0;
+
+function press(act) {
+  ensureAudio();
+  if (act === "pause") { togglePause(); return; }
+  if (mode !== "play") return;
+  switch (act) {
+    case "left": held.left = true; dasDir = -1; dasT = 0; arrT = 0; move(-1); break;
+    case "right": held.right = true; dasDir = 1; dasT = 0; arrT = 0; move(1); break;
+    case "down": if (!held.down) { held.down = true; softT = 0; if (!clearing) softStep(); } break;
+    case "cw": rotate(1); break;
+    case "ccw": rotate(-1); break;
+    case "drop": hardDrop(); break;
+    case "hold": holdPiece(); break;
+  }
+}
+function release(act) {
+  if (act === "left") { held.left = false; dasDir = held.right ? 1 : 0; dasT = 0; }
+  if (act === "right") { held.right = false; dasDir = held.left ? -1 : 0; dasT = 0; }
+  if (act === "down") held.down = false;
+}
+
+const KEYMAP = {
+  ArrowLeft: "left", ArrowRight: "right", ArrowDown: "down", ArrowUp: "cw", KeyX: "cw",
+  KeyZ: "ccw", ControlLeft: "ccw", Space: "drop", KeyC: "hold", ShiftLeft: "hold", ShiftRight: "hold",
+  KeyP: "pause", Escape: "pause",
+};
+addEventListener("keydown", e => {
+  if (!$("shop").hidden) { if (e.code === "Escape") closeShop(); return; }
+  if (e.target.closest && e.target.closest("input, textarea")) return;
+  if (e.code === "KeyM") { toggleSound(); return; }
+  if (e.code === "KeyN") { toggleMusic(); return; }
+  if (/^Digit[1-3]$/.test(e.code)) { e.preventDefault(); useSpecial(+e.code.slice(5) - 1); return; }
+  if ((e.code === "KeyR" || e.code === "KeyN") && mode !== "title") { e.preventDefault(); ensureAudio(); start(); return; }
+  if ((e.code === "Enter" || e.code === "Space") && (mode === "title" || mode === "over")) { e.preventDefault(); ensureAudio(); start(mode === "title" ? false : daily); return; }
+  const act = KEYMAP[e.code]; if (!act) return;
+  e.preventDefault();
+  if (e.repeat) return;
+  press(act);
+});
+addEventListener("keyup", e => { const act = KEYMAP[e.code]; if (act) release(act); });
+addEventListener("blur", () => { held.left = held.right = held.down = false; dasDir = 0; if (mode === "play") togglePause(); });
+document.addEventListener("visibilitychange", () => { if (document.hidden && mode === "play") togglePause(); });
+
+// touch pads: fire on touch-down, and let a thumb slide between the movement pads
+const MOVE_ACTS = ["left", "right", "down"];
+const activePad = new Map();
+function padDown(pad, id) { activePad.set(id, pad); pad.classList.add("on"); buzz(6); press(pad.dataset.act); }
+function padUp(id) {
+  const pad = activePad.get(id); if (!pad) return;
+  activePad.delete(id);
+  if (![...activePad.values()].includes(pad)) { pad.classList.remove("on"); release(pad.dataset.act); }
+}
+document.querySelectorAll(".pad").forEach(pad => {
+  pad.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    try { pad.releasePointerCapture(e.pointerId); } catch (err) {}
+    padDown(pad, e.pointerId);
+  });
+  pad.addEventListener("contextmenu", e => e.preventDefault());
+});
+addEventListener("pointermove", e => {
+  const cur = activePad.get(e.pointerId); if (!cur || !MOVE_ACTS.includes(cur.dataset.act)) return;
+  const el = document.elementFromPoint(e.clientX, e.clientY)?.closest(".pad");
+  if (el && el !== cur && MOVE_ACTS.includes(el.dataset.act)) { padUp(e.pointerId); padDown(el, e.pointerId); }
+});
+addEventListener("pointerup", e => padUp(e.pointerId));
+addEventListener("pointercancel", e => padUp(e.pointerId));
+
+// board gestures: drag to move, tap to spin, flick down to drop
+let gest = null;
+boardC.addEventListener("pointerdown", e => {
+  if (mode !== "play" || e.pointerType === "mouse") return;
+  ensureAudio();
+  boardC.setPointerCapture(e.pointerId);
+  gest = { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, t: performance.now(), moved: false };
+});
+boardC.addEventListener("pointermove", e => {
+  if (!gest) return;
+  const step = cell * 0.9;
+  while (e.clientX - gest.x > step) { move(1); gest.x += step; gest.moved = true; }
+  while (gest.x - e.clientX > step) { move(-1); gest.x -= step; gest.moved = true; }
+  while (e.clientY - gest.y > step) { if (!clearing) softStep(); gest.y += step; gest.moved = true; }
+});
+boardC.addEventListener("pointerup", e => {
+  if (!gest) return;
+  const dt = performance.now() - gest.t, dx = e.clientX - gest.sx, dy = e.clientY - gest.sy;
+  if (!gest.moved && Math.hypot(dx, dy) < 10 && dt < 300) rotate(1);
+  else if (dy > cell * 2.2 && dy / dt > 0.9 && Math.abs(dy) > Math.abs(dx) * 1.6) hardDrop();
+  gest = null;
+});
+boardC.addEventListener("pointercancel", () => { gest = null; });
+
+[$("pauseBtn"), $("pauseBtnM")].forEach(b => b.addEventListener("click", () => {
+  ensureAudio(); b.blur();
+  if (mode === "play" || mode === "pause") togglePause();
+  else if (mode === "over" || mode === "title") start();
+}));
+
+function togglePause() {
+  if (mode === "play") { pausedAt = performance.now(); mode = "pause"; showSheet(); sfx("pause"); musicPause(); }
+  else if (mode === "pause") {
+    // push timed effects back by however long the game was paused
+    const gap = pausedAt ? performance.now() - pausedAt : 0; pausedAt = 0;
+    if (slowUntil) slowUntil += gap;
+    if (storm) { storm.until += gap; storm.flashes = storm.flashes.map(t => t + gap); }
+    mode = "play"; overlay.hidden = true; last = performance.now(); sfx("unpause"); musicPlay(); if (hard && disasterWarned) startSiren((DISASTER_EVERY - disasterT) / 1000);
+  }
+  paintPause();
+}
+function paintPause() {
+  $("pauseBtn").innerHTML = mode === "pause" ? "&#9654;&#xFE0E;&nbsp; Resume" : "II&nbsp; Pause / Menu";
+  $("pauseBtnM").innerHTML = mode === "pause" ? "&#9654;&#xFE0E;" : "II";
+}
+function paintSound() {
+  const b = $("sndToggle");
+  if (b) b.innerHTML = pixIcon(soundOn ? "sound" : "mute", 18) + `<span>Sound: ${soundOn ? "On" : "Off"}</span>`;
+}
+function paintMusic() {
+  const b = $("musToggle");
+  if (b) b.innerHTML = pixIcon(musicOn ? "sound" : "mute", 18) + `<span>Music: ${musicOn ? "On" : "Off"}</span>`;
+}
+function toggleMusic() {
+  musicOn = !musicOn; paintMusic();
+  if (!musicOn) { musicPause(); shopMusicOff(); }
+  else if (soundOn && !$("shop").hidden) shopMusicOn();
+  else if (soundOn && mode === "play") musicPlay();
+  try { localStorage.setItem("prismfall-music", musicOn ? "on" : "off"); } catch (e) {}
+}
+function toggleSound() {
+  soundOn = !soundOn; paintSound();
+  if (!soundOn) { musicPause(); shopMusicOff(); }
+  else if (!$("shop").hidden) shopMusicOn();
+  else if (mode === "play") musicPlay();
+  try { localStorage.setItem("prismfall-sound", soundOn ? "on" : "off"); } catch (e) {}
+  if (soundOn) { ensureAudio(); sfx("ready"); }
+}
+function buzz(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+
+// ---------- hard mode
+// ---------- music: one looping mp3 per mode (normal and hard), loaded the first time it's needed.
+// Each file is one seamless loop with half a second of padding on both ends, so the loop points
+// sit safely inside the audio whatever the browser's mp3 decoder does at the edges.
+const TRACKS = {
+  normal: { src: "/linesdx/music-normal.mp3?v=5", loop: 64 * 60 / 132, vol: .42 },   // F minor, 132 BPM, 16 bars
+  hard:   { src: "/linesdx/music-hard.mp3?v=2", loop: 64 * BEAT,   vol: .33 },   // Bb minor, 96 BPM, 16 bars, On Fire style
+  shop:   { src: "/linesdx/music-shop.mp3",   loop: 64 * 60 / 104, vol: .4 }     // F minor bossa, 104 BPM, 16 bars (same in both modes)
+};
+const LOOP_PAD = .5;
+const amb = { on: false, track: null, pos: 0, origin: 0, src: null, out: null, bufs: {}, loading: {} };
+const curTrack = () => hard ? "hard" : "normal";
+function loadTrack(name) {
+  if (amb.bufs[name] || amb.loading[name] || !actx) return;
+  amb.loading[name] = true;
+  fetch(TRACKS[name].src).then(r => r.arrayBuffer())
+    .then(data => new Promise((ok, bad) => { const p = actx.decodeAudioData(data, ok, bad); if (p && p.catch) p.catch(bad); }))
+    .then(buf => {
+      amb.bufs[name] = buf; amb.loading[name] = false;
+      if (amb.on && amb.track === name && !amb.src) ambStart();
+      if (name === shopTrack() && shopMus.want && !shopMus.src) shopMusicOn();
+    })
+    .catch(() => { amb.loading[name] = false; });
+}
+function ambStart() {
+  const t = TRACKS[amb.track], buf = amb.bufs[amb.track];
+  if (!buf) { loadTrack(amb.track); return; }   // starts by itself once it has loaded
+  const src = actx.createBufferSource();
+  src.buffer = buf; src.loop = true;
+  src.loopStart = LOOP_PAD; src.loopEnd = LOOP_PAD + t.loop;
+  src.connect(amb.out);
+  const at = actx.currentTime + .03;
+  src.start(at, LOOP_PAD + amb.pos);
+  amb.origin = at - amb.pos;
+  amb.src = src;
+}
+function ambKill() { if (amb.src) { try { amb.src.stop(); } catch (e) {} amb.src.disconnect(); amb.src = null; } }
+function musicPlay() {
+  if (!soundOn || !musicOn) return;
+  ensureAudio();
+  if (!actx || amb.on) return;
+  if (actx.state !== "running") actx.resume();
+  if (!amb.out) { amb.out = actx.createGain(); amb.out.connect(master); }
+  const name = curTrack();
+  if (amb.track !== name) { amb.track = name; amb.pos = 0; }
+  amb.out.gain.cancelScheduledValues(actx.currentTime); amb.out.gain.setValueAtTime(TRACKS[name].vol, actx.currentTime);
+  amb.on = true;
+  ambStart();
+}
+function musicPause() {
+  if (amb.on && amb.src && actx) amb.pos = (actx.currentTime - amb.origin) % TRACKS[amb.track].loop;
+  amb.on = false; ambKill(); stopSiren();
+}
+function musicStop() { musicPause(); amb.pos = 0; }
+function musicFade() {
+  if (!amb.on || !actx || !amb.out || !amb.src) { musicStop(); return; }
+  const g = amb.out.gain, t = actx.currentTime;
+  g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(0, t + 1.2);
+  setTimeout(() => { if (mode !== "play") musicStop(); }, 1300);
+}
+// the shop has its own song; the game song stays paused underneath and resumes where it left off
+const shopMus = { want: false, src: null, gain: null };
+const shopTrack = () => "shop";
+function shopMusicOn() {
+  if (!soundOn || !musicOn) return;
+  shopMus.want = true;
+  ensureAudio();
+  if (!actx || shopMus.src) return;
+  if (actx.state !== "running") actx.resume();
+  const name = shopTrack(), buf = amb.bufs[name], t = TRACKS[name];
+  if (!buf) { loadTrack(name); return; }   // starts by itself once it has loaded
+  const src = actx.createBufferSource(), g = actx.createGain();
+  src.buffer = buf; src.loop = true; src.loopStart = LOOP_PAD; src.loopEnd = LOOP_PAD + t.loop;
+  g.gain.value = t.vol;
+  src.connect(g); g.connect(master);
+  src.start(actx.currentTime + .03, LOOP_PAD);
+  shopMus.src = src; shopMus.gain = g;
+}
+function shopMusicOff() {
+  shopMus.want = false;
+  if (!shopMus.src) return;
+  const { src, gain } = shopMus, t = actx.currentTime;
+  shopMus.src = null;
+  try { gain.gain.setValueAtTime(gain.gain.value, t); gain.gain.linearRampToValueAtTime(0, t + .25); src.stop(t + .3); } catch (e) {}
+}
+// where the hard mode song is, in beats (for the red pulse); null when it isn't playing
+function musicBeat() { return amb.on && amb.src && actx && amb.track === "hard" ? (actx.currentTime - amb.origin) / BEAT : null; }
+function enterHard(fromKeys) {
+  if (hard) return;
+  hard = true; daily = false; rng = Math.random;
+  document.body.classList.add("pf-hardmode");
+  $("gameTitle").textContent = "Lines DX Hard Mode";
+  applySkin(); buildTiles(); drawMinis();
+  if (mode === "play" || mode === "pause") { keepBest(); mode = "title"; }
+  musicStop();
+  // only make noise when a person triggered it (a #hard link on page load has no tap yet, and browsers block audio then)
+  if (fromKeys) { ensureAudio(); sfx("hardin"); }
+  loadTrack("hard");
+  showSheet();
+}
+function exitHard() {
+  if (mode === "play" || mode === "pause") keepBest();
+  hard = false;
+  document.body.classList.remove("pf-hardmode");
+  $("gameTitle").textContent = "Lines DX";
+  musicStop();
+  if (location.hash === "#hard") history.replaceState(null, "", location.pathname);
+  applySkin(); buildTiles(); drawMinis();
+  mode = "title"; showSheet();
+}
+window.cwLines = { hard: () => enterHard(true) };
+// secret way in for phones (no keyboard for the Konami code): tap the Lines DX title 5 times quickly
+let titleTaps = [];
+document.addEventListener("click", e => {
+  if (hard || !e.target.closest("#gameTitle, .pf-titletap")) return;
+  const now = performance.now();
+  titleTaps = titleTaps.filter(t => now - t < 2500); titleTaps.push(now);
+  ensureAudio();
+  if (titleTaps.length >= 5) { titleTaps = []; enterHard(true); }
+  else if (titleTaps.length >= 3) { sfx("tick"); buzz(15); }
+});
+
+// ---------- specials panel
+function renderSpecials() {
+  const make = short => save.equipped.map((id, i) => {
+    const sp = SPECIALS[id], label = short && id === "reroll" ? "Line" : sp.name;
+    return `<button class="pf-sp" data-i="${i}" data-cost="${sp.cost}" title="${sp.desc}">` +
+      `<i class="fill"></i><b class="key">${i + 1}</b><span class="ic">${pixIcon(id)}</span><span class="nm">${label}</span><span class="ct"></span></button>`;
+  }).join("");
+  const btns = make(false);
+  const meter = `<div class="pf-power" title="Power fills as you clear lines"><i></i><span></span></div>`;
+  $("specPanel").innerHTML = meter + (btns || `<p class="pf-empty">No specials equipped. Visit the shop!</p>`) +
+    `<p class="pf-sphelp">Clear lines to charge power, then press <b>1-3</b> or click a move.</p>`;
+  $("specStrip").innerHTML = `<div class="pf-power small"><i></i><span></span></div>` + make(true);
+  document.querySelectorAll(".pf-sp").forEach(b => {
+    b.addEventListener("pointerdown", e => { e.preventDefault(); useSpecial(+b.dataset.i); });
+  });
+  renderPower();
+}
+function renderPower() {
+  const slow = Math.max(0, Math.ceil((slowUntil - clockNow()) / 1000));
+  const playing = mode === "play" || mode === "pause";
+  document.querySelectorAll(".pf-power i").forEach(i => { i.style.width = (power / MAX_POWER * 100) + "%"; });
+  document.querySelectorAll(".pf-power span").forEach(s => {
+    s.innerHTML = s.parentNode.classList.contains("small")
+      ? `Power<b>${power}</b>${slow && playing ? `<em>Slow ${slow}s</em>` : ""}`
+      : `Power: <b>${power}</b> / ${MAX_POWER}${slow && playing ? ` &middot; Slow-Mo ${slow}s` : ""}`;
+  });
+  document.querySelectorAll(".pf-sp").forEach(b => {
+    const cost = +b.dataset.cost, ready = power >= cost;
+    b.classList.toggle("ready", ready && playing);
+    b.querySelector(".fill").style.width = Math.min(100, power / cost * 100) + "%";
+    b.querySelector(".ct").textContent = ready ? "Ready!" : power + "/" + cost;
+  });
+}
+
+// ---------- shop
+let shopTab = "specials", rebirthArmed = false;
+function openShop() {
+  if (mode === "play") togglePause();
+  rebirthArmed = false;
+  $("shop").hidden = false; renderShop(); sfx("shop");
+  shopMusicOn();
+  $("shopClose").focus({ preventScroll: true });
+}
+$("shopBtnM").innerHTML = pixIcon("shop", 16);
+$("shopBtnM").addEventListener("click", e => { ensureAudio(); e.currentTarget.blur(); if ($("shop").hidden) openShop(); });
+function closeShop() {
+  $("shop").hidden = true;
+  shopMusicOff();
+  applySkin(); buildTiles(); drawMinis(); renderSpecials(); updateHud();
+  if (mode === "pause" || mode === "title" || mode === "over") showSheet();
+}
+$("shopClose").addEventListener("click", closeShop);
+$("shop").addEventListener("click", e => { if (e.target.id === "shop") closeShop(); });
+$("shopTabs").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  shopTab = b.dataset.tab; rebirthArmed = false; renderShop(); sfx("tick");
+});
+function shopMsg(msg) { $("shopNote").textContent = msg || ""; }
+function renderShop() {
+  document.querySelectorAll("#shopTabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === shopTab));
+  $("shopCoins").innerHTML = `Coins: <b>${save.coins}</b>` + (save.rebirths ? ` &nbsp; Rebirths: <b>${"★".repeat(Math.min(save.rebirths, 10))}${save.rebirths > 10 ? save.rebirths : ""}</b>` : "") +
+    `<span class="hint">Earn coins every level, with a big payout every 5th.</span>`;
+  const list = $("shopList");
+  if (shopTab === "specials") {
+    list.innerHTML = `<p class="pf-cap">Slots used: <b>${slotsUsed()}/${MAX_SLOTS}</b>. Bigger moves take more slots. Use them in a game with keys 1 to 3 or the buttons under the board.</p>` +
+      SPECIAL_ORDER.map(id => {
+        const sp = SPECIALS[id], owned = save.specials.includes(id), on = save.equipped.includes(id);
+        const btn = !owned
+          ? `<button data-buy="${id}" ${save.coins < sp.price ? "disabled" : ""}>Buy ${sp.price}&cent;</button>`
+          : `<button data-equip="${id}" class="${on ? "on" : ""}">${on ? "Equipped" : "Equip"}</button>`;
+        return `<div class="pf-item"><span class="pf-itemicon">${pixIcon(id, 24)}</span><div><b>${sp.name}</b> <small>(${sp.cost} power &middot; ${slotWord(sp.slots)})</small><br><small>${sp.desc}</small></div>${btn}</div>`;
+      }).join("");
+  } else if (shopTab === "skins") {
+    list.innerHTML = Object.entries(SKINS).map(([id, sk]) => {
+      const owned = save.skins.includes(id), on = save.skin === id;
+      const sw = Object.values(sk.colors).map(c => `<i style="background:${c}"></i>`).join("");
+      const btn = !owned
+        ? `<button data-buyskin="${id}" ${save.coins < sk.price ? "disabled" : ""}>Buy ${sk.price}&cent;</button>`
+        : `<button data-skin="${id}" class="${on ? "on" : ""}">${on ? "In use" : "Use"}</button>`;
+      return `<div class="pf-item pf-skin"><b class="pf-skinname">${sk.name}</b><span class="pf-swatch" style="background:${sk.bg}">${sw}</span>${btn}</div>`;
+    }).join("");
+  } else {
+    const r = save.rebirths, ready = save.bestLevel >= REBIRTH_LEVEL;
+    list.innerHTML = `
+      <div class="pf-rebirth">
+        <p><b>Rebirth</b> resets your coins and specials (skins stay) and makes you permanently stronger.</p>
+        <p>Rebirths so far: <b>${r}</b></p>
+        <table class="pf-rtab">
+          <tr><td>Coin bonus</td><td>x${coinMult().toFixed(1)}</td><td>&rarr; x${(1 + 0.5 * (r + 1)).toFixed(1)}</td></tr>
+          <tr><td>Score bonus</td><td>x${scoreMult().toFixed(1)}</td><td>&rarr; x${(1 + 0.1 * (r + 1)).toFixed(1)}</td></tr>
+          <tr><td>Starting power</td><td>${Math.min(10, 2 * r)}</td><td>&rarr; ${Math.min(10, 2 * (r + 1))}</td></tr>
+        </table>
+        <p>Needs: reach <b>level ${REBIRTH_LEVEL}</b> since your last rebirth. Your best: <b>level ${save.bestLevel}</b>.</p>
+        <button id="rebirthBtn" ${ready ? "" : "disabled"} class="${rebirthArmed ? "armed" : ""}">${rebirthArmed ? "Click again to confirm" : "Rebirth"}</button>
+      </div>`;
+    $("rebirthBtn").addEventListener("click", doRebirth);
+  }
+}
+$("shopList").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b || b.id === "rebirthBtn") return;
+  shopMsg("");
+  if (b.dataset.buy) {
+    const id = b.dataset.buy, sp = SPECIALS[id];
+    if (save.coins < sp.price) return;
+    save.coins -= sp.price; save.specials.push(id);
+    if (slotsUsed() + sp.slots <= MAX_SLOTS) save.equipped.push(id);
+    shopMsg(`Bought ${sp.name}!`); sfx("buy");
+  } else if (b.dataset.equip) {
+    const id = b.dataset.equip, i = save.equipped.indexOf(id);
+    if (i >= 0) { save.equipped.splice(i, 1); sfx("unequip"); }
+    else if (slotsUsed() + SPECIALS[id].slots > MAX_SLOTS) { shopMsg(`${SPECIALS[id].name} needs ${slotWord(SPECIALS[id].slots)} and you have ${slotWord(MAX_SLOTS - slotsUsed())} free. Unequip something first.`); sfx("nope"); return; }
+    else { save.equipped.push(id); sfx("equip"); }
+  } else if (b.dataset.buyskin) {
+    const id = b.dataset.buyskin, sk = SKINS[id];
+    if (save.coins < sk.price) return;
+    save.coins -= sk.price; save.skins.push(id); save.skin = id;
+    shopMsg(`Bought ${sk.name}!`); sfx("buy");
+  } else if (b.dataset.skin) { save.skin = b.dataset.skin; sfx("equip"); }
+  persist(); renderShop(); updateHud();
+});
+function doRebirth() {
+  if (save.bestLevel < REBIRTH_LEVEL) return;
+  if (!rebirthArmed) { rebirthArmed = true; renderShop(); sfx("tick"); return; }
+  save.rebirths++; save.coins = 0; save.specials = ["bomb"]; save.equipped = ["bomb"]; save.bestLevel = 0;
+  persist(); rebirthArmed = false;
+  shopMsg(`Reborn! You're now at rebirth ${save.rebirths}.`); sfx("rebirth");
+  if (mode === "pause") { keepBest(); mode = "over"; }
+  renderShop(); updateHud();
+}
+
+// ---------- daily challenge: same pieces for everyone each day (UTC), one ranked try, then practice
+const DAILY_KEY = "lines-daily";
+let daily = false, ranked = false, dailyDate = "", rng = Math.random;
+const dstate = { last: "", streak: 0 };
+try { Object.assign(dstate, JSON.parse(localStorage.getItem(DAILY_KEY) || "{}")); } catch (e) {}
+dstate.streak = Math.max(0, Math.min(9999, Math.floor(+dstate.streak) || 0)); if (typeof dstate.last !== "string") dstate.last = "";
+function saveDaily() { try { localStorage.setItem(DAILY_KEY, JSON.stringify(dstate)); } catch (e) {} }
+const todayUtc = () => new Date().toISOString().slice(0, 10);
+function dayBefore(d) { const t = new Date(d + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() - 1); return t.toISOString().slice(0, 10); }
+const streakNow = () => (dstate.last === todayUtc() || dstate.last === dayBefore(todayUtc())) ? dstate.streak : 0;
+const dailyDone = () => dstate.last === todayUtc();
+// small seeded random generator so everyone gets the same piece order for a given day
+function seeded(str) {
+  let h = 1779033703 ^ str.length;
+  for (let i = 0; i < str.length; i++) { h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; }
+  let a = h >>> 0;
+  return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+const dailyReward = st => 10 + 2 * Math.min(st, 10);
+
+// ---------- dialogs
+function dialog(title, body) {
+  sheet.innerHTML = `<div class="dt"><span>${title}</span><span>&times;</span></div><div class="db">${body}</div>`;
+}
+function showSheet() {
+  overlay.hidden = false;
+  if (mode === "title" && hard) {
+    dialog("Lines DX Hard Mode", `
+      <h2 class="pf-hardtitle">Hard Mode</h2>
+      <p>The lights are off. Pieces fall <b>very</b> fast.</p>
+      <p>Power charges 4x slower, so special moves are rare.</p>
+      <p>Every minute a random <b>natural disaster</b> hits: earthquake, flood, meteor shower, tornado, or lightning storm. Each one is <b>worse than the last</b>, and a siren goes off 5 seconds before it hits.</p>
+      <p><b>Points and coins are doubled.</b></p>
+      <div class="pf-row"><button class="pf-btn" id="go">${pixIcon("play", 16)}<span>Enter</span></button><button class="pf-btn" id="leaveHard"><span>Leave</span></button></div>`);
+  } else if (mode === "title") {
+    dialog("Lines DX", `
+      <h2 class="pf-titletap">Lines DX</h2>
+      <p>Clear lines, land T-spins, and fire off special moves. Every level earns coins for the shop, and every 5th level pays big.</p>
+      <p class="pf-tip">&#9733; <b>Special moves:</b> clearing lines charges your power. When a move says Ready, ${touchy ? "tap it under the board" : "press its number (1-3)"}.</p>
+      ${giftShown ? `<p class="gift">Welcome gift: 20 coins!</p>` : ""}
+      <div class="pf-row"><button class="pf-btn" id="go">${pixIcon("play", 16)}<span>Play</span></button><button class="pf-btn" id="shopGo">${pixIcon("shop", 16)}<span>Shop</span></button></div>
+      <div class="pf-row"><button class="pf-btn pf-daily" id="dailyGo"><span>${dailyDone() ? "Daily (practice)" : "Daily Challenge"}</span></button></div>
+      ${streakNow() ? `<p class="muted">Daily streak: <b>${streakNow()} day${streakNow() === 1 ? "" : "s"}</b>${dailyDone() ? "" : " &middot; play today to keep it!"}</p>` : `<p class="muted">New: a Daily Challenge with the same pieces for everyone!</p>`}
+      ${best ? `<p class="muted">Your best: <b>${best.toLocaleString()}</b></p>` : ""}`);
+  } else if (mode === "pause") {
+    dialog("Paused", `
+      <p>Level ${level} &middot; ${lines} lines &middot; ${score.toLocaleString()} pts</p>
+      <div class="pf-menu">
+        <button class="pf-btn" id="go">${pixIcon("play", 18)}<span>Resume</span></button>
+        <button class="pf-btn" id="restart">${pixIcon("newg", 18)}<span>New Game</span></button>
+        <button class="pf-btn" id="sndToggle"></button>
+        <button class="pf-btn" id="musToggle"></button>
+        <button class="pf-btn" id="fxToggle"><span>Effects: ${save.fx ? "On" : "Off"}</span></button>
+        <button class="pf-btn" id="shopGo">${pixIcon("shop", 18)}<span>Shop</span></button>
+        ${hard ? `<button class="pf-btn" id="leaveHard"><span>Leave Hard Mode</span></button>` : ""}
+      </div>`);
+    paintSound(); paintMusic();
+    $("sndToggle").addEventListener("click", () => toggleSound());
+    $("musToggle").addEventListener("click", () => toggleMusic());
+    $("fxToggle").addEventListener("click", () => {
+      save.fx = !save.fx; persist();
+      if (!save.fx && fx) fx.clear();
+      $("fxToggle").innerHTML = `<span>Effects: ${save.fx ? "On" : "Off"}</span>`;
+      sfx("tick");
+    });
+  } else {
+    const beat = score > startBest, gap = startBest - score;
+    const msg = beat
+      ? (startBest ? `You beat your old best by ${(score - startBest).toLocaleString()}!` : "First score on the board!")
+      : gap <= Math.max(500, startBest * 0.15)
+        ? `So close! Only ${gap.toLocaleString()} short of your best.`
+        : `Your best is ${startBest.toLocaleString()}.`;
+    const toNext = 10 - (lines % 10);
+    if (daily) {
+      dialog("Daily Challenge", `
+      <h2>${ranked ? "Daily done!" : "Practice over"}</h2>
+      <div class="big">${score.toLocaleString()}</div>
+      <p class="muted">Level ${level} &middot; ${lines} lines${ranked ? ` &middot; <b>+${coinsThisGame} coins</b>` : ""}</p>
+      ${ranked ? `<p>Streak: <b>${dstate.streak} day${dstate.streak === 1 ? "" : "s"}</b>. Come back tomorrow for a new one!</p>` : ""}
+      <div class="pf-row"><button class="pf-btn" id="go">${pixIcon("newg", 16)}<span>Practice</span></button><button class="pf-btn" id="normalGo">${pixIcon("play", 16)}<span>Normal game</span></button></div>
+`);
+    } else
+    dialog(beat ? "New High Score" : "Game Over", `
+      <h2 class="${beat ? "" : "oops"}">${beat ? "New best!" : "Oops!"}</h2>
+      <div class="big">${score.toLocaleString()}</div>
+      <p>${msg}</p>
+      <p class="muted">Level ${level} &middot; ${lines} lines &middot; ${coinsThisGame ? `<b>+${coinsThisGame} coins</b>` : `${toNext} line${toNext === 1 ? "" : "s"} from coins`}</p>
+      <div class="pf-row"><button class="pf-btn" id="go">${pixIcon("newg", 16)}<span>Play again</span></button><button class="pf-btn" id="shopGo">${pixIcon("shop", 16)}<span>Shop</span></button></div>
+`);
+  }
+  $("go").addEventListener("click", () => { ensureAudio(); mode === "pause" ? togglePause() : start(mode === "title" ? false : daily); });
+  $("dailyGo")?.addEventListener("click", () => { ensureAudio(); start(true); });
+  $("normalGo")?.addEventListener("click", () => { ensureAudio(); start(false); });
+  $("restart")?.addEventListener("click", () => { ensureAudio(); start(); });
+  $("shopGo")?.addEventListener("click", () => { ensureAudio(); openShop(); });
+  $("leaveHard")?.addEventListener("click", () => exitHard());
+  $("go").focus({ preventScroll: true });
+}
+
+function start(asDaily = daily) {
+  // a ranked daily can't be thrown away: R / New Game ends the run and posts the score instead
+  if (daily && ranked && (mode === "play" || mode === "pause")) { overlay.hidden = true; gameOver(); return; }
+  if (mode === "play" || mode === "pause") keepBest();
+  giftShown = false;
+  // short desktop screens: make sure the whole board is on screen before pieces start falling
+  if (innerWidth > 720) {
+    const r = document.getElementById("frame").getBoundingClientRect();
+    if (r.bottom > innerHeight) window.scrollBy(0, Math.min(r.top - 8, r.bottom - innerHeight + 8));
+  }
+  daily = !!asDaily && !hard;
+  if (daily) {
+    dailyDate = todayUtc(); rng = seeded("lines-daily-" + dailyDate);
+    ranked = !dailyDone();
+    // the ranked try counts as soon as it starts (no refreshing for a better one)
+    if (ranked) { dstate.streak = dstate.last === dayBefore(dailyDate) ? dstate.streak + 1 : 1; dstate.last = dailyDate; saveDaily(); }
+  } else { rng = Math.random; ranked = false; }
+  $("gameTitle").textContent = hard ? "Lines DX Hard Mode" : daily ? "Lines DX Daily" : "Lines DX";
+  newGame(); mode = "play"; overlay.hidden = true; last = performance.now();
+  musicStop(); musicPlay();
+  paintPause();
+  renderPower();
+  sfx("start");
+}
+
+const calloutQueue = []; let calloutBusy = false;
+function showCallout(title, sub) {
+  calloutQueue.push([title, sub]);
+  if (!calloutBusy) nextCallout();
+}
+function nextCallout() {
+  const item = calloutQueue.shift();
+  if (!item) { calloutBusy = false; return; }
+  calloutBusy = true;
+  callout.innerHTML = `${juicy() ? fx.hop(item[0]) : item[0]}<small>${item[1]}</small>`;
+  callout.classList.remove("show"); void callout.offsetWidth; callout.classList.add("show");
+  setTimeout(nextCallout, calloutQueue.length ? 750 : 1100);
+}
+
+function updateHud() {
+  // the score rolls up on big gains (and keeps rolling smoothly if more points come in mid-roll)
+  if (juicy() && mode === "play" && score > shownScore) {
+    const big = score - shownScore >= 50;
+    fx.roll(elScore, shownScore, score, big ? 450 : 80, v => v.toLocaleString());
+    if (big) fx.bump(elScore);
+  } else elScore.textContent = score.toLocaleString();
+  shownScore = score;
+  elLevel.textContent = level; elLines.textContent = lines;
+  elBest.textContent = Math.max(best, score).toLocaleString();
+  elCoins.textContent = save.coins.toLocaleString();
+  $("stars").textContent = save.rebirths ? "★".repeat(Math.min(save.rebirths, 5)) + (save.rebirths > 5 ? "+" : "") : "";
+  lvlbar.style.width = (lines % 10) * 10 + "%";
+  const r = rankOf(score);
+  if (mode === "play" && r !== rank) {
+    rank = r;
+    setTimeout(() => {
+      showCallout("Rank Up!", "You're a " + r + " now"); sfx("rank"); buzz([20, 20, 20, 20, 40]);
+      if (juicy()) { const c = elRank.getBoundingClientRect().width ? fx.center(elRank) : fx.center(frame); fx.ring(c.x, c.y, 16, 300, fx.RAINBOW); fx.blink(elRank); }
+    }, 400);
+  }
+  elRank.textContent = r;
+  if (mode === "play" && startBest > 0 && !bestCalled && score > startBest) {
+    bestCalled = true;
+    setTimeout(() => {
+      showCallout("New Best!", "Keep going"); sfx("best"); buzz([20, 30, 20]);
+      if (juicy()) { fx.confetti(frameRect(), 50); fx.blink(elBest); }
+    }, clearing ? 700 : 0);
+  }
+}
+
+// ---------- tiles: flat colour with a hard bevel
+function hexRgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+function mix(h, t, a) { const [r, g, b] = hexRgb(h); const m = t === "w" ? 255 : 0; return `rgb(${r + (m - r) * a | 0},${g + (m - g) * a | 0},${b + (m - b) * a | 0})`; }
+
+function makeTile(color, size, kind) {
+  const cv = document.createElement("canvas"), px = Math.max(1, Math.round(size * dpr));
+  cv.width = cv.height = px;
+  const c = cv.getContext("2d"); c.scale(px / size, px / size);
+  const b = Math.max(2, Math.round(size * 0.15));
+  c.fillStyle = color; c.fillRect(0, 0, size, size);
+  c.fillStyle = mix(color, "w", .55);
+  c.beginPath(); c.moveTo(0, 0); c.lineTo(size, 0); c.lineTo(size - b, b); c.lineTo(b, b); c.lineTo(b, size - b); c.lineTo(0, size); c.closePath(); c.fill();
+  c.fillStyle = mix(color, "b", .35);
+  c.beginPath(); c.moveTo(size, size); c.lineTo(0, size); c.lineTo(b, size - b); c.lineTo(size - b, size - b); c.lineTo(size - b, b); c.lineTo(size, 0); c.closePath(); c.fill();
+  c.strokeStyle = mix(color, "b", .6); c.lineWidth = 1; c.strokeRect(.5, .5, size - 1, size - 1);
+  if (kind === "BOMB") {
+    c.fillStyle = "#111"; c.beginPath(); c.arc(size / 2, size * .56, size * .26, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = "#111"; c.lineWidth = Math.max(1, size * .07);
+    c.beginPath(); c.moveTo(size * .62, size * .34); c.lineTo(size * .74, size * .2); c.stroke();
+    c.fillStyle = "#fff0a0"; c.fillRect(size * .72, size * .12, size * .1, size * .1);
+  } else if (kind === "DRILL") {
+    c.fillStyle = "#333"; c.beginPath(); c.moveTo(size * .28, size * .25); c.lineTo(size * .72, size * .25); c.lineTo(size * .5, size * .8); c.closePath(); c.fill();
+    c.strokeStyle = "#ddd"; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(size * .34, size * .4); c.lineTo(size * .62, size * .34); c.moveTo(size * .38, size * .54); c.lineTo(size * .58, size * .5); c.stroke();
+  }
+  return cv;
+}
+// pre-drawn layers so each frame is a few image copies instead of hundreds of draw calls
+let bgLayer = null, boardLayer = null, vignette = null, boardKey = "";
+function layerCanvas() {
+  const cv = document.createElement("canvas"); cv.width = Math.round(COLS * cell * dpr); cv.height = Math.round(VIS * cell * dpr);
+  const c = cv.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, 0); return [cv, c];
+}
+function buildLayers() {
+  const skin = curSkin(), W = COLS * cell, H = VIS * cell;
+  let c; [bgLayer, c] = layerCanvas();
+  c.fillStyle = skin.bg; c.fillRect(0, 0, W, H); c.fillStyle = skin.dot;
+  if (skin.cell) { for (let x = 0; x < COLS; x++) for (let y = 0; y < VIS; y++) c.fillRect(x * cell + 1, y * cell + 1, cell - 2, cell - 2); }
+  else { for (let x = 1; x < COLS; x++) for (let y = 1; y < VIS; y++) c.fillRect(x * cell - 1, y * cell - 1, 2, 2); }
+  [boardLayer] = layerCanvas(); boardKey = "";
+  [vignette, c] = layerCanvas();
+  const g = c.createRadialGradient(W / 2, H / 2, Math.min(W, H) * .2, W / 2, H / 2, Math.max(W, H) * .75);
+  g.addColorStop(0, "rgba(120,0,0,0)"); g.addColorStop(1, "rgba(170,0,0,1)");
+  c.fillStyle = g; c.fillRect(0, 0, W, H);
+}
+// compares the board to the last drawn copy cell by cell (no new strings every frame for the phone to clean up)
+let boardSnap = [];
+function drawBoardLayer() {
+  let same = boardKey === "drawn", n = 0;
+  for (let r = HIDDEN; r < ROWS; r++) for (let col = 0; col < COLS; col++, n++) {
+    const t = board[r][col] || 0;
+    if (boardSnap[n] !== t) { boardSnap[n] = t; same = false; }
+  }
+  if (same) return;
+  boardKey = "drawn";
+  const c = boardLayer.getContext("2d");
+  c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, boardLayer.width, boardLayer.height); c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  for (let r = HIDDEN; r < ROWS; r++) {
+    const y = (r - HIDDEN) * cell;
+    for (let col = 0; col < COLS; col++) { const t = board[r][col]; if (t && tiles[t]) c.drawImage(tiles[t], col * cell, y, cell, cell); }
+  }
+}
+function buildTiles() {
+  tiles = {}; miniTiles = {};
+  for (const k in COLORS) { tiles[k] = makeTile(COLORS[k], cell, k); miniTiles[k] = makeTile(COLORS[k], miniCell, k); }
+  buildLayers();
+}
+
+// ---------- layout
+function layout() {
+  dpr = Math.min(window.devicePixelRatio || 1, touchy ? 1.5 : 2);
+  const narrow = innerWidth <= 720;
+  const h = well.clientHeight - 6;
+  // on phones the board sits between two side columns, so leave them ~75px each
+  cell = Math.max(10, Math.floor(narrow ? Math.min(h / VIS, (innerWidth - 160) / COLS) : h / VIS));
+  boardC.style.width = COLS * cell + "px"; boardC.style.height = VIS * cell + "px";
+  boardC.width = COLS * cell * dpr; boardC.height = VIS * cell * dpr;
+  if (narrow) {
+    const side = (innerWidth - COLS * cell - 6) / 2 - 22;
+    miniCell = Math.max(8, Math.min(14, Math.floor(side / 4.4)));
+    sizeMini(holdC, miniCell * 4.4, miniCell * 2.8);
+    sizeMini(nextC, miniCell * 4.4, miniCell * 8.4);
+  } else {
+    miniCell = 13;
+    sizeMini(holdC, 148, 52);
+    sizeMini(nextC, 148, 132);
+  }
+  buildTiles(); drawMinis();
+}
+function sizeMini(cv, w, h) {
+  cv.style.width = w + "px"; cv.style.height = h + "px"; cv.width = w * dpr; cv.height = h * dpr;
+  cv.dataset.w = w; cv.dataset.h = h;
+}
+new ResizeObserver(layout).observe(well);
+
+// ---------- drawing
+function drawMiniPiece(c, type, cx, cy, dim) {
+  const m = SHAPES[type] || [[1]]; let minR = 9, maxR = -1, minC = 9, maxC = -1;
+  m.forEach((row, r) => row.forEach((v, cc) => { if (v) { minR = Math.min(minR, r); maxR = Math.max(maxR, r); minC = Math.min(minC, cc); maxC = Math.max(maxC, cc); } }));
+  const pw = (maxC - minC + 1) * miniCell, ph = (maxR - minR + 1) * miniCell;
+  c.globalAlpha = dim ? .35 : 1;
+  m.forEach((row, r) => row.forEach((v, cc) => {
+    if (v) c.drawImage(miniTiles[type], Math.round(cx - pw / 2 + (cc - minC) * miniCell), Math.round(cy - ph / 2 + (r - minR) * miniCell), miniCell, miniCell);
+  }));
+  c.globalAlpha = 1;
+}
+function drawMinis() {
+  if (!queue) return;
+  const skin = curSkin();
+  for (const [cv, c] of [[holdC, hctx], [nextC, nctx]]) {
+    c.setTransform(dpr, 0, 0, dpr, 0, 0); c.fillStyle = skin.bg; c.fillRect(0, 0, +cv.dataset.w, +cv.dataset.h);
+  }
+  const hw = +holdC.dataset.w, hh = +holdC.dataset.h;
+  if (hold) drawMiniPiece(hctx, hold, hw / 2, hh / 2, !canHold);
+  const nw = +nextC.dataset.w, nh = +nextC.dataset.h;
+  const dimLater = innerWidth <= 720;
+  for (let i = 0; i < 3; i++) drawMiniPiece(nctx, queue[i], nw / 2, nh * (i + .5) / 3, dimLater && i > 0);
+}
+
+function ghostY() { let y = piece.y; while (!collide(piece.m, piece.x, y + 1)) y++; return y; }
+
+function draw(now) {
+  const c = bctx, W = COLS * cell, H = VIS * cell, skin = curSkin();
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  if (!bgLayer) buildLayers();
+  c.drawImage(bgLayer, 0, 0, W, H);
+  if (clockNow() < slowUntil) { c.fillStyle = "rgba(169,185,247,.12)"; c.fillRect(0, 0, W, H); }
+
+  if (!board) return;
+
+  const clearSet = clearing ? new Set(clearing.rows) : null;
+  const flashOn = clearing ? Math.floor(clearing.t / 60) % 2 === 0 : false;
+  drawBoardLayer();
+  c.drawImage(boardLayer, 0, 0, W, H);
+  if (clearSet && flashOn) { c.fillStyle = "#fff"; for (const r of clearSet) if (r >= HIDDEN) c.fillRect(0, (r - HIDDEN) * cell, W, cell); }
+  if (storm && mode === "play") {
+    // dark board; lightning flashes light it up for a moment
+    if (stormLit(now)) { c.fillStyle = "rgba(220,230,255,.35)"; c.fillRect(0, 0, W, H); }
+    else { c.fillStyle = "rgba(0,0,0,.96)"; c.fillRect(0, 0, W, H); }
+  }
+
+  if (piece && (mode === "play" || mode === "pause") && !clearing) {
+    const gy = ghostY(), col = COLORS[piece.type];
+    c.save(); c.strokeStyle = col; c.lineWidth = 2;
+    eachCell({ ...piece, y: gy }, (bx, by) => {
+      if (by < HIDDEN) return;
+      c.globalAlpha = .28; c.fillStyle = col; c.fillRect(bx * cell + 1, (by - HIDDEN) * cell + 1, cell - 2, cell - 2);
+      c.globalAlpha = .9; c.strokeRect(bx * cell + 2, (by - HIDDEN) * cell + 2, cell - 4, cell - 4);
+    });
+    c.restore();
+    if (piece.type === "BOMB") {   // show the blast zone under the ghost
+      c.strokeStyle = "rgba(255,122,122,.7)"; c.setLineDash([3, 3]);
+      c.strokeRect((piece.x - 1) * cell + .5, (gy - 1 - HIDDEN) * cell + .5, cell * 3 - 1, cell * 4 - 1);
+      c.setLineDash([]);
+    } else if (piece.type === "DRILL") {
+      c.fillStyle = "rgba(200,200,216,.15)"; c.fillRect(piece.x * cell, (gy - HIDDEN) * cell, cell, H);
+    }
+    const blinkLock = onGround() && Math.floor(now / 90) % 2 === 0;
+    c.globalAlpha = blinkLock ? .7 : 1;
+    eachCell(piece, (bx, by) => { if (by >= HIDDEN) c.drawImage(tiles[piece.type], bx * cell, (by - HIDDEN) * cell, cell, cell); });
+    c.globalAlpha = 1;
+  }
+
+  if (hard) {
+    // red pulse locked to the song: every beat, harder on the downbeat of each bar
+    let ph = musicBeat(), beatIdx;
+    if (ph === null) ph = (now / 1000) / BEAT;
+    beatIdx = Math.floor(ph); const k = Math.pow(1 - (ph - beatIdx), 3) * (beatIdx % 4 === 0 ? .55 : .28);
+    if (k > .01) { c.globalAlpha = k; c.drawImage(vignette, 0, 0, W, H); c.globalAlpha = 1; }
+  }
+  if (flash) {
+    c.globalAlpha = Math.max(0, .55 * (1 - flash.t / flash.ms)); c.fillStyle = flash.color; c.fillRect(0, 0, W, H); c.globalAlpha = 1;
+  }
+  for (const f of floaters) {
+    const k = f.t / 900, size = Math.round(cell * (f.big ? 1 : .75) * (k < .12 ? .6 + k * 3.3 : 1));
+    c.font = `bold ${size}px "CwComic", "Comic Sans MS", "Comic Sans", cursive`; c.textAlign = "center"; c.textBaseline = "middle";
+    const y = f.y - k * cell * 2.2;
+    c.globalAlpha = k > .75 ? 1 - (k - .75) * 4 : 1;
+    c.fillStyle = "#000"; c.fillText(f.text, f.x + 2, y + 2);
+    c.fillStyle = f.color; c.fillText(f.text, f.x, y);
+    c.globalAlpha = 1;
+  }
+  if (hard && (mode === "play" || mode === "pause")) {
+    // countdown to the next disaster
+    const left = Math.max(0, Math.ceil((DISASTER_EVERY - disasterT) / 1000));
+    const txt = "Disaster " + Math.floor(left / 60) + ":" + String(left % 60).padStart(2, "0");
+    if (left > 10 || Math.floor(now / 250) % 2) {
+      c.font = `bold ${Math.max(11, Math.round(cell * .5))}px "CwComic", "Comic Sans MS", "Comic Sans", cursive`; c.textAlign = "right"; c.textBaseline = "top";
+      c.fillStyle = "#000"; c.fillText(txt, W - 5, 6); c.fillStyle = left <= 10 ? "#ff3030" : "#a3222f"; c.fillText(txt, W - 6, 5);
+    }
+  }
+  for (const p of particles) {
+    if (p.life / p.max > .7 && Math.floor(now / 50) % 2) continue;
+    c.fillStyle = p.color;
+    c.fillRect(Math.round(p.x - p.size / 2), Math.round(p.y - p.size / 2), p.size, p.size);
+  }
+}
+
+// ---------- loop
+let last = performance.now(), powerTick = 0, lastDraw = 0;
+function tick(now) {
+  const dt = Math.min(50, now - last); last = now;
+
+  if (particles.length) {
+    const s = dt / 1000;
+    // updated and tidied in place, so no new array gets made every frame
+    let j = 0;
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      p.life += s; p.vy += 900 * s; p.vx *= .985; p.x += p.vx * s; p.y += p.vy * s;
+      if (p.life < p.max) particles[j++] = p;
+    }
+    particles.length = j;
+  }
+  if (floaters.length) {
+    let j = 0;
+    for (let i = 0; i < floaters.length; i++) { const f = floaters[i]; f.t += dt; if (f.t < 900) floaters[j++] = f; }
+    floaters.length = j;
+  }
+  if (flash) { flash.t += dt; if (flash.t >= flash.ms) flash = null; }
+  if (slowUntil && mode !== "pause" && (powerTick += dt) > 250) { powerTick = 0; renderPower(); if (now > slowUntil) slowUntil = 0; }
+
+  if (mode === "play") {
+    if (hard) { stormTick(now); if (!clearing) disasterTick(dt); }
+    if (clearing) {
+      clearing.t += dt;
+      if (clearing.t >= CLEAR_MS) finishClear();
+    } else {
+      if (dasDir && (held.left || held.right)) {
+        dasT += dt;
+        if (dasT >= DAS) { arrT += dt; while (arrT >= ARR) { arrT -= ARR; if (!move(dasDir)) { arrT = 0; break; } } }
+      }
+      const g = gravityMs();
+      if (held.down) {
+        softT += dt;
+        const iv = Math.min(g, 35);
+        while (softT >= iv) { softT -= iv; if (!softStep()) { softT = 0; break; } }
+        fallT = 0;
+      } else {
+        fallT += dt;
+        while (fallT >= g) { fallT -= g; if (!collide(piece.m, piece.x, piece.y + 1)) { piece.y++; lastSpin = null; } else { fallT = 0; break; } }
+      }
+      if (mode === "play" && onGround()) {
+        lockT += dt;
+        if (lockT >= LOCK_DELAY || (lockResets >= MAX_LOCK_RESETS && lockT >= 100)) lock();
+      } else lockT = 0;
+    }
+  }
+  // outside of play, redraw at ~20fps to save battery (animations still finish)
+  if (mode === "play" || particles.length || floaters.length || flash || now - lastDraw > 50) { draw(now); lastDraw = now; }
+  requestAnimationFrame(tick);
+}
+
+// ---------- sound
+// A tiny chiptune synth: soft-attack notes with a quick decay, a fat detuned layer for big moments,
+// a short echo so rewards ring out, and filtered noise for thumps and explosions.
+let master, echoIn, noiseBuf = null;
+function ensureAudio() {
+  if (actx || !soundOn) return;
+  try {
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+    const comp = actx.createDynamicsCompressor();
+    comp.threshold.value = -14; comp.ratio.value = 4;
+    master = actx.createGain(); master.gain.value = .9;
+    master.connect(comp).connect(actx.destination);
+    // echo bus
+    echoIn = actx.createGain(); echoIn.gain.value = .22;
+    const dl = actx.createDelay(1), fb = actx.createGain(), lp = actx.createBiquadFilter();
+    dl.delayTime.value = .13; fb.gain.value = .32; lp.type = "lowpass"; lp.frequency.value = 3200;
+    echoIn.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(master);
+    loadTrack(curTrack());   // fetch this mode's song early so it's ready when the game starts
+    loadTrack("shop");
+  } catch (e) { actx = null; }
+}
+// Leaving the page shuts the sound off completely. Phones (iPhones especially) can hand a paused sound engine back
+// broken, so resuming it gives a loud buzz. Instead the old engine is thrown away and a fresh one is made on return.
+// The loaded songs are kept (nothing re-downloads) and the game song picks up where it was.
+let shopWasOn = false;
+function silenceAudio() {
+  if (!actx) return;
+  if (amb.on) { musicPause(); amb.on = false; }
+  shopWasOn = shopMus.want;
+  if (shopMus.src) { try { shopMus.src.stop(); } catch (e) {} shopMus.src = null; shopMus.gain = null; }
+  stopSiren();
+  const old = actx;
+  actx = null; master = null; echoIn = null; noiseBuf = null; amb.out = null; amb.src = null;
+  try { old.close(); } catch (e) {}
+}
+function wakeAudio() {
+  if (!soundOn || !musicOn) return;
+  if (shopWasOn && !$("shop").hidden) { shopWasOn = false; shopMusicOn(); }   // the game itself stays paused until you tap Resume
+}
+document.addEventListener("visibilitychange", () => { if (document.hidden) { silenceAudio(); keepBest(); } else wakeAudio(); });
+addEventListener("pagehide", () => { silenceAudio(); keepBest(); });
+addEventListener("pageshow", e => { if (e.persisted) wakeAudio(); });
+// one note: square/triangle with a pluck envelope; opts: { type, vol, at, slide, echo, fat }
+function note(freq, dur, opts = {}) {
+  if (!actx || !soundOn) return;
+  const { type = "square", vol = .05, at = 0, slide, echo = false, fat = false, out = master } = opts;
+  const t = actx.currentTime + at;
+  const g = actx.createGain();
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t + .005);
+  g.gain.exponentialRampToValueAtTime(vol * .45, t + Math.min(.06, dur * .4));
+  g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  g.connect(out); if (echo) g.connect(echoIn);
+  const voices = fat ? [-7, 7] : [0];
+  for (const det of voices) {
+    const o = actx.createOscillator();
+    o.type = type; o.frequency.setValueAtTime(freq, t); o.detune.value = det;
+    if (slide) o.frequency.exponentialRampToValueAtTime(slide, t + dur);
+    o.connect(g); o.start(t); o.stop(t + dur + .05);
+  }
+}
+function hiss(dur, opts = {}) {
+  if (!actx || !soundOn) return;
+  const { vol = .1, at = 0, from = 4000, to = 200, type = "lowpass", out = master } = opts;
+  const t = actx.currentTime + at;
+  // one shared 2-second noise buffer, started at a random spot (making new noise every hit stutters on phones)
+  if (!noiseBuf) {
+    noiseBuf = actx.createBuffer(1, actx.sampleRate * 2, actx.sampleRate);
+    const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  const src = actx.createBufferSource(), f = actx.createBiquadFilter(), g = actx.createGain();
+  src.buffer = noiseBuf; src.loop = true; f.type = type; f.frequency.setValueAtTime(from, t); f.frequency.exponentialRampToValueAtTime(to, t + dur);
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  src.connect(f).connect(g).connect(out); src.start(t, Math.random() * 1.9); src.stop(t + dur);
+}
+// air-raid siren for incoming disasters: wails up and down until it hits, faster and louder as severity climbs
+let siren = null;
+function startSiren(secs) {
+  stopSiren();
+  if (!actx || !soundOn || secs <= 0) return;
+  if (actx.state !== "running") actx.resume();
+  const sev = disasterCount + 1, t0 = actx.currentTime, end = t0 + secs;
+  const period = Math.max(.5, 1.25 - .15 * (sev - 1)), vol = Math.min(.11, .05 + .012 * sev);
+  const g = actx.createGain(), lp = actx.createBiquadFilter();
+  lp.type = "lowpass"; lp.frequency.value = 2400;
+  g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol, t0 + .3);
+  g.gain.setValueAtTime(vol, end - .15); g.gain.linearRampToValueAtTime(0, end);
+  lp.connect(g); g.connect(master); g.connect(echoIn);
+  const oscs = [["sawtooth", 1], ["square", .5]].map(([type, mul]) => {
+    const o = actx.createOscillator(); o.type = type;
+    o.frequency.setValueAtTime(480 * mul, t0);
+    for (let t = t0; t < end; t += period) {
+      o.frequency.linearRampToValueAtTime(1150 * mul, Math.min(end, t + period * .55));
+      o.frequency.linearRampToValueAtTime(480 * mul, Math.min(end, t + period));
+    }
+    o.connect(lp); o.start(t0); o.stop(end + .05); return o;
+  });
+  siren = { g, oscs };
+}
+function stopSiren() {
+  if (!siren) return;
+  const { g, oscs } = siren; siren = null;
+  try {
+    const t = actx.currentTime;
+    g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(g.gain.value, t); g.gain.linearRampToValueAtTime(0, t + .08);
+    oscs.forEach(o => o.stop(t + .1));
+  } catch (e) {}
+}
+const semi = (base, s) => base * Math.pow(2, s / 12);
+const PENTA = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24];
+function arp(base, steps, gap, opts) { steps.forEach((s, i) => note(semi(base, s), opts.dur || .12, { ...opts, at: (opts.at || 0) + i * gap })); }
+
+// hard mode rewards stay in Bb minor so they sit inside the ambience
+const MINOR7 = [0, 2, 3, 5, 7, 8, 10];
+const gmin = (deg, base = ROOT) => semi(base, 12 * Math.floor(deg / 7) + MINOR7[((deg % 7) + 7) % 7]);
+function arpDeg(base, degs, gap, opts) { degs.forEach((d, i) => note(gmin(d, base), opts.dur || .14, { ...opts, at: (opts.at || 0) + i * gap })); }
+function hardSfx(name, n) {
+  const c = Math.max(0, Math.min(combo, 7));
+  switch (name) {
+    case "clear": arpDeg(ROOT, [c, c + 2, c + 4, c + 7].slice(0, n + 1), BEAT / 4, { dur: .2, vol: .045, echo: true }); return true;
+    case "quad": arpDeg(ROOT, [0, 2, 4, 7, 9, 11, 14], BEAT / 4, { dur: .25, vol: .05, echo: true, fat: true }); note(ROOT / 4, .9, { type: "triangle", vol: .14 }); return true;
+    case "tspin": hiss(.2, { vol: .06, type: "bandpass", from: 400, to: 2500 }); arpDeg(ROOT / 2, [0, 4, 7, 11, 14].slice(0, 3 + n), BEAT / 4, { dur: .22, vol: .05, echo: true, fat: n > 0, at: .05 }); return true;
+    case "combo": note(gmin(c + 4), .14, { vol: .04, echo: true }); note(gmin(c + 6), .18, { vol: .035, at: BEAT / 4, echo: true }); return true;
+    case "pc": arpDeg(ROOT, [0, 2, 4, 7, 9, 11, 14, 16], BEAT / 4, { dur: .3, vol: .05, echo: true, fat: true }); [0, 2, 4].forEach(d => note(gmin(d, ROOT / 2), 1.4, { type: "triangle", vol: .06, at: BEAT * 2, echo: true })); return true;
+    case "level": case "rank": case "best": arpDeg(ROOT, [0, 2, 4, 7], BEAT / 4, { dur: .16, vol: .04, echo: true }); return true;
+    case "start": arpDeg(ROOT / 2, [0, 4, 7, 11], BEAT / 2, { dur: .3, vol: .045, echo: true }); return true;
+    case "over": arpDeg(ROOT, [7, 5, 4, 2, 0], BEAT / 2, { dur: .4, vol: .045, echo: true }); note(gmin(0, ROOT / 4), 1.2, { type: "triangle", vol: .12, at: BEAT * 2.5 }); return true;
+  }
+  return false;
+}
+
+function sfx(name, n = 0) {
+  if (!actx || !soundOn) return;
+  if (actx.state !== "running") actx.resume();
+  if (hard && hardSfx(name, n)) return;
+  // rewards climb in pitch as your combo grows, so streaks sound like they're building
+  const lift = Math.max(0, Math.min(combo, 10)) * 2;
+  switch (name) {
+    case "move": note(1400, .025, { type: "triangle", vol: .025 }); break;
+    case "rotate": note(880, .05, { vol: .03 }); note(1320, .04, { vol: .015, at: .012 }); break;
+    case "tspinready": note(1320, .05, { vol: .035, echo: true }); note(1760, .08, { vol: .03, at: .035, echo: true }); break;
+    case "hold": note(523, .06, { vol: .035 }); note(784, .08, { vol: .03, at: .05 }); break;
+    case "lock": note(150, .07, { type: "triangle", vol: .12, slide: 70 }); hiss(.03, { vol: .04, from: 3000, to: 800 }); break;
+    case "drop": note(130, .14, { type: "triangle", vol: .16, slide: 45 }); hiss(.06, { vol: .06, from: 5000, to: 400 }); if (n > 6) note(65, .2, { type: "sine", vol: .12, slide: 35 }); break;
+    case "clear": arp(semi(523, lift), PENTA.slice(0, n + 2), .045, { dur: .16, vol: .045, echo: true }); hiss(.12, { vol: .03, type: "highpass", from: 2000, to: 8000 }); break;
+    case "quad":
+      arp(semi(523, lift), [0, 4, 7, 12, 16, 19, 24], .05, { dur: .2, vol: .05, echo: true, fat: true });
+      note(131, .5, { type: "triangle", vol: .12, at: .02 }); hiss(.4, { vol: .04, type: "highpass", from: 3000, to: 9000, at: .25 });
+      break;
+    case "tspin":
+      hiss(.18, { vol: .06, type: "bandpass", from: 600, to: 4000 });
+      arp(semi(392, lift), [0, 7, 12, 19, 24].slice(0, 3 + n), .055, { dur: .18, vol: .05, echo: true, fat: n > 0, at: .06 });
+      note(98, .3, { type: "triangle", vol: .12, at: .06 });
+      break;
+    case "combo": note(semi(784, Math.min(n, 12) * 2), .1, { vol: .04, echo: true }); note(semi(784, Math.min(n, 12) * 2 + 7), .14, { vol: .035, at: .06, echo: true }); break;
+    case "pc":
+      arp(523, [0, 4, 7, 12, 16, 19, 24, 28, 31, 36], .06, { dur: .22, vol: .05, echo: true, fat: true });
+      [0, 4, 7].forEach(s => note(semi(262, s), 1.1, { type: "triangle", vol: .06, at: .62, echo: true }));
+      hiss(.8, { vol: .035, type: "highpass", from: 4000, to: 10000, at: .6 });
+      break;
+    case "level": arp(659, [0, 4, 7, 12], .06, { dur: .12, vol: .04, echo: true }); note(semi(659, 16), .35, { vol: .035, at: .24, echo: true, fat: true }); break;
+    case "rank": arp(784, [0, 7, 12, 16, 19], .07, { dur: .14, vol: .04, echo: true, fat: true }); break;
+    case "best": arp(880, [0, 4, 7, 12, 7, 12, 16], .06, { dur: .12, vol: .04, echo: true }); break;
+    case "coins": for (let i = 0; i < n; i++) { note(988, .05, { vol: .04, at: i * .09 }); note(1319, .18, { vol: .04, at: i * .09 + .05, echo: true }); } break;
+    case "buy": note(988, .05, { vol: .045 }); note(1319, .22, { vol: .045, at: .05, echo: true }); arp(1568, [0, 4, 7], .04, { dur: .08, vol: .025, at: .18 }); break;
+    case "equip": note(659, .05, { vol: .035 }); note(988, .08, { vol: .035, at: .05 }); break;
+    case "unequip": note(988, .05, { vol: .03 }); note(659, .08, { vol: .03, at: .05 }); break;
+    case "ready": note(1568, .05, { vol: .03, echo: true }); note(2093, .1, { vol: .03, at: .05, echo: true }); break;
+    case "special": hiss(.15, { vol: .05, type: "bandpass", from: 500, to: 5000 }); arp(440, [0, 7, 12, 19], .035, { dur: .09, vol: .04, echo: true }); break;
+    case "slow": note(880, .6, { vol: .04, slide: 220, echo: true }); break;
+    case "laser": note(2200, .35, { type: "sawtooth", vol: .035, slide: 300, echo: true }); hiss(.25, { vol: .05, from: 6000, to: 500 }); break;
+    case "boom": hiss(.7, { vol: .22, from: 2500, to: 60 }); note(90, .5, { type: "sine", vol: .2, slide: 30 }); break;
+    case "nuke": hiss(1.2, { vol: .25, from: 3000, to: 40 }); note(70, 1, { type: "sine", vol: .22, slide: 25 }); arp(262, [0, 7, 12, 19, 24], .1, { dur: .3, vol: .03, at: .5, echo: true }); break;
+    case "drill": note(180, .45, { type: "sawtooth", vol: .05, slide: 90 }); hiss(.45, { vol: .07, type: "bandpass", from: 1500, to: 600 }); break;
+    case "nope": note(196, .08, { vol: .04 }); note(165, .12, { vol: .04, at: .08 }); break;
+    case "shop": arp(784, [0, 4, 7], .05, { dur: .1, vol: .03, echo: true }); break;
+    case "tick": note(1200, .03, { type: "triangle", vol: .03 }); break;
+    case "pause": note(784, .06, { vol: .03 }); note(523, .1, { vol: .03, at: .06 }); break;
+    case "unpause": note(523, .06, { vol: .03 }); note(784, .1, { vol: .03, at: .06 }); break;
+    case "rebirth": arp(262, [0, 7, 12, 16, 19, 24, 28, 31, 36], .08, { dur: .3, vol: .045, echo: true, fat: true }); hiss(1, { vol: .04, type: "highpass", from: 2000, to: 9000, at: .4 }); break;
+    case "start": arp(523, [0, 4, 7, 12], .07, { dur: .12, vol: .04, echo: true }); break;
+    case "hardin": hiss(1.4, { vol: .12, from: 3000, to: 40 }); note(ROOT / 8, 1.6, { type: "sine", vol: .2, slide: ROOT / 9.5 }); [0, 3, 7].forEach((s2, i) => note(semi(ROOT / 2, s2), 1.4, { type: "triangle", vol: .05, at: .3 + i * .05, echo: true })); break;
+    // hard mode disasters
+    case "warn": for (let k = 0; k < 3; k++) { note(ROOT * 2, .22, { type: "square", vol: .028, at: k * .5 }); note(semi(ROOT, 7) , .22, { type: "square", vol: .028, at: k * .5 + .25 }); } break;
+    case "quake": hiss(1.8, { vol: .22, from: 500, to: 40 }); note(42, 1.8, { type: "sine", vol: .26, slide: 28 }); note(60, .9, { type: "triangle", vol: .1, slide: 35, at: .3 }); break;
+    case "flood": hiss(1.4, { vol: .14, type: "bandpass", from: 300, to: 1200 }); note(70, 1.2, { type: "sine", vol: .16, slide: 140 }); break;
+    case "meteor": hiss(.45, { vol: .1, from: 7000, to: 400 }); note(110, .35, { type: "triangle", vol: .16, slide: 40, at: .35 }); hiss(.25, { vol: .1, from: 2500, to: 200, at: .35 }); break;
+    case "tornado": hiss(1.8, { vol: .14, type: "bandpass", from: 250, to: 3200 }); hiss(1.2, { vol: .08, type: "bandpass", from: 3200, to: 300, at: .6 }); break;
+    case "thunder": hiss(1.3, { vol: .24, from: 3000, to: 60 }); note(52, 1.1, { type: "sine", vol: .2, slide: 33 }); break;
+    case "over": arp(392, [0, -2, -4, -7], .16, { dur: .3, vol: .045, echo: true }); note(98, .7, { type: "triangle", vol: .1, at: .5 }); break;
+  }
+}
+
+// ---------- boot
+function boot() {
+  paintSound();
+  board = Array.from({ length: ROWS }, emptyRow);
+  const pat = ["....T.....", "...TTT...I", "J.ZZ..OO.I", "JZZLLLOOSI", "JJSSLTTSSI", "LSSZZTSSOO"];
+  pat.forEach((row, i) => { const r = ROWS - pat.length + i; [...row].forEach((ch, c) => { if (SHAPES[ch]) board[r][c] = ch; }); });
+  queue = ["T", "I", "S", "L", "O"]; hold = "Z"; canHold = true; score = 0; lines = 0; level = 1; combo = -1;
+  piece = null; updateHud();
+  layout();
+  renderSpecials();
+  showSheet();
+  if (location.hash === "#hard") enterHard(false);
+  requestAnimationFrame(tick);
+}
+boot();
+})();
+</script>

@@ -1,0 +1,561 @@
+<div class="wrap">
+  <div class="header">
+    <div style="display:flex; align-items:flex-end;">
+      <div class="logo"><a href="/"><img src="/logo.png" alt="coleswebsite.xyz" width="394" height="56"></a></div>
+      <div class="tagline">Est. 2023... thoughts, lists, and other nonsense!</div>
+    </div>
+  </div>
+  <div class="goldbar"></div>
+  <div class="navbar">
+    <div>
+      <a href="/">Home</a>
+      <a href="/aboutme">About Me</a>
+      <a href="/faq">FAQ</a>
+      <a href="/impact">Impact</a>
+      <a href="/music">Music</a>
+      <a href="/reviews">Reviews</a>
+      <a href="/games">Games</a>
+    </div>
+    <div><a class="signin" href="mailto:coleswebsitexyz@proton.me">Contact Me</a></div>
+  </div>
+  <div class="content">
+    <div class="col-main">
+      <div class="box-title">Game Soundtracks</div>
+      <div class="box-body jb">
+        <p class="jb-intro">Every song from the games on my site, all in one place. Hit play and let it run, or pick one from the list.</p>
+
+        <div class="jb-deck">
+          <div class="jb-turntable">
+            <canvas id="jb-record" width="64" height="64" aria-hidden="true"></canvas>
+            <canvas id="jb-eq" width="32" height="8" aria-hidden="true"></canvas>
+          </div>
+          <div class="jb-side">
+            <div class="jb-lcd" aria-live="polite">
+              <div class="jb-lcd-top"><span id="jb-state">STOPPED</span><span id="jb-time">0:00 / 0:00</span></div>
+              <div class="jb-lcd-title"><span id="jb-title">Pick a song!</span></div>
+              <div class="jb-lcd-game" id="jb-game">&nbsp;</div>
+            </div>
+            <input type="range" id="jb-seek" class="jb-seek" min="0" max="1000" value="0" aria-label="Seek">
+            <div class="jb-controls">
+              <button type="button" class="jb-btn" id="jb-prev" aria-label="Previous song"><svg viewBox="0 0 8 8" width="16" height="16" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="1" width="1" height="6"/><rect x="5" y="1" width="1" height="6"/><rect x="4" y="2" width="1" height="4"/><rect x="3" y="3" width="1" height="2"/><rect x="6" y="1" width="1" height="6"/></svg></button>
+              <button type="button" class="jb-btn jb-play" id="jb-play" aria-label="Play"><svg id="jb-ico-play" viewBox="0 0 8 8" width="18" height="18" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="1" width="1" height="6"/><rect x="3" y="2" width="1" height="4"/><rect x="4" y="2" width="1" height="4"/><rect x="5" y="3" width="1" height="2"/></svg><svg id="jb-ico-pause" viewBox="0 0 8 8" width="18" height="18" shape-rendering="crispEdges" aria-hidden="true" style="display:none"><rect x="2" y="1" width="1.5" height="6"/><rect x="4.5" y="1" width="1.5" height="6"/></svg></button>
+              <button type="button" class="jb-btn" id="jb-next" aria-label="Next song"><svg viewBox="0 0 8 8" width="16" height="16" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="1" width="1" height="6"/><rect x="2" y="1" width="1" height="6"/><rect x="3" y="2" width="1" height="4"/><rect x="4" y="3" width="1" height="2"/><rect x="6" y="1" width="1" height="6"/></svg></button>
+              <button type="button" class="jb-btn jb-toggle" id="jb-loop" aria-pressed="false">Loop: Off</button>
+              <label class="jb-vol"><span>Vol</span><input type="range" id="jb-vol" min="0" max="100" value="80" aria-label="Volume"></label>
+            </div>
+          </div>
+        </div>
+
+        <table class="listing jb-list">
+          <thead><tr><th>#</th><th>Song</th><th>Game</th><th>Length</th><th></th></tr></thead>
+          <tbody id="jb-tracks"></tbody>
+        </table>
+        <p class="jb-note">Songs loop forever in the games, so here each one plays through once and moves on. Turn on Loop to keep one going.</p>
+      </div>
+
+      <div class="box-title">Something I've Been Working On</div>
+      <div class="box-body">
+        <p class="music-caption">If I ever decide to release music again, this is where it’ll show up. For now, here’s a little snippet from something I’ve been working on.</p>
+        <div class="music-preview" id="music-preview-player">
+          <audio id="music-preview-audio" controls preload="metadata">
+            <source src="/sample102726.mp3" type="audio/mpeg">
+            Your browser does not support the audio player.
+          </audio>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    &copy; 2023 - 2026 coleswebsite.xyz &nbsp;&middot;&nbsp; <a href="https://coleswebsite.xyz/">https://coleswebsite.xyz/</a> &nbsp;&middot;&nbsp; <a href="/terms">Terms</a>
+  </div>
+</div>
+<style>
+  /* ---------- game soundtrack jukebox ---------- */
+  .jb-intro { margin: 0 0 16px; }
+  .jb-deck { display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch; margin: 0 0 16px; }
+  .jb-turntable { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px; background: #c0c0c0; border: 3px outset #fff; }
+  #jb-record { width: 192px; height: 192px; image-rendering: pixelated; image-rendering: crisp-edges; display: block; background: #808080; border: 2px inset #808080; }
+  #jb-eq { width: 192px; height: 48px; image-rendering: pixelated; image-rendering: crisp-edges; display: block; background: #000; border: 2px inset #808080; }
+  .jb-side { flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+  .jb-lcd { background: #061806; color: #39ff6a; font-family: "Courier New", Courier, monospace; border: 3px inset #808080; padding: 10px 12px; text-shadow: 0 0 4px rgba(57,255,106,.55); }
+  .jb-lcd-top { display: flex; justify-content: space-between; font-size: 13px; letter-spacing: 1px; opacity: .85; }
+  .jb-lcd-title { font-size: 22px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 6px 0 2px; }
+  .jb-lcd-game { font-size: 14px; letter-spacing: 1px; }
+  .jb-state-blink { animation: cw-blink 1s step-start infinite; }
+  .jb-seek { width: 100%; margin: 0; accent-color: #000080; }
+  .jb-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .jb-btn { font: bold 15px "Times New Roman", Times, serif; min-width: 48px; min-height: 44px; padding: 4px 12px; background: #c0c0c0; color: #000; border: 2px outset #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+  .jb-btn svg { fill: #000; display: block; }
+  .jb-btn:active, .jb-btn[aria-pressed="true"] { border-style: inset; }
+  .jb-btn[aria-pressed="true"] { background: #b4ebcf; }
+  .jb-play { min-width: 64px; background: #b4ebcf; }
+  .jb-vol { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; font-size: 14px; font-weight: bold; }
+  .jb-vol input { width: 110px; accent-color: #000080; }
+  .jb-list { width: 100%; font-size: 15px; }
+  .jb-list th, .jb-list td { padding: 5px 8px; text-align: left; }
+  .jb-list td:first-child, .jb-list th:first-child { width: 28px; text-align: center; }
+  .jb-row-play { font: bold 15px "Times New Roman", Times, serif; background: none; border: none; padding: 4px 0; min-height: 32px; color: #0000ff; text-decoration: underline; cursor: pointer; text-align: left; }
+  .jb-row-play:hover { color: #ff0000; }
+  .jb-list tr.jb-on td { background: #ffff99 !important; }
+  .jb-list tr.jb-on .jb-row-play { color: #000080; }
+  .jb-list tr.jb-on .jb-row-play::before { content: "\25B6\FE0E  "; color: #cc0000; }
+  .jb-note { margin: 10px 0 0 !important; font-size: 13px; color: #444; }
+</style>
+<audio id="jb-audio" preload="none" crossorigin="anonymous"></audio>
+<script>
+(function () {
+  // Every song from the games. Each file starts with half a second of padding, then the seamless loop.
+  var PAD = 0.5;
+  var TRACKS = [
+    { game: "Blackjack DX", title: "Lucky Lounge", src: "/music/tracks/lucky-lounge.mp3",     loop: 32 * 4 * 60 / 90,  color: [0, 128, 0] },
+    { game: "Blackjack DX", title: "On Fire",      src: "/music/tracks/on-fire.mp3",          loop: 32 * 4 * 60 / 150, color: [204, 34, 0] },
+    { game: "Blackjack DX", title: "All In",       src: "/music/tracks/all-in.mp3",           loop: 32 * 4 * 60 / 128, color: [255, 204, 0] },
+    { game: "Lines DX",     title: "Main Theme",   src: "/music/tracks/lines-main-theme.mp3?v=2", loop: 64 * 60 / 132,     color: [96, 64, 192] },
+    { game: "Lines DX",     title: "Hard Mode",    src: "/music/tracks/lines-hard-mode.mp3",  loop: 64 * 60 / 96,      color: [160, 0, 0] },
+    { game: "Lines DX",     title: "The Shop",     src: "/music/tracks/lines-the-shop.mp3",   loop: 64 * 60 / 104,     color: [0, 128, 128] },
+    { game: "Lucky Flip",   title: "Lucky Flip",   src: "/music/tracks/lucky-flip.mp3",       loop: 64 * 60 / 150,     color: [0, 96, 200] }
+  ];
+  // These are the jukebox cuts of the game songs: the loop, then the top of the song again fading out over a
+  // few seconds, so each one ends gently on every phone and computer. Loop mode jumps back before the fade.
+  var TAIL = 7;   // seconds of fade-out after the loop point
+  function total(t) { return looping ? t.loop : t.loop + TAIL; }
+  var $ = function (id) { return document.getElementById(id); };
+  var audio = $("jb-audio"), rec = $("jb-record"), eqc = $("jb-eq");
+  if (!audio || !rec) return;
+  var cur = -1, looping = false, wantPlay = false, volume = 0.8;
+
+  function fmt(s) { s = Math.max(0, Math.floor(s)); return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2); }
+
+  // ---------- the track list ----------
+  var tbody = $("jb-tracks"), rows = [];
+  TRACKS.forEach(function (t, i) {
+    var tr = document.createElement("tr");
+    var b = document.createElement("button"); b.type = "button"; b.className = "jb-row-play"; b.textContent = t.title;
+    b.addEventListener("click", function () { if (i === cur) toggle(); else playTrack(i); });
+    var save = document.createElement("a"); save.href = t.src.split("?")[0]; save.setAttribute("download", t.game + " - " + t.title + ".mp3"); save.textContent = "Save";
+    var cells = [String(i + 1), b, t.game, fmt(t.loop + TAIL), save];
+    cells.forEach(function (c) { var td = document.createElement("td"); if (typeof c === "string") td.textContent = c; else td.appendChild(c); tr.appendChild(td); });
+    tbody.appendChild(tr); rows.push(tr);
+  });
+
+  // ---------- sound ----------
+  // On computers the song runs through Web Audio for smooth fades and a real EQ. On phones it plays straight from the
+  // <audio> tag instead: that's what lets it keep going in another tab or with the screen locked (Web Audio gets frozen
+  // in the background and comes back as a buzz), and what puts it on the lock screen and in Control Center.
+  var IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  var PHONE = IOS || /Android|Mobi/i.test(navigator.userAgent);
+  if (IOS) { var vol = $("jb-vol"); if (vol && vol.parentNode) vol.parentNode.style.display = "none"; }   // iPhones only take the side buttons
+  var ac = null, gain = null, analyser = null, fbins = null;
+  function audioGraph() {
+    if (PHONE) return;
+    if (ac) { if (ac.state !== "running") ac.resume(); return; }
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+      ac = new AC();
+      var src = ac.createMediaElementSource(audio);
+      gain = ac.createGain(); gain.gain.value = volume;
+      analyser = ac.createAnalyser(); analyser.fftSize = 64; analyser.smoothingTimeConstant = 0.7;
+      fbins = new Uint8Array(analyser.frequencyBinCount);
+      src.connect(gain); gain.connect(analyser); analyser.connect(ac.destination);
+    } catch (e) { ac = null; }
+  }
+  function setGain(v, secs) {
+    if (gain && ac) {
+      var t = ac.currentTime;
+      gain.gain.cancelScheduledValues(t); gain.gain.setValueAtTime(gain.gain.value, t);
+      gain.gain.linearRampToValueAtTime(v, t + (secs || 0.05));
+    } else if (!secs || secs <= 0.2) audio.volume = Math.max(0, Math.min(1, v));   // no fades without Web Audio, just a cut
+  }
+
+  // ---------- playback ----------
+  function playTrack(i) {
+    var other = $("music-preview-audio"); if (other && !other.paused) other.pause();
+    audioGraph();
+    cur = (i + TRACKS.length) % TRACKS.length;
+    var t = TRACKS[cur];
+    wantPlay = true;
+    audio.src = t.src;
+    var start = function () {
+      audio.removeEventListener("loadedmetadata", start);
+      try { audio.currentTime = PAD; } catch (e) {}
+      setGain(volume, 0.05);
+      var p = audio.play(); if (p && p.catch) p.catch(function () { wantPlay = false; paint(); });
+    };
+    audio.addEventListener("loadedmetadata", start);
+    audio.load();
+    paint();
+    if ("mediaSession" in navigator) {
+      try {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: t.title, artist: t.game, album: "coleswebsite.xyz Game Soundtracks",
+          artwork: [96, 256, 512].map(function (s) { return { src: "/music/cover-" + s + ".png", sizes: s + "x" + s, type: "image/png" }; })
+        });
+      } catch (e) {}
+    }
+  }
+  function play() {
+    if (cur < 0) { playTrack(0); return; }
+    audioGraph(); wantPlay = true;
+    var p = audio.play(); if (p && p.catch) p.catch(function () { wantPlay = false; paint(); });
+    paint();
+  }
+  function pause() { wantPlay = false; audio.pause(); paint(); }
+  function toggle() { if (cur < 0 || audio.paused) play(); else pause(); }
+  // what the lock screen / Control Center scrubber shows: just the song, not the padding around it
+  function syncPosition() {
+    if (!("mediaSession" in navigator) || cur < 0) return;
+    try {
+      navigator.mediaSession.playbackState = audio.paused ? "paused" : "playing";
+      var len = total(TRACKS[cur]);
+      if (navigator.mediaSession.setPositionState) navigator.mediaSession.setPositionState({
+        duration: len, playbackRate: audio.playbackRate || 1,
+        position: Math.min(len, Math.max(0, (audio.currentTime || 0) - PAD))
+      });
+    } catch (e) {}
+  }
+  function seekTo(s) {
+    if (cur < 0) return;
+    try { audio.currentTime = PAD + Math.min(total(TRACKS[cur]) - 0.25, Math.max(0, s)); } catch (e) {}
+    setGain(volume, 0.05); syncPosition();
+  }
+  function next() { playTrack(cur < 0 ? 0 : cur + 1); }
+  function prev() {
+    if (cur >= 0 && audio.currentTime - PAD > 3) { audio.currentTime = PAD; return; }
+    playTrack(cur < 0 ? 0 : cur - 1);
+  }
+
+  $("jb-play").addEventListener("click", toggle);
+  $("jb-next").addEventListener("click", next);
+  $("jb-prev").addEventListener("click", prev);
+  $("jb-loop").addEventListener("click", function () {
+    looping = !looping;
+    this.setAttribute("aria-pressed", looping ? "true" : "false");
+    this.textContent = "Loop: " + (looping ? "On" : "Off");
+  });
+  $("jb-vol").addEventListener("input", function () { volume = this.value / 100; setGain(volume, 0.05); });
+  var seek = $("jb-seek"), seeking = false;
+  seek.addEventListener("input", function () { seeking = true; });
+  seek.addEventListener("change", function () {
+    seeking = false;
+    if (cur < 0) return;
+    seekTo((seek.value / 1000) * total(TRACKS[cur]));
+  });
+  ["play", "pause", "ended"].forEach(function (ev) { audio.addEventListener(ev, paint); });
+  ["play", "pause", "loadedmetadata", "seeked"].forEach(function (ev) { audio.addEventListener(ev, syncPosition); });
+  // The screen's animation loop stops in the background, so the song's own clock keeps the looping and the
+  // move to the next song going while the tab is hidden or the phone is locked.
+  audio.addEventListener("timeupdate", function () { if (document.hidden) clock(); });
+  audio.addEventListener("ended", function () {
+    if (cur < 0) return;
+    if (looping) { try { audio.currentTime = PAD; } catch (e) {} play(); }
+    else next();
+  });
+  if ("mediaSession" in navigator) {
+    var acts = {
+      play: play, pause: pause, nexttrack: next, previoustrack: prev,
+      seekto: function (d) { if (d && d.seekTime != null) seekTo(d.seekTime); }
+    };   // no skip-10s handlers: iPhones would swap them in for the next/previous song buttons
+    Object.keys(acts).forEach(function (k) { try { navigator.mediaSession.setActionHandler(k, acts[k]); } catch (e) {} });
+  }
+  // the old snippet player below pauses the jukebox when it starts
+  var snippet = $("music-preview-audio");
+  if (snippet) snippet.addEventListener("play", function () { if (!audio.paused) { wantPlay = false; audio.pause(); } });
+
+  function paint() {
+    var t = TRACKS[cur], playing = !audio.paused;
+    $("jb-title").textContent = t ? t.title : "Pick a song!";
+    $("jb-game").textContent = t ? t.game.toUpperCase() + "  ·  TRACK " + (cur + 1) + " OF " + TRACKS.length : " ";
+    var st = $("jb-state");
+    st.textContent = playing ? "▶︎ PLAYING" : t ? "❚❚ PAUSED" : "STOPPED";
+    st.className = playing ? "" : t ? "jb-state-blink" : "";
+    $("jb-ico-play").style.display = playing ? "none" : "";
+    $("jb-ico-pause").style.display = playing ? "" : "none";
+    $("jb-play").setAttribute("aria-label", playing ? "Pause" : "Play");
+    rows.forEach(function (r, i) { r.classList.toggle("jb-on", i === cur); });
+  }
+
+  // ---------- the clock: seamless loops and the time display ----------
+  var lastTime = "";
+  function clock() {
+    if (cur >= 0) {
+      var t = TRACKS[cur], end = PAD + t.loop, now = audio.currentTime || 0;
+      // in loop mode, jump back at the loop point (the second after it holds the top of the loop, so it's seamless);
+      // otherwise the song plays on into its fade-out and the "ended" event moves to the next one
+      if (!audio.paused && looping && now >= end && now < end + 1) audio.currentTime = now - t.loop;
+      var len = total(t), pos = Math.min(len, Math.max(0, now - PAD));
+      var txt = fmt(pos) + " / " + fmt(len);
+      if (txt !== lastTime) { lastTime = txt; $("jb-time").textContent = txt; }   // only touch the page when it changes
+      var sv = String(Math.round(pos / len * 1000));
+      if (!seeking && seek.value !== sv) seek.value = sv;
+    }
+  }
+
+  // ---------- the 8-bit record player ----------
+  var rx = rec.getContext("2d"), img = rx.createImageData(64, 64), D = img.data;
+  var ex = eqc.getContext("2d");
+  var rot = 0, spin = 0, arm = 0, drewStill = false, last = performance.now(), eqv = [0, 0, 0, 0, 0, 0, 0, 0];
+  var CX = 27.5, CY = 31.5, R = 26;
+  function px(x, y, c) {
+    x |= 0; y |= 0; if (x < 0 || y < 0 || x > 63 || y > 63) return;
+    var k = (y * 64 + x) * 4; D[k] = c[0]; D[k + 1] = c[1]; D[k + 2] = c[2]; D[k + 3] = 255;
+  }
+  function line(x0, y0, x1, y1, c) {
+    var n = Math.ceil(Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0))) * 2 || 1;
+    for (var i = 0; i <= n; i++) px(Math.round(x0 + (x1 - x0) * i / n), Math.round(y0 + (y1 - y0) * i / n), c);
+  }
+  function drawRecord() {
+    var label = cur >= 0 ? TRACKS[cur].color : [192, 192, 192];
+    for (var y = 0; y < 64; y++) for (var x = 0; x < 64; x++) {
+      var dx = x + 0.5 - (CX + 0.5), dy = y + 0.5 - (CY + 0.5), r = Math.sqrt(dx * dx + dy * dy);
+      var c;
+      if (r > R + 2.5) c = [128, 128, 128];                                  // the deck
+      else if (r > R) c = [64, 64, 64];                                       // platter rim
+      else {
+        var a = Math.atan2(dy, dx), ar = a - rot;
+        if (r <= 1.3) c = [224, 224, 224];                                     // spindle
+        else if (r <= 9) {                                                     // label, with a stripe that shows the spin
+          c = label;
+          if (Math.cos(ar) > 0.9 && r > 3) c = [255, 255, 255];
+          else if (Math.cos(ar) < -0.95 && r > 4) c = [0, 0, 0];
+        } else {
+          c = (Math.floor(r) % 3 === 0) ? [40, 40, 40] : [16, 16, 16];         // grooves
+          var sheen = Math.cos(a + 0.9);                                       // light on the vinyl stays put
+          if (sheen > 0.93 && r > 11 && r < R - 1) c = [90, 90, 90];
+          if (Math.cos(ar * 2) > 0.985 && r > 13 && r < R - 2) c = [70, 70, 70]; // glints that turn with it
+        }
+      }
+      var k = (y * 64 + x) * 4; D[k] = c[0]; D[k + 1] = c[1]; D[k + 2] = c[2]; D[k + 3] = 255;
+    }
+    // tone arm: pivot top right, swings onto the record when playing
+    var pxv = 58, pyv = 6, ang = 1.95 + (1 - arm) * 0.42, len = 30;
+    var hx = pxv + Math.cos(ang) * len, hy = pyv + Math.sin(ang) * len;
+    line(pxv + 1, pyv + 1, hx + 1, hy + 1, [40, 40, 40]);                       // shadow
+    line(pxv, pyv, hx, hy, [208, 208, 208]);
+    for (var i = -1; i <= 1; i++) for (var j = -1; j <= 1; j++) px(hx + i, hy + j, [255, 255, 255]);   // head
+    px(hx, hy, [204, 0, 0]);
+    for (i = -2; i <= 2; i++) for (j = -2; j <= 2; j++) px(pxv + i, pyv + j, Math.abs(i) === 2 || Math.abs(j) === 2 ? [32, 32, 32] : [176, 176, 176]);   // pivot
+    rx.putImageData(img, 0, 0);
+  }
+  function drawEq(playing) {
+    if (analyser && playing) {
+      analyser.getByteFrequencyData(fbins);
+      for (var b = 0; b < 8; b++) {
+        var v = (fbins[b * 3 + 1] + fbins[b * 3 + 2]) / 2 / 255;
+        eqv[b] = Math.max(v * 8, eqv[b] - 0.5);
+      }
+    } else if (playing) {
+      // phones don't run the song through Web Audio, so the meter dances along to the beat instead
+      var tt = audio.currentTime || 0, beat = 1 - ((tt * 2.2) % 1);
+      for (var b1 = 0; b1 < 8; b1++) {
+        var w = 0.35 + 0.3 * Math.sin(tt * (3 + b1 * 1.7) + b1 * 2.1) + 0.25 * Math.sin(tt * (7.3 - b1 * 0.6) + b1);
+        var v1 = Math.max(0, Math.min(1, w * (b1 < 3 ? 0.6 + 0.5 * beat : 0.85)));
+        eqv[b1] = Math.max(v1 * 8, eqv[b1] - 0.5);
+      }
+    } else for (var b2 = 0; b2 < 8; b2++) eqv[b2] = Math.max(0, eqv[b2] - 0.4);
+    ex.fillStyle = "#000"; ex.fillRect(0, 0, 32, 8);
+    for (var b3 = 0; b3 < 8; b3++) {
+      var h = Math.round(eqv[b3]);
+      for (var yy = 0; yy < h; yy++) {
+        ex.fillStyle = yy >= 6 ? "#ff3030" : yy >= 4 ? "#ffd000" : "#39ff6a";
+        ex.fillRect(b3 * 4, 7 - yy, 3, 1);
+      }
+    }
+  }
+  function frame(now) {
+    var dt = Math.min(0.05, (now - last) / 1000); last = now;
+    var playing = !audio.paused && cur >= 0;
+    var target = playing ? 3.49 : 0;                       // 33 1/3 rpm
+    spin += (target - spin) * Math.min(1, dt * (playing ? 2.5 : 1.6));
+    rot += spin * dt;
+    arm += ((playing || wantPlay) && cur >= 0 ? 1 - arm : -arm) * Math.min(1, dt * 4);
+    // once the record has fully stopped and the arm is back, every frame looks the same: skip redrawing it
+    var still = !playing && !wantPlay && spin < 1e-4 && arm < 1e-4 && Math.max.apply(null, eqv) === 0;
+    if (!still || !drewStill) { drawRecord(); drawEq(playing); }
+    drewStill = still;
+    clock();
+    requestAnimationFrame(frame);
+  }
+  paint();
+  requestAnimationFrame(frame);
+})();
+</script>
+<div id="space-stage" aria-hidden="true"><canvas id="space-canvas"></canvas></div>
+<script>
+(function () {
+  var audio = document.getElementById("music-preview-audio");
+  var player = document.getElementById("music-preview-player");
+  var canvas = document.getElementById("space-canvas");
+  if (!audio || !player || !canvas) return;
+
+  var FADE_MS = 3000;     // how long the page takes to fade into space
+  var RAMP_MS = 2500;     // how long zero gravity takes to ease in after that
+  var body = document.body, root = document.documentElement;
+  var spaceOn = false, rafStars = 0, rafFloat = 0, rafBeat = 0, beat = 0;
+
+  /* ---------- twinkling starfield: empty space, stars slowly drifting ---------- */
+  var ctx = canvas.getContext("2d"), W = 0, H = 0, stars = [], dpr = Math.min(window.devicePixelRatio || 1, 2);
+  function resize() {
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize(); window.addEventListener("resize", resize);
+  for (var i = 0; i < 420; i++) {
+    var layer = Math.random();                        // 0 = far/slow, 1 = near/fast
+    stars.push({
+      x: Math.random(), y: Math.random(), l: layer,
+      r: .4 + layer * 1.5,
+      tw: Math.random() * 6.283, ts: .8 + Math.random() * 2.6,
+      hue: Math.random() < .25 ? (Math.random() < .5 ? 210 : 35) : 0
+    });
+  }
+  var tPrev = 0;
+  function drawStars(now) {
+    var dt = Math.min(.05, (now - tPrev) / 1000 || .016); tPrev = now;
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < stars.length; i++) {
+      var s = stars[i];
+      s.x -= (.0035 + s.l * .012) * dt;                // slow drift to the left
+      if (s.x < -.01) { s.x = 1.01; s.y = Math.random(); }
+      var t = .5 + .5 * Math.sin(now / 1000 * s.ts + s.tw);          // 0..1 twinkle
+      var a = (.12 + .88 * t * t) * (.55 + .45 * s.l);
+      var x = s.x * W, y = s.y * H, r = s.r * (.75 + .5 * t) * (1 + beat * .25);
+      var col = s.hue ? "hsla(" + s.hue + ",85%,80%," : "rgba(255,255,255,";
+      ctx.fillStyle = col + a.toFixed(3) + ")";
+      ctx.beginPath(); ctx.arc(x, y, r, 0, 6.283); ctx.fill();
+      if (s.l > .72 && t > .8) {                       // the bright ones sparkle with a little cross
+        ctx.strokeStyle = col + (a * .6).toFixed(3) + ")"; ctx.lineWidth = .7;
+        var L = 4 + 7 * (t - .8) * 5;
+        ctx.beginPath(); ctx.moveTo(x - L, y); ctx.lineTo(x + L, y); ctx.moveTo(x, y - L); ctx.lineTo(x, y + L); ctx.stroke();
+      }
+    }
+    rafStars = requestAnimationFrame(drawStars);
+  }
+
+  /* ---------- zero-gravity player: holds still during the fade, then eases into drifting ---------- */
+  var px = 0, py = 0, vx = 0, vy = 0, rot = 0, vrot = 0, tF = 0, floatAt = 0, hover = false, pw = 540, ph = 70;
+  player.addEventListener("pointerenter", function () { hover = true; });
+  player.addEventListener("pointerleave", function () { hover = false; });
+  player.addEventListener("pointerdown", function () { hover = true; });
+
+  var startRect = null;
+  function placeStart() {                              // call BEFORE the player becomes fixed
+    var r = player.getBoundingClientRect();
+    px = r.left; py = r.top; pw = r.width || 540; ph = r.height || 70;
+    startRect = audio.getBoundingClientRect();         // where the controls are right now, on screen
+  }
+  // iPhones pin fixed elements to the zoomed-in view while measurements use the whole page, so after
+  // pinning, measure where the controls actually landed and shift them back to exactly where they were
+  function snapToStart() {
+    if (!startRect) return;
+    var r = audio.getBoundingClientRect();
+    px += startRect.left - r.left; py += startRect.top - r.top;
+    player.style.transform = "translate3d(" + px.toFixed(1) + "px," + py.toFixed(1) + "px,0)";
+  }
+  // the area it can float in: the part of the page you can actually see (smaller when zoomed in)
+  function bounds() {
+    var vv = window.visualViewport;
+    return { w: vv ? vv.width : window.innerWidth, h: vv ? vv.height : window.innerHeight };
+  }
+  function startFloat() {
+    var a = Math.random() * 6.283, sp = 34 + Math.random() * 20;
+    vx = Math.cos(a) * sp; vy = Math.sin(a) * sp * .7 - 10;
+    vrot = (Math.random() < .5 ? -1 : 1) * (2 + Math.random() * 2);
+    rot = 0; tF = performance.now(); floatAt = tF + FADE_MS;
+    player.style.transform = "translate3d(" + px.toFixed(1) + "px," + py.toFixed(1) + "px,0)";
+    snapToStart();
+    cancelAnimationFrame(rafFloat);
+    rafFloat = requestAnimationFrame(floatFrame);
+  }
+  function floatFrame(now) {
+    var dt = Math.min(.05, (now - tF) / 1000 || .016); tF = now;
+    var k = Math.max(0, Math.min(1, (now - floatAt) / RAMP_MS)); k = k * k * (3 - 2 * k);   // smooth ease-in
+    if (k > 0) {
+      var r = player.getBoundingClientRect(); pw = r.width || pw; ph = r.height || ph;
+      var slow = (hover ? .12 : 1) * k;                // nearly stops under the cursor so it can be clicked
+      vx += (Math.random() - .5) * 18 * dt; vy += (Math.random() - .5) * 18 * dt;
+      var sp = Math.sqrt(vx * vx + vy * vy);
+      if (sp < 22 || sp > 70) { var m = (sp < 22 ? 22 : 70) / (sp || 1); vx *= m; vy *= m; }
+      px += vx * dt * slow; py += vy * dt * slow;
+      // bounce off the edges; if it starts outside them (zoomed in), it drifts back in instead of jumping
+      var bx = bounds(), maxX = Math.max(0, bx.w - pw), maxY = Math.max(0, bx.h - ph);
+      if (px < 0 && vx < 0) { vx = Math.abs(vx); vrot = -vrot; }
+      if (px > maxX && vx > 0) { vx = -Math.abs(vx); vrot = -vrot; }
+      if (py < 0 && vy < 0) vy = Math.abs(vy);
+      if (py > maxY && vy > 0) vy = -Math.abs(vy);
+      rot += vrot * dt * slow;
+      if (rot > 9) { rot = 9; vrot = -Math.abs(vrot); }
+      if (rot < -9) { rot = -9; vrot = Math.abs(vrot); }
+    }
+    var bob = Math.sin(now / 1300) * 6 * k;
+    player.style.transform = "translate3d(" + px.toFixed(1) + "px," + (py + bob).toFixed(1) + "px,0) rotate(" + (hover ? rot * .3 : rot).toFixed(2) + "deg)";
+    rafFloat = requestAnimationFrame(floatFrame);
+  }
+  function stopFloat() { cancelAnimationFrame(rafFloat); rafFloat = 0; player.style.transform = ""; }
+
+  /* ---------- gentle sparkle boost from the music (optional) ---------- */
+  var actx = null, analyser = null, fdata = null;
+  function setupAnalyser() {
+    if (analyser) return;
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+      actx = new AC();
+      var src = actx.createMediaElementSource(audio);
+      analyser = actx.createAnalyser(); analyser.fftSize = 256;
+      src.connect(analyser); analyser.connect(actx.destination);
+      fdata = new Uint8Array(analyser.frequencyBinCount);
+    } catch (e) { analyser = null; }
+  }
+  function beatFrame() {
+    if (analyser) {
+      analyser.getByteFrequencyData(fdata);
+      var s = 0; for (var i = 0; i < 6; i++) s += fdata[i];
+      var v = Math.min(1, Math.max(0, (s / 6 - 120) / 110));
+      beat = v > beat ? v : beat * .9;
+    } else beat = 0;
+    rafBeat = requestAnimationFrame(beatFrame);
+  }
+
+  function enterSpace() {
+    if (spaceOn) return;
+    spaceOn = true;
+    placeStart();                                       // remember where the player is so it doesn't jump
+    body.classList.add("space-on");
+    tPrev = performance.now();
+    rafStars = requestAnimationFrame(drawStars);
+    if (!rafBeat) rafBeat = requestAnimationFrame(beatFrame);
+    startFloat();
+  }
+  function leaveSpace() {
+    if (!spaceOn) return;
+    spaceOn = false;
+    body.classList.remove("space-on");
+    stopFloat();
+    setTimeout(function () {                            // let the fade finish before stopping the loops
+      if (spaceOn) return;
+      cancelAnimationFrame(rafStars); rafStars = 0;
+      cancelAnimationFrame(rafBeat); rafBeat = 0; beat = 0;
+    }, 900);
+  }
+
+  audio.addEventListener("play", function () {
+    setupAnalyser();
+    try { if (actx && actx.state !== "running") actx.resume(); } catch (e) {}
+    enterSpace();
+  });
+  // same as the jukebox: pause while the page is hidden, pick it back up on return (avoids the phone buzz)
+  var snipResume = false;
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) { if (!audio.paused && !audio.ended) { snipResume = true; audio.pause(); } return; }
+    if (!snipResume) return;
+    snipResume = false;
+    try { if (actx && actx.state !== "running") actx.resume(); } catch (e) {}
+    var p = audio.play(); if (p && p.catch) p.catch(function () {});
+  });
+  audio.addEventListener("pause", leaveSpace);
+  audio.addEventListener("ended", leaveSpace);
+  audio.addEventListener("error", leaveSpace);
+  window.addEventListener("pagehide", leaveSpace);
+  if (!audio.paused && !audio.ended) enterSpace();
+})();
+</script>

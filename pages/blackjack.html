@@ -1,0 +1,1312 @@
+<div class="wrap">
+
+  <div class="header">
+    <div style="display:flex; align-items:flex-end;">
+      <div class="logo"><a href="/"><img src="/logo.png" alt="coleswebsite.xyz" width="394" height="56"></a></div>
+      <div class="tagline">Est. 2023... thoughts, lists, and other nonsense!</div>
+    </div>
+  </div>
+  <div class="goldbar"></div>
+
+  <div class="navbar">
+    <div>
+      <a href="/">Home</a>
+      <a href="/aboutme">About Me</a>
+      <a href="/faq">FAQ</a>
+      <a href="/impact">Impact</a>
+      <a href="/music">Music</a>
+      <a href="/reviews">Reviews</a>
+      <a href="/games">Games</a>
+    </div>
+    <div><a class="signin" href="mailto:coleswebsitexyz@proton.me">Contact Me</a></div>
+  </div>
+
+  <div class="content bj">
+    <div class="box-title"><span>Blackjack DX</span>
+      <span class="bj-tbs">
+        <button class="bj-tb" id="bjHelpBtn" aria-label="How to play">?</button>
+        <button class="bj-tb" id="bjSoundM" aria-label="Toggle sound">&#9834;</button>
+        <button class="bj-tb" id="bjMusicM" aria-label="Toggle music">&#9835;</button>
+        <button class="bj-tb" id="bjFxM" aria-label="Toggle effects">FX</button>
+        <a class="bj-tb" href="/games" aria-label="Back to the games">&times;</a>
+      </span>
+    </div>
+    <div class="box-body bj-body">
+
+      <div class="bj-main" id="bjMain">
+        <div class="bj-table" id="bjTable">
+          <div class="bj-row">
+            <div class="bj-lbl">Dealer <span class="bj-tot" id="bjDTot"></span></div>
+            <div class="bj-cards" id="bjDealer"></div>
+          </div>
+          <div class="bj-midrow">
+            <div class="bj-lucky">Lucky Card<br><b id="bjLucky">?</b></div>
+            <div class="bj-spot" id="bjSpot"><span id="bjSpotLbl">Bet</span><b id="bjBet">0</b><div class="bj-stack" id="bjStack"></div></div>
+            <div class="bj-shoe"><div class="bj-shoestack" id="bjShoe"><div class="bj-card back"></div><div class="bj-card back"></div><div class="bj-card back"></div></div><span id="bjShoeLeft">Shoe</span></div>
+          </div>
+          <div class="bj-row">
+            <div class="bj-hands" id="bjHands"></div>
+            <div class="bj-lbl" id="bjYouLbl">You</div>
+          </div>
+          <div class="bj-shade" id="bjShade"></div>
+          <div class="bj-heatbadge" id="bjHeatBadge" hidden></div>
+          <div class="bj-callout" id="bjCallout"></div>
+          <div class="bj-bigwin" id="bjBigWin" hidden><div class="t" id="bjBigT"></div><div class="n" id="bjBigN"></div></div>
+          <div class="bj-overlay" id="bjOverlay" hidden><div class="bj-dialog" id="bjDialog" role="dialog" aria-live="polite"></div></div>
+        </div>
+
+        <div class="bj-bar">
+          <div class="bj-chips" id="bjChips">
+            <button class="bj-chip c5" data-v="5" aria-label="Bet 5"><span>5</span></button>
+            <button class="bj-chip c25" data-v="25" aria-label="Bet 25"><span>25</span></button>
+            <button class="bj-chip c100" data-v="100" aria-label="Bet 100"><span>100</span></button>
+            <button class="bj-chip c500" data-v="500" data-lv="3" aria-label="Bet 500"><span>500</span></button>
+            <button class="bj-chip c1000" data-v="1000" data-lv="6" aria-label="Bet 1000"><span>1K</span></button>
+          </div>
+          <div class="bj-acts2" id="bjBetActs">
+            <button class="bj-btn" id="bjClear">Clear</button>
+            <button class="bj-btn" id="bjAllIn">All In</button>
+            <button class="bj-btn go" id="bjDeal">Deal <kbd>(Space)</kbd></button>
+          </div>
+          <div class="bj-acts" id="bjPlayActs" hidden>
+            <button class="bj-btn go" id="bjHit">Hit <kbd>(H)</kbd></button>
+            <button class="bj-btn" id="bjStand">Stand <kbd>(S)</kbd></button>
+            <button class="bj-btn" id="bjDouble">Double <kbd>(D)</kbd></button>
+            <button class="bj-btn" id="bjSplit">Split <kbd>(P)</kbd></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bj-side">
+        <div class="bj-stwin">
+          <div class="bj-win-title">Stats</div>
+          <div class="bj-win-body">
+            <div class="bj-stats">
+              <div class="k">Chips</div><div class="v big"><span id="bjBank">0</span></div>
+              <div class="k">Best</div><div class="v"><span id="bjBest">0</span></div>
+              <div class="k">Streak</div><div class="v"><span id="bjStreak">0</span></div>
+              <div class="k wl">W / L</div><div class="v wl" id="bjWL">0 / 0</div>
+              <div class="k">Level</div><div class="v"><span id="bjLevel">1</span></div>
+            </div>
+            <div class="bj-xpwrap">
+              <div class="bj-xpl"><span>XP</span><span id="bjXpTxt">0 / 100</span></div>
+              <div class="bj-xp"><i id="bjXp"></i></div>
+            </div>
+            <div class="bj-mheat"><span>Heat</span><div class="bj-heat" id="bjHeatM"></div><b id="bjHeatXM">x1</b></div>
+          </div>
+        </div>
+        <div class="bj-heatwin">
+          <div class="bj-win-title">&#9733; Heat &#9733;</div>
+          <div class="bj-win-body">
+            <div class="bj-heat" id="bjHeat"></div>
+            <div class="bj-heatl"><span>Next win pays</span><b id="bjHeatX">x1</b></div>
+            <div class="bj-tip">Win hands in a row to heat up. 6 in a row pays triple!</div>
+          </div>
+        </div>
+        <div class="bj-gamewin">
+          <div class="bj-win-title">Game</div>
+          <div class="bj-win-body">
+            <button class="bj-btn" id="bjSound">Sound: On</button>
+            <button class="bj-btn" id="bjMusic">Music: On</button>
+            <button class="bj-btn" id="bjFx">Effects: On</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="box-title bj-helptitle">How to Play</div>
+    <div class="box-body bj-help" id="bjHelp">
+      <h3 class="bj-helphead">How to Play</h3>
+      <p>Click the chips to bet, then hit <b>Deal</b>. Get closer to <b>21</b> than the dealer without going over. Face cards are worth 10 and Aces are 1 or 11.</p>
+      <p><b>Hit</b> takes another card. <b>Stand</b> keeps what you have. <b>Double</b> doubles your bet for exactly one more card. <b>Split</b> turns a pair into two hands. The dealer draws until 17.</p>
+      <p>A win pays your bet back double. A <b>Blackjack</b> (an Ace and a 10 card) pays 3 to 2. The <b>Lucky Card</b> changes every hand: get dealt it in your first two cards for a free bonus, or get two for 10x!</p>
+      <p>Win hands in a row to build <b>Heat</b>: your winnings get multiplied, all the way up to 3x. Every hand earns XP, and leveling up gives you chips and unlocks bigger ones. Come back every day for free chips.</p>
+      <p><span class="bj-kbhelp">Keyboard: 1-5 for chips, Space to deal, H / S / D / P to hit, stand, double and split.</span> The chips are just for fun and can't be bought or cashed out.</p>
+      <button class="bj-btn go bj-helpx" id="bjHelpClose">Got it!</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    &copy; 2023 - 2026 coleswebsite.xyz &nbsp;&middot;&nbsp; <a href="https://coleswebsite.xyz/">https://coleswebsite.xyz/</a> &nbsp;&middot;&nbsp; <a href="/terms">Terms</a>
+  </div>
+
+</div>
+<script src="/juice.js?v=2"></script>
+<script>
+(function () {
+  "use strict";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var table = $("bjTable");
+  if (!table) return;
+  var KEY = "cw_blackjack", DECKS = 6, START_BANK = 1000, REFILL = 500, MIN_BET = 5;
+  var HEAT = [1, 1, 1.2, 1.5, 2, 2.5, 3];   // by win streak going into the hand
+  var MILESTONES = [2500, 5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000, 2500000, 5000000, 10000000];
+  var SUITS = ["♠", "♥", "♦", "♣"], RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+
+  // ---------- saved stuff ----------
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { saved = {}; }
+  function num(v, lo, hi, d) { v = Math.floor(Number(v)); return isFinite(v) ? Math.max(lo, Math.min(hi, v)) : d; }
+  var firstTime = saved.bank == null;
+  var bank = num(saved.bank, 0, 1e12, START_BANK);
+  var best = num(saved.best, 0, 1e12, bank);
+  var level = num(saved.level, 1, 999, 1);
+  var xp = num(saved.xp, 0, 1e9, 0);
+  var streak = num(saved.streak, 0, 1e6, 0);
+  var bestStreak = num(saved.bestStreak, 0, 1e6, 0);
+  var wins = num(saved.wins, 0, 1e9, 0), losses = num(saved.losses, 0, 1e9, 0), hands = num(saved.hands, 0, 1e9, 0);
+  var lastBet = num(saved.lastBet, 0, 1e12, 25);
+  var mute = !!saved.mute, musicOff = !!saved.musicOff, fxOn = saved.fx !== false;
+  var day = typeof saved.day === "string" ? saved.day : "", dayStreak = num(saved.dayStreak, 0, 1e5, 0);
+  function save() {
+    // during a hand the bet is already on the table: leaving or refreshing counts as losing it
+    var inHand = state !== "bet" && state !== "done";
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ bank: inHand ? bank : bank + bet, best: best, level: level, xp: xp, streak: inHand ? 0 : streak, bestStreak: bestStreak,
+        wins: wins, losses: losses, hands: hands, lastBet: lastBet, mute: mute, musicOff: musicOff, fx: fxOn, day: day, dayStreak: dayStreak }));
+    } catch (e) {}
+  }
+
+  var fx = CwJuice.create({ font: '"BjComic", "Comic Sans MS", "Comic Sans", cursive', off: function () { return !fxOn; } });
+  function fast() { return !fxOn; }
+  function wait(ms) { return new Promise(function (ok) { setTimeout(ok, fast() ? Math.min(ms, 60) : ms); }); }
+  function fmt(v) { return Math.round(v).toLocaleString("en-US"); }
+  function xpNeed(lv) { return 60 + lv * 40; }
+
+  // ---------- elements ----------
+  var dealerEl = $("bjDealer"), dTot = $("bjDTot"), handsEl = $("bjHands"), spot = $("bjSpot"), betEl = $("bjBet");
+  var bankEl = $("bjBank"), bestEl = $("bjBest"), streakEl = $("bjStreak"), levelEl = $("bjLevel"), wlEl = $("bjWL");
+  var luckyEl = $("bjLucky"), shoeEl = $("bjShoe"), shoeLeft = $("bjShoeLeft"), callout = $("bjCallout");
+  var overlay = $("bjOverlay"), dialog = $("bjDialog"), main = $("bjMain");
+  var btn = { deal: $("bjDeal"), clear: $("bjClear"), all: $("bjAllIn"), hit: $("bjHit"), stand: $("bjStand"), dbl: $("bjDouble"), split: $("bjSplit") };
+  var chipBtns = Array.prototype.slice.call(document.querySelectorAll(".bj-chip"));
+  var shadeEl = $("bjShade"), heatBadge = $("bjHeatBadge"), bigWin = $("bjBigWin"), bigT = $("bjBigT"), bigN = $("bjBigN");
+  var stackEl = $("bjStack"), spotLbl = $("bjSpotLbl");
+  var heatEls = [$("bjHeat"), $("bjHeatM")];
+  heatEls.forEach(function (h) { for (var i = 0; i < 6; i++) h.appendChild(document.createElement("i")); });
+
+  // ---------- sound (tiny square-wave bleeps, like Lucky Flip) ----------
+  var ac = null, lastTick = 0, noise = null;
+  function audio() {
+    if (mute || document.hidden) return null;
+    try {
+      if (!ac) { var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; ac = new AC(); }
+      if (ac.state !== "running") ac.resume();   // iPhones report "interrupted" after a call or the app switcher
+    } catch (e) { return null; }
+    return ac;
+  }
+  // every effect goes through one gentle low-pass, so nothing is piercing
+  var sfxBus = null;
+  function bus(a) {
+    if (!sfxBus) {
+      var f = a.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 4200; f.Q.value = 0.5;
+      var g = a.createGain(); g.gain.value = 0.9;
+      f.connect(g); g.connect(a.destination); sfxBus = f;
+    }
+    return sfxBus;
+  }
+  function tone(freq, start, dur, vol, type, endFreq) {
+    var a = audio(); if (!a) return;
+    var t = a.currentTime + start, o = a.createOscillator(), gn = a.createGain();
+    o.type = type || "square"; o.frequency.setValueAtTime(freq, t);
+    if (endFreq) o.frequency.exponentialRampToValueAtTime(endFreq, t + dur);
+    gn.gain.setValueAtTime(vol || 0.06, t); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(gn); gn.connect(bus(a)); o.start(t); o.stop(t + dur + 0.02);
+  }
+  function hiss(start, dur, vol, from, to) {
+    var a = audio(); if (!a) return;
+    try {
+      if (!noise) {
+        var len = Math.floor(a.sampleRate * 1), d;
+        noise = a.createBuffer(1, len, a.sampleRate); d = noise.getChannelData(0);
+        for (var i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      }
+      var t = a.currentTime + start, src = a.createBufferSource(), f = a.createBiquadFilter(), gn = a.createGain();
+      f.type = "lowpass"; f.frequency.setValueAtTime(from, t); f.frequency.exponentialRampToValueAtTime(to, t + dur);
+      gn.gain.setValueAtTime(vol, t); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      src.buffer = noise; src.connect(f); f.connect(gn); gn.connect(bus(a)); src.start(t); src.stop(t + dur + 0.02);
+    } catch (e) {}
+  }
+  function tickSnd() {
+    var n = performance.now();
+    if (n - lastTick < 38) return;
+    lastTick = n;
+    tone(1500 + Math.random() * 400, 0, 0.03, 0.025);
+  }
+  // rewards climb in pitch as your streak builds
+  function up(base) { return base * Math.pow(2, Math.min(streak, 6) / 12); }
+  var sfx = {
+    chip: function () { tone(1800, 0, 0.025, 0.035, "triangle"); tone(1300, 0.03, 0.03, 0.03, "triangle"); },
+    flip: function () { hiss(0, 0.05, 0.06, 4000, 1200); tone(880, 0.02, 0.04, 0.02); },
+    twentyone: function () { var b = up(659); tone(b, 0, 0.05); tone(b * 1.26, 0.05, 0.05); tone(b * 1.5, 0.1, 0.05); tone(b * 2, 0.15, 0.22); },
+    win: function () { var b = up(523); [[1, 0, 0.1], [1.26, 0.1, 0.1], [1.5, 0.2, 0.1], [2, 0.3, 0.26]].forEach(function (n) { tone(b * n[0], n[1], n[2], 0.06); tone(b * n[0] / 2, n[1], n[2], 0.035, "triangle"); }); },
+    bj: function () {
+      [[523, 0, 0.1], [659, 0.1, 0.1], [784, 0.2, 0.1], [1047, 0.3, 0.22], [784, 0.56, 0.08], [1047, 0.66, 0.08], [1319, 0.76, 0.45]]
+        .forEach(function (n) { tone(n[0], n[1], n[2], 0.07); tone(n[0] / 2, n[1], n[2], 0.04, "triangle"); });
+    },
+    lose: function () { tone(392, 0, 0.12, 0.05, "triangle"); tone(330, 0.12, 0.12, 0.05, "triangle"); tone(262, 0.24, 0.3, 0.05, "triangle", 180); },
+    bust: function () { hiss(0, 0.55, 0.3, 1800, 60); tone(300, 0, 0.5, 0.08, "square", 40); },
+    dbust: function () { hiss(0, 0.45, 0.25, 2500, 80); [784, 988, 1175].forEach(function (f, i) { tone(f, 0.2 + i * 0.07, 0.1, 0.05); }); },
+    push: function () { tone(440, 0, 0.08, 0.04); tone(440, 0.1, 0.12, 0.04); },
+    lucky: function () { [1047, 1319, 1568, 2093].forEach(function (f, i) { tone(f, i * 0.05, 0.08, 0.045); }); },
+    milestone: function () { [784, 988, 1175, 1568].forEach(function (f, i) { tone(f, i * 0.07, 0.12, 0.06); }); },
+    level: function () { [523, 659, 784, 1047, 1319, 1568].forEach(function (f, i) { tone(f, i * 0.07, 0.14, 0.055); tone(f / 2, i * 0.07, 0.14, 0.03, "triangle"); }); },
+    fire: function () { hiss(0, 0.4, 0.12, 800, 6000); tone(220, 0, 0.35, 0.05, "sawtooth", 880); },
+    nope: function () { tone(196, 0, 0.08, 0.04); tone(165, 0.08, 0.12, 0.04); },
+    heart: function () { tone(80, 0, 0.12, 0.2, "sine"); tone(70, 0.2, 0.14, 0.16, "sine"); },
+    // a quicker, higher heartbeat for the reveals
+    tense: function () { tone(110, 0, 0.08, 0.18, "sine"); tone(95, 0.13, 0.09, 0.14, "sine"); tone(1200, 0, 0.02, 0.012); },
+    phew: function () { tone(660, 0, 0.05, 0.035); tone(990, 0.05, 0.09, 0.035); },
+    safe: function () { tone(784, 0, 0.05, 0.03, "triangle"); tone(1175, 0.05, 0.08, 0.03, "triangle"); },
+    slam: function () { hiss(0, 0.18, 0.2, 3000, 100); tone(120, 0, 0.18, 0.12, "square", 50); },
+    allin: function () { hiss(0, 0.3, 0.14, 400, 3000); tone(110, 0, 0.3, 0.07, "sawtooth", 55); },
+    // table sounds
+    deal: function () { var f = 4500 + Math.random() * 2500; hiss(0, 0.08, 0.07, f, 700); tone(380 + Math.random() * 120, 0, 0.03, 0.02, "triangle"); },
+    tap: function () { tone(320, 0, 0.04, 0.08, "sine", 180); tone(320, 0.07, 0.04, 0.06, "sine", 180); },
+    knock: function () { tone(150, 0, 0.06, 0.16, "sine", 80); hiss(0, 0.04, 0.05, 1500, 200); tone(150, 0.12, 0.06, 0.13, "sine", 80); hiss(0.12, 0.04, 0.04, 1500, 200); },
+    riffle: function () { for (var i = 0; i < 18; i++) hiss(i * 0.022, 0.025, 0.05, 4500, 1800); tone(220, 0.42, 0.08, 0.1, "sine", 120); },
+    clatter: function () { for (var i = 0; i < 6; i++) tone(1300 + Math.random() * 700, i * 0.035, 0.03, 0.03, "triangle"); },
+    cascade: function () { for (var i = 0; i < 5; i++) tone(1000 + i * 180, i * 0.04, 0.035, 0.03, "triangle"); },
+    swish: function () { hiss(0, 0.2, 0.08, 600, 4500); tone(500, 0.02, 0.15, 0.03, "triangle", 900); },
+    clink: function () { [1568, 1760, 2093].forEach(function (f, i) { tone(f, i * 0.06, 0.07, 0.035, "triangle"); }); },
+    stamp: function () { tone(95, 0, 0.1, 0.16, "sine", 50); hiss(0, 0.06, 0.07, 1800, 300); },
+    sparkle: function () { [2093, 2637, 3136, 2637, 3136].forEach(function (f, i) { tone(f, i * 0.04, 0.05, 0.018, "triangle"); }); },
+    blip: function () { tone(880, 0, 0.05, 0.03, "triangle"); tone(1320, 0.05, 0.07, 0.03, "triangle"); },
+    kaching: function () { tone(1319, 0, 0.06, 0.04, "triangle"); tone(1976, 0.06, 0.25, 0.04, "triangle"); hiss(0.06, 0.25, 0.04, 6000, 2000); },
+    slide: function () { tone(900, 0, 0.45, 0.04, "triangle", 260); },
+    womp: function () { tone(330, 0, 0.22, 0.06, "triangle", 300); tone(262, 0.25, 0.4, 0.06, "triangle", 210); },
+    best: function () { [1047, 1319, 1568].forEach(function (f, i) { tone(f, i * 0.06, 0.1, 0.035, "triangle"); }); tone(2093, 0.18, 0.3, 0.035, "triangle"); },
+    tumble: function () { for (var i = 0; i < 4; i++) { tone(200 + Math.random() * 120, i * 0.06, 0.05, 0.08, "sine", 110); hiss(i * 0.06, 0.04, 0.04, 2500, 400); } },
+    heatup: function () { var b = 330 * Math.pow(2, Math.min(streak, 6) / 6); tone(b, 0, 0.12, 0.05, "triangle", b * 2); hiss(0, 0.2, 0.05, 500, 3500); },
+    // big win fanfare: more notes the bigger the win
+    bigwin: function (tier) {
+      var notes = [523, 659, 784, 1047, 784, 1047, 1319, 1568, 1319, 1568, 2093];
+      var n = tier >= 3 ? 11 : tier === 2 ? 8 : 6;
+      for (var i = 0; i < n; i++) { tone(notes[i], i * 0.08, 0.12, 0.06); tone(notes[i] / 2, i * 0.08, 0.12, 0.035, "triangle"); }
+      tone(notes[n - 1], n * 0.08, 0.5, 0.06); tone(notes[n - 1] * 1.5, n * 0.08, 0.5, 0.03, "triangle");
+    }
+  };
+  // a counting tick that climbs in pitch as the number rolls up
+  function rollTick(top) {
+    return function (v) {
+      var n = performance.now();
+      if (n - lastTick < 42) return;
+      lastTick = n;
+      tone(650 + 1350 * Math.min(1, v / Math.max(1, top)), 0, 0.03, 0.028);
+    };
+  }
+  function play(name) { if (!mute) sfx[name](); }
+  // ---------- music ----------
+  // Three seamless loops, each with half a second of padding on both ends:
+  //   calm:  a laid back 8-bit bossa nova, 90 BPM, 32 bars       (blackjack/music.mp3)
+  //   fire:  the same hook turned anxious, 150 BPM, 32 bars       (blackjack/music-fire.mp3)
+  //   allin: the lounge hook turned big and dramatic, 128 BPM, 32 bars (blackjack/music-allin.mp3)
+  // The calm tune speeds up and picks up drums as your streak builds, flips to the fire tune at 4 in a row
+  // (On Fire), and the all-in theme takes over for any all-in hand. It ducks while a card is being sweated
+  // and the tape sags when you bust.
+  var TRACKS = {
+    calm:  { src: "/blackjack/music.mp3",       bpm: 90,  bars: 32, vol: 0.34 },
+    fire:  { src: "/blackjack/music-fire.mp3",  bpm: 150, bars: 32, vol: 0.3 },
+    allin: { src: "/blackjack/music-allin.mp3?v=5", bpm: 128, bars: 32, vol: 0.28 }
+  };
+  var PAD = 0.5;
+  var HEAT_MUSIC = [   // by win streak: which tune, how fast, how loud
+    { track: "calm", rate: 1,    vol: 1 },
+    { track: "calm", rate: 1,    vol: 1 },
+    { track: "calm", rate: 1.04, vol: 1.04 },   // + hi-hats
+    { track: "calm", rate: 1.08, vol: 1.08 },   // + hi-hats and a nervous heartbeat
+    { track: "fire", rate: 0.94, vol: 1 },      // On Fire
+    { track: "fire", rate: 1,    vol: 1.05 },   // + crash every 4 bars
+    { track: "fire", rate: 1.07, vol: 1.1 }     // Max Heat: + crash and a riser
+  ];
+  var mus = { bufs: {}, loading: {}, src: null, gain: null, track: null, want: false, allIn: false }, mutedByDuck = false;
+  function heatLevel() { return Math.min(streak, 6); }
+  function musicTarget() {
+    if (mus.allIn) return { track: "allin", rate: 1, vol: 1, level: 0 };
+    var h = HEAT_MUSIC[heatLevel()];
+    return { track: h.track, rate: h.rate, vol: h.vol, level: heatLevel() };
+  }
+  function musicLoad(a, name) {
+    if (mus.bufs[name] || mus.loading[name]) return;
+    mus.loading[name] = true;
+    fetch(TRACKS[name].src).then(function (r) { return r.arrayBuffer(); })
+      .then(function (data) { return new Promise(function (ok, bad) { var pr = a.decodeAudioData(data, ok, bad); if (pr && pr.catch) pr.catch(bad); }); })
+      .then(function (buf) {
+        mus.bufs[name] = buf; mus.loading[name] = false;
+        if (mus.want && musicTarget().track === name) { if (!mus.src) musicStart(); else musicHeat(); }
+      })
+      .catch(function () { mus.loading[name] = false; });
+  }
+  function musicStart() {
+    if (mute || musicOff) return;
+    mus.want = true;
+    var a = audio(); if (!a || mus.src) return;
+    if (!a.onstatechange) a.onstatechange = function () { if (a.state === "running" && mus.want && !mus.src) musicStart(); };
+    var tg = musicTarget();
+    if (!mus.bufs[tg.track]) { musicLoad(a, tg.track); return; }
+    if (a.state !== "running") return;
+    playTrack(a, tg, 1.2);
+    // get the other tunes ready so the switches are instant
+    Object.keys(TRACKS).forEach(function (k) { musicLoad(a, k); });
+  }
+  // start a tune from the top, fading out whatever was playing
+  function playTrack(a, tg, fade) {
+    var old = mus.src, oldGain = mus.gain, t = a.currentTime;
+    if (old) {
+      try {
+        oldGain.gain.cancelScheduledValues(t); oldGain.gain.setValueAtTime(Math.max(0.0001, oldGain.gain.value), t);
+        oldGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.35); old.stop(t + 0.4);
+      } catch (e) {}
+    }
+    heatStop();
+    var tr = TRACKS[tg.track], eighth = 30 / tr.bpm;
+    var src = a.createBufferSource(), gn = a.createGain();
+    src.buffer = mus.bufs[tg.track]; src.loop = true;
+    src.loopStart = PAD; src.loopEnd = PAD + tr.bars * 8 * eighth;
+    src.playbackRate.setValueAtTime(tg.rate, t);
+    gn.gain.setValueAtTime(0.0001, t);
+    gn.gain.exponentialRampToValueAtTime(tr.vol * tg.vol * (mutedByDuck ? 0.35 : 1), t + fade);
+    src.connect(gn); gn.connect(a.destination);
+    src.start(t + 0.03, PAD);
+    mus.src = src; mus.gain = gn; mus.track = tg.track;
+    heatStart(a, eighth, tg.rate, t + 0.03, tg.level);
+  }
+  function musicStop() {
+    mus.want = false;
+    heatStop();
+    if (!mus.src) return;
+    try { mus.src.stop(); } catch (e) {}
+    mus.src = null; mus.track = null;
+  }
+  function musicVol() { var tg = musicTarget(); return TRACKS[mus.track || tg.track].vol * (mus.track === tg.track ? tg.vol : 1); }
+  // quieter while you sweat a card, back up after
+  function musicDuck(on) {
+    mutedByDuck = on;
+    if (!mus.src || !ac) return;
+    var t = ac.currentTime;
+    try {
+      mus.gain.gain.cancelScheduledValues(t); mus.gain.gain.setValueAtTime(mus.gain.gain.value, t);
+      mus.gain.gain.linearRampToValueAtTime(musicVol() * (on ? 0.35 : 1), t + (on ? 0.15 : 0.4));
+    } catch (e) {}
+  }
+  // bust: the tape sags for a second, then picks itself back up
+  function musicSag() {
+    if (!mus.src || !ac) return;
+    var t = ac.currentTime, r = mus.src.playbackRate, r0 = hb.rate;
+    try {
+      r.cancelScheduledValues(t); r.setValueAtTime(r0, t);
+      r.linearRampToValueAtTime(0.78 * r0, t + 0.35); r.setValueAtTime(0.78 * r0, t + 0.55); r.linearRampToValueAtTime(r0, t + 1.1);
+    } catch (e) {}
+    // the sag plays 0.957 s of tune in 1.1 s; the drums sit out until it's over
+    var p0 = hbPos(t);
+    hb.t0 = t + 1.1; hb.pos0 = p0 + 0.957 * r0;
+  }
+
+  // ---------- heat drums: extra layers on top of the tune, locked to its beat ----------
+  // hb: where the tune is. Audio position pos0 (seconds into the loop) at time t0, playing at rate.
+  var hb = { t0: 0, pos0: 0, rate: 1, eighth: 1 / 3, level: 0, next: 0, timer: 0, drums: null };
+  function hbPos(t) { return hb.pos0 + (t - hb.t0) * hb.rate; }
+  function hbTime(k) { return hb.t0 + (k * hb.eighth - hb.pos0) / hb.rate; }
+  function heatStart(a, eighth, rate, t0, level) {
+    heatStop();
+    hb.t0 = t0; hb.pos0 = 0; hb.rate = rate; hb.eighth = eighth; hb.next = 0; hb.level = level;
+    // the drums run through the tune's own volume, so fades and ducking hit them too
+    var f = a.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 9000; f.Q.value = 0.4;
+    f.connect(mus.gain); hb.drums = f;
+    hb.timer = setInterval(heatTick, 25);
+  }
+  function heatStop() {
+    if (hb.timer) clearInterval(hb.timer);
+    hb.timer = 0;
+    if (hb.drums) { try { hb.drums.disconnect(); } catch (e) {} hb.drums = null; }
+  }
+  // call whenever the streak or all-in state changes
+  function musicHeat() {
+    if (!mus.src || !ac) { if (mus.want) musicStart(); return; }
+    var tg = musicTarget(), now = ac.currentTime;
+    if (tg.track !== mus.track) {
+      if (!mus.bufs[tg.track]) { musicLoad(ac, tg.track); return; }   // switches as soon as it's loaded
+      playTrack(ac, tg, 0.35);
+      return;
+    }
+    // same tune: the new speed and layers kick in on the next eighth note
+    hb.level = tg.level;
+    var k = hb.next;
+    while (hbTime(k) < Math.max(now + 0.02, hb.t0)) k++;
+    var tb = hbTime(k);
+    try {
+      if (tg.rate !== hb.rate) mus.src.playbackRate.setValueAtTime(tg.rate, tb);
+      mus.gain.gain.cancelScheduledValues(now); mus.gain.gain.setValueAtTime(mus.gain.gain.value, now);
+      mus.gain.gain.linearRampToValueAtTime(TRACKS[mus.track].vol * tg.vol * (mutedByDuck ? 0.35 : 1), now + 1.5);
+    } catch (e) {}
+    hb.pos0 = k * hb.eighth; hb.t0 = tb; hb.rate = tg.rate; hb.next = k;
+  }
+  function drumHit(t, type, vol) {
+    var a = ac, out = hb.drums; if (!a || !out) return;
+    var gn = a.createGain();
+    gn.connect(out);
+    if (type === "kick") {
+      var o = a.createOscillator(); o.type = "sine";
+      o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(42, t + 0.12);
+      gn.gain.setValueAtTime(vol, t); gn.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+      o.connect(gn); o.start(t); o.stop(t + 0.22);
+      return;
+    }
+    if (!noise) { var len = Math.floor(a.sampleRate), d; noise = a.createBuffer(1, len, a.sampleRate); d = noise.getChannelData(0); for (var i = 0; i < len; i++) d[i] = Math.random() * 2 - 1; }
+    var src = a.createBufferSource(), f = a.createBiquadFilter();
+    src.buffer = noise; src.connect(f); f.connect(gn);
+    var dur = type === "hat" ? 0.04 : type === "crash" ? 1.4 : 2.6;
+    if (type === "hat") { f.type = "highpass"; f.frequency.value = 7000; }
+    else if (type === "crash") { f.type = "highpass"; f.frequency.value = 4500; }
+    else { f.type = "bandpass"; f.Q.value = 2; f.frequency.setValueAtTime(400, t); f.frequency.exponentialRampToValueAtTime(5000, t + dur); }   // riser
+    if (type === "riser") { gn.gain.setValueAtTime(0.0001, t); gn.gain.exponentialRampToValueAtTime(vol, t + dur - 0.05); gn.gain.linearRampToValueAtTime(0.0001, t + dur); }
+    else { gn.gain.setValueAtTime(vol, t); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur); }
+    src.start(t, Math.random() * 0.5); src.stop(t + dur + 0.02);
+  }
+  function heatTick() {
+    if (!ac || !mus.src || !hb.drums) return;
+    var end = ac.currentTime + 0.12, lv = hb.level;
+    for (var guard = 0; guard < 16 && hbTime(hb.next) < end; guard++) {
+      var k = hb.next++, t = hbTime(k);
+      if (t < hb.t0 || t < ac.currentTime) continue;       // during a bust sag, or already gone by
+      var e = k % 8, bar = Math.floor(k / 8);              // 8 eighths in a bar
+      if (lv === 2 || lv === 3) {
+        if (e % 2 === 1) drumHit(t, "hat", lv === 3 ? 0.07 : 0.05);
+        // a nervous lub-dub heartbeat on beat 1 and 3, a taste of what's coming
+        if (lv === 3 && e % 4 === 0) { drumHit(t, "kick", 0.4); drumHit(t + hb.eighth * 0.6 / hb.rate, "kick", 0.28); }
+      }
+      if (lv >= 5 && e === 0 && bar % 4 === 0) drumHit(t, "crash", 0.07);
+      if (lv >= 6 && e === 0 && bar % 4 === 2) drumHit(t + 16 * hb.eighth / hb.rate - 2.6, "riser", 0.05);
+    }
+  }
+  function musicKick() { if (!mute && !musicOff && !mus.src) musicStart(); }
+  ["pointerdown", "touchend", "click", "keydown"].forEach(function (ev) { document.addEventListener(ev, musicKick, true); });
+  // leaving the page shuts the sound off completely. Phones (iPhones especially) can hand a paused sound engine back
+  // broken, so resuming it gives a loud buzz. Instead the old engine is thrown away and a fresh one is made on return;
+  // the loaded songs are kept, so nothing re-downloads.
+  var musicWasOn = false;
+  function silence() {
+    heatStop();
+    if (mus.src) { try { mus.src.stop(); } catch (e) {} mus.src = null; mus.gain = null; mus.track = null; }
+    var old = ac; ac = null; sfxBus = null; noise = null;
+    if (old) { try { old.onstatechange = null; old.close(); } catch (e) {} }
+  }
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) { silence(); return; }
+    if (!mute && !musicOff && mus.want) musicStart();   // plays now, or on the next tap if the phone wants one
+  });
+  window.addEventListener("pagehide", function () { musicWasOn = mus.want; musicStop(); silence(); });
+  window.addEventListener("pageshow", function (e) { if (e.persisted && musicWasOn && !mute) musicStart(); });
+
+  // ---------- the shoe ----------
+  var shoe = [], cutAt = 0;
+  function shuffleShoe() {
+    shoe = [];
+    for (var d = 0; d < DECKS; d++) for (var s = 0; s < 4; s++) for (var r = 0; r < 13; r++) shoe.push({ r: RANKS[r], s: SUITS[s] });
+    for (var i = shoe.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = shoe[i]; shoe[i] = shoe[j]; shoe[j] = t; }
+    cutAt = Math.floor(shoe.length * (0.2 + Math.random() * 0.08));
+  }
+  function draw() { if (!shoe.length) shuffleShoe(); return shoe.pop(); }
+  function value(c) { return c.r === "A" ? 11 : (c.r === "J" || c.r === "Q" || c.r === "K") ? 10 : +c.r; }
+  function total(cards, all) {
+    var t = 0, aces = 0;
+    cards.forEach(function (c) { if (c.down && !all) return; t += value(c); if (c.r === "A") aces++; });
+    while (t > 21 && aces) { t -= 10; aces--; }
+    return { t: t, soft: aces > 0 };
+  }
+  function isBJ(cards, fromSplit) { return !fromSplit && cards.length === 2 && total(cards, true).t === 21; }
+
+  // ---------- state ----------
+  var state = "bet", bet = 0, lucky = null, dealer = [], hs = [], cur = 0, busy = false, allIn = false;
+
+  function cardHtml(c) {
+    return '<span class="tl">' + c.r + "<i>" + c.s + '</i></span><span class="mid">' + c.s + '</span><span class="br">' + c.r + "<i>" + c.s + "</i></span>";
+  }
+  function makeCard(c, down) {
+    var el = document.createElement("div");
+    el.className = "bj-card" + (c.s === "♥" || c.s === "♦" ? " red" : "") + (down ? " back" : "") + (!down && lucky && c.r === lucky ? " lucky" : "");
+    el.innerHTML = cardHtml(c);
+    c.el = el;
+    return el;
+  }
+  // a card slides out of the shoe and lands in a hand
+  function dealCard(c, intoEl, down) {
+    c.down = !!down;
+    var el = makeCard(c, down);
+    intoEl.appendChild(el);
+    var from = shoeEl.getBoundingClientRect(), to = el.getBoundingClientRect();
+    el.style.setProperty("--dx", Math.round(from.left - to.left) + "px");
+    el.style.setProperty("--dy", Math.round(from.top - to.top) + "px");
+    fx.restart(el, "deal");
+    play("deal");
+    updateShoe();
+    return wait(fast() ? 40 : 300).then(function () {
+      el.classList.remove("deal");
+      // a little puff of felt dust where it lands
+      if (!fast()) {
+        var q = el.getBoundingClientRect();
+        for (var k = 0; k < fx.many(5); k++) fx.chip(q.left + fx.rnd(4, q.width - 4), q.bottom - 2, { sp: 70, up: 40, g: 300, c: fx.pick(["#00b33c", "#80d9a0", "#ffffff"]), s: fx.rnd(2, 4), life: fx.rnd(0.2, 0.35) });
+      }
+    });
+  }
+  function flipUp(c) {
+    var el = c.el;
+    play("flip");
+    if (fast()) { c.down = false; el.classList.remove("back"); if (lucky && c.r === lucky) el.classList.add("lucky"); return wait(10); }
+    fx.restart(el, "turn");
+    return wait(130).then(function () {
+      c.down = false;
+      el.classList.remove("turn", "back");
+      if (lucky && c.r === lucky) el.classList.add("lucky");
+      fx.restart(el, "land");
+      return wait(260);
+    }).then(function () { el.classList.remove("land"); });
+  }
+  // ---------- suspense ----------
+  // the felt dims, the row that matters stays lit, and the face-down card wiggles with a heartbeat before it flips
+  var shadeOn = false, litRows = [];
+  function shade(on, rowEl) {
+    if (rowEl && on) { rowEl.classList.add("lit"); litRows.push(rowEl); }
+    if (on === shadeOn) return;
+    shadeOn = on;
+    musicDuck(on);
+    if (!on) { litRows.forEach(function (r) { r.classList.remove("lit"); }); litRows = []; }
+    if (fast()) return;
+    shadeEl.className = "bj-shade " + (on ? "on" : "off");
+  }
+  function rowOf(el) { while (el && !(el.classList && el.classList.contains("bj-row"))) el = el.parentNode; return el; }
+  async function tease(c, ms) {
+    if (fast()) return;
+    shade(true, rowOf(c.el));
+    c.el.classList.add("tease");
+    play("tense");
+    var beats = Math.floor(ms / 340);
+    for (var i = 1; i <= beats; i++) setTimeout(function () { if (c.el.classList.contains("tease")) play("tense"); }, i * 340);
+    await wait(ms);
+    c.el.classList.remove("tease");
+  }
+  // deal a card face down, make you sweat, then flip it
+  async function sweatCard(c, intoEl, ms) {
+    await dealCard(c, intoEl, true);
+    await tease(c, ms);
+    await flipUp(c);
+  }
+  function updateShoe() {
+    var left = shoe.length;
+    shoeLeft.textContent = left < cutAt ? "Shuffle soon!" : Math.round(left / 52 * 10) / 10 + " decks";
+  }
+
+  // ---------- callouts ----------
+  var calQ = [], calBusy = false;
+  function pop(text, cls, sub) { calQ.push([text, cls || "", sub || ""]); if (!calBusy) nextCal(); }
+  function nextCal() {
+    var it = calQ.shift();
+    if (!it) { calBusy = false; return; }
+    calBusy = true;
+    callout.className = "bj-callout " + it[1];
+    callout.innerHTML = (fxOn ? fx.hop(it[0]) : it[0]) + (it[2] ? "<small>" + it[2] + "</small>" : "");
+    void callout.offsetWidth;
+    callout.classList.add("show");
+    setTimeout(nextCal, calQ.length ? 800 : (it[1].indexOf("big") >= 0 ? 1800 : 1200));
+  }
+
+  // ---------- HUD ----------
+  var shownBank = bank;
+  function setBank(to, ms) {
+    var from = shownBank; shownBank = to;
+    if (to !== from && !fast()) { bankEl.classList.remove("up", "dn"); void bankEl.offsetWidth; bankEl.classList.add(to > from ? "up" : "dn"); }
+    var tk = to > from + 50 ? rollTick(to - from) : null;
+    fx.roll(bankEl, from, to, ms || 600, fmt, tk ? function (v) { tk(v - from); } : null);
+  }
+  // the little stack of chips beside the bet spot
+  var STACK_V = [5000, 1000, 500, 100, 25, 5], stackShown = [];
+  function chipsFor(amt) {
+    var out = [];
+    for (var i = 0; i < STACK_V.length && out.length < 10; i++) while (amt >= STACK_V[i] && out.length < 10) { out.push(STACK_V[i]); amt -= STACK_V[i]; }
+    return out.reverse();   // big chips on top
+  }
+  function renderStack(amt) {
+    var want = amt > 0 ? chipsFor(amt) : [];
+    var same = 0;
+    while (same < want.length && same < stackShown.length && want[same] === stackShown[same]) same++;
+    while (stackEl.children.length > same) stackEl.removeChild(stackEl.lastChild);
+    for (var i = same; i < want.length; i++) {
+      var d = document.createElement("i");
+      d.className = "c" + want[i] + (fast() ? "" : " new");
+      d.style.animationDelay = ((i - same) * 0.04).toFixed(2) + "s";
+      stackEl.appendChild(d);
+    }
+    stackShown = want;
+  }
+  // when you win, the bet spot turns into a payout counter
+  var spotWin = false;
+  function showSpotWin(amt, ms, lbl) {
+    spotWin = true;
+    spotLbl.textContent = lbl || "Win";
+    spot.classList.add("has");
+    if (!fast()) fx.restart(spot, "win"); else spot.classList.add("win");
+    renderStack(amt);
+    fx.roll(betEl, 0, amt, ms, fmt, rollTick(amt));
+    var id = betEl._cwRoll;
+    setTimeout(function () { if (spotWin && betEl._cwRoll === id) play(lbl === "Back" ? "blip" : "kaching"); }, fast() ? 0 : ms);
+  }
+  function resetSpot() {
+    if (!spotWin) return;
+    spotWin = false;
+    betEl._cwRoll = (betEl._cwRoll || 0) + 1;   // stops the counter if it's still going
+    spotLbl.textContent = "Bet";
+    spot.classList.remove("win");
+  }
+  // pixel flames rise off the felt while you're on fire
+  var fireTimer = 0;
+  function setFire(on) {
+    on = on && fxOn;
+    table.classList.toggle("fire", on);
+    if (on && !fireTimer) {
+      // the table's spot is measured about once a second, not on every puff (measuring makes the browser redo layout)
+      var q = null, qAt = 0;
+      fireTimer = setInterval(function () {
+        if (document.hidden) return;
+        var now = performance.now();
+        if (!q || now - qAt > 1000) { q = table.getBoundingClientRect(); qAt = now; }
+        for (var k = 0; k < (fx.low ? 1 : 2); k++) {
+          fx.chip(fx.rnd(q.left + 4, q.right - 4), q.bottom - 4, { vx: fx.rnd(-25, 25), vy: -fx.rnd(60, 140), g: -140,
+            c: fx.pick(["#ff2000", "#ff9900", "#ffee00", "#ff9900"]), s: fx.rnd(3, 6), life: fx.rnd(0.45, 0.85), blink: true });
+        }
+      }, fx.low ? 240 : 130);
+    } else if (!on && fireTimer) { clearInterval(fireTimer); fireTimer = 0; }
+  }
+  function heatX() { return HEAT[Math.min(streak, HEAT.length - 1)]; }
+  function hud() {
+    if (!spotWin) {
+      betEl.textContent = fmt(bet);
+      spot.classList.toggle("has", bet > 0);
+      renderStack(bet);
+    }
+    var hx0 = heatX();
+    if (streak >= 2) {
+      var txt = "Heat x" + hx0;
+      if (heatBadge.hidden || heatBadge.textContent !== txt) { heatBadge.textContent = txt; heatBadge.hidden = false; fx.restart(heatBadge, "in"); }
+    } else heatBadge.hidden = true;
+    setFire(streak >= 4);
+    bestEl.textContent = fmt(best);
+    streakEl.textContent = streak;
+    levelEl.textContent = level;
+    wlEl.textContent = wins + " / " + losses;
+    $("bjXpTxt").textContent = xp + " / " + xpNeed(level);
+    $("bjXp").style.width = Math.min(100, xp / xpNeed(level) * 100) + "%";
+    var x = heatX(), lit = Math.min(streak, 6);
+    heatEls.forEach(function (h) {
+      Array.prototype.forEach.call(h.children, function (p, i) {
+        var was = p.classList.contains("on");
+        p.classList.toggle("on", i < lit); p.classList.toggle("hot", i >= 3 && i < lit);
+        if (!was && i < lit) fx.restart(p, "on");
+      });
+      h.classList.toggle("fire", streak >= 4);
+    });
+    $("bjHeatX").textContent = "x" + x; $("bjHeatXM").textContent = "x" + x;
+    chipBtns.forEach(function (b) {
+      var need = +(b.getAttribute("data-lv") || 0), v = +b.getAttribute("data-v"), locked = level < need;
+      b.classList.toggle("locked", locked);
+      b.title = locked ? "Unlocks at level " + need : "";
+      b.querySelector("span").textContent = locked ? "Lv" + need : (v >= 1000 ? v / 1000 + "K" : v);
+      b.disabled = busy || locked || (state !== "bet" && state !== "done") || bank < v;
+    });
+    var betting = state === "bet" || state === "done";
+    $("bjBetActs").hidden = !betting; $("bjPlayActs").hidden = betting;
+    var rebet = state === "done" && bet === 0 ? Math.min(lastBet, bank) : 0;
+    btn.deal.disabled = busy || !betting || (bet < MIN_BET && rebet < MIN_BET);
+    btn.deal.innerHTML = (bet === 0 && rebet ? "Rebet " + fmt(rebet) : "Deal") + " <kbd>(Space)</kbd>";
+    btn.clear.disabled = busy || !betting || bet === 0;
+    btn.all.disabled = busy || !betting || bank < MIN_BET;
+    if (!betting) {
+      var h = hs[cur], can = state === "play" && !busy && h && !h.done;
+      btn.hit.disabled = !can; btn.stand.disabled = !can;
+      btn.dbl.disabled = !can || h.cards.length !== 2 || bank < h.bet;
+      btn.split.disabled = !can || h.cards.length !== 2 || hs.length > 1 || bank < h.bet || value(h.cards[0]) !== value(h.cards[1]);
+      // a little nudge: light up Double on 10 or 11
+      var t = h ? total(h.cards).t : 0;
+      btn.dbl.classList.toggle("hot", !btn.dbl.disabled && (t === 10 || t === 11));
+      btn.split.classList.toggle("hot", !btn.split.disabled && (h.cards[0].r === "A" || h.cards[0].r === "8"));
+    }
+  }
+  function showTotals() {
+    var d = total(dealer);
+    var hidden = dealer.some(function (c) { return c.down; });
+    var dOld = dTot.textContent;
+    dTot.textContent = dealer.length ? d.t : "";
+    dTot.className = "bj-tot" + (d.t > 21 ? " bust" : !hidden && isBJ(dealer) ? " bj" : "") + (state === "dealer" && d.t < 17 && !hidden ? " throb" : "");
+    if (dTot.textContent && dTot.textContent !== dOld && dTot.className.indexOf("throb") < 0) fx.bump(dTot);
+    hs.forEach(function (h) {
+      var t = total(h.cards), old = h.totEl.textContent;
+      h.totEl.textContent = h.cards.length ? (t.soft && t.t < 21 && !h.done ? (t.t - 10) + "/" + t.t : t.t) : "";
+      h.totEl.className = "bj-tot" + (t.t > 21 ? " bust" : isBJ(h.cards, h.split) ? " bj" : "");
+      if (h.totEl.textContent && h.totEl.textContent !== old) fx.bump(h.totEl);
+      h.betEl.textContent = "Bet " + fmt(h.bet) + (h.doubled ? " (x2)" : "");
+      h.el.classList.toggle("cur", state === "play" && hs.length > 1 && hs[cur] === h);
+    });
+  }
+
+  // ---------- betting ----------
+  function addBet(v, srcEl) {
+    if (busy) return;
+    if (state === "done") clearTable();
+    if (state !== "bet") return;
+    v = Math.min(v, bank);
+    if (v <= 0) { play("nope"); return; }
+    bank -= v; bet += v;
+    setBank(bank, 200);
+    // each chip on the pile clicks a little higher
+    var hgt = Math.min(chipsFor(bet).length, 10);
+    tone(1500 + hgt * 90, 0, 0.025, 0.035, "triangle"); tone(1100 + hgt * 70, 0.03, 0.03, 0.03, "triangle");
+    if (srcEl && srcEl.classList.contains("bj-chip")) fx.restart(srcEl, "tap");
+    if (srcEl) {
+      var a = fx.center(srcEl), b = fx.center(spot);
+      for (var k = 0; k < fx.many(6); k++) fx.chip(a.x, a.y, { vx: (b.x - a.x) * 2.2 + fx.rnd(-60, 60), vy: (b.y - a.y) * 2.2 - 140, g: 280, c: fx.pick(["#ffffff", "#ffd700", "#c0c0c0"]), s: fx.rnd(3, 5), life: 0.42 });
+    }
+    fx.restart(spot, "bump");
+    hud();
+  }
+  function clearBet() {
+    if (busy || !bet) return;
+    bank += bet; bet = 0; setBank(bank, 250); play("clatter"); hud();
+  }
+  function clearTable() {
+    dealer = []; hs = []; cur = 0;
+    dealerEl.innerHTML = ""; handsEl.innerHTML = ""; dTot.textContent = "";
+    handsEl.classList.remove("two"); dealerEl.classList.remove("busted", "shake");
+    shade(false);
+    resetSpot();
+    hideBigWin();
+    state = "bet";
+  }
+  function newHand(cards, b, split) {
+    var el = document.createElement("div"), cardsEl = document.createElement("div"), lbl = document.createElement("div");
+    el.className = "bj-hand"; cardsEl.className = "bj-cards"; lbl.className = "bj-lbl";
+    var tot = document.createElement("span"), hb = document.createElement("span");
+    tot.className = "bj-tot"; hb.className = "bj-hbet";
+    lbl.appendChild(tot); lbl.appendChild(hb);
+    el.appendChild(cardsEl); el.appendChild(lbl);
+    handsEl.appendChild(el);
+    return { cards: cards || [], bet: b, el: el, cardsEl: cardsEl, totEl: tot, betEl: hb, done: false, doubled: false, split: !!split };
+  }
+
+  // ---------- a round ----------
+  async function deal() {
+    if (busy) return;
+    if (state === "done") {
+      var rb = Math.min(lastBet, bank);
+      clearTable();
+      if (rb < MIN_BET) { hud(); return; }
+      bank -= rb; bet = rb; setBank(bank, 200); play("cascade"); fx.restart(spot, "bump");
+    }
+    if (state !== "bet" || bet < MIN_BET) { play("nope"); return; }
+    busy = true; state = "deal"; lastBet = bet; allIn = bank === 0 && bet >= 100;
+    if (allIn) { mus.allIn = true; musicHeat(); }
+    if (shoe.length < cutAt || !shoe.length) {
+      shuffleShoe();
+      pop("Shuffling...", "blue");
+      play("riffle");
+      fx.quake(shoeEl);
+      await wait(500);
+    }
+    lucky = RANKS[Math.floor(Math.random() * 13)];
+    // the Lucky Card spins like a slot reel before it lands
+    if (!fast()) {
+      for (var sp = 0; sp < 8; sp++) {
+        luckyEl.textContent = RANKS[Math.floor(Math.random() * 13)];
+        tone(700 + sp * 70, 0, 0.02, 0.025);
+        await wait(24 + sp * 7);
+      }
+      tone(1568, 0, 0.06, 0.04); tone(2093, 0.05, 0.08, 0.035);
+      var lc = fx.center(luckyEl); fx.ring(lc.x, lc.y, 10, 200, ["#ffff99", "#ffffff"], 4);
+    }
+    luckyEl.textContent = lucky;
+    fx.restart(luckyEl, "pop");
+    var h = newHand([], bet, false);
+    hs = [h]; cur = 0;
+    save();
+    hud();
+    var p1 = draw(), d1 = draw(), p2 = draw(), d2 = draw();
+    h.cards.push(p1); await dealCard(p1, h.cardsEl); showTotals();
+    dealer.push(d1); await dealCard(d1, dealerEl); showTotals();
+    h.cards.push(p2); await dealCard(p2, h.cardsEl); showTotals();
+    dealer.push(d2); await dealCard(d2, dealerEl, true); showTotals();
+
+    // lucky card bonus
+    var lk = h.cards.filter(function (c) { return c.r === lucky; }).length;
+    if (lk) await luckyBonus(h, lk);
+
+    var pBJ = isBJ(h.cards), up = value(d1);
+    // the dealer peeks for blackjack with an Ace or a 10 showing
+    // (it always peeks, so you sweat it every time, not just when it has it)
+    if (up >= 10 && !pBJ) {
+      pop("Dealer Peeks...", "blue");
+      await tease(dealer[1], 520);
+      if (!isBJ(dealer)) {
+        shade(false);
+        var dp = fx.center(dealerEl);
+        fx.float(dp.x, dp.y - 10, "Safe!", "green");
+        fx.ring(dp.x, dp.y, 12, 240, ["#00ff00", "#ffffff"], 4);
+        play("safe");
+      }
+    }
+    if (pBJ || (up >= 10 && isBJ(dealer))) {
+      h.done = true;
+      if (pBJ) {
+        // hit-stop: everything freezes for a beat, then it slams
+        fx.flash(table, "white");
+        await wait(120);
+        play("slam"); fx.quake(table, true);
+        h.cards.forEach(function (c) { fx.restart(c.el, "shine"); var cp = fx.center(c.el); fx.burst(cp.x, cp.y, 2); });
+        play("twentyone");
+        await wait(250);
+      }
+      await flipUp(dealer[1]); shade(false); showTotals();
+      await finish();
+      return;
+    }
+    state = "play"; busy = false;
+    hud(); showTotals();
+  }
+  async function luckyBonus(h, n) {
+    var amt = n >= 2 ? h.bet * 10 : h.bet;
+    var c = fx.center(luckyEl);
+    h.cards.forEach(function (cd) { if (cd.r === lucky) { fx.restart(cd.el, "shine"); var p = fx.center(cd.el); fx.burst(p.x, p.y, n >= 2 ? 3 : 2); } });
+    play("lucky");
+    pop(n >= 2 ? "Double Lucky!!" : "Lucky Card!", n >= 2 ? "big rainbow" : "", "+" + fmt(amt) + " chips");
+    if (n >= 2) { fx.quake(table, true); fx.shower(table.getBoundingClientRect(), 40); }
+    fx.float(c.x, c.y - 20, "+" + fmt(amt), n >= 2 ? "x3" : "gold");
+    if (n >= 2) { fx.confetti(table.getBoundingClientRect(), 60); fx.flash(table, "gold"); }
+    await payTo(amt, luckyEl);
+  }
+  // chips fly from an element to the bank, and the bank rolls up as they land
+  function payTo(amt, fromEl) {
+    if (amt <= 0) return wait(0);
+    bank += amt;
+    save();
+    var c = fx.center(fromEl), n = Math.min(30, 6 + Math.round(Math.log(amt + 1) * 2.4));
+    fx.coins(c.x, c.y, bankEl.parentNode, n, function () { tickSnd(); fx.bump(bankEl); });
+    setTimeout(function () { setBank(bank, 700); }, fast() ? 0 : 380);
+    return wait(420);
+  }
+
+  async function hit() {
+    var h = hs[cur];
+    if (busy || state !== "play" || !h || h.done) return;
+    busy = true; hud(); play("tap");
+    var bt = total(h.cards), before = bt.soft ? 0 : bt.t;
+    var c = draw(); h.cards.push(c);
+    // could bust? then the card comes face down and you sweat it
+    if (before >= 12) { await sweatCard(c, h.cardsEl, before >= 16 ? 700 : 420); shade(false); }
+    else await dealCard(c, h.cardsEl);
+    if (lucky && c.r === lucky) { var p = fx.center(c.el); fx.burst(p.x, p.y, 1); }
+    showTotals();
+    var t = total(h.cards).t;
+    if (t > 21) await bust(h);
+    else if (t === 21) { await twentyOne(h); h.done = true; }
+    else if (before >= 15) {
+      var pp = fx.center(c.el);
+      fx.float(pp.x, pp.y - 20, before >= 17 ? "Wow!" : "Phew!", "green");
+      fx.ring(pp.x, pp.y, 10, 220, ["#00ff00", "#ffffff"], 4);
+      play("phew");
+    }
+    busy = false;
+    await advance();
+  }
+  async function twentyOne(h) {
+    var last = h.cards[h.cards.length - 1], p = fx.center(last.el);
+    fx.burst(p.x, p.y, 2);
+    fx.float(p.x, p.y - 30, "21!", "x2");
+    h.cards.forEach(function (c) { fx.restart(c.el, "shine"); });
+    play("twentyone");
+    await wait(350);
+  }
+  async function bust(h) {
+    h.done = true; h.bust = true;
+    fx.restart(h.cardsEl, "shake");
+    await wait(380);
+    h.cardsEl.classList.add("busted");
+    var p = fx.center(h.cardsEl);
+    fx.explode(p.x, p.y);
+    fx.flash(table, "red"); fx.quake(table);
+    play("bust"); musicSag();
+    var t = total(h.cards).t;
+    pop("Bust!", "red", t === 22 ? "So close..." : "");
+    if (t === 22) setTimeout(function () { play("slide"); }, 350);
+    fx.float(p.x, p.y - 20, "-" + fmt(h.bet), "red");
+    showTotals();
+    await wait(450);
+  }
+  async function stand() {
+    var h = hs[cur];
+    if (busy || state !== "play" || !h || h.done) return;
+    h.done = true; play("knock");
+    await advance();
+  }
+  async function doubleDown() {
+    var h = hs[cur];
+    if (busy || state !== "play" || !h || h.done || h.cards.length !== 2 || bank < h.bet) return;
+    busy = true;
+    bank -= h.bet; h.bet *= 2; h.doubled = true; bet += h.bet / 2;
+    save();
+    setBank(bank, 250); play("clink");
+    var b = fx.center(h.el); fx.ring(b.x, b.y, 12, 280, ["#ffd700", "#ffffff"]);
+    pop("Double Down!", "blue");
+    hud(); showTotals();
+    var c = draw(); h.cards.push(c);
+    // a double always gets sweated, the stakes are up
+    await sweatCard(c, h.cardsEl, 760); shade(false);
+    showTotals();
+    var t = total(h.cards).t;
+    if (t > 21) await bust(h); else if (t === 21) await twentyOne(h);
+    else if (t >= 19) { var dp = fx.center(c.el); fx.float(dp.x, dp.y - 20, "Nice!", "green"); fx.burst(dp.x, dp.y, "green"); play("phew"); }
+    h.done = true; busy = false;
+    await advance();
+  }
+  async function split() {
+    var h = hs[cur];
+    if (busy || state !== "play" || !h || h.cards.length !== 2 || hs.length > 1 || bank < h.bet || value(h.cards[0]) !== value(h.cards[1])) return;
+    busy = true;
+    bank -= h.bet; bet += h.bet; save(); setBank(bank, 250); play("swish");
+    var c2 = h.cards.pop();
+    h.cardsEl.removeChild(c2.el);
+    h.split = true;
+    var h2 = newHand([c2], h.bet, true);
+    h2.cardsEl.appendChild(makeCard(c2, false));
+    hs.push(h2);
+    handsEl.style.setProperty("--cwb", getComputedStyle(main).getPropertyValue("--cw"));
+    handsEl.classList.add("two");
+    pop("Split!", "blue");
+    var p = fx.center(handsEl); fx.ring(p.x, p.y, 14, 320, ["#a0c8ff", "#ffffff"]);
+    showTotals(); hud();
+    var aces = h.cards[0].r === "A";
+    for (var i = 0; i < 2; i++) {
+      var c = draw(); hs[i].cards.push(c);
+      await dealCard(c, hs[i].cardsEl);
+      showTotals();
+      if (aces || total(hs[i].cards).t === 21) hs[i].done = true;
+    }
+    cur = 0; busy = false;
+    await advance();
+  }
+  async function advance() {
+    while (cur < hs.length && hs[cur].done) cur++;
+    if (cur < hs.length) { hud(); showTotals(); return; }
+    busy = true; state = "dealer"; hud(); showTotals();
+    await dealerTurn();
+  }
+  async function dealerTurn() {
+    await wait(250);
+    var live = hs.some(function (h) { return !h.bust; });
+    // only sweat the hole card if you've still got something riding on it
+    if (live) await tease(dealer[1], 560);
+    await flipUp(dealer[1]); showTotals();
+    if (live) {
+      while (total(dealer).t < 17) {
+        await wait(260);
+        var c = draw(); dealer.push(c);
+        await sweatCard(c, dealerEl, 420);
+        showTotals();
+      }
+      shade(false); showTotals();
+      if (total(dealer).t > 21) {
+        var p = fx.center(dealerEl);
+        fx.restart(dealerEl, "shake");
+        await wait(300);
+        dealerEl.classList.add("busted");
+        if (!fast()) dealer.forEach(function (dc) { dc.el.style.setProperty("--r", Math.round(fx.rnd(-16, 16)) + "deg"); fx.restart(dc.el, "tilt"); });
+        play("tumble");
+        fx.explode(p.x, p.y, true); fx.quake(table, true); fx.flash(table, "white");
+        play("dbust");
+        pop("Dealer Busts!", "green big rainbow");
+        await wait(500);
+      }
+    }
+    shade(false);
+    await finish();
+  }
+
+  // ---------- paying out ----------
+  async function finish() {
+    var d = total(dealer).t, dBJ = isBJ(dealer), net = 0, anyWin = false, anyBJ = false, x = heatX(), back = 0, bonus = 0;
+    for (var i = 0; i < hs.length; i++) {
+      var h = hs[i], t = total(h.cards).t, pBJ = isBJ(h.cards, h.split), res, pay = 0;
+      if (h.bust) res = "lose";
+      else if (pBJ && !dBJ) { res = "bjk"; pay = h.bet * 2.5; }
+      else if (dBJ && !pBJ) res = "lose";
+      else if (pBJ && dBJ) { res = "push"; pay = h.bet; }
+      else if (d > 21 || t > d) { res = "win"; pay = h.bet * 2; }
+      else if (t === d) { res = "push"; pay = h.bet; }
+      else res = "lose";
+      var profit = pay - h.bet;
+      if (profit > 0 && x > 1) { var hb = Math.round(profit * (x - 1)); bonus += hb; pay += hb; profit += hb; }
+      pay = Math.round(pay);
+      net += profit; back += pay;
+      h.res = res;
+      var tag = document.createElement("div");
+      tag.className = "bj-res in " + res;
+      play("stamp");
+      tag.textContent = res === "bjk" ? "Blackjack!" : res === "win" ? "Win!" : res === "push" ? "Push" : h.bust ? "Bust" : "Lose";
+      h.el.appendChild(tag);
+      var p = fx.center(h.cardsEl);
+      if (!fast()) {
+        if (res === "bjk" || res === "win") { h.cards.forEach(function (cd) { cd.el.classList.remove("shine", "land", "deal"); }); h.cardsEl.classList.add("won"); }
+        else if (res === "lose" && !h.bust) h.cardsEl.classList.add("lost");
+      }
+      if (res === "bjk") {
+        anyBJ = true; anyWin = true;
+        fx.burst(p.x, p.y, 3); fx.confetti(table.getBoundingClientRect(), 80); fx.flash(table, "white"); fx.quake(table, true);
+        fx.float(p.x, p.y - 30, "+" + fmt(pay - h.bet) + "<small>Blackjack pays 3 to 2</small>", "x3");
+      } else if (res === "win") {
+        anyWin = true;
+        fx.burst(p.x, p.y, "green");
+        fx.float(p.x, p.y - 30, "+" + fmt(pay - h.bet), "gold");
+      } else if (res === "push") {
+        fx.burst(p.x, p.y, 1);
+        fx.float(p.x, p.y - 30, "Push", "x1");
+      } else if (!h.bust) {
+        fx.flash(table, "red");
+        fx.float(p.x, p.y - 30, "-" + fmt(h.bet), "red");
+        // your chips get swept to the dealer
+        var s = fx.center(spot), dd = fx.center(dealerEl);
+        for (var k = 0; k < fx.many(10); k++) fx.chip(s.x, s.y, { vx: (dd.x - s.x) * 1.8 + fx.rnd(-80, 80), vy: (dd.y - s.y) * 1.8 - 80, g: 200, c: fx.pick(["#cc0000", "#000000", "#008000"]), s: fx.rnd(4, 6), life: 0.55 });
+      }
+      if (pay > 0) { bank += pay; var cc = Math.min(30, 6 + Math.round(Math.log(pay + 1) * 2.4)); fx.coins(p.x, p.y, bankEl.parentNode, res === "push" ? 4 : cc, function () { tickSnd(); fx.bump(bankEl); }); }
+      hands++;
+      if (hs.length > 1) await wait(260);
+    }
+    bet = 0;
+    // big wins: measured against what you bet at the start of the hand
+    var ratio = net / Math.max(1, lastBet), tier = ratio >= 7 ? 3 : ratio >= 4 ? 2 : ratio >= 2.5 ? 1 : 0;
+    if (net > 0 && allIn && tier < 1) tier = 1;
+    var tierMs = [0, 1700, 2300, 3000][tier];
+    if (back > 0) showSpotWin(back, tier ? tierMs - 400 : 700, net > 0 ? "Win" : "Back");
+    setTimeout(function () { setBank(bank, tier ? tierMs - 300 : 800); }, fast() ? 0 : 380);
+    hud();
+
+    // sound + the big callout
+    if (tier && !fast()) {
+      await bigWinShow(tier, net, anyBJ ? "Blackjack!" : allIn ? "All in and it paid off!" : bonus ? "Heat x" + x + " bonus +" + fmt(bonus) : "", tierMs);
+    }
+    else if (anyBJ) { play("bj"); pop("Blackjack!!", "big rainbow"); }
+    else if (net > 0) { play("win"); if (!(d > 21)) pop("You Win!", "", bonus ? "Heat bonus +" + fmt(bonus) : ""); else if (bonus) pop("Heat x" + x + "!", "", "+" + fmt(bonus)); }
+    else if (net < 0) { if (!hs.every(function (h) { return h.bust; })) { play("womp"); pop(dBJ ? "Dealer Blackjack" : "Dealer Wins", "red"); } }
+    else { play("push"); pop("Push", "blue", "Your bet comes back"); }
+
+    // streak + heat
+    var before = streak;
+    if (net > 0) { streak++; wins++; } else if (net < 0) { streak = 0; losses++; }
+    if (streak > bestStreak) bestStreak = streak;
+    mus.allIn = false; musicHeat();   // back to the calm or fire tune
+    if (streak > before) { fx.bump(streakEl); var se = fx.center(streakEl); if (se.w) fx.float(se.x, se.y, "+1", "green"); }
+    if (streak >= 2 && streak > before) {
+      var hx = heatX();
+      setTimeout(function () {
+        var hp = fx.center(heatEls[innerWidth <= 720 ? 1 : 0]);
+        fx.ring(hp.x, hp.y, 14, 260, ["#ff9900", "#ffee00", "#ff2000"]);
+        if (streak !== 4 && streak !== 6) play("heatup");
+        if (streak === 4) { pop("On Fire!!", "red big", "Next win pays x" + hx); play("fire"); fx.quake(table, true); fx.flash(table, "red"); fx.confetti(table.getBoundingClientRect(), 30); }
+        else if (streak === 6) { pop("Max Heat!!", "big rainbow", "Every win pays triple"); play("fire"); fx.quake(table, true); fx.flash(table, "gold"); fx.confetti(table.getBoundingClientRect(), 60); }
+        else pop(streak + " in a row!", "", "Next win pays x" + hx);
+      }, 600);
+    } else if (net < 0 && before >= 3) {
+      setTimeout(function () { pop("Streak lost", "red", "It was " + before + " in a row"); play("heart"); }, 700);
+    }
+
+    // xp + levels
+    var gain = 10 * hs.length + (net > 0 ? 15 : 0) + (anyBJ ? 40 : 0);
+    xp += gain;
+    var xb = $("bjXp").parentNode, xr = xb.getBoundingClientRect();
+    if (xr.width && gain >= 25) { fx.float(xr.left + xr.width / 2, xr.top - 4, "+" + gain + " XP", "x1"); setTimeout(function () { play("sparkle"); }, 900); }
+    else if (xr.width) fx.float(xr.left + xr.width / 2, xr.top - 4, "+" + gain + " XP", "x1");
+    var leveled = false;
+    while (xp >= xpNeed(level)) { xp -= xpNeed(level); level++; leveled = true; }
+    if (leveled) {
+      var reward = 200 * level;
+      setTimeout(function () {
+        play("level");
+        pop("Level " + level + "!", "big rainbow", "+" + fmt(reward) + " chips"); fx.flash(table, "gold");
+        fx.confetti(table.getBoundingClientRect(), 70);
+        fx.blink(levelEl.parentNode);
+        payTo(reward, levelEl);
+        if (level === 3) setTimeout(function () { pop("500 Chip Unlocked!", "blue"); }, 1900);
+        if (level === 6) setTimeout(function () { pop("1K Chip Unlocked!", "blue"); }, 1900);
+        save(); hud();
+      }, 1100);
+    }
+
+    // new best + milestones
+    var oldBest = best;
+    if (bank > best) {
+      best = bank;
+      var hit = 0;
+      MILESTONES.forEach(function (m) { if (oldBest < m && bank >= m) hit = m; });
+      setTimeout(function () {
+        if (hit) { pop(fmt(hit) + " Chips!!", "big rainbow"); play("milestone"); fx.confetti(table.getBoundingClientRect(), 50); fx.shower(table.getBoundingClientRect(), 40); }
+        var b = fx.center(bestEl); fx.float(b.x, b.y, "New Best!", "x2"); fx.bump(bestEl); play("best");
+      }, leveled ? 2200 : 900);
+    }
+
+    state = "done";
+    save();
+    await wait(450);
+    busy = false;
+    hud(); showTotals();
+    if (bank < MIN_BET) setTimeout(broke, 1200);
+  }
+
+  // ---------- big win banner ----------
+  var skipper = null, showerTimer = 0;
+  function waitSkippable(ms) {
+    return new Promise(function (ok) {
+      var done = false, t = setTimeout(fin, ms);
+      function fin() { if (done) return; done = true; clearTimeout(t); skipper = null; ok(); }
+      skipper = fin;
+    });
+  }
+  table.addEventListener("pointerdown", function () { if (skipper) skipper(); });
+  function hideBigWin() {
+    if (showerTimer) { clearInterval(showerTimer); showerTimer = 0; }
+    if (bigWin.hidden) return;
+    if (fast()) { bigWin.hidden = true; return; }
+    bigWin.className = "bj-bigwin out";
+    setTimeout(function () { if (bigWin.classList.contains("out")) bigWin.hidden = true; }, 260);
+  }
+  async function bigWinShow(tier, amt, sub, ms) {
+    var names = ["", "Big Win!", "Huge Win!!", "Mega Win!!!"];
+    bigT.innerHTML = fx.hop(names[tier], 0.05);
+    bigN.innerHTML = "+0" + (sub ? "<small>" + sub + "</small>" : "");
+    bigWin.className = "bj-bigwin in" + (tier >= 3 ? " t3" : "");
+    bigWin.hidden = false;
+    var numEl = document.createElement("span");
+    bigN.replaceChild(numEl, bigN.firstChild);
+    fx.roll(numEl, 0, amt, ms - 600, function (v) { return "+" + fmt(v); }, rollTick(amt));
+    if (!mute) sfx.bigwin(tier);
+    musicDuck(true);
+    var r = table.getBoundingClientRect(), c = fx.center(bigWin);
+    fx.flash(table, "gold"); fx.quake(table, true);
+    fx.burst(c.x, c.y, 3);
+    fx.confetti(r, 40 + tier * 25);
+    showerTimer = setInterval(function () { fx.shower(r, 6 + tier * 4); }, 240);
+    if (tier >= 2) setTimeout(function () { if (!bigWin.hidden) { fx.burst(r.left + r.width * 0.25, c.y, "green"); fx.burst(r.right - r.width * 0.25, c.y, "green"); fx.flash(table, "white"); } }, 700);
+    if (tier >= 3) setTimeout(function () { if (!bigWin.hidden) { fx.confetti(r, 60); fx.quake(table, true); fx.burst(c.x, c.y, "purple"); } }, 1400);
+    await waitSkippable(ms);
+    numEl._cwRoll = (numEl._cwRoll || 0) + 1; numEl.textContent = "+" + fmt(amt);
+    hideBigWin(); musicDuck(false);
+  }
+
+  // ---------- dialogs ----------
+  function showDialog(title, html, buttons) {
+    dialog.innerHTML = '<div class="dt">' + title + '</div><div class="db">' + html + '<div class="bj-row2"></div></div>';
+    var row = dialog.querySelector(".bj-row2");
+    buttons.forEach(function (b) {
+      var el = document.createElement("button");
+      el.className = "bj-btn" + (b.go ? " go" : ""); el.textContent = b.text;
+      el.addEventListener("click", function () { overlay.hidden = true; b.fn(); });
+      row.appendChild(el);
+    });
+    overlay.hidden = false;
+    play("blip");
+    var first = row.querySelector("button"); if (first) first.focus({ preventScroll: true });
+  }
+  function broke() {
+    if (bank >= MIN_BET || state === "play") return;
+    if (!overlay.hidden) { setTimeout(broke, 500); return; }   // let the daily gift (or any other popup) go first
+    play("nope");
+    showDialog("Out of Chips", '<h2 class="oops">Oops!</h2><p>You\'re out of chips. The house is feeling nice, so here\'s some more.</p><div class="big">+' + fmt(REFILL) + "</div>",
+      [{ text: "Take the chips", go: true, fn: function () { clearTable(); payTo(REFILL, betEl); play("lucky"); save(); hud(); } }]);
+  }
+  function todayStr(d) { d = d || new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+  function daily() {
+    var today = todayStr();
+    if (day === today) return false;
+    var y = new Date(); y.setDate(y.getDate() - 1);
+    var newStreak = day === todayStr(y) ? dayStreak + 1 : 1;
+    var gift = 250 * Math.min(newStreak, 7);
+    if (firstTime) {
+      day = today; dayStreak = newStreak; save();
+      showDialog("Blackjack DX", "<h2>Welcome!</h2><p>Here's " + fmt(START_BANK) + " chips to start. Bet with the chips, then hit Deal. Get closer to 21 than the dealer!</p>",
+        [{ text: "Let's go!", go: true, fn: function () { play("lucky"); } }]);
+    } else {
+      showDialog("Daily Chips", "<h2>Welcome back!</h2><div class=\"big\">+" + fmt(gift) + "</div><p>Day " + newStreak + " in a row" + (newStreak < 7 ? ". Come back tomorrow for more!" : ". That's the max, nice!") + "</p>",
+        [{ text: "Collect", go: true, fn: function () { day = today; dayStreak = newStreak; play("milestone"); payTo(gift, betEl); fx.confetti(table.getBoundingClientRect(), 40); if (bank > best) best = bank; save(); hud(); } }]);
+    }
+    return true;
+  }
+
+  // ---------- settings ----------
+  function paintSettings() {
+    $("bjSound").textContent = "Sound: " + (mute ? "Off" : "On");
+    $("bjFx").textContent = "Effects: " + (fxOn ? "On" : "Off");
+    $("bjSoundM").style.textDecoration = mute ? "line-through" : "";
+    $("bjMusic").textContent = "Music: " + (musicOff ? "Off" : "On");
+    $("bjMusicM").style.textDecoration = musicOff ? "line-through" : "";
+    $("bjFxM").style.textDecoration = fxOn ? "" : "line-through";
+    document.body.classList.toggle("bj-nofx", !fxOn);
+  }
+  function toggleSound() { mute = !mute; paintSettings(); save(); if (mute) musicStop(); else { play("chip"); musicStart(); } }
+  function toggleMusic() { musicOff = !musicOff; paintSettings(); save(); if (musicOff) musicStop(); else musicStart(); }
+  function toggleFx() {
+    fxOn = !fxOn;
+    if (!fxOn) { fx.clear(); shadeEl.className = "bj-shade"; bigWin.hidden = true; if (showerTimer) { clearInterval(showerTimer); showerTimer = 0; } }
+    paintSettings(); save(); hud();
+  }
+
+  // ---------- input ----------
+  chipBtns.forEach(function (b) { b.addEventListener("click", function () { addBet(+b.getAttribute("data-v"), b); }); });
+  btn.clear.addEventListener("click", clearBet);
+  btn.all.addEventListener("click", function () {
+    if (busy) return;
+    if (state === "done") clearTable();
+    if (bank <= 0) return;
+    var amt = bank;
+    addBet(amt, btn.all);
+    if (amt >= 100) { pop("All In!", "red big"); play("allin"); fx.quake(table, true); fx.flash(table, "red"); var s = fx.center(spot); fx.burst(s.x, s.y, 3); }
+  });
+  btn.deal.addEventListener("click", deal);
+  btn.hit.addEventListener("click", hit);
+  btn.stand.addEventListener("click", stand);
+  btn.dbl.addEventListener("click", doubleDown);
+  btn.split.addEventListener("click", split);
+  $("bjSound").addEventListener("click", toggleSound);
+  $("bjSoundM").addEventListener("click", toggleSound);
+  $("bjMusic").addEventListener("click", toggleMusic);
+  $("bjMusicM").addEventListener("click", toggleMusic);
+  $("bjFx").addEventListener("click", toggleFx);
+  $("bjFxM").addEventListener("click", toggleFx);
+  $("bjHelpBtn").addEventListener("click", function () { document.body.classList.add("bj-helpopen"); });
+  $("bjHelpClose").addEventListener("click", function () { document.body.classList.remove("bj-helpopen"); });
+  document.addEventListener("keydown", function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    var t = e.target && e.target.tagName;
+    if (t === "INPUT" || t === "TEXTAREA") return;
+    if (!overlay.hidden) { if (e.key === "Enter" || e.key === " ") { var b = dialog.querySelector("button"); if (b) { e.preventDefault(); b.click(); } } return; }
+    if (skipper && (e.key === " " || e.key === "Enter")) { e.preventDefault(); skipper(); return; }
+    var k = e.key.toLowerCase();
+    if (k === " " || k === "enter") {
+      if (state === "bet" || state === "done") { e.preventDefault(); if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); deal(); }
+      return;
+    }
+    if (k >= "1" && k <= "5") { var cb = chipBtns[+k - 1]; if (cb && !cb.disabled) addBet(+cb.getAttribute("data-v"), cb); return; }
+    if (k === "h") hit();
+    else if (k === "s") stand();
+    else if (k === "d") doubleDown();
+    else if (k === "p") split();
+    else if (k === "backspace" || k === "c") clearBet();
+    else if (k === "a") btn.all.click();
+  });
+
+  // ---------- start ----------
+  shuffleShoe(); updateShoe();
+  paintSettings();
+  bankEl.textContent = fmt(bank);
+  if (lastBet > bank) lastBet = Math.max(MIN_BET, Math.min(bank, 25));
+  state = "done";   // so the first press of Deal uses the last bet
+  hud();
+  daily();
+  if (bank < MIN_BET) setTimeout(broke, 400);
+})();
+</script>

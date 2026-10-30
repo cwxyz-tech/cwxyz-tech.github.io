@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="/appmode.js?v=2"></script>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cole's Website">
+<meta property="og:title" content="Lines DX">
+<meta property="og:description" content="A falling-block puzzle game on coleswebsite.xyz">
+<meta property="og:url" content="https://coleswebsite.xyz/linesdx">
+<meta property="og:image" content="https://coleswebsite.xyz/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lines DX">
+<meta name="twitter:image" content="https://coleswebsite.xyz/og-image.png">
+<meta name="theme-color" content="#008080">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script src="/tos.js?v=5" data-page="/pages/linesdx.html"></script>
+<script src="/konami.js?v=2" defer></script>
+<title>Lines DX - coleswebsite.xyz</title>
+<style>
+  body {
+    font-family: "Times New Roman", Times, serif;
+    color: #000;
+    margin: 0;
+    padding: 0;
+  }
+  [hidden] { display: none !important; }
+  #gameTitle, .pf-titletap { touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: default; }
+
+  /* ===== Lines DX ===== */
+  .pf-body { display: flex; gap: 16px; justify-content: center; align-items: flex-start; }
+  .pf-board-area { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .pf-well { height: clamp(486px, calc(100vh - 250px), 686px); display: flex; align-items: flex-start; justify-content: center; }
+  .pf-frame { position: relative; border: 3px inset #ffffff; background: #000; line-height: 0; }
+  .pf-frame canvas { display: block; touch-action: none; }
+  .pf-frame.shake { animation: pf-jolt .12s steps(2) 1; }
+  .pf-frame.pf-spin { animation: pf-twist .7s steps(8) 1; }
+  @keyframes pf-twist { 0% { transform: rotate(0); } 25% { transform: rotate(-6deg); } 50% { transform: rotate(5deg) scaleX(-1); } 75% { transform: rotate(-3deg); } 100% { transform: rotate(0); } }
+  @keyframes pf-jolt { 50% { transform: translate(2px, 2px); } }
+
+  .pf-side { width: 170px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; font-size: 14px; }
+  .pf-win-title { background: #000080; color: #fff; font-weight: bold; font-size: 13px; padding: 2px 6px; border: 2px outset #fff; border-bottom: none; }
+  .pf-win-body { background: #c0c0c0; border: 2px outset #fff; padding: 6px; }
+  .pf-mini { display: block; margin: 0 auto; background: #000; border: 2px inset #808080; }
+
+  .pf-stats { display: grid; grid-template-columns: 1fr auto; border: 2px inset #808080; background: #fff; }
+  .pf-stats > div { padding: 3px 6px; border-bottom: 1px solid #c0c0c0; }
+  .pf-stats .k { font-weight: bold; }
+  .pf-stats .v { text-align: right; white-space: nowrap; font-weight: bold; font-variant-numeric: tabular-nums; color: #000080; }
+  .pf-stats .v.big { font-size: 18px; }
+  .pf-stats > div:nth-last-child(-n+2) { border-bottom: 0; }
+  .pf-lvlbar { height: 8px; border: 1px solid #808080; background: #fff; margin: 0 6px 6px; grid-column: 1 / -1; padding: 0 !important; }
+  .pf-lvlbar i { display: block; height: 100%; width: 0; background: #000080; }
+
+  .pf-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .pf-btn, .pf-buttons button { font: bold 14px "Times New Roman", Times, serif; color: #000; background: #c0c0c0;
+    border: 2px outset #ffffff; padding: 4px 10px; cursor: pointer; }
+  .pf-buttons button:active, .pf-btn:active { border-style: inset; }
+  .pf-buttons { grid-template-columns: 1fr; }
+  .pf-buttons #pauseBtn { padding: 6px 10px; font-size: 15px; width: 100%; }
+  .pix { display: block; image-rendering: pixelated; flex-shrink: 0; }
+  .pf-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; line-height: 1; }
+  .pf-btn > span, .pf-sp .nm { display: block; line-height: 1; padding-top: 1px; }
+  .pf-menu .pf-btn .pix, .pf-row .pf-btn .pix { width: 18px; height: 18px; }
+  .pf-menu { display: grid; gap: 6px; width: 100%; }
+  .pf-menu .pf-btn { justify-content: flex-start; width: 100%; padding: 6px 12px; font-size: 16px; }
+  .pf-menu #go { background: #b4ebcf; }
+  .pf-item { justify-content: flex-start; }
+  .pf-item > div { flex: 1; min-width: 0; }
+  .pf-itemicon { flex-shrink: 0; padding: 2px; background: #f4ecfb; border: 1px solid #c0c0c0; }
+  .pf-stats .v.coin { color: #806000; }
+  .pf-stars { color: #ffee00; letter-spacing: 1px; }
+
+  /* specials: the loudest panel on the page */
+  .pf-specials .pf-win-title { background: #800080; font-size: 14px; text-align: center; letter-spacing: 1px; }
+  .pf-specials .pf-win-body { background: #f4ecfb; }
+  .pf-power { position: relative; height: 22px; border: 2px inset #808080; background: #fff; margin-bottom: 6px; overflow: hidden; }
+  .pf-power i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: #b07be0; transition: width .2s; }
+  .pf-power span { position: relative; display: block; text-align: center; font-size: 13px; line-height: 18px; color: #000; }
+  .pf-power b { font-size: 15px; }
+  .pf-sp { position: relative; overflow: hidden; display: flex; align-items: center; gap: 6px; width: 100%; height: 34px; margin-top: 5px;
+    font: bold 15px "Times New Roman", Times, serif; color: #000; background: #e8e8e8; border: 2px outset #fff; padding: 0 8px; cursor: pointer; text-align: left; }
+  .pf-sp > * { position: relative; }
+  .pf-sp .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: #e2cdf5; transition: width .2s; }
+  .pf-sp .key { min-width: 18px; text-align: center; font-size: 12px; background: #fff; border: 1px solid #000; line-height: 16px; }
+  .pf-sp .ic { width: 16px; height: 16px; }
+  .pf-sp .ct { margin-left: auto; font-size: 12px; color: #444; font-variant-numeric: tabular-nums; }
+  .pf-sp.ready { background: #ffff00; border-color: #fff #806000 #806000 #fff; }
+  .pf-sp.ready .fill { display: none; }
+  .pf-sp.ready .ct { color: #c00000; animation: cw-blink 1s step-start infinite; }
+  .pf-sp:active { border-style: inset; }
+  .pf-empty, .pf-sphelp { margin: 6px 0 0; font-size: 12px; line-height: 1.3; }
+  .pf-keys .hot { color: #800080; font-weight: bold; }
+  .pf-dialog .pf-tip { font-size: 13px; background: #f4ecfb; border: 1px solid #800080; padding: 5px 6px; text-align: left; }
+  .pf-strip { display: none; }
+  @keyframes cw-blink { 50% { opacity: 0; } }
+
+  /* shop: a 95-style window over everything */
+  .pf-shop { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center;
+    padding: max(10px, env(safe-area-inset-top, 0px)) 10px max(10px, env(safe-area-inset-bottom, 0px)); }
+  .pf-shopwin { width: 100%; max-width: 420px; max-height: 100%; display: flex; flex-direction: column; background: #c0c0c0;
+    border: 3px outset #fff; box-shadow: 4px 4px 0 #000; font-size: 14px; }
+  .pf-shopwin .dt { background: #000080; color: #fff; font-weight: bold; padding: 3px 3px 3px 8px; display: flex; justify-content: space-between; align-items: center; }
+  .pf-x { font: bold 13px "Times New Roman", Times, serif; background: #c0c0c0; border: 2px outset #fff; width: 24px; height: 22px; cursor: pointer; padding: 0; }
+  .pf-tabs { display: flex; gap: 2px; padding: 8px 8px 0; }
+  .pf-tabs button { font: bold 14px "Times New Roman", Times, serif; background: #c0c0c0; border: 2px outset #fff; border-bottom: 0; padding: 3px 12px; cursor: pointer; position: relative; top: 2px; }
+  .pf-tabs button.on { background: #fff; z-index: 1; }
+  .pf-shopcoins { margin: 0 8px; padding: 6px 8px; background: #fff; border: 2px inset #808080; border-bottom: 0; }
+  .pf-shopcoins .hint { float: right; font-size: 12px; color: #555; }
+  .pf-shoplist { margin: 0 8px; background: #fff; border: 2px inset #808080; border-top: 1px solid #c0c0c0; overflow-y: auto; flex: 1; min-height: 120px; }
+  .pf-cap { margin: 0; padding: 6px 8px; font-size: 13px; background: #ffffcc; border-bottom: 1px solid #c0c0c0; }
+  .pf-item { display: flex; align-items: center; gap: 10px; justify-content: space-between; padding: 7px 8px; border-bottom: 1px dotted #808080; line-height: 1.3; }
+  .pf-item button, .pf-rebirth button { flex-shrink: 0; font: bold 13px "Times New Roman", Times, serif; background: #c0c0c0; border: 2px outset #fff; padding: 3px 10px; cursor: pointer; min-width: 78px; }
+  .pf-item button.on { border-style: inset; background: #b4ebcf; }
+  .pf-item button:disabled, .pf-rebirth button:disabled { color: #808080; cursor: default; }
+  .pf-skin { display: grid; grid-template-columns: 112px 1fr auto; align-items: center; gap: 10px; }
+  .pf-skinname { white-space: nowrap; }
+  .pf-swatch { display: inline-flex; justify-self: start; gap: 3px; padding: 4px; border: 2px inset #808080; }
+  .pf-swatch i { width: 14px; height: 14px; display: block; border: 1px solid rgba(0,0,0,.35); }
+  @media (max-width: 420px) { .pf-skin { grid-template-columns: 1fr auto; } .pf-swatch { grid-column: 1; grid-row: 2; } .pf-skin button { grid-row: 1 / span 2; grid-column: 2; } .pf-swatch i { width: 11px; height: 11px; } }
+  .pf-rebirth { padding: 8px 10px; }
+  .pf-rebirth p { margin: 0 0 8px; }
+  .pf-rtab { border-collapse: collapse; margin: 0 0 8px; font-size: 13px; }
+  .pf-rtab td { border: 1px solid #c0c0c0; padding: 2px 8px; }
+  .pf-rebirth button.armed { background: #ff9a9a; }
+  .pf-shopnote { min-height: 18px; padding: 6px 10px 8px; font-weight: bold; color: #000080; }
+  .pf-dialog .gift { color: #806000; font-weight: bold; }
+  .pf-keys { font-size: 13px; display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; padding: 2px 4px; }
+
+  .pf-callout { position: absolute; left: 0; right: 0; top: 36%; text-align: center; pointer-events: none; line-height: 1.1;
+    font: bold 30px "Times New Roman", Times, serif; color: #ffee00; text-shadow: 2px 2px 0 #000; opacity: 0; }
+  .pf-callout small { display: block; font-size: 15px; color: #fff; margin-top: 4px; }
+  .pf-callout.show { animation: pf-blink 1.1s steps(1) forwards; }
+  @keyframes pf-blink { 0% { opacity: 1; } 12% { opacity: 0; } 22% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
+
+  .pf-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 10px; background: rgba(0,0,0,.45); line-height: 1.3; }
+  .pf-dialog { width: 100%; max-width: 240px; background: #c0c0c0; border: 3px outset #fff; box-shadow: 3px 3px 0 #000; }
+  .pf-dialog .dt { background: #000080; color: #fff; font-weight: bold; font-size: 14px; padding: 3px 6px; display: flex; justify-content: space-between; }
+  .pf-dialog .db { padding: 14px 12px 12px; text-align: center; display: grid; gap: 10px; justify-items: center; font-size: 15px; }
+  .pf-dialog h2 { margin: 0; font-size: 26px; }
+  .pf-dialog h2.oops { font-family: "Comic Sans MS", "Comic Sans", cursive; color: #cc0000; }
+  .pf-dialog .big { font-size: 34px; font-weight: bold; font-variant-numeric: tabular-nums; }
+  .pf-dialog p { margin: 0; }
+  .pf-dialog .muted { font-size: 13px; }
+  .pf-row { display: flex; gap: 8px; }
+  /* daily */
+  .pf-btn.pf-daily { background: #ffe680; }
+
+  .pf-tbs { display: none; }
+
+  /* touch pads: d-pad under the left thumb, action buttons under the right */
+  .pf-pads { display: none; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pf-cluster { display: grid; gap: 6px; }
+  .pf-dpad { grid-template-columns: 1fr 1fr; grid-template-rows: 64px 50px; }
+  .pf-dpad [data-act=down] { grid-column: span 2; }
+  .pf-actions { grid-template-columns: 1fr 1.25fr; grid-template-rows: 50px 64px; }
+  .pad { font: bold 15px "Times New Roman", Times, serif; color: #000; background: #c0c0c0; border: 3px outset #fff;
+    box-shadow: 2px 2px 0 #000; touch-action: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1; padding: 0; }
+  .pad .glyph { font-size: 24px; display: flex; align-items: center; justify-content: center; }
+  .pad .tri { width: 22px; height: 22px; display: block; }
+  .pad .tri.wide { width: 34px; height: 17px; }
+  .pad small { font-size: 11px; font-weight: bold; }
+  .pad.on { border-style: inset; box-shadow: none; transform: translate(2px, 2px); background: #b0b0b0; }
+  .pad.spin { background: #ffff00; } .pad.drop { background: #ff6060; }
+  .pad.spin.on { background: #e0e000; } .pad.drop.on { background: #e04848; }
+  @media (pointer: coarse) { .pf-pads { display: grid; } }
+</style>
+<link rel="stylesheet" href="/site.css">
+<style>
+  /* Lines DX is all Comic Sans. Phones don't ship Comic Sans, so they get Comic Neue (a free lookalike) from /fonts */
+  @font-face { font-family: "CwComic"; font-weight: 400; font-display: swap;
+    src: local("Comic Sans MS"), local("ComicSansMS"), local("ComicSansMS-Regular"), url("/fonts/ComicNeue-Regular.woff2") format("woff2"); }
+  @font-face { font-family: "CwComic"; font-weight: 700; font-display: swap;
+    src: local("Comic Sans MS Bold"), local("ComicSansMS-Bold"), url("/fonts/ComicNeue-Bold.woff2") format("woff2"); }
+  .content.pf, .content.pf *, .pf-shop, .pf-shop * {
+    font-family: "CwComic", "Comic Sans MS", "Comic Sans", cursive !important;
+  }
+  /* the shop button in the phone title bar */
+  #shopBtnM { padding: 0 5px; }
+  #shopBtnM .pix { width: 16px; height: 16px; }
+  /* Comic Sans draws × and the window buttons tiny: keep those glyphs in the site font, a bit bigger */
+  .pf-tbs a.pf-tb { font-family: "Times New Roman", Times, serif !important; font-size: 20px !important; }
+  .content.pf .box-title::after { font-family: "Times New Roman", Times, serif; }
+
+  /* after site.css */
+  body:not(.home) .content.pf { max-width: 780px; }
+  body:not(.home) .pf .box-body { padding: 16px; line-height: 1.3; }
+  /* desktop: keep the start/pause menus inside the board even when it's at its smallest */
+  @media (min-width: 721px) {
+    .pf-overlay { padding: 6px; }
+    .pf-dialog .db { padding: 10px 10px 10px; gap: 8px; }
+  }
+
+  /* ===== phones: the game takes the whole screen ===== */
+  @media (max-width: 720px) {
+    html, body { height: 100%; }
+    body { overflow: hidden; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent;
+      padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px); box-sizing: border-box; }
+    .wrap { height: 100%; margin: 0 !important; display: flex; flex-direction: column; border: 0 !important; box-shadow: none !important; }
+    .header, .goldbar, .navbar, .footer { display: none !important; }
+    body:not(.home) .content.pf { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 4px; max-width: none; width: 100%; box-sizing: border-box; }
+    .pf .box-title { display: flex; align-items: center; justify-content: space-between; padding: 2px 3px 2px 8px; }
+    .pf .box-title::after { display: none; }
+    .pf-tbs { display: flex; gap: 4px; }
+    .pf-tb { font: bold 13px "Times New Roman", Times, serif; color: #000 !important; background: #c0c0c0; border: 2px outset #fff;
+      min-width: 26px; height: 24px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+    .pf-tb.on { border-style: inset; }
+    body:not(.home) .pf .box-body { flex: 1; min-height: 0; margin: 0; padding: 6px; background: #c0c0c0; box-sizing: border-box;
+      display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+      grid-template-areas: "hold board next" "stats board next" ". board next" "strip strip strip" "pads pads pads";
+      gap: 6px; align-items: start; }
+    .pf-side, .pf-board-area { display: contents; }
+    .pf-hold { grid-area: hold; } .pf-next { grid-area: next; } .pf-stats-wrap { grid-area: stats; }
+    .pf-hold, .pf-next, .pf-stats-wrap { min-width: 0; }
+    .pf-well { grid-area: board; align-self: stretch; height: auto; min-height: 0; overflow: hidden; align-items: flex-start; }
+    .pf-strip { grid-area: strip; } .pf-pads { grid-area: pads; }
+    .pf-buttons, .pf-keys, .pf-best, .pf-rank, .pf-specials { display: none !important; }
+    .pf-win-title { font-size: 11px; padding: 1px 4px; }
+    .pf-win-body { padding: 3px; }
+    .pf-stats { grid-template-columns: 1fr; }
+    .pf-stats > div { border: 0; padding: 0 5px; text-align: left; }
+    .pf-stats .k { font-size: 10px; padding-top: 4px; color: #333; }
+    .pf-stats .v { font-size: 15px; }
+    .pf-stats .v.big { font-size: 17px; }
+    .pf-stats .v.coin { font-size: 15px; }
+    .pf-stats > div:last-of-type { padding-bottom: 4px; }
+    .pf-lvlbar { display: none; }
+
+    /* specials strip + touch pads: compact so the board gets the height */
+    .pf-strip { display: flex; gap: 4px; align-items: stretch; height: 50px; }
+    .pf-strip .pf-power { flex: 0 0 54px; height: auto; margin: 0; }
+    .pf-strip .pf-power i { background: #b07be0; }
+    .pf-strip .pf-power span { font-size: 10px; line-height: 1; padding-top: 4px; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+    .pf-strip .pf-power b { font-size: 19px; }
+    .pf-strip .pf-power em { font-style: normal; font-size: 9px; font-weight: bold; color: #000080; }
+    .pf-strip .pf-sp { flex: 1; min-width: 0; height: auto; margin: 0; flex-direction: column; justify-content: center; gap: 0; padding: 2px; font-size: 12px; text-align: center; line-height: 1.1; touch-action: none; }
+    .pf-strip .pf-sp .key { display: none; }
+    .pf-strip .pf-sp .ic { width: 14px; height: 14px; margin-bottom: 2px; }
+    .pf-strip .pf-sp .ic .pix { width: 14px; height: 14px; }
+    .pf-strip .pf-sp .nm { padding-top: 0; }
+    .pf-strip .pf-sp .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+    .pf-strip .pf-sp .ct { margin: 0; font-size: 10px; }
+    .pf-pads { gap: 8px; }
+    .pf-dpad { grid-template-rows: 54px 42px; }
+    .pf-actions { grid-template-rows: 42px 54px; }
+
+    /* dialogs float over the whole screen instead of squeezing into the board */
+    .pf-overlay { position: fixed; inset: 0; z-index: 40; padding: 16px; }
+    .pf-dialog { max-width: 320px; }
+  }
+  @media (max-width: 720px) and (pointer: fine) { .pf-pads { display: none !important; } }
+  /* ===== HARD MODE: lights out ===== */
+  body.pf-hardmode {
+    background-color: #000 !important;
+    background-image:
+      linear-gradient(45deg, #140000 25%, transparent 25%, transparent 75%, #140000 75%),
+      linear-gradient(45deg, #140000 25%, transparent 25%, transparent 75%, #140000 75%) !important;
+    color: #d8b8b8;
+  }
+  body.pf-hardmode .wrap { background: #120808 !important; border-color: #4a1a1a !important; box-shadow: 4px 4px 0 #000 !important; }
+  body.pf-hardmode .header, body.pf-hardmode .goldbar, body.pf-hardmode .navbar, body.pf-hardmode .footer {
+    filter: grayscale(1) brightness(.4) sepia(1) hue-rotate(-45deg) saturate(3) brightness(.55);
+  }
+  body.pf-hardmode .pf .box-title { background: #3a0000 !important; color: #ff4040; letter-spacing: 2px; }
+  body.pf-hardmode .pf .box-body { background: #0c0505 !important; border-color: #2a0d0d !important; color: #d8b8b8; }
+  body.pf-hardmode .pf-frame { border-color: #2a0000 #5a1010 #5a1010 #2a0000; }
+  body.pf-hardmode .pf-win-title, body.pf-hardmode .pf-specials .pf-win-title { background: #4a0000 !important; color: #ffb0b0; border-color: #5a1a1a; }
+  body.pf-hardmode .pf-win-body, body.pf-hardmode .pf-specials .pf-win-body { background: #1a0a0a !important; border-color: #3a1515; }
+  body.pf-hardmode .pf-mini { border-color: #300; }
+  body.pf-hardmode .pf-stats { background: #120707; border-color: #3a1515; }
+  body.pf-hardmode .pf-stats > div { border-color: #2a1010; color: #d8b8b8; }
+  body.pf-hardmode .pf-stats .v { color: #ff5050; }
+  body.pf-hardmode .pf-stats .v.coin { color: #d8a040; }
+  body.pf-hardmode .pf-lvlbar { background: #000; border-color: #3a1515; }
+  body.pf-hardmode .pf-lvlbar i { background: #a00000; }
+  body.pf-hardmode .pf-power { background: #000; border-color: #3a1515; }
+  body.pf-hardmode .pf-power i { background: #6a0000; }
+  body.pf-hardmode .pf-power span { color: #ffc0c0; }
+  body.pf-hardmode .pf-sp, body.pf-hardmode .pf-buttons button, body.pf-hardmode .pad, body.pf-hardmode .pf-tb, body.pf-hardmode .pf-btn {
+    background: #2a1414 !important; color: #e8c8c8 !important; border-color: #5a2a2a #120606 #120606 #5a2a2a !important; }
+  body.pf-hardmode .pf-sp .fill { background: #4a1010; }
+  body.pf-hardmode .pf-sp .key { background: #120606; color: #ffb0b0; border-color: #5a2a2a; }
+  body.pf-hardmode .pf-sp.ready { background: #7a0000 !important; color: #fff !important; }
+  body.pf-hardmode .pf-sp.ready .ct { color: #ffd0d0; }
+  body.pf-hardmode .pad.drop { background: #6a0000 !important; }
+  body.pf-hardmode .pad.spin { background: #4a3a00 !important; }
+  body.pf-hardmode .pf-sphelp, body.pf-hardmode .pf-keys, body.pf-hardmode .pf-keys .hot { color: #b89090; }
+  body.pf-hardmode .pf-dialog { background: #1a0a0a; border-color: #5a2a2a #120606 #120606 #5a2a2a; color: #e8c8c8; }
+  body.pf-hardmode .pf-dialog .dt { background: #4a0000; }
+  body.pf-hardmode .pf-dialog .pf-tip { background: #2a1010; border-color: #6a0000; }
+  body.pf-hardmode .pf-callout { color: #ff3030; }
+  .pf-hardtitle { color: #ff2020; letter-spacing: 3px; text-shadow: 2px 2px 0 #000; animation: pf-throb 1.846s steps(1) infinite; }
+  @keyframes pf-throb { 0%, 25% { opacity: 1; } 26%, 30% { opacity: .55; } 31% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .pf-frame.shake, .pf-frame.pf-spin { animation: none; } .pf-callout.show { animation: none; } }
+</style>
+</head>
+<body>
+<noscript><div style="max-width:600px;margin:60px auto;padding:20px;background:#c0c0c0;border:3px outset #fff;font-family:'Times New Roman',Times,serif;font-size:16px;color:#000"><b>coleswebsite.xyz</b><br><br>This site needs JavaScript turned on, and you need to accept the <a href="/terms/">Terms of Service</a> to see it.</div></noscript>
+</body>
+</html>
