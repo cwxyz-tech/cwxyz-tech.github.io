@@ -324,7 +324,8 @@
   var mus = { bufs: {}, loading: {}, src: null, gain: null, track: null, want: false, allIn: false }, mutedByDuck = false;
   function heatLevel() { return Math.min(streak, 6); }
   function musicTarget() {
-    if (mus.allIn) return { track: "allin", rate: 1, vol: 1, level: 0 };
+    // All In takes over the music, unless you're already on fire: then On Fire keeps going
+    if (mus.allIn && HEAT_MUSIC[heatLevel()].track !== "fire") return { track: "allin", rate: 1, vol: 1, level: 0 };
     var h = HEAT_MUSIC[heatLevel()];
     return { track: h.track, rate: h.rate, vol: h.vol, level: heatLevel() };
   }
