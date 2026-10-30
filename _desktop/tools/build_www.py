@@ -70,6 +70,7 @@ def build_game(slug, title):
     # the website's terms gate and home-screen helper aren't part of the app
     h = re.sub(r'<script src="/tos\.js[^"]*"[^>]*></script>\n?', "", h)
     h = re.sub(r'<script src="/appmode\.js[^"]*"></script>\n?', "", h)
+    h = re.sub(r'<script src="/ux\.js[^"]*"[^>]*></script>\n?', "", h)       # the website's menu helpers aren't needed in the app
     h = re.sub(r'<noscript>.*?</noscript>\n?', "", h, flags=re.S)
     # social-media preview tags and web icons don't matter inside an app
     h = re.sub(r'<meta (property="og:|name="twitter:)[^>]*>\n?', "", h)

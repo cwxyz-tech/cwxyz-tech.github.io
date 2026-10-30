@@ -221,3 +221,43 @@ table.listing tr:nth-child(even) td { background: #e0e0ff; }
 html, body { cursor: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M3 2 L3 24 L9 18.5 L13.5 28.5 L18 26.5 L13.6 16.8 L22 16.8 Z' fill='%23ffff00' stroke='%23000' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M6 8 L6 18 L9 15.4' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3C/svg%3E") 3 2, auto; }
 a, a *, button, input[type=submit], input[type=button], label, summary, select, audio { cursor: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M3 2 L3 24 L9 18.5 L13.5 28.5 L18 26.5 L13.6 16.8 L22 16.8 Z' fill='%23ff2bd6' stroke='%23000' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M6 8 L6 18 L9 15.4' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3C/svg%3E") 3 2, pointer; }
 input[type=text], input[type=search], textarea { cursor: text; }
+
+/* ---------- USABILITY (ux.js) ---------- */
+/* keyboard users can always see where they are */
+a:focus-visible, button:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 2px dotted #000; outline-offset: 2px; }
+.box-title a:focus-visible, .box-title button:focus-visible { outline-color: #fff; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+.section-title, .box-title { scroll-margin-top: 12px; }
+
+/* the menu shows which page you're on: that button stays pressed in */
+.navbar a[aria-current="page"], .navbar a[aria-current="page"]:visited {
+  border-style: inset; background: #e8e8e8; color: #000080;
+  box-shadow: inset 1px 1px 0 #808080;
+}
+.navbar a[aria-current="page"]:hover { color: #000080; }
+.navbar .signin::before { content: "\2709\FE0E  "; }
+
+/* real window buttons: minimize folds the window up to its title bar, like classic Mac "windowshade" */
+.box-title.ux-win::after { display: none; }
+.box-title.ux-win { cursor: default; user-select: none; -webkit-user-select: none; }
+.ux-min {
+  float: right; width: 20px; height: 18px; margin: 0 -2px 0 8px; padding: 0;
+  font: bold 13px/1 "Times New Roman", Times, serif; color: #000; background: #c0c0c0;
+  border: 2px outset #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+}
+.ux-min:active { border-style: inset; }
+.ux-win + [hidden] { display: none !important; }
+.box-title.ux-shut { margin-bottom: 18px; border-bottom: 2px outset #fff; }
+
+/* "Jump to" bar for pages with lots of topics (the FAQ) */
+.ux-jump {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  background: #c0c0c0; border: 2px outset #fff; padding: 8px 10px; margin: 0 0 18px;
+  font: bold 14px "Times New Roman", Times, serif;
+}
+.ux-jump span { margin-right: 4px; }
+.ux-jump a, .ux-jump a:visited {
+  color: #000; text-decoration: none; background: #e0e0e0; border: 2px outset #fff; padding: 2px 10px; font-size: 13px;
+}
+.ux-jump a:hover { color: #cc0000; }
+.ux-jump a:active { border-style: inset; }

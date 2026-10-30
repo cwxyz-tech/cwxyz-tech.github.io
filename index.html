@@ -20,7 +20,8 @@
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<script src="/tos.js?v=5" data-page="/pages/home.html"></script>
+<script src="/tos.js?v=6" data-page="/pages/home.html"></script>
+<script src="/ux.js?v=1" defer></script>
 <script src="/konami.js?v=2" defer></script>
 <script src="/seasonal-rain.js" defer></script>
 <title>Cole's Website</title>
@@ -63,7 +64,41 @@
   }
   .col-left { width: 210px; flex-shrink: 0; }
   .col-main { flex: 1; min-width: 0; }
-  .col-right { width: 240px; flex-shrink: 0; }
+  .col-right { width: 280px; flex-shrink: 0; }
+  /* welcome: one clear sentence, three clear things to do */
+  .h-welcome { padding: 16px 18px !important; font-size: 15px !important; }
+  .h-welcome p { margin: 0 0 8px; }
+  .h-hi { font-size: 21px; font-weight: bold; color: #000080; }
+  .h-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .h-btn, .h-btn:visited { display: inline-block; font: bold 16px "Times New Roman", Times, serif; color: #000 !important;
+    text-decoration: none !important; background: #c0c0c0; border: 3px outset #fff; padding: 8px 16px; }
+  .h-btn:hover { background: #d4d4d4; }
+  .h-btn:active { border-style: inset; }
+  .h-btn.go { background: #b4ebcf; font-size: 17px; }
+  .h-btn.go:hover { background: #c8f5dc; }
+  .h-btn.mail { background: #ffff66; display: block; text-align: center; }
+  .h-btn.mail:hover { background: #ffff99; }
+  /* explore: every section once, as desktop icons */
+  .h-tiles { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 12px !important; }
+  .h-tile, .h-tile:visited { display: flex; gap: 12px; align-items: center; padding: 8px; color: #000 !important;
+    text-decoration: none !important; border: 2px solid transparent; }
+  .h-tile:hover { background: #e8e8ff; border: 2px dotted #000080; }
+  .h-tile:hover b { color: #cc0000; }
+  .h-ico { flex: none; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+    font: bold 24px "Times New Roman", Times, serif; color: #fff; border: 3px outset #fff; text-shadow: 1px 1px 0 #000; }
+  .h-g { background: #0a7d1e; } .h-m { background: #6040c0; } .h-d { background: #0067c0; } .h-a { background: #c06000; }
+  .h-f { background: #008080; } .h-r { background: #c0a000; } .h-i { background: #c00040; }
+  .h-txt { display: flex; flex-direction: column; font-size: 13px; color: #333; line-height: 1.35; }
+  .h-txt b { font-size: 16px; color: #0000cc; text-decoration: underline; }
+  .h-name { display: flex; align-items: center; gap: 6px; }
+  .h-tag { display: inline-block; font: bold 10px Arial, sans-serif; color: #fff; background: #cc0000; padding: 1px 4px; text-decoration: none; }
+  .h-tag.soon { background: #808080; }
+  /* sidebar */
+  .h-hire { font-size: 14px !important; }
+  .h-hire p { margin: 0 0 10px; }
+  .h-addr { margin: 8px 0 0 !important; font-size: 12px; color: #444; text-align: center; }
+  .h-news ul { margin: 0; padding-left: 18px; font-size: 13px; }
+  .h-news li { margin-bottom: 8px; border: 0 !important; padding: 0 !important; }
   .box-body {
     border: 1px solid #ccc;
     border-top: none;
@@ -158,7 +193,7 @@
     transform: rotate(-2deg);
   }
 </style>
-<link rel="stylesheet" href="/site.css">
+<link rel="stylesheet" href="/site.css?v=2">
 </head>
 <body class="home">
 <noscript><div style="max-width:600px;margin:60px auto;padding:20px;background:#c0c0c0;border:3px outset #fff;font-family:'Times New Roman',Times,serif;font-size:16px;color:#000"><b>coleswebsite.xyz</b><br><br>This site needs JavaScript turned on, and you need to accept the <a href="/terms/">Terms of Service</a> to see it.</div></noscript>

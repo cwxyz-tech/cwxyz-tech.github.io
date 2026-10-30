@@ -147,9 +147,9 @@
     "html.cw-lock{overflow:hidden}",
     "html.cw-lock body>*:not(#cw-tos){display:none!important}",
     "#cw-tos{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483647;background:#008080;display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;font-family:'Times New Roman',Times,serif;color:#000}",
-    "#cw-tos .cw-card{background:#c0c0c0;border:3px outset #fff;box-shadow:4px 4px 0 #000;max-width:780px;width:100%;max-height:100%;display:flex;flex-direction:column}",
+    "#cw-tos .cw-card{background:#c0c0c0;border:3px outset #fff;box-shadow:4px 4px 0 #000;max-width:600px;width:100%;max-height:100%;display:flex;flex-direction:column}",
     "#cw-tos .cw-title{background:linear-gradient(90deg,#000080,#1084d0);color:#fff;font-weight:bold;font-size:18px;padding:6px 10px}",
-    "#cw-tos .cw-intro{font-size:13px;padding:10px 14px 0 14px;color:#333}",
+    "#cw-tos .cw-intro{font-size:16px;padding:14px 14px 0 14px;color:#000}",
     "#cw-tos .cw-terms{flex:1;min-height:120px;overflow:auto;margin:10px 14px;border:2px inset #808080;padding:12px 14px;font-family:'Times New Roman',Times,serif;font-size:14px;line-height:1.5;background:#fff}",
     "#cw-tos .cw-terms[hidden]{display:none}",
     "#cw-tos .cw-read{padding:10px 14px 0 14px;font-size:14px}",
@@ -158,7 +158,7 @@
     "#cw-tos label{display:flex;gap:8px;align-items:flex-start;cursor:pointer;margin-bottom:10px}",
     "#cw-tos .cw-btns{display:flex;gap:10px;flex-wrap:wrap}",
     "#cw-tos button{font-family:'Times New Roman',Times,serif;font-size:14px;padding:8px 18px;border:2px outset #fff;background:#c0c0c0;font-weight:bold;cursor:pointer}",
-    "#cw-tos button.cw-yes{background:#c0c0c0;color:#000080}",
+    "#cw-tos button.cw-yes{background:#b4ebcf;color:#000;font-size:17px;padding-left:22px;padding-right:22px}",
     "#cw-tos button[disabled]{opacity:.45;cursor:not-allowed}",
     "#cw-tos .cw-note{font-size:12px;color:#666;margin-top:10px}",
     "#cw-tos .cw-warn{font-size:12px;color:#cc0000;margin-top:8px}",
@@ -210,12 +210,12 @@
     var title = document.createElement("div");
     title.className = "cw-title";
     title.id = "cw-tos-title";
-    title.textContent = "Terms of Service and Conditions of Access";
+    title.textContent = "Welcome to coleswebsite.xyz!";
     card.appendChild(title);
 
     var intro = document.createElement("div");
     intro.className = "cw-intro";
-    intro.textContent = "You need to accept the Terms of Service to enter coleswebsite.xyz.";
+    intro.textContent = "Before you come in, please accept the Terms of Service. You only have to do this once.";
     card.appendChild(intro);
 
     // the terms stay tucked away until the visitor clicks to read them
@@ -225,7 +225,7 @@
     toggle.href = "/terms/";
     toggle.setAttribute("role", "button");
     toggle.setAttribute("aria-expanded", "false");
-    toggle.textContent = "Click here to read the Terms of Service";
+    toggle.textContent = "Read the Terms of Service";
     read.appendChild(toggle);
     card.appendChild(read);
 
@@ -243,7 +243,7 @@
       ev.preventDefault();
       box.hidden = !box.hidden;
       toggle.setAttribute("aria-expanded", String(!box.hidden));
-      toggle.textContent = box.hidden ? "Click here to read the Terms of Service" : "Hide the Terms of Service";
+      toggle.textContent = box.hidden ? "Read the Terms of Service" : "Hide the Terms of Service";
       if (!box.hidden) { box.scrollTop = 0; if (!termsFetched) { termsFetched = true; fetchTerms(); } }
     });
 
@@ -270,7 +270,7 @@
 
     var label = document.createElement("p");
     label.style.margin = "0 0 10px";
-    label.textContent = "By clicking \"I Agree\" you accept the Terms of Service.";
+    label.textContent = "By clicking \"I Agree\" you accept the Terms of Service and Conditions of Access.";
     foot.appendChild(label);
 
     var btns = document.createElement("div");
@@ -279,11 +279,11 @@
     var yes = document.createElement("button");
     yes.type = "button";
     yes.className = "cw-yes";
-    yes.textContent = "I Agree";
+    yes.innerHTML = "I Agree &#8212; Enter";
 
     var no = document.createElement("button");
     no.type = "button";
-    no.textContent = "I Do Not Agree";
+    no.textContent = "No Thanks";
 
     btns.appendChild(yes);
     btns.appendChild(no);
@@ -296,7 +296,7 @@
 
     var note = document.createElement("div");
     note.className = "cw-note";
-    note.textContent = "Clicking \"I Agree\" saves a cookie in your browser (cw_tos_accepted) recording the terms version and the time you accepted.";
+    note.textContent = "Agreeing saves one small cookie (cw_tos_accepted) with the terms version and the time, so you're only asked once a year.";
     foot.appendChild(note);
 
     card.appendChild(foot);
