@@ -150,6 +150,7 @@
   // ---------- saved stuff ----------
   var saved = {};
   try { saved = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { saved = {}; }
+  if (typeof saved !== "object") saved = {};
   var level = clampInt(saved.level, 1, MAX_LEVEL, 1);
   var bank = clampInt(saved.bank, 0, 1e9, 0);
   var best = clampInt(saved.best, 0, 1e9, 0);
@@ -1125,6 +1126,8 @@
 
   function startTut() {
     if (tut) return;
+    // mid-explosion or mid-win: the round still has to finish (and count) first
+    if (state !== "play" && overlay.hidden) return;
     if (!(state === "play" && flips === 0 && overlay.hidden)) {
       newRound();
       setTimeout(startTut, reduce ? 50 : 750);

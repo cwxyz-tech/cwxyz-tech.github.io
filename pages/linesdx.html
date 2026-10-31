@@ -827,7 +827,7 @@ function gameOver() {
     if (score > startBest && startBest > 0) setTimeout(() => fx.confetti(frameRect(), 70), 300);
   }
   musicFade();
-  setTimeout(showSheet, 450);
+  setTimeout(() => { if (mode === "over") showSheet(); }, 450);
 }
 
 // ---------- input
@@ -862,6 +862,7 @@ const KEYMAP = {
 addEventListener("keydown", e => {
   if (!$("shop").hidden) { if (e.code === "Escape") closeShop(); return; }
   if (e.target.closest && e.target.closest("input, textarea")) return;
+  if ((e.metaKey || e.ctrlKey || e.altKey) && !KEYMAP[e.code]) return;
   if (e.code === "KeyM") { toggleSound(); return; }
   if (e.code === "KeyN") { toggleMusic(); return; }
   if (/^Digit[1-3]$/.test(e.code)) { e.preventDefault(); useSpecial(+e.code.slice(5) - 1); return; }
@@ -1181,8 +1182,8 @@ function renderShop() {
         <p><b>Rebirth</b> resets your coins and specials (skins stay) and makes you permanently stronger.</p>
         <p>Rebirths so far: <b>${r}</b></p>
         <table class="pf-rtab">
-          <tr><td>Coin bonus</td><td>x${coinMult().toFixed(1)}</td><td>&rarr; x${(1 + 0.5 * (r + 1)).toFixed(1)}</td></tr>
-          <tr><td>Score bonus</td><td>x${scoreMult().toFixed(1)}</td><td>&rarr; x${(1 + 0.1 * (r + 1)).toFixed(1)}</td></tr>
+          <tr><td>Coin bonus</td><td>x${(1 + 0.5 * r).toFixed(1)}</td><td>&rarr; x${(1 + 0.5 * (r + 1)).toFixed(1)}</td></tr>
+          <tr><td>Score bonus</td><td>x${(1 + 0.1 * r).toFixed(1)}</td><td>&rarr; x${(1 + 0.1 * (r + 1)).toFixed(1)}</td></tr>
           <tr><td>Starting power</td><td>${Math.min(10, 2 * r)}</td><td>&rarr; ${Math.min(10, 2 * (r + 1))}</td></tr>
         </table>
         <p>Needs: reach <b>level ${REBIRTH_LEVEL}</b> since your last rebirth. Your best: <b>level ${save.bestLevel}</b>.</p>

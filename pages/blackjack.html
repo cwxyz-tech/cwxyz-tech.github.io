@@ -722,7 +722,7 @@
     });
     var betting = state === "bet" || state === "done";
     $("bjBetActs").hidden = !betting; $("bjPlayActs").hidden = betting;
-    var rebet = state === "done" && bet === 0 ? Math.min(lastBet, bank) : 0;
+    var rebet = state === "done" && bet === 0 && Math.min(lastBet, bank) >= MIN_BET ? Math.min(lastBet, bank) : 0;
     btn.deal.disabled = busy || !betting || (bet < MIN_BET && rebet < MIN_BET);
     btn.deal.innerHTML = (bet === 0 && rebet ? "Rebet " + fmt(rebet) : "Deal") + " <kbd>(Space)</kbd>";
     btn.clear.disabled = busy || !betting || bet === 0;
@@ -745,11 +745,14 @@
     dTot.textContent = dealer.length ? d.t : "";
     dTot.className = "bj-tot" + (d.t > 21 ? " bust" : !hidden && isBJ(dealer) ? " bj" : "") + (state === "dealer" && d.t < 17 && !hidden ? " throb" : "");
     if (dTot.textContent && dTot.textContent !== dOld && dTot.className.indexOf("throb") < 0) fx.bump(dTot);
+    dealerEl.classList.toggle("tight", dealer.length >= 7);
     hs.forEach(function (h) {
       var t = total(h.cards), old = h.totEl.textContent;
       h.totEl.textContent = h.cards.length ? (t.soft && t.t < 21 && !h.done ? (t.t - 10) + "/" + t.t : t.t) : "";
       h.totEl.className = "bj-tot" + (t.t > 21 ? " bust" : isBJ(h.cards, h.split) ? " bj" : "");
       if (h.totEl.textContent && h.totEl.textContent !== old) fx.bump(h.totEl);
+      // long hands squeeze together so a split still fits on a phone
+      h.cardsEl.classList.toggle("tight", h.cards.length >= (hs.length > 1 ? 5 : 7));
       h.betEl.textContent = "Bet " + fmt(h.bet) + (h.doubled ? " (x2)" : "");
       h.el.classList.toggle("cur", state === "play" && hs.length > 1 && hs[cur] === h);
     });
@@ -782,7 +785,7 @@
   function clearTable() {
     dealer = []; hs = []; cur = 0;
     dealerEl.innerHTML = ""; handsEl.innerHTML = ""; dTot.textContent = "";
-    handsEl.classList.remove("two"); dealerEl.classList.remove("busted", "shake");
+    handsEl.classList.remove("two"); dealerEl.classList.remove("busted", "shake", "tight");
     shade(false);
     resetSpot();
     hideBigWin();
@@ -1086,6 +1089,7 @@
       if (hs.length > 1) await wait(260);
     }
     bet = 0;
+    save();
     // big wins: measured against what you bet at the start of the hand
     var ratio = net / Math.max(1, lastBet), tier = ratio >= 7 ? 3 : ratio >= 4 ? 2 : ratio >= 2.5 ? 1 : 0;
     if (net > 0 && allIn && tier < 1) tier = 1;
@@ -1295,6 +1299,7 @@
     var k = e.key.toLowerCase();
     if (k === " " || k === "enter") {
       if (state === "bet" || state === "done") { e.preventDefault(); if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); deal(); }
+      else if (t !== "BUTTON" && t !== "A") e.preventDefault();   // mid-hand, Space shouldn't scroll the table away
       return;
     }
     if (k >= "1" && k <= "5") { var cb = chipBtns[+k - 1]; if (cb && !cb.disabled) addBet(+cb.getAttribute("data-v"), cb); return; }
