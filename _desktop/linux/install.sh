@@ -11,7 +11,7 @@ cat > "$APPS/coles-games.desktop" <<DESKTOP
 [Desktop Entry]
 Type=Application
 Name=Cole's Games
-Comment=Blackjack DX, Lines DX and Lucky Flip from coleswebsite.xyz
+Comment=Blackjack DX, Lines DX, Lucky Flip and Sky Glider from coleswebsite.xyz
 Exec="$DIR/start.sh" %U
 Icon=coles-games
 Terminal=false

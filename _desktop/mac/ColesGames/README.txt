@@ -1,6 +1,6 @@
 COLE'S GAMES for Mac
 ====================
-Blackjack DX, Lines DX and Lucky Flip as a real Mac app for Apple silicon (M1 and newer).
+Blackjack DX, Lines DX, Lucky Flip and Sky Glider as a real Mac app for Apple silicon (M1 and newer).
 The games are built in, so it works offline, and your chips, coins and high scores save on your Mac.
 
 
@@ -19,7 +19,7 @@ BUILD IT (one time, about a minute)
 
 PLAYING
 -------
-The toolbar switches between Home, the three games and Music. Each game scales to fill the window at
+The toolbar switches between Home, the three games and Music (Sky Glider is in the Games menu, Command-5). Each game scales to fill the window at
 the right shape (resize the window or go full screen and it follows), and runs at your screen's refresh rate.
 Games menu:   Home  Cmd+0    Blackjack DX  Cmd+1    Lines DX  Cmd+2    Lucky Flip  Cmd+3    Music  Cmd+4
               Restart Game  Cmd+R
@@ -47,7 +47,7 @@ WHAT'S INSIDE
 Sources/main.swift     The app: a native AppKit window with a Mac toolbar, menus and full screen, showing the
                        games with Apple's WebKit. It serves the games from memory inside the app, fits each
                        game to the window, and opens any web links in your browser instead.
-Resources/www          The launcher, the three games, the music player, songs and fonts.
+Resources/www          The launcher, the games, the music player, songs and fonts.
 Resources/AppIcon.icns The 8-bit playing cards icon.
 Info.plist             The app's name, version and settings.
 build.sh               Builds and signs "Cole's Games.app".

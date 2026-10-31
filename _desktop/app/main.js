@@ -18,7 +18,8 @@ const PAGES = [
   { title: "Blackjack DX", path: "/blackjack/", key: "1" },
   { title: "Lines DX", path: "/linesdx/", key: "2" },
   { title: "Lucky Flip", path: "/luckyflip/", key: "3" },
-  { title: "Music", path: "/#music", key: "4" }
+  { title: "Music", path: "/#music", key: "4" },
+  { title: "Sky Glider", path: "/skyglider/", key: "5" }   // menu only, no toolbar tab (it's the hidden one)
 ];
 
 // refuse Chromium's remote-control switches, so no other program can drive the app
@@ -227,6 +228,7 @@ function syncChrome() {
   if (url.pathname.startsWith("/blackjack")) i = 1;
   else if (url.pathname.startsWith("/linesdx")) i = 2;
   else if (url.pathname.startsWith("/luckyflip")) i = 3;
+  else if (url.pathname.startsWith("/skyglider")) i = 5;
   else if (url.hash === "#music") i = 4;
   currentIndex = i;
   win.setTitle(i === 0 || i === 4 ? "Cole's Games" : PAGES[i].title + " - Cole's Games");
@@ -265,7 +267,7 @@ function showAbout() {
     type: "none",
     title: "About Cole's Games",
     message: "Cole's Games",
-    detail: "Version " + app.getVersion() + "\n\nBlackjack DX, Lines DX and Lucky Flip\nfrom coleswebsite.xyz\n\n© 2023 - 2026 coleswebsite.xyz",
+    detail: "Version " + app.getVersion() + "\n\nBlackjack DX, Lines DX, Lucky Flip and Sky Glider\nfrom coleswebsite.xyz\n\n© 2023 - 2026 coleswebsite.xyz",
     icon: path.join(__dirname, "icons/coles-games-256.png"),
     buttons: ["OK"]
   });

@@ -45,4 +45,4 @@ jobs:
           gh release create "$TAG" _desktop/out/release/* \
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
             --title "Cole's Games ${TAG#v}" \
-            --notes "Blackjack DX, Lines DX and Lucky Flip as a desktop app for Windows, Mac and Linux. Install steps: https://coleswebsite.xyz/downloads"
+            --notes "Blackjack DX, Lines DX, Lucky Flip and Sky Glider as a desktop app for Windows, Mac and Linux. Install steps: https://coleswebsite.xyz/downloads"

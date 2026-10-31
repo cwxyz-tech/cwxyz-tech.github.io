@@ -7,6 +7,8 @@ if os.path.exists(out): shutil.rmtree(out)
 os.makedirs(out)
 
 GAMES = [("blackjack", "Blackjack DX"), ("linesdx", "Lines DX"), ("luckyflip", "Lucky Flip")]
+# tucked away below the other games, and locked until all 3 of them have been played (same as the website)
+SECRET = ("skyglider", "Sky Glider")
 
 # what every game page gets inside the app: no website header/menu/footer, a way back to the launcher,
 # and no web-page right-click menu
@@ -88,9 +90,9 @@ def build_game(slug, title):
     for f in sorted(os.listdir(os.path.join(site, slug))):
         if f.endswith(".mp3"): copy(os.path.join(slug, f))
 
-for slug, title in GAMES: build_game(slug, title)
-for rel in ["site.css", "juice.js", "konami.js", "logo.png", "fonts/ComicNeue-Regular.woff2", "fonts/ComicNeue-Bold.woff2",
-            "fonts/ComicNeue-OFL.txt", "games/blackjack.gif", "games/linesdx.gif", "games/luckyflip.gif",
+for slug, title in GAMES + [SECRET]: build_game(slug, title)
+for rel in ["site.css", "juice.js", "konami.js", "played.js", "logo.png", "fonts/ComicNeue-Regular.woff2", "fonts/ComicNeue-Bold.woff2",
+            "fonts/ComicNeue-OFL.txt", "games/blackjack.gif", "games/linesdx.gif", "games/luckyflip.gif", "games/skyglider.gif",
             "music/cover-256.png", "music/cover-512.png"]:
     copy(rel)
 for f in ["lucky-lounge", "on-fire", "all-in", "lines-main-theme", "lines-hard-mode", "lines-the-shop", "lucky-flip"]:
@@ -113,6 +115,17 @@ for i, (slug, title) in enumerate(GAMES):
         <h2>{title}</h2>
         <p>{desc}</p>
         <div class="row"><span class="play">Play</span><kbd>&#8984;{i + 1}</kbd></div>
+      </div>
+    </a>'''
+SECRET_CARD = f'''
+    <a class="card wide" id="secret" href="/{SECRET[0]}/">
+      <div class="shot"><img src="/games/{SECRET[0]}.gif" alt="" width="480" height="398"></div>
+      <div class="info">
+        <div class="kind">Arcade</div>
+        <h2>{SECRET[1]}</h2>
+        <p>Fly Glider through the cloud maze, grab every sparkle and dodge the storms. It gets faster every level!</p>
+        <div class="lock" id="secretLock" hidden></div>
+        <div class="row"><span class="play" id="secretPlay">Play</span><kbd>&#8984;5</kbd></div>
       </div>
     </a>'''
 LAUNCHER = f'''<!DOCTYPE html>
@@ -197,6 +210,15 @@ LAUNCHER = f'''<!DOCTYPE html>
   .tracks .n, .tracks .g, .tracks .d {{ color: var(--text2); }}
   .tracks .n, .tracks .d {{ font-variant-numeric: tabular-nums; }} .tracks .d {{ text-align: right; }}
   .tracks .t {{ font-weight: 500; }}
+  /* Sky Glider: tucked away below the games */
+  .hint {{ margin: 34px 0 12px; text-align: center; color: var(--text2); font-size: 12px; letter-spacing: .06em; opacity: .75; }}
+  .card.wide {{ flex-direction: row; max-width: 680px; margin: 0 auto; }}
+  .card.wide .shot {{ width: 46%; flex: none; }}
+  .card.locked .shot img {{ filter: grayscale(1) brightness(.7); }}
+  .card.locked .play {{ background: var(--line); color: var(--text2); }}
+  .lock {{ margin: 0 0 10px; color: var(--text2); }}
+  .lock b {{ display: block; color: var(--text); font-weight: 600; margin-bottom: 2px; }}
+  .lock .ok {{ color: #34c759; }}
   @media (max-width: 860px) {{ .grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} }}
 </style>
 </head>
@@ -205,11 +227,12 @@ LAUNCHER = f'''<!DOCTYPE html>
     <header>
       <div class="logo" role="img" aria-label="Cole's Games"><span class="l1">Cole's</span><span class="l2">Games</span></div>
       <div class="rainbow"></div>
-      <p>Three games from coleswebsite.xyz. Your progress saves on <span id="thisComputer">this Mac</span>.</p>
+      <p>Games from coleswebsite.xyz. Your progress saves on <span id="thisComputer">this Mac</span>.</p>
     </header>
     <h3 class="section">Games</h3>
     <div class="grid">{CARDS}
     </div>
+    <div class="hint">&middot; &middot; &middot; psst, there's one more down here &middot; &middot; &middot;</div>{SECRET_CARD}
     <h3 class="section" id="music">Music</h3>
     <section class="player" aria-label="Game music">
       <div class="now">
@@ -233,6 +256,7 @@ LAUNCHER = f'''<!DOCTYPE html>
     <footer>&copy; 2023 - 2026 coleswebsite.xyz</footer>
   </main>
 <script src="/konami.js?v=3" defer></script>
+<script src="/played.js?v=1"></script>
 <script>
 document.addEventListener("contextmenu", function (e) {{ e.preventDefault(); }});
 (function () {{
@@ -241,6 +265,19 @@ document.addEventListener("contextmenu", function (e) {{ e.preventDefault(); }})
     document.body.classList.add(/Windows/.test(navigator.userAgent) ? "win" : "linux");
     [].forEach.call(document.querySelectorAll("kbd"), function (k) {{ k.textContent = k.textContent.replace("\u2318", "Ctrl+"); }});
     document.getElementById("thisComputer").textContent = /Windows/.test(navigator.userAgent) ? "this PC" : "this computer";
+  }}
+  // Sky Glider stays locked until Blackjack DX, Lines DX and Lucky Flip have all been played
+  if (window.CwPlayed) {{
+    var st = CwPlayed.status(), names = {{ blackjack: "Blackjack DX", linesdx: "Lines DX", luckyflip: "Lucky Flip" }};
+    if (!st.unlocked) {{
+      document.getElementById("secret").classList.add("locked");
+      var box = document.getElementById("secretLock");
+      box.innerHTML = "<b>Play all 3 games above to unlock it (" + st.count + "/3)</b>" + CwPlayed.games.map(function (id) {{
+        return st[id] ? '<div class="ok">&#10003; ' + names[id] + '</div>' : '<div>&#9675; ' + names[id] + '</div>';
+      }}).join("");
+      box.hidden = false;
+      document.getElementById("secretPlay").textContent = "Locked";
+    }}
   }}
   var d = window.cgDesktop;
   if (d && d.accent) document.documentElement.style.setProperty("--accent", d.accent);

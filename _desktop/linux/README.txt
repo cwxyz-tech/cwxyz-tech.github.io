@@ -1,6 +1,6 @@
 COLE'S GAMES for Linux
 ======================
-Blackjack DX, Lines DX and Lucky Flip, plus a player for all the game music. Works offline.
+Blackjack DX, Lines DX, Lucky Flip and Sky Glider, plus a player for all the game music. Works offline.
 For 64-bit Linux (Ubuntu, Fedora, Mint, Debian, Arch and others).
 
 1. Extract the download, then open a terminal in the "Cole's Games" folder.

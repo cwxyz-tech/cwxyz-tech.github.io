@@ -1,4 +1,4 @@
-// Cole's Games: a native macOS app (Apple silicon) for Blackjack DX, Lines DX and Lucky Flip.
+// Cole's Games: a native macOS app (Apple silicon) for Blackjack DX, Lines DX, Lucky Flip and Sky Glider.
 // The games ship inside the app (Contents/Resources/www) and are served to WebKit from memory,
 // so everything works offline and nothing is loaded from the internet.
 
@@ -150,8 +150,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSToolbarDelegate,
         Page(title: "Blackjack DX", short: "Blackjack", path: "/blackjack/", symbol: "suit.spade.fill", key: "1"),
         Page(title: "Lines DX", short: "Lines", path: "/linesdx/", symbol: "square.grid.3x3.fill", key: "2"),
         Page(title: "Lucky Flip", short: "Lucky Flip", path: "/luckyflip/", symbol: "sparkles", key: "3"),
-        Page(title: "Music", short: "Music", path: "/#music", symbol: "music.note", key: "4")
+        Page(title: "Music", short: "Music", path: "/#music", symbol: "music.note", key: "4"),
+        // the hidden one: in the Games menu (Command-5) and the launcher, but not the toolbar
+        Page(title: "Sky Glider", short: "Sky Glider", path: "/skyglider/", symbol: "airplane", key: "5")
     ]
+    private var toolbarPages: [Page] { Array(pages.prefix(5)) }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         buildMenus()
@@ -246,9 +249,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSToolbarDelegate,
                  willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
         switch itemIdentifier {
         case .pages:
-            let picker = NSSegmentedControl(labels: pages.map { $0.short }, trackingMode: .selectOne,
+            let picker = NSSegmentedControl(labels: toolbarPages.map { $0.short }, trackingMode: .selectOne,
                                             target: self, action: #selector(pagePicked(_:)))
-            for (i, page) in pages.enumerated() {
+            for (i, page) in toolbarPages.enumerated() {
                 picker.setImage(NSImage(systemSymbolName: page.symbol, accessibilityDescription: page.title), forSegment: i)
                 picker.setImageScaling(.scaleProportionallyDown, forSegment: i)
                 picker.setToolTip("\(page.title) (⌘\(page.key))", forSegment: i)
@@ -299,8 +302,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSToolbarDelegate,
         if path.hasPrefix("/blackjack") { index = 1 }
         else if path.hasPrefix("/linesdx") { index = 2 }
         else if path.hasPrefix("/luckyflip") { index = 3 }
+        else if path.hasPrefix("/skyglider") { index = 5 }
         else if url.fragment == "music" { index = 4 }
-        pagePicker?.selectedSegment = index
+        pagePicker?.selectedSegment = index < toolbarPages.count ? index : -1
         window.subtitle = (index == 0 || index == 4) ? "" : pages[index].title
     }
 
@@ -367,7 +371,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSToolbarDelegate,
             item.target = self
             item.tag = i
             item.image = NSImage(systemSymbolName: page.symbol, accessibilityDescription: nil)
-            if i == 0 || i == 3 { games.addItem(.separator()) }
+            if i == 0 || i == 3 || i == 4 { games.addItem(.separator()) }
         }
         games.addItem(.separator())
         games.addItem(withTitle: "Restart Game", action: #selector(reloadGame), keyEquivalent: "r").target = self
@@ -411,7 +415,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSToolbarDelegate,
         NSApp.orderFrontStandardAboutPanel(options: [
             .applicationName: "Cole's Games",
             .credits: NSAttributedString(
-                string: "Blackjack DX, Lines DX and Lucky Flip\nfrom coleswebsite.xyz",
+                string: "Blackjack DX, Lines DX, Lucky Flip and Sky Glider\nfrom coleswebsite.xyz",
                 attributes: [.font: NSFont.systemFont(ofSize: 11), .foregroundColor: NSColor.secondaryLabelColor]
             )
         ])

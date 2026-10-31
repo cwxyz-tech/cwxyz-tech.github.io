@@ -1,6 +1,6 @@
 COLE'S GAMES for Windows
 ========================
-Blackjack DX, Lines DX and Lucky Flip, plus a player for all the game music. Works offline.
+Blackjack DX, Lines DX, Lucky Flip and Sky Glider, plus a player for all the game music. Works offline.
 For Windows 10 and 11 (64-bit).
 
 1. Right-click the zip and choose "Extract All", then open the "Cole's Games" folder.
