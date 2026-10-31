@@ -188,15 +188,16 @@
     body:not(.home) .content.sg { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 4px; max-width: none; width: 100%; box-sizing: border-box; }
     .sg > .box-title { display: flex; align-items: center; justify-content: space-between; padding: 2px 3px 2px 8px; }
     .sg > .box-title::after { display: none; }
-    .sg-tbs { display: flex; gap: 4px; }
-    .sg-tb { font: bold 15px "Times New Roman", Times, serif; color: #000 !important; background: #c0c0c0; border: 2px outset #fff;
-      min-width: 34px; height: 28px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box; }
+    .sg-tbs { display: flex; gap: 6px; }
+    .sg > .box-title { min-height: 50px; box-sizing: border-box; }
+    .sg-tb { font: bold 20px "Times New Roman", Times, serif; color: #000 !important; background: #c0c0c0; border: 2px outset #fff;
+      min-width: 44px; height: 42px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box; }
     .sg-tb:active { border-style: inset; }
 
     body:not(.home) .sg .box-body.sg-body { flex: 1; min-height: 0; margin: 0; padding: 4px; background: #c0c0c0; box-sizing: border-box;
       display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; overflow: hidden; }
     .sg-side { display: none; }
-    .sg-main { width: 100%; flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .sg-main { width: 100%; flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
     .sg-pows { flex-wrap: nowrap; overflow: hidden; }
     .sg-pow span { display: none; }
     .sg-pow i { width: 28px; }
@@ -205,18 +206,24 @@
     .sg-hud > div { padding: 2px 5px 3px; }
     .sg-lives canvas { width: 17px; height: 17px; flex-shrink: 1; min-width: 12px; }
     .sg-stage canvas#sgCanvas { width: 100%; }
-    .sg-dialog { max-width: 310px; }
+    /* menus and pop-ups get the whole screen under the title bar, so nothing gets cut off */
+    .sg-overlay { position: fixed; z-index: 50; inset: calc(54px + env(safe-area-inset-top, 0px)) 0 0 0; padding: 12px 12px calc(12px + env(safe-area-inset-bottom, 0px)); }
+    .sg-dialog { max-width: 360px; }
     .sg-title { font-size: 40px; }
     .sg-btn { height: 42px; font-size: 16px; }
 
     /* thumb pad under the maze when there's room for it (swipes work anywhere too) */
-    .sg-pad { display: grid; grid-template-columns: repeat(3, 76px); grid-template-rows: repeat(2, 58px); gap: 4px; margin-top: 6px; flex-shrink: 0; }
+    .sg-pad { --pc: 64px; display: grid; grid-template-columns: repeat(3, var(--pc)); grid-template-rows: repeat(3, var(--pc)); gap: 6px; margin: auto 0; padding: 6px 0; flex-shrink: 0; }
     .sg-pad.hide { display: none; }
     /* phone on its side: the arrow pad sits beside the maze */
-    .sg-pad.side { position: fixed; right: max(18px, env(safe-area-inset-right)); bottom: 18px; margin: 0; display: grid; }
-    .sg-pad button { font: bold 22px "Times New Roman", Times, serif !important; background: #c0c0c0; border: 2px outset #fff; color: #000; padding: 0; touch-action: none; }
+    .sg-pad.side { position: fixed; right: max(16px, env(safe-area-inset-right)); top: 50%; transform: translateY(-50%); margin: 0; padding: 0; display: grid; }
+    .sg-pad.side.left { right: auto; left: max(16px, env(safe-area-inset-left)); }
+    .sg-pad button { font: bold calc(var(--pc) * .42) "Times New Roman", Times, serif !important; background: #c0c0c0; border: 3px outset #fff; color: #000; padding: 0;
+      touch-action: none; -webkit-touch-callout: none; box-shadow: 2px 2px 0 #000; }
+    .sg-pad button.on { box-shadow: none; transform: translate(2px, 2px); }
+    .sg-pad::after { content: ""; grid-column: 2; grid-row: 2; background: #a8a8a8; box-shadow: inset 2px 2px 0 #808080, inset -2px -2px 0 #e0e0e0; border-radius: 50%; margin: 24%; }
     .sg-pad button.on { border-style: inset; background: #a8a8a8; }
-    .sg-pad .u { grid-column: 2; grid-row: 1; } .sg-pad .l { grid-column: 1; grid-row: 2; } .sg-pad .d { grid-column: 2; grid-row: 2; } .sg-pad .r { grid-column: 3; grid-row: 2; }
+    .sg-pad .u { grid-column: 2; grid-row: 1; } .sg-pad .l { grid-column: 1; grid-row: 2; } .sg-pad .d { grid-column: 2; grid-row: 3; } .sg-pad .r { grid-column: 3; grid-row: 2; }
 
     .content.sg .box-title.sg-helptitle { display: none !important; }
     .content.sg .box-body.sg-help { display: none; position: fixed; left: 10px; right: 10px; top: 50%; transform: translateY(-50%); z-index: 60; max-height: 80vh; overflow-y: auto;
