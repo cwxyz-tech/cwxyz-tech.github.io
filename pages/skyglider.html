@@ -132,41 +132,116 @@
   var START = { x: 10, y: 15 }, GATE = { x: 10, y: 7 }, DOOR = { x: 10, y: 8 };
 
   // ---------------- pixel art ----------------
-  var GLIDER = [
-    "..k.......k.........",
-    ".kwk.....kwk........",
-    ".kwwkkkkkwwk......kk",
-    ".kkkkkkkkkkkk....kbk",
-    "kssbwkssbwkkk...kbwk",
-    "kkkkkkkkkkkwwk..kbwk",
-    "kwwwwwwwwwwwwwk.kbwk",
-    "kwkkwwwwkkwwwwwkkwwk",
-    "kwGgkwwkGgkwwwwwwwk.",
-    "kwghkwwkghkwwwwwwwk.",
-    "kwggkwwkggkwwkwkwk..",
-    "kwppwkkwppwwwwwwwk..",
-    ".kwwwwkwwwwwllllllk.",
-    "..kkwwwwwwkbbbbbbk..",
-    "...kwkkkkwwkkkkkk...",
-    "...kek..kek........."
+  // Glider, the little dragon plane: 0 open, 1 running, 2 blinking, 3 happy, 4 happy running
+  var GLIDER_FRAMES = [
+    [
+      ".....k.....k..............",
+      "....klk...klk.........kk..",
+      "...kllkk.kllk........kwwk.",
+      "..klllkwklllk........kbwk.",
+      "...kkkkkkkkkk........kbwk.",
+      "..kwhbswhbswkk..k..k.kbwwk",
+      "..kwwwwwwwwwkbkkbkkbkkbwwk",
+      ".kwwwGhwwGhwwbbwbbkbbkbwwk",
+      ".kwwwggwwggwwwwwwwwwwwwwk.",
+      "kwkwwGGwwGGwwwwkwkwkwwwwk.",
+      "kwwpwwwwwwwwplllllllwwwwk.",
+      "kwwwwwkwkwwwwlllllllwwwk..",
+      ".kkkkwwwwwwwwwbbbbbbwwk...",
+      ".....kkddkwwwwwwddwwwk....",
+      "......kddkwwkwwwddkwwk....",
+      "......kddkwwkkkkddkwwk....",
+      "......kddkwwk..kddkwwk....",
+      ".......ee.ee....ee.ee....."
+    ],
+    [
+      ".....k.....k..............",
+      "....klk...klk.........kk..",
+      "...kllkk.kllk........kwwk.",
+      "..klllkwklllk........kbwk.",
+      "...kkkkkkkkkk........kbwk.",
+      "..kwhbswhbswkk..k..k.kbwwk",
+      "..kwwwwwwwwwkbkkbkkbkkbwwk",
+      ".kwwwGhwwGhwwbbwbbkbbkbwwk",
+      ".kwwwggwwggwwwwwwwwwwwwwk.",
+      "kwkwwGGwwGGwwwwkwkwkwwwwk.",
+      "kwwpwwwwwwwwplllllllwwwwk.",
+      "kwwwwwkwkwwwwlllllllwwwk..",
+      ".kkkkwwwwwwwwwbbbbbbwwk...",
+      ".....kddkkwwwwwwwdwwwk....",
+      ".....kddk.kwwwwwwdwwk.....",
+      ".....kddk.kwwkkkkdwwk.....",
+      ".....kddk.kwwk..kdwwk.....",
+      "......ee...ee....eee......"
+    ],
+    [
+      ".....k.....k..............",
+      "....klk...klk.........kk..",
+      "...kllkk.kllk........kwwk.",
+      "..klllkwklllk........kbwk.",
+      "...kkkkkkkkkk........kbwk.",
+      "..kwhbswhbswkk..k..k.kbwwk",
+      "..kwwwwwwwwwkbkkbkkbkkbwwk",
+      ".kwwwwwwwwwwwbbwbbkbbkbwwk",
+      ".kwwwwwwwwwwwwwwwwwwwwwwk.",
+      "kwkwwkkwwkkwwwwkwkwkwwwwk.",
+      "kwwpwwwwwwwwplllllllwwwwk.",
+      "kwwwwwkwkwwwwlllllllwwwk..",
+      ".kkkkwwwwwwwwwbbbbbbwwk...",
+      ".....kkddkwwwwwwddwwwk....",
+      "......kddkwwkwwwddkwwk....",
+      "......kddkwwkkkkddkwwk....",
+      "......kddkwwk..kddkwwk....",
+      ".......ee.ee....ee.ee....."
+    ],
+    [
+      ".....k.....k..............",
+      "....klk...klk.........kk..",
+      "...kllkk.kllk........kwwk.",
+      "..klllkwklllk........kbwk.",
+      "...kkkkkkkkkk........kbwk.",
+      "..kwhbswhbswkk..k..k.kbwwk",
+      "..kwwwwwwwwwkbkkbkkbkkbwwk",
+      ".kwwwkwwwwkwwbbwbbkbbkbwwk",
+      ".kwwkwkwwkwkwwwwwwwwwwwwk.",
+      "kwkwwwwwwwwwwwwkwkwkwwwwk.",
+      "kwwpwwwwwwwwplllllllwwwwk.",
+      "kwwwwwkwkwwwwlllllllwwwk..",
+      ".kkkkwwwwwwwwwbbbbbbwwk...",
+      ".....kkddkwwwwwwddwwwk....",
+      "......kddkwwkwwwddkwwk....",
+      "......kddkwwkkkkddkwwk....",
+      "......kddkwwk..kddkwwk....",
+      ".......ee.ee....ee.ee....."
+    ],
+    [
+      ".....k.....k..............",
+      "....klk...klk.........kk..",
+      "...kllkk.kllk........kwwk.",
+      "..klllkwklllk........kbwk.",
+      "...kkkkkkkkkk........kbwk.",
+      "..kwhbswhbswkk..k..k.kbwwk",
+      "..kwwwwwwwwwkbkkbkkbkkbwwk",
+      ".kwwwkwwwwkwwbbwbbkbbkbwwk",
+      ".kwwkwkwwkwkwwwwwwwwwwwwk.",
+      "kwkwwwwwwwwwwwwkwkwkwwwwk.",
+      "kwwpwwwwwwwwplllllllwwwwk.",
+      "kwwwwwkwkwwwwlllllllwwwk..",
+      ".kkkkwwwwwwwwwbbbbbbwwk...",
+      ".....kddkkwwwwwwwdwwwk....",
+      ".....kddk.kwwwwwwdwwk.....",
+      ".....kddk.kwwkkkkdwwk.....",
+      ".....kddk.kwwk..kdwwk.....",
+      "......ee...ee....eee......"
+    ]
   ];
-  var GLIDER_RUN = GLIDER.slice(0, 14).concat(["..kwkkkkkwk.kkkkk...", "..kek...kek........."]);
-  // the eyes are in rows 7-10, left eye columns 2-4, right eye columns 8-10
-  function eyes(src, kind) {
-    var g = src.map(function (r) { return r.split(""); }), y, x;
-    for (y = 7; y <= 10; y++) [2, 3, 4, 8, 9, 10].forEach(function (x2) { g[y][x2] = "w"; });
-    if (kind === "blink") { [2, 3, 8, 9].forEach(function (x2) { g[9][x2] = "k"; }); }
-    else { g[8][3] = "k"; g[9][2] = "k"; g[9][4] = "k"; g[8][9] = "k"; g[9][8] = "k"; g[9][10] = "k"; }
-    return g.map(function (r) { return r.join(""); });
-  }
-  var GLIDER_FRAMES = [GLIDER, GLIDER_RUN, eyes(GLIDER, "blink"), eyes(GLIDER, "happy"), eyes(GLIDER_RUN, "happy")];
   var LIVERIES = [
     { id: "sky", name: "Sky Blue", cost: 0, pal: { b: "#3a6ad8", l: "#96b4f0" } },
     { id: "sunset", name: "Sunset", cost: 40, pal: { b: "#e0502a", l: "#ffb08a" } },
     { id: "mint", name: "Mint", cost: 80, pal: { b: "#16a06a", l: "#9ae8c4" } },
     { id: "bubble", name: "Bubblegum", cost: 120, pal: { b: "#e0469c", l: "#ffaad8" } },
     { id: "gold", name: "Gold", cost: 250, pal: { b: "#c89600", l: "#ffe27a" } },
-    { id: "night", name: "Midnight", cost: 400, pal: { w: "#55557a", b: "#80a8ff", l: "#8a8ab8", k: "#000000", p: "#ff90b0" } },
+    { id: "night", name: "Midnight", cost: 400, pal: { w: "#55557a", d: "#3e3e5c", b: "#80a8ff", l: "#8a8ab8", k: "#000000", p: "#ff90b0" } },
     { id: "rainbow", name: "Rainbow", cost: 700, pal: { b: "#ff3030", l: "#ffffff" }, rainbow: true }
   ];
   var TRAILS = [
@@ -176,7 +251,7 @@
     { id: "rainbow", name: "Rainbow", cost: 500 }
   ];
   var RAINBOW = ["#ff3030", "#ff9900", "#ffe000", "#20d020", "#20c8ff", "#4060ff", "#d040ff"];
-  var BASEPAL = { k: "#1b1b2b", w: "#ffffff", g: "#2e9a44", G: "#145a24", h: "#ffffff", s: "#141414", p: "#ff7890", e: "#6e6e78" };
+  var BASEPAL = { k: "#1b1b2b", w: "#ffffff", g: "#2e9a44", G: "#145a24", h: "#ffffff", d: "#d6e0fa", s: "#141414", p: "#ff7890", e: "#6e6e78" };
 
   var ICONS = {
     jet: ["...yy...", "..yooy..", "..yooy..", ".yoyyoy.", ".yoyyoy.", "yoyrryoy", "yoyrryoy", ".yorroy.", "..yrry..", "...rr..."],
@@ -1344,7 +1419,7 @@
     var lv = $("sgLives"); lv.innerHTML = "";
     var set = gliderSet(save.liv, 0);
     for (var i = 0; i < Math.min(G.lives - (G.mode === "dying" ? 0 : 0), 5); i++) {
-      var c = mk(20, 15); c.getContext("2d").drawImage(set[1][0], 0, 0); lv.appendChild(c);
+      var c = mk(26, 18); c.getContext("2d").drawImage(set[1][0], 0, 0); lv.appendChild(c);
     }
     if (!G.lives) lv.innerHTML = "-";
     lastHud = { lives: G.lives };
@@ -1446,7 +1521,7 @@
       goalsHtml() +
       '<p>Best: <b>' + save.best.toLocaleString() + '</b> &nbsp;&middot;&nbsp; <span class="sg-feath">&#9733; ' + save.stars.toLocaleString() + '</span></p></div>';
     openDialog(html);
-    var fly = $("sgFlyby"), set = gliderSet(save.liv, 0), c = mk(20, 15);
+    var fly = $("sgFlyby"), set = gliderSet(save.liv, 0), c = mk(26, 18);
     c.getContext("2d").drawImage(set[0][0], 0, 0); fly.appendChild(c);
     var ch1 = mk(16, 16), ch2 = mk(16, 16); ch1.className = "chaser"; ch2.className = "chaser2";
     fly.appendChild(ch1); fly.appendChild(ch2);
@@ -1457,7 +1532,7 @@
     }
     var fr = 0, flyTimer = setInterval(function () {
       if (!document.body.contains(c)) return clearInterval(flyTimer);
-      fr ^= 1; var g = c.getContext("2d"); g.clearRect(0, 0, 20, 15);
+      fr ^= 1; var g = c.getContext("2d"); g.clearRect(0, 0, 26, 18);
       var l = LIVERIES.filter(function (q) { return q.id === save.liv; })[0];
       g.drawImage(gliderSet(save.liv, l && l.rainbow ? Math.floor(Date.now() / 100) : 0)[0][fr], 0, 0);
       paintChaser(ch1, 0, fr); paintChaser(ch2, 1, fr ^ 1);
@@ -1489,7 +1564,7 @@
     function item(kind, it) {
       var owned = save.own[kind].indexOf(it.id) >= 0, on = save[kind] === it.id;
       return '<button class="sg-item' + (on ? " on" : "") + (owned ? "" : " locked") + (!owned && save.stars < it.cost ? " poor" : "") + '" data-k="' + kind + '" data-id="' + it.id + '">' +
-        '<canvas width="20" height="15" data-prev="' + kind + ':' + it.id + '"></canvas>' + it.name +
+        '<canvas width="34" height="18" data-prev="' + kind + ':' + it.id + '"></canvas>' + it.name +
         '<span class="pr">' + (on ? "Flying" : owned ? "Use" : it.cost) + '</span></button>';
     }
     var html = '<div class="dt">Hangar</div><div class="db"><h2>&#9992; Hangar</h2><p>You have <span class="sg-feath">&#9733; ' + save.stars.toLocaleString() + '</span> stars</p>' +
@@ -1500,9 +1575,9 @@
     openDialog(html);
     Array.prototype.forEach.call(dialog.querySelectorAll("canvas[data-prev]"), function (c) {
       var parts2 = c.getAttribute("data-prev").split(":"), g = c.getContext("2d");
-      if (parts2[0] === "liv") g.drawImage(gliderSet(parts2[1], 2)[1][0], 0, 0);
+      if (parts2[0] === "liv") g.drawImage(gliderSet(parts2[1], 2)[1][0], 4, 0);
       else {
-        g.drawImage(gliderSet(save.liv, 2)[1][0], 6, 0);
+        g.drawImage(gliderSet(save.liv, 2)[1][0], 8, 0);
         var t = parts2[1];
         for (var i = 0; i < 6; i++) {
           if (t === "puff") { g.fillStyle = "#fff"; g.fillRect(i * 1 - 0, 8 + (i % 2), 2, 2); }
