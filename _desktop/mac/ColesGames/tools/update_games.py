@@ -211,8 +211,7 @@ LAUNCHER = f'''<!DOCTYPE html>
   .tracks .n, .tracks .d {{ font-variant-numeric: tabular-nums; }} .tracks .d {{ text-align: right; }}
   .tracks .t {{ font-weight: 500; }}
   /* Sky Glider: tucked away below the games */
-  .hint {{ margin: 34px 0 12px; text-align: center; color: var(--text2); font-size: 12px; letter-spacing: .06em; opacity: .75; }}
-  .card.wide {{ flex-direction: row; max-width: 680px; margin: 0 auto; }}
+  .card.wide {{ flex-direction: row; max-width: 680px; margin: 34px auto 0; }}
   .card.wide .shot {{ width: 46%; flex: none; }}
   .card.locked .shot img {{ filter: grayscale(1) brightness(.7); }}
   .card.locked .play {{ background: var(--line); color: var(--text2); }}
@@ -232,7 +231,7 @@ LAUNCHER = f'''<!DOCTYPE html>
     <h3 class="section">Games</h3>
     <div class="grid">{CARDS}
     </div>
-    <div class="hint">&middot; &middot; &middot; psst, there's one more down here &middot; &middot; &middot;</div>{SECRET_CARD}
+{SECRET_CARD}
     <h3 class="section" id="music">Music</h3>
     <section class="player" aria-label="Game music">
       <div class="now">
