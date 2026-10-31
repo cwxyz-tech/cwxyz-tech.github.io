@@ -1,7 +1,7 @@
 {
   "name": "coles-games",
   "productName": "Cole's Games",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Blackjack DX, Lines DX, Lucky Flip and Sky Glider from coleswebsite.xyz",
   "main": "main.js",
   "author": "coleswebsite.xyz",
