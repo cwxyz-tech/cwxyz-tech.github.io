@@ -59,8 +59,9 @@ chmod 755 "$M/build.sh"
 
 echo "== package"
 find "$OUT/windows" "$OUT/linux" "$OUT/mac" -exec touch -h -d "$STAMP" {} +
-(cd "$OUT/windows" && zip -qrX -9 "$OUT/release/Coles-Games-Windows.zip" README.txt "Cole's Games")
-(cd "$OUT/mac" && zip -qrX -9 "$OUT/release/Coles-Games-macOS.zip" ColesGames)
+# files go into the zips in name order (not the disk's order), so every machine makes the exact same zip
+(cd "$OUT/windows" && find README.txt "Cole's Games" | LC_ALL=C sort | zip -qX -9 -@ "$OUT/release/Coles-Games-Windows.zip")
+(cd "$OUT/mac" && find ColesGames | LC_ALL=C sort | zip -qX -9 -@ "$OUT/release/Coles-Games-macOS.zip")
 (cd "$OUT/linux" && tar --owner=0 --group=0 --numeric-owner --mtime="$STAMP" --sort=name -cf - README.txt "Cole's Games" \
   | gzip -9 -n > "$OUT/release/Coles-Games-Linux.tar.gz")
 (cd "$OUT/release" && sha256sum Coles-Games-* > SHA256SUMS.txt && cat SHA256SUMS.txt && ls -la)
