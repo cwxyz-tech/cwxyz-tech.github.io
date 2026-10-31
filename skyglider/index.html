@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="/appmode.js?v=2"></script>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cole's Website">
+<meta property="og:title" content="Sky Glider">
+<meta property="og:description" content="Fly through the cloud maze, grab the sparkles and dodge the storms. An arcade game on coleswebsite.xyz">
+<meta property="og:url" content="https://coleswebsite.xyz/skyglider">
+<meta property="og:image" content="https://coleswebsite.xyz/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sky Glider">
+<meta name="twitter:image" content="https://coleswebsite.xyz/og-image.png">
+<meta name="theme-color" content="#008080">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script src="/tos.js?v=6" data-page="/pages/skyglider.html"></script>
+<script src="/ux.js?v=2" defer></script>
+<script src="/konami.js?v=3" defer></script>
+<title>Sky Glider - coleswebsite.xyz</title>
+<style>
+  body { font-family: "Times New Roman", Times, serif; color: #000; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
+
+  /* ===== Sky Glider ===== */
+  .sg-body { display: flex; gap: 18px; justify-content: center; align-items: flex-start; }
+  .sg-main { position: relative; width: 480px; max-width: 100%; flex-shrink: 1; }
+
+  /* score strip over the sky */
+  .sg-hud { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1.1fr; background: #000; border: 3px inset #fff; border-bottom: 0; color: #fff; font-weight: bold; }
+  .sg-hud > div { padding: 3px 8px 4px; line-height: 1.1; border-right: 1px solid #333; min-width: 0; }
+  .sg-hud > div:last-child { border-right: 0; }
+  .sg-hud small { display: block; font-size: 11px; color: #a0c0ff; }
+  .sg-hud b { font-size: 19px; font-variant-numeric: tabular-nums; white-space: nowrap; display: inline-block; }
+  .sg-hud #sgScore { color: #ffee00; }
+  .sg-hud #sgCombo { color: #fff; }
+  .sg-hud #sgCombo.c2 { color: #60ff60; } .sg-hud #sgCombo.c3 { color: #60c0ff; } .sg-hud #sgCombo.c4 { color: #ff80ff; } .sg-hud #sgCombo.c5 { color: #ff4040; animation: sg-rbw .5s steps(1) infinite; }
+  .sg-lives { display: flex; gap: 2px; align-items: center; height: 19px; }
+  .sg-lives canvas { width: 26px; height: 20px; image-rendering: pixelated; image-rendering: crisp-edges; }
+
+  .sg-stage { position: relative; background: #7ea2f0; border: 3px inset #fff; line-height: 0; touch-action: none; -webkit-user-select: none; user-select: none; overflow: hidden; }
+  .sg-stage canvas#sgCanvas { display: block; width: 100%; aspect-ratio: 1 / 1; image-rendering: pixelated; image-rendering: crisp-edges; }
+
+  /* active power-up timers under the sky */
+  .sg-pows { display: flex; gap: 4px; min-height: 30px; background: #c0c0c0; border: 2px outset #fff; border-top: 0; padding: 3px 4px; align-items: center; line-height: 1; }
+  .sg-pows .none { font-size: 13px; color: #555; padding-left: 2px; }
+  .sg-pow { display: flex; align-items: center; gap: 4px; background: #fff; border: 2px inset #808080; padding: 1px 5px 1px 2px; font-size: 13px; font-weight: bold; }
+  .sg-pow canvas { width: 20px; height: 20px; image-rendering: pixelated; image-rendering: crisp-edges; }
+  .sg-pow i { display: block; width: 34px; height: 6px; border: 1px solid #000; background: #fff; position: relative; }
+  .sg-pow i b { position: absolute; left: 0; top: 0; bottom: 0; background: #000080; }
+  .sg-pow.low { animation: sg-low .3s steps(1) infinite; }
+  @keyframes sg-low { 50% { background: #ffff99; } }
+
+  /* big text over the sky */
+  .sg-call { position: absolute; left: 0; right: 0; top: 44%; text-align: center; pointer-events: none; line-height: 1; z-index: 8; transform: translateY(-50%);
+    font-weight: bold; font-size: 40px; color: #ffee00; text-shadow: 3px 3px 0 #000, -1px -1px 0 #000; opacity: 0; }
+  .sg-call small { display: block; font-size: 17px; color: #fff; margin-top: 6px; }
+  .sg-call.show { animation: sg-calpop 1.3s steps(1) forwards; }
+  .sg-call.stay { opacity: 1; animation: none; }
+  .sg-call.rainbow .cw-hop { animation: cw-hop .4s steps(4) backwards, sg-rbw .6s steps(1) infinite; }
+  @keyframes sg-calpop { 0% { opacity: 1; } 10% { opacity: 0; } 20% { opacity: 1; } 84% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes sg-rbw { 0% { color: #ff3030; } 14% { color: #ff9900; } 28% { color: #ffee00; } 42% { color: #00ff00; } 57% { color: #00ffff; } 71% { color: #6080ff; } 85% { color: #ff66ff; } }
+
+  /* dialogs over the sky */
+  .sg-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 10px; background: rgba(0,0,40,.45); z-index: 20; line-height: 1.3; }
+  .sg-dialog { width: 100%; max-width: 330px; max-height: 100%; overflow-y: auto; background: #c0c0c0; border: 3px outset #fff; box-shadow: 3px 3px 0 #000; animation: sg-dlg .3s steps(4) 1; box-sizing: border-box; }
+  @keyframes sg-dlg { 0% { transform: scale(.3); } 70% { transform: scale(1.06); } 100% { transform: scale(1); } }
+  .sg-dialog .dt { background: #000080; color: #fff; font-weight: bold; font-size: 14px; padding: 3px 6px; position: sticky; top: 0; z-index: 1; }
+  .sg-dialog .db { padding: 12px; text-align: center; display: grid; gap: 9px; justify-items: center; font-size: 15px; }
+  .sg-dialog h2 { margin: 0; font-size: 26px; }
+  .sg-dialog h2.oops { color: #cc0000; transform: rotate(-2deg); }
+  .sg-dialog p { margin: 0; }
+  .sg-dialog .big { font-size: 34px; font-weight: bold; color: #000080; line-height: 1; font-variant-numeric: tabular-nums; }
+  .sg-dialog .newbest { color: #cc0000; font-weight: bold; font-size: 20px; animation: sg-rbw .5s steps(1) infinite; }
+  .sg-row2 { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+  .sg-title { font-size: 46px; font-weight: bold; line-height: 1; margin: 2px 0 0; color: #fff; text-shadow: 3px 3px 0 #000080, -1px -1px 0 #000; letter-spacing: 1px; }
+  .sg-title .cw-hop { animation: cw-hop .4s steps(4) backwards, sg-rbw 1s steps(1) infinite; }
+  .sg-flyby { width: 100%; height: 52px; position: relative; overflow: hidden; background: #7ea2f0; border: 2px inset #808080; }
+  .sg-flyby canvas { position: absolute; top: 6px; width: 60px; height: 45px; image-rendering: pixelated; image-rendering: crisp-edges; animation: sg-fly 4s linear infinite; }
+  @keyframes sg-fly { 0% { left: 105%; transform: translateY(0); } 25% { transform: translateY(-4px); } 50% { transform: translateY(2px); } 75% { transform: translateY(-3px); } 100% { left: -70px; transform: translateY(0); } }
+  .sg-kv { display: grid; grid-template-columns: 1fr auto; width: 100%; background: #fff; border: 2px inset #808080; text-align: left; font-size: 14px; }
+  .sg-kv > div { padding: 2px 6px; border-bottom: 1px solid #ddd; }
+  .sg-kv > div:nth-last-child(-n+2) { border-bottom: 0; }
+  .sg-kv .v { text-align: right; font-weight: bold; color: #000080; font-variant-numeric: tabular-nums; }
+
+  .sg-goals { width: 100%; text-align: left; background: #fff; border: 2px inset #808080; font-size: 13px; }
+  .sg-goals .gh { background: #dce6f5; font-weight: bold; padding: 2px 6px; display: flex; justify-content: space-between; }
+  .sg-goal { display: flex; gap: 6px; align-items: center; padding: 3px 6px; border-top: 1px solid #ddd; }
+  .sg-goal .ck { width: 14px; height: 14px; border: 2px inset #808080; background: #fff; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; line-height: 1; font-weight: bold; color: #008000; }
+  .sg-goal.done { color: #707070; }
+  .sg-goal.done span { text-decoration: line-through; }
+  .sg-goal .rw { margin-left: auto; font-weight: bold; color: #000080; white-space: nowrap; }
+  .sg-goal.new { animation: sg-low .3s steps(1) 6; }
+
+  /* hangar */
+  .sg-shop { width: 100%; display: grid; gap: 8px; }
+  .sg-shop h3 { margin: 0; font-size: 14px; text-align: left; }
+  .sg-items { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+  .sg-item { font: inherit; font-size: 12px; font-weight: bold; color: #000; background: #c0c0c0; border: 2px outset #fff; padding: 4px 2px 3px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; line-height: 1.1; touch-action: manipulation; }
+  .sg-item:active { border-style: inset; }
+  .sg-item canvas { width: 40px; height: 30px; image-rendering: pixelated; image-rendering: crisp-edges; background: #7ea2f0; border: 1px solid #808080; }
+  .sg-item .pr { color: #000080; }
+  .sg-item.on { background: #ffff99; border-style: inset; }
+  .sg-item.locked .pr::before { content: "\2605 "; color: #c89600; }
+  .sg-item.poor { color: #707070; }
+  .sg-feath { font-weight: bold; color: #000080; }
+
+  /* buttons */
+  .sg-btn { font: bold 15px "Times New Roman", Times, serif; color: #000; background: #c0c0c0; border: 2px outset #ffffff; height: 36px;
+    padding: 0 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; line-height: 1; touch-action: manipulation; }
+  .sg-btn:active { border-style: inset; }
+  .sg-btn.go { background: #b4ebcf; animation: sg-ready 1s steps(1) infinite; }
+  @keyframes sg-ready { 50% { background: #e8fff2; } }
+  .sg-btn.wide { width: 100%; height: 44px; font-size: 18px; }
+  .sg-btn kbd { font: inherit; font-size: 11px; color: #555; }
+  @media (pointer: coarse) { .sg-btn kbd, .sg-kbonly { display: none; } }
+
+  /* side windows */
+  .sg-side { width: 190px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; font-size: 14px; }
+  .sg-win-title { background: #000080; color: #fff; font-weight: bold; font-size: 13px; padding: 2px 6px; border: 2px outset #fff; border-bottom: none; }
+  .sg-win-body { background: #c0c0c0; border: 2px outset #fff; padding: 6px; display: grid; gap: 6px; }
+  .sg-stats { display: grid; grid-template-columns: 1fr auto; border: 2px inset #808080; background: #fff; }
+  .sg-stats > div { padding: 3px 6px; border-bottom: 1px solid #c0c0c0; }
+  .sg-stats > div:nth-last-child(-n+2) { border-bottom: 0; }
+  .sg-stats .k { font-weight: bold; }
+  .sg-stats .v { text-align: right; white-space: nowrap; font-weight: bold; font-variant-numeric: tabular-nums; color: #000080; }
+  .sg-speed { height: 12px; border: 2px inset #808080; background: #fff; position: relative; }
+  .sg-speed i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: #cc0000; transition: width .3s steps(6); }
+  .sg-speedl { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; }
+  .sg-legend { display: grid; grid-template-columns: 22px 1fr; gap: 3px 6px; align-items: center; font-size: 12px; line-height: 1.15; }
+  .sg-legend canvas { width: 20px; height: 20px; image-rendering: pixelated; image-rendering: crisp-edges; background: #7ea2f0; border: 1px solid #808080; }
+
+  .sg-help { font-size: 14px; line-height: 1.45; }
+  .sg-help p { margin: 0 0 8px; }
+  .sg-help p:last-child { margin-bottom: 0; }
+
+  .sg-pad { display: none; }
+
+  /* Effects: OFF */
+  body.sg-nofx .sg-call.show, body.sg-nofx .sg-dialog, body.sg-nofx .sg-btn.go, body.sg-nofx .sg-pow.low, body.sg-nofx .sg-title .cw-hop,
+  body.sg-nofx .sg-call.rainbow .cw-hop, body.sg-nofx .sg-goal.new, body.sg-nofx #sgCombo.c5, body.sg-nofx .sg-dialog .newbest { animation: none !important; }
+  body.sg-nofx .sg-call.show { opacity: 1; }
+</style>
+<link rel="stylesheet" href="/site.css?v=2">
+<style>
+  /* Sky Glider is all Comic Sans. Phones don't ship Comic Sans, so they get Comic Neue (a free lookalike) from /fonts */
+  @font-face { font-family: "SgComic"; font-weight: 400; font-display: swap;
+    src: local("Comic Sans MS"), local("ComicSansMS"), local("ComicSansMS-Regular"), url("/fonts/ComicNeue-Regular.woff2") format("woff2"); }
+  @font-face { font-family: "SgComic"; font-weight: 700; font-display: swap;
+    src: local("Comic Sans MS Bold"), local("ComicSansMS-Bold"), url("/fonts/ComicNeue-Bold.woff2") format("woff2"); }
+  .content.sg, .content.sg *, .cw-float, .cw-float * {
+    font-family: "SgComic", "Comic Sans MS", "Comic Sans", cursive !important;
+  }
+  .sg-tbs a.sg-tb { font-family: "Times New Roman", Times, serif !important; font-size: 22px !important; }
+  .content.sg .box-title::after { font-family: "Times New Roman", Times, serif; }
+
+  body:not(.home) .content.sg { max-width: 720px; }
+  body:not(.home) .sg .box-body { padding: 16px; line-height: 1.3; }
+  body:not(.home) .sg .box-body.sg-help { line-height: 1.45; }
+  .sg-tbs, .sg-helphead, .sg-helpx { display: none; }
+  .sg button { touch-action: manipulation; }
+
+  /* ===== phones: the game takes the whole screen, like the other games ===== */
+  @media (max-width: 720px) {
+    html, body { height: 100%; }
+    body { overflow: hidden; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; overscroll-behavior: none;
+      padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px); box-sizing: border-box; }
+    .wrap { height: 100%; margin: 0 !important; display: flex; flex-direction: column; border: 0 !important; box-shadow: none !important; }
+    .header, .goldbar, .navbar, .footer { display: none !important; }
+    body:not(.home) .content.sg { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 4px; max-width: none; width: 100%; box-sizing: border-box; }
+    .sg > .box-title { display: flex; align-items: center; justify-content: space-between; padding: 2px 3px 2px 8px; }
+    .sg > .box-title::after { display: none; }
+    .sg-tbs { display: flex; gap: 4px; }
+    .sg-tb { font: bold 15px "Times New Roman", Times, serif; color: #000 !important; background: #c0c0c0; border: 2px outset #fff;
+      min-width: 34px; height: 28px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box; }
+    .sg-tb:active { border-style: inset; }
+
+    body:not(.home) .sg .box-body.sg-body { flex: 1; min-height: 0; margin: 0; padding: 4px; background: #c0c0c0; box-sizing: border-box;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; overflow: hidden; }
+    .sg-side { display: none; }
+    .sg-main { width: 100%; flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .sg-pows { flex-wrap: nowrap; overflow: hidden; }
+    .sg-pow span { display: none; }
+    .sg-pow i { width: 28px; }
+    .sg-hud, .sg-stage, .sg-pows { width: var(--sgw, 100%); box-sizing: border-box; }
+    .sg-hud b { font-size: 17px; }
+    .sg-hud > div { padding: 2px 5px 3px; }
+    .sg-stage canvas#sgCanvas { width: 100%; }
+    .sg-dialog { max-width: 310px; }
+    .sg-title { font-size: 40px; }
+    .sg-btn { height: 42px; font-size: 16px; }
+
+    /* thumb pad under the maze when there's room for it (swipes work anywhere too) */
+    .sg-pad { display: grid; grid-template-columns: repeat(3, 76px); grid-template-rows: repeat(2, 58px); gap: 4px; margin-top: 6px; flex-shrink: 0; }
+    .sg-pad.hide { display: none; }
+    .sg-pad button { font: bold 22px "Times New Roman", Times, serif !important; background: #c0c0c0; border: 2px outset #fff; color: #000; padding: 0; touch-action: none; }
+    .sg-pad button.on { border-style: inset; background: #a8a8a8; }
+    .sg-pad .u { grid-column: 2; grid-row: 1; } .sg-pad .l { grid-column: 1; grid-row: 2; } .sg-pad .d { grid-column: 2; grid-row: 2; } .sg-pad .r { grid-column: 3; grid-row: 2; }
+
+    .content.sg .box-title.sg-helptitle { display: none !important; }
+    .content.sg .box-body.sg-help { display: none; position: fixed; left: 10px; right: 10px; top: 50%; transform: translateY(-50%); z-index: 60; max-height: 80vh; overflow-y: auto;
+      background: #c0c0c0; border: 3px outset #fff; box-shadow: 4px 4px 0 #000; padding: 12px; }
+    .content.sg .box-body.sg-help.open { display: block; }
+    .sg-helphead { display: block; margin: 0 0 8px; font-size: 18px; }
+    .sg-helpx { display: flex; margin: 10px auto 0; }
+  }
+</style>
+</head>
+<body>
+<noscript><div style="max-width:600px;margin:60px auto;padding:20px;background:#c0c0c0;border:3px outset #fff;font-family:'Times New Roman',Times,serif;font-size:16px;color:#000"><b>coleswebsite.xyz</b><br><br>This site needs JavaScript turned on, and you need to accept the <a href="/terms/">Terms of Service</a> to see it.</div></noscript>
+</body>
+</html>

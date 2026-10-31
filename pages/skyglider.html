@@ -1,0 +1,1326 @@
+<div class="wrap">
+
+  <div class="header">
+    <div style="display:flex; align-items:flex-end;">
+      <div class="logo"><a href="/"><img src="/logo.png" alt="coleswebsite.xyz" width="394" height="56"></a></div>
+      <div class="tagline">Est. 2023... thoughts, lists, and other nonsense!</div>
+    </div>
+  </div>
+  <div class="goldbar"></div>
+
+  <div class="navbar">
+    <div>
+      <a href="/">Home</a>
+      <a href="/aboutme">About Me</a>
+      <a href="/faq">FAQ</a>
+      <a href="/impact">Impact</a>
+      <a href="/music">Music</a>
+      <a href="/reviews">Reviews</a>
+      <a href="/games">Games</a>
+      <a href="/downloads">Downloads</a>
+    </div>
+    <div><a class="signin" href="mailto:coleswebsitexyz@proton.me">Contact Me</a></div>
+  </div>
+
+  <div class="content sg">
+    <div class="box-title"><span>Sky Glider</span>
+      <span class="sg-tbs">
+        <button class="sg-tb" id="sgHelpBtn" aria-label="How to play">?</button>
+        <button class="sg-tb" id="sgPauseM" aria-label="Pause">II</button>
+        <button class="sg-tb" id="sgSoundM" aria-label="Toggle sound">&#9834;</button>
+        <button class="sg-tb" id="sgMusicM" aria-label="Toggle music">&#9835;</button>
+        <a class="sg-tb" href="/games" aria-label="Back to the games">&times;</a>
+      </span>
+    </div>
+    <div class="box-body sg-body">
+
+      <div class="sg-main" id="sgMain">
+        <div class="sg-hud" id="sgHud">
+          <div><small>Score</small><b id="sgScore">0</b></div>
+          <div><small>Combo</small><b id="sgCombo">x1</b></div>
+          <div><small>Level</small><b id="sgLevel">1</b></div>
+          <div><small>Lives</small><div class="sg-lives" id="sgLives"></div></div>
+        </div>
+        <div class="sg-stage" id="sgStage">
+          <canvas id="sgCanvas" width="504" height="504" aria-label="Sky Glider game"></canvas>
+          <div class="sg-call" id="sgCall"></div>
+          <div class="sg-overlay" id="sgOverlay" hidden><div class="sg-dialog" id="sgDialog" role="dialog" aria-live="polite"></div></div>
+        </div>
+        <div class="sg-pows" id="sgPows"><span class="none">Power-ups show up here</span></div>
+        <div class="sg-pad" id="sgPad">
+          <button class="u" data-d="up" aria-label="Up">&#9650;</button>
+          <button class="l" data-d="left" aria-label="Left">&#9664;</button>
+          <button class="d" data-d="down" aria-label="Down">&#9660;</button>
+          <button class="r" data-d="right" aria-label="Right">&#9654;</button>
+        </div>
+      </div>
+
+      <div class="sg-side">
+        <div>
+          <div class="sg-win-title">Flight Log</div>
+          <div class="sg-win-body">
+            <div class="sg-stats">
+              <div class="k">Best</div><div class="v" id="sgBest">0</div>
+              <div class="k">Top Level</div><div class="v" id="sgTopLv">1</div>
+              <div class="k">Stars</div><div class="v" id="sgStars">&#9733; 0</div>
+              <div class="k">Today</div><div class="v" id="sgDailyBest">-</div>
+            </div>
+            <div>
+              <div class="sg-speedl"><span>Speed</span><span id="sgSpeedTxt">100%</span></div>
+              <div class="sg-speed"><i id="sgSpeed"></i></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="sg-win-title">Field Guide</div>
+          <div class="sg-win-body">
+            <div class="sg-legend" id="sgLegend"></div>
+          </div>
+        </div>
+        <div>
+          <div class="sg-win-title">Game</div>
+          <div class="sg-win-body">
+            <button class="sg-btn" id="sgHangarBtn">&#9992; Hangar</button>
+            <button class="sg-btn" id="sgSound">Sound: On</button>
+            <button class="sg-btn" id="sgMusic">Music: On</button>
+            <button class="sg-btn" id="sgFx">Effects: On</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="box-title sg-helptitle">How to Play</div>
+    <div class="box-body sg-help" id="sgHelp">
+      <h3 class="sg-helphead">How to Play</h3>
+      <p>Fly Glider through the cloud maze and grab every <b>sparkle</b> to clear the level. The storm clouds are out to get you, so don't let them touch you!</p>
+      <p>Grab a <b>sun</b> and the storms get scared and puff up white. Fly into them for big points: 200, 400, 800, then 1600 for the whole set. Keep grabbing sparkles without a break to build your <b>combo</b>, all the way up to x5.</p>
+      <p>Power-ups pop up in the maze: <b>Jet</b> makes you faster, <b>Magnet</b> pulls in sparkles, <b>Shield</b> blocks one storm, <b>Snow</b> freezes the storms, <b>2x</b> doubles your points, and if you're lucky a <b>heart</b> gives you an extra life.</p>
+      <p>Every level gets a little faster, and so does every second you spend on one. Earn stars every flight to buy new paint jobs and trails in the <b>Hangar</b>, and check your <b>Flight Goals</b> for bonus stars. The <b>Daily Flight</b> is the same for everyone and you only get one life.</p>
+      <p><span class="sg-kbonly">Keyboard: arrow keys or WASD to fly, Space to start, P to pause, M for music.</span> On a phone, swipe anywhere or use the arrow pad.</p>
+      <button class="sg-btn go sg-helpx" id="sgHelpClose">Got it!</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    &copy; 2023 - 2026 coleswebsite.xyz &nbsp;&middot;&nbsp; <a href="https://coleswebsite.xyz/">https://coleswebsite.xyz/</a> &nbsp;&middot;&nbsp; <a href="/terms">Terms</a>
+  </div>
+
+</div>
+<script src="/juice.js?v=2"></script>
+<script>
+(function () {
+  "use strict";
+
+  // ======================================================================
+  // Sky Glider: fly Glider through the cloud maze, grab the sparkles, dodge the storms.
+  // Everything is drawn as 8-bit pixel art on a small canvas, then scaled up crisp.
+  // ======================================================================
+
+  var $ = function (id) { return document.getElementById(id); };
+  var COLS = 21, ROWS = 21, TS = 12, PX = 2;          // 12px tiles, drawn at 2x so movement stays smooth
+  var BW = COLS * TS * PX;                            // 504 px backbuffer
+  var KEY = "cw_skyglider";
+
+  var MAZES = [
+    ["#####################","#o....#.......#....o#","#.###.#.#####.#.###.#","#.........#.........#","#.##.####...####.##.#","#.##......#......##.#","#....##.#####.##....#","####.##       ##.####","xxx#.## ##-## ##.#xxx","    .   #HHH#   .    ","####.## ##### ##.####","xxx#.#         #.#xxx","####.# ##.#.## #.####","#.........#.........#","#.##.####.#.####.##.#","#o.#.............#.o#","##.#.#.#######.#.#.##","#....#...###...#....#","#.######.###.######.#","#...................#","#####################"],
+    ["#####################","#o.................o#","#.#.##.###.###.##.#.#","#.#...............#.#","#.#.###.#####.###.#.#","#....#....#....#....#","####.#.##.#.##.#.####","####.#         #.####","xxx#.## ##-## ##.#xxx","    .   #HHH#   .    ","xxx#.## ##### ##.#xxx","xxx#.#         #.#xxx","####.#.###.###.#.####","#....#.........#....#","#.##.##.#####.##.##.#","#o.#.............#.o#","##.#.#.#.###.#.#.#.##","#....#.#.....#.#....#","#.##.#.#.###.#.#.##.#","#....#.........#....#","#####################"],
+    ["#####################","#o.................o#","#.###.###.#.###.###.#","#.#.......#.......#.#","#.#.##.#######.##.#.#","#......#.....#......#","###.##.#.###.#.##.###","xx#.##         ##.#xx","###.### ##-## ###.###","   .    #HHH#    .   ","###.### ##### ###.###","xx#.##         ##.#xx","###.##.##.#.##.##.###","#.........#.........#","#.##.####.#.####.##.#","#o.#......P......#.o#","##.#.##.#####.##.#.##","#....##...#...##....#","#.##....#.#.#....##.#","#....##...#...##....#","#####################"]
+  ];
+  var MAZE_NAMES = ["Cumulus", "Stratus", "Nimbus"];
+  var START = { x: 10, y: 15 }, GATE = { x: 10, y: 7 }, DOOR = { x: 10, y: 8 };
+
+  // ---------------- pixel art ----------------
+  var GLIDER = [
+    "..k...k.........kk..",
+    ".kwk.kwk.......kbwk.",
+    ".kwwkwwk......kbwk..",
+    "kkkkkkkkkk...kbwwk..",
+    "kswbkswbkk..kbwk....",
+    "kwwwwwwwwk..kwwwk...",
+    "kwkwwwkwwkkkwwwwwk..",
+    "kwgwwwgwwwwwwwwwwk..",
+    "kbwppwwwwwkwkwkwwk..",
+    ".kbwwwwwwwwwwwwwk...",
+    "..kkwwwwlllllllllk..",
+    "...kwwwwkbbbbbbbbk..",
+    "...kwkkwwwkkwwkkk...",
+    "...kwk.kwk..kwk.....",
+    "...kek.kek..kek....."
+  ];
+  var GLIDER2 = GLIDER.slice(0, 12).concat([
+    "...kwkkwwwkkwwkkk...",
+    "..kwk...kwk..kwk....",
+    "..kek...kek..kek...."
+  ]);
+  var LIVERIES = [
+    { id: "sky", name: "Sky Blue", cost: 0, pal: { b: "#3a6ad8", l: "#96b4f0" } },
+    { id: "sunset", name: "Sunset", cost: 40, pal: { b: "#e0502a", l: "#ffb08a" } },
+    { id: "mint", name: "Mint", cost: 80, pal: { b: "#16a06a", l: "#9ae8c4" } },
+    { id: "bubble", name: "Bubblegum", cost: 120, pal: { b: "#e0469c", l: "#ffaad8" } },
+    { id: "gold", name: "Gold", cost: 250, pal: { b: "#c89600", l: "#ffe27a" } },
+    { id: "night", name: "Midnight", cost: 400, pal: { w: "#55557a", b: "#80a8ff", l: "#8a8ab8", k: "#000000", p: "#ff90b0" } },
+    { id: "rainbow", name: "Rainbow", cost: 700, pal: { b: "#ff3030", l: "#ffffff" }, rainbow: true }
+  ];
+  var TRAILS = [
+    { id: "none", name: "None", cost: 0 },
+    { id: "puff", name: "Puffs", cost: 30 },
+    { id: "spark", name: "Sparkly", cost: 150 },
+    { id: "rainbow", name: "Rainbow", cost: 500 }
+  ];
+  var RAINBOW = ["#ff3030", "#ff9900", "#ffe000", "#20d020", "#20c8ff", "#4060ff", "#d040ff"];
+  var BASEPAL = { k: "#1b1b2b", w: "#ffffff", g: "#2e8c3c", s: "#141414", p: "#ff7890", e: "#6e6e78" };
+
+  var ICONS = {
+    jet: ["...yy...", "..yooy..", "..yooy..", ".yoyyoy.", ".yoyyoy.", "yoyrryoy", "yoyrryoy", ".yorroy.", "..yrry..", "...rr..."],
+    magnet: ["ww..ww", "rr..rr", "rr..rr", "rr..rr", "rr..rr", "rrrrrr", ".rrrr."],
+    shield: ["cccccccc", "cwcccccc", "cwccccbc", "ccccccbc", ".ccccbc.", ".cccbcc.", "..ccbc..", "...cc..."],
+    snow: ["....c....", ".c..c..c.", "..c.c.c..", "...ccc...", "ccccwcccc", "...ccc...", "..c.c.c..", ".c..c..c.", "....c...."],
+    dbl: ["yyy......", "...y.....", "...y.y..y", "..y...yy.", ".y....yy.", "yyyy.y..y"],
+    heart: [".rr.rr.", "rwrrrrr", "rwrrrrr", "rrrrrrr", ".rrrrr.", "..rrr..", "...r..."]
+  };
+  var ICONPAL = { y: "#ffe14d", o: "#ff8a00", r: "#e82020", w: "#ffffff", c: "#40d0ff", b: "#1a78c0" };
+  var POWERS = {
+    jet: { name: "Jet", time: 6, tip: "Fly way faster" },
+    magnet: { name: "Magnet", time: 8, tip: "Pulls in sparkles" },
+    shield: { name: "Shield", time: 0, tip: "Blocks one storm" },
+    snow: { name: "Snow", time: 4.5, tip: "Freezes the storms" },
+    dbl: { name: "2x", time: 10, tip: "Double points" },
+    heart: { name: "Heart", time: 0, tip: "Extra life" }
+  };
+  var SUNMAP = ["...ooo...", "..oyyyo..", ".oyywyyo.", ".oyyyyyo.", ".oyyyyyo.", "..oyyyo..", "...ooo..."];
+  var STORMS = [
+    { name: "Thunder", body: "#6c5a8a", shade: "#4d3f66", rain: "#ffee00", corner: { x: COLS - 2, y: -3 }, tip: "Chases you" },
+    { name: "Gust", body: "#4f8f9c", shade: "#386a75", rain: "#a8e8ff", corner: { x: 1, y: -3 }, tip: "Cuts you off" },
+    { name: "Hail", body: "#b0705a", shade: "#875040", rain: "#ffffff", corner: { x: COLS, y: ROWS + 1 }, tip: "Tricky flanker" },
+    { name: "Drizzle", body: "#6a7ab0", shade: "#4c5a88", rain: "#a0c8ff", corner: { x: -1, y: ROWS + 1 }, tip: "Shy, then sneaky" }
+  ];
+
+  function mk(w, h) { var c = document.createElement("canvas"); c.width = w; c.height = h; return c; }
+  function bake(map, pal, flip) {
+    var h = map.length, w = 0, i, j;
+    for (i = 0; i < h; i++) w = Math.max(w, map[i].length);
+    var c = mk(w, h), x = c.getContext("2d");
+    for (j = 0; j < h; j++) for (i = 0; i < w; i++) {
+      var ch = map[j][flip ? w - 1 - i : i];
+      if (ch && ch !== "." && pal[ch]) { x.fillStyle = pal[ch]; x.fillRect(i, j, 1, 1); }
+    }
+    return c;
+  }
+  // put a dark outline around a little icon
+  function outline(map) {
+    var h = map.length, w = 0, i, j, out = [];
+    for (i = 0; i < h; i++) w = Math.max(w, map[i].length);
+    function at(x, y) { return y >= 0 && y < h && x >= 0 && x < w && map[y][x] && map[y][x] !== "."; }
+    for (j = -1; j <= h; j++) {
+      var row = "";
+      for (i = -1; i <= w; i++) {
+        if (at(i, j)) row += map[j][i];
+        else if (at(i - 1, j) || at(i + 1, j) || at(i, j - 1) || at(i, j + 1)) row += "k";
+        else row += ".";
+      }
+      out.push(row);
+    }
+    return out;
+  }
+  var ICON = {};
+  Object.keys(ICONS).forEach(function (k) { ICON[k] = bake(outline(ICONS[k]), Object.assign({ k: "#1b1b2b" }, ICONPAL)); });
+  var SUN = bake(outline(SUNMAP), { k: "#1b1b2b", o: "#ff9a00", y: "#ffe14d", w: "#ffffff" });
+
+  // Glider sprites for a paint job: [facing][frame] where facing 0 = left (like the drawing), 1 = right
+  var gliderCache = {};
+  function gliderSet(livId, hueStep) {
+    var key = livId + ":" + (hueStep || 0);
+    if (gliderCache[key]) return gliderCache[key];
+    var liv = LIVERIES.filter(function (l) { return l.id === livId; })[0] || LIVERIES[0];
+    var pal = Object.assign({}, BASEPAL, liv.pal);
+    if (liv.rainbow) pal.b = RAINBOW[(hueStep || 0) % RAINBOW.length];
+    var set = [[bake(GLIDER, pal, false), bake(GLIDER2, pal, false)], [bake(GLIDER, pal, true), bake(GLIDER2, pal, true)]];
+    gliderCache[key] = set;
+    return set;
+  }
+
+  // storm cloud bodies, built from circles so they look puffy, with rain drips (2 frames)
+  function cloudBody(body, shade, rain, line) {
+    var frames = [], f, x, y;
+    var circ = [[4.5, 7, 3.7], [8, 4.8, 4.3], [11.5, 7, 3.7]];
+    function inside(px, py) {
+      var cx = px + 0.5, cy = py + 0.5, k;
+      if (cy >= 7 && cy <= 11 && cx >= 1.6 && cx <= 14.4) return true;
+      for (k = 0; k < circ.length; k++) { var dx = cx - circ[k][0], dy = cy - circ[k][1]; if (dx * dx + dy * dy <= circ[k][2] * circ[k][2]) return true; }
+      return false;
+    }
+    for (f = 0; f < 2; f++) {
+      var c = mk(16, 16), g = c.getContext("2d");
+      for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) {
+        if (inside(x, y)) { g.fillStyle = y >= 10 ? shade : body; g.fillRect(x, y, 1, 1); }
+        else if (inside(x - 1, y) || inside(x + 1, y) || inside(x, y - 1) || inside(x, y + 1)) { g.fillStyle = line; g.fillRect(x, y, 1, 1); }
+      }
+      g.fillStyle = "rgba(255,255,255,.35)"; g.fillRect(6, 2, 3, 1); g.fillRect(5, 3, 1, 1);
+      if (rain) {
+        g.fillStyle = rain;
+        var drops = f ? [[4, 13], [8, 14], [12, 13]] : [[5, 14], [9, 13], [11, 15]];
+        drops.forEach(function (d) { g.fillRect(d[0], d[1], 1, 2); });
+      }
+      frames.push(c);
+    }
+    return frames;
+  }
+  var STORM_ART = STORMS.map(function (s) { return cloudBody(s.body, s.shade, s.rain, "#1b1b2b"); });
+  var SCARED_ART = cloudBody("#f4f7ff", "#c8d6ff", "#ffffff", "#3050c0");
+  var SCARED_FLASH = cloudBody("#ffd0e4", "#ffaacc", "#ffffff", "#c03070");
+  var FROZEN_ART = cloudBody("#c8f4ff", "#90dcf0", null, "#1a6a90");
+
+  // ---------------- save data ----------------
+  var save = {};
+  try { save = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { save = {}; }
+  save.best = save.best || 0; save.stars = save.stars || 0; save.topLv = save.topLv || 1;
+  save.own = save.own || { liv: ["sky"], trail: ["none"] };
+  save.liv = save.liv || "sky"; save.trail = save.trail || "none";
+  if (save.sound === undefined) save.sound = true;
+  if (save.music === undefined) save.music = true;
+  if (save.fx === undefined) save.fx = true;
+  save.games = save.games || 0;
+  function persist() { try { localStorage.setItem(KEY, JSON.stringify(save)); } catch (e) {} }
+
+  function today() { var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+  function seedOf(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function rng(seed) { var a = seed >>> 0; return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+
+  // ---------------- flight goals (3 new ones every day) ----------------
+  var GOALS = [
+    { id: "s15", text: "Score 15,000 in one flight", stars: 30, test: function (r) { return r.score >= 15000; } },
+    { id: "s40", text: "Score 40,000 in one flight", stars: 70, test: function (r) { return r.score >= 40000; } },
+    { id: "l3", text: "Reach level 3", stars: 25, test: function (r) { return r.level >= 3; } },
+    { id: "l6", text: "Reach level 6", stars: 60, test: function (r) { return r.level >= 6; } },
+    { id: "set", text: "Eat all 4 storms with one sun", stars: 50, test: function (r) { return r.bestChain >= 4; } },
+    { id: "c5", text: "Get a x5 combo", stars: 40, test: function (r) { return r.bestMult >= 5; } },
+    { id: "p3", text: "Grab 3 power-ups in one flight", stars: 30, test: function (r) { return r.pows >= 3; } },
+    { id: "blk", text: "Block a storm with a Shield", stars: 30, test: function (r) { return r.blocks >= 1; } },
+    { id: "clean", text: "Clear a level without getting hit", stars: 40, test: function (r) { return r.clean >= 1; } },
+    { id: "e8", text: "Eat 8 storms in one flight", stars: 40, test: function (r) { return r.eaten >= 8; } },
+    { id: "dly", text: "Play today's Daily Flight", stars: 20, test: function (r) { return r.daily; } },
+    { id: "frz", text: "Freeze the storms with Snow", stars: 20, test: function (r) { return r.froze >= 1; } }
+  ];
+  function todaysGoals() {
+    var d = today(), r = rng(seedOf("goals" + d)), list = GOALS.slice(), out = [];
+    while (out.length < 3) out.push(list.splice(Math.floor(r() * list.length), 1)[0]);
+    if (!save.goals || save.goals.date !== d) { save.goals = { date: d, done: [] }; persist(); }
+    return out;
+  }
+
+  // ---------------- audio ----------------
+  var ac = null, master = null, musicGain = null, noiseBuf = null;
+  function audio() {
+    if (!ac) {
+      var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+      ac = new AC(); master = ac.createGain(); master.gain.value = 0.5; master.connect(ac.destination);
+      musicGain = ac.createGain(); musicGain.gain.value = 0.22; musicGain.connect(master);
+      noiseBuf = ac.createBuffer(1, ac.sampleRate * 0.5, ac.sampleRate);
+      var d = noiseBuf.getChannelData(0); for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    if (ac.state === "suspended") ac.resume();
+    return ac;
+  }
+  function tone(freq, start, dur, vol, type, endFreq, dest) {
+    if (!ac) return;
+    var o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + start;
+    o.type = type || "square"; o.frequency.setValueAtTime(freq, t);
+    if (endFreq) o.frequency.exponentialRampToValueAtTime(endFreq, t + dur);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + dur);
+    o.connect(g); g.connect(dest || master); o.start(t); o.stop(t + dur + 0.02);
+  }
+  function noise(start, dur, vol, hp, dest) {
+    if (!ac) return;
+    var s = ac.createBufferSource(), g = ac.createGain(), f = ac.createBiquadFilter(), t = ac.currentTime + start;
+    s.buffer = noiseBuf; f.type = "highpass"; f.frequency.value = hp || 1000;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + dur);
+    s.connect(f); f.connect(g); g.connect(dest || master); s.start(t); s.stop(t + dur + 0.02);
+  }
+  var chirp = 0;
+  function sfx(name, arg) {
+    if (!save.sound || !audio()) return;
+    var i;
+    switch (name) {
+      case "spark": chirp ^= 1; tone((chirp ? 988 : 1319) * (1 + Math.min(arg || 0, 4) * 0.06), 0, 0.05, 0.07, "triangle"); break;
+      case "sun": tone(330, 0, 0.25, 0.12, "square", 1320); tone(660, 0.08, 0.3, 0.08, "triangle", 1760); break;
+      case "eat": for (i = 0; i < 4; i++) tone(440 * Math.pow(1.26, i + (arg || 0)), i * 0.04, 0.08, 0.1, "square"); break;
+      case "power": [523, 659, 784, 1047, 1319].forEach(function (f, k) { tone(f, k * 0.05, 0.1, 0.09, "square"); }); break;
+      case "shield": noise(0, 0.25, 0.25, 600); tone(880, 0, 0.3, 0.1, "triangle", 220); break;
+      case "freeze": [2093, 1760, 2349, 1976].forEach(function (f, k) { tone(f, k * 0.05, 0.25, 0.05, "sine"); }); break;
+      case "combo": [784, 988, 1175, 1568].forEach(function (f, k) { tone(f, k * 0.035, 0.07, 0.07, "square"); }); break;
+      case "life": [784, 1047, 1319, 1047, 1319, 1568].forEach(function (f, k) { tone(f, k * 0.08, 0.1, 0.09, "square"); }); break;
+      case "die": tone(988, 0, 1.1, 0.12, "square", 82); tone(494, 0.1, 1.0, 0.08, "triangle", 60); noise(0.9, 0.4, 0.2, 300); break;
+      case "clear": [523, 659, 784, 1047, 784, 1047, 1319].forEach(function (f, k) { tone(f, k * 0.09, 0.14, 0.09, "square"); tone(f / 2, k * 0.09, 0.14, 0.06, "triangle"); }); break;
+      case "goal": [1047, 1319, 1568, 2093].forEach(function (f, k) { tone(f, k * 0.07, 0.12, 0.08, "triangle"); }); break;
+      case "ready": [392, 523, 659, 784].forEach(function (f, k) { tone(f, k * 0.12, 0.12, 0.08, "square"); }); break;
+      case "click": tone(1200, 0, 0.03, 0.05, "square"); break;
+      case "buy": [659, 880, 1175].forEach(function (f, k) { tone(f, k * 0.06, 0.1, 0.08, "square"); }); break;
+      case "nope": tone(180, 0, 0.15, 0.1, "square"); break;
+    }
+  }
+
+  // chiptune: lead, bass, hats. It speeds up with the level.
+  var LEAD = [72,0,76,0,79,0,76,79,81,0,79,0,76,0,74,0, 71,0,74,0,79,0,74,79,77,0,76,0,74,0,0,0,
+              69,0,72,0,77,0,72,77,79,0,77,0,76,0,72,0, 71,0,74,0,79,0,77,0,76,0,74,0,71,0,74,0];
+  var BASSR = [48, 43, 41, 43];
+  var FRIGHT = [84,88,91,88,84,88,91,96, 83,86,91,86,83,86,91,95];
+  var mus = { on: false, step: 0, next: 0, timer: null };
+  function midi(n) { return 440 * Math.pow(2, (n - 69) / 12); }
+  function musicTick() {
+    if (!ac || !mus.on) return;
+    var bpm = Math.min(124 + (G.level - 1) * 6, 186), sl = 60 / bpm / 4;
+    while (mus.next < ac.currentTime + 0.12) {
+      var s = mus.step % 64, t = mus.next - ac.currentTime, bar = Math.floor(s / 16), frightNow = G.frightT > 0;
+      if (frightNow) { if (s % 2 === 0) tone(midi(FRIGHT[(s / 2) % 16]), t, sl * 1.6, 0.05, "square", 0, musicGain); }
+      else if (LEAD[s]) tone(midi(LEAD[s]), t, sl * 1.7, 0.07, "square", 0, musicGain);
+      if (s % 2 === 0) { var root = BASSR[bar]; tone(midi(root + ((s / 2) % 2 ? 7 : 0)), t, sl * 1.8, 0.12, "triangle", 0, musicGain); }
+      if (s % 4 === 2) noise(t, 0.03, 0.05, 7000, musicGain);
+      if (s % 8 === 4) noise(t, 0.07, 0.07, 2500, musicGain);
+      mus.step++; mus.next += sl;
+    }
+  }
+  function musicStart() {
+    if (!save.music || !audio() || mus.on) return;
+    mus.on = true; mus.next = ac.currentTime + 0.05;
+    musicGain.gain.cancelScheduledValues(ac.currentTime); musicGain.gain.setValueAtTime(0.22, ac.currentTime);
+    mus.timer = setInterval(musicTick, 30);
+  }
+  function musicStop() {
+    if (!mus.on) return;
+    mus.on = false; clearInterval(mus.timer);
+    if (ac) { musicGain.gain.setValueAtTime(musicGain.gain.value, ac.currentTime); musicGain.gain.linearRampToValueAtTime(0.0001, ac.currentTime + 0.3); }
+  }
+
+  // ---------------- elements ----------------
+  var canvas = $("sgCanvas"), ctx = canvas.getContext("2d");
+  var buf = mk(BW, BW), b = buf.getContext("2d");
+  b.imageSmoothingEnabled = false;
+  var stage = $("sgStage"), callEl = $("sgCall"), overlay = $("sgOverlay"), dialog = $("sgDialog");
+  var fx = window.CwJuice ? CwJuice.create({ font: '"SgComic", "Comic Sans MS", "Comic Sans", cursive', off: function () { return !save.fx; } })
+    : { float: function () {}, burst: function () {}, confetti: function () {}, quake: function () {}, flash: function () {}, restart: function () {}, hop: null, chip: function () {} };
+
+  // ---------------- game state ----------------
+  var G = {
+    mode: "title", level: 1, score: 0, lives: 3, maze: 0, grid: null, sparks: 0, total: 0,
+    frightT: 0, frightMax: 1, chain: 0, freezeT: 0, jetT: 0, magT: 0, dblT: 0, shield: false,
+    combo: 0, lastEat: -9, mult: 1, levelT: 0, modeT: 0, modeIdx: 0, timer: 0, hitPause: 0,
+    item: null, itemSpawns: 0, eatenCount: 0, nextLife: 10000, daily: false, rand: Math.random, hitThisLevel: false, invuln: 0,
+    run: null, flash: 0, t: 0, deathT: 0
+  };
+  var player = { x: 10, y: 15, dx: 0, dy: 0, want: null, face: 0, tilt: 0, anim: 0 };
+  var storms = [];
+  var parts = [];
+  var mazeArt = null, mazeFlash = null, bfs = null;
+
+  function cell(x, y) {
+    if (y < 0 || y >= ROWS) return "#";
+    x = ((x % COLS) + COLS) % COLS;
+    return G.grid[y][x];
+  }
+  function open(x, y) { var c = cell(x, y); return c !== "#" && c !== "x" && c !== "H" && c !== "-"; }
+  function openStorm(x, y) { var c = cell(x, y); return c !== "#" && c !== "x"; }
+
+  function buildLevel() {
+    var src = MAZES[G.maze];
+    G.grid = src.map(function (r) { return r.replace("P", ".").split(""); });
+    G.grid[START.y][START.x] = " ";
+    G.sparks = 0;
+    for (var y = 0; y < ROWS; y++) for (var x = 0; x < COLS; x++) if (G.grid[y][x] === "." || G.grid[y][x] === "o") G.sparks++;
+    G.total = G.sparks;
+    mazeArt = drawMaze(false); mazeFlash = drawMaze(true);
+    // distance map back to the cloud gate, so eaten storms can find their way home
+    bfs = []; for (y = 0; y < ROWS; y++) { bfs.push([]); for (x = 0; x < COLS; x++) bfs[y].push(1e9); }
+    var q = [[GATE.x, GATE.y]]; bfs[GATE.y][GATE.x] = 0;
+    while (q.length) {
+      var p = q.shift();
+      [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (d) {
+        var nx = (p[0] + d[0] + COLS) % COLS, ny = p[1] + d[1];
+        if (open(nx, ny) && bfs[ny][nx] > bfs[p[1]][p[0]] + 1) { bfs[ny][nx] = bfs[p[1]][p[0]] + 1; q.push([nx, ny]); }
+      });
+    }
+  }
+
+  // the cloud maze: puffy pixel clouds with a blue edge and a soft shadow underneath
+  function drawMaze(flash) {
+    var W = COLS * TS, c = mk(W, W), g = c.getContext("2d");
+    var img = g.createImageData(W, W), d = img.data;
+    var mask = new Uint8Array(W * W), x, y, px, py;
+    function wall(cx, cy) { if (cy < 0 || cy >= ROWS || cx < 0 || cx >= COLS) return false; return G.grid[cy][cx] === "#"; }
+    for (y = 0; y < ROWS; y++) for (x = 0; x < COLS; x++) {
+      if (!wall(x, y)) continue;
+      var up = wall(x, y - 1), dn = wall(x, y + 1), lf = wall(x - 1, y), rt = wall(x + 1, y);
+      for (py = 0; py < TS; py++) for (px = 0; px < TS; px++) {
+        var ins = 1, gx = x * TS + px, gy = y * TS + py;
+        // leave a pixel of sky between clouds and the paths so they read as separate puffs
+        if (!up && py < 1) ins = 0; if (!dn && py > TS - 2) ins = 0;
+        if (!lf && px < 1) ins = 0; if (!rt && px > TS - 2) ins = 0;
+        // round the outside corners
+        var cxp = px < TS / 2 ? px : TS - 1 - px, cyp = py < TS / 2 ? py : TS - 1 - py;
+        var hor = px < TS / 2 ? lf : rt, ver = py < TS / 2 ? up : dn;
+        if (!hor && !ver && cxp + cyp < 4) ins = 0;
+        // little bumps along the tops make them puffy
+        if (!up && py === 1 && (gx % 6 === 0)) ins = 0;
+        if (ins) mask[gy * W + gx] = 1;
+      }
+    }
+    var EDGE = flash ? [255, 255, 255] : [59, 92, 196], SH = flash ? [126, 162, 240] : [184, 205, 248], WH = flash ? [59, 92, 196] : [255, 255, 255];
+    var SKY = [126, 162, 240], SKY2 = [138, 172, 244], HOUSE = [104, 140, 226];
+    for (py = 0; py < W; py++) for (px = 0; px < W; px++) {
+      var i = (py * W + px) * 4, col, ty = (py / TS) | 0, tx = (px / TS) | 0;
+      if (mask[py * W + px]) {
+        var edge = (px === 0 || !mask[py * W + px - 1]) || (px === W - 1 || !mask[py * W + px + 1]) || (py === 0 || !mask[(py - 1) * W + px]) || (py === W - 1 || !mask[(py + 1) * W + px]);
+        var shade = !edge && (py + 2 < W && (!mask[(py + 2) * W + px] || !mask[(py + 3) * W + px]));
+        col = edge ? EDGE : shade ? SH : WH;
+      } else {
+        var cc = G.grid[ty][tx];
+        if (cc === "H") col = HOUSE;
+        else col = ((px + py * 3) % 16 === 0 && (py % 4 === 0)) ? SKY2 : SKY;
+      }
+      d[i] = col[0]; d[i + 1] = col[1]; d[i + 2] = col[2]; d[i + 3] = 255;
+    }
+    g.putImageData(img, 0, 0);
+    // the gate the storms come out of
+    for (y = 0; y < ROWS; y++) for (x = 0; x < COLS; x++) if (G.grid[y][x] === "-") {
+      g.fillStyle = flash ? "#fff" : "#ffd0e8"; g.fillRect(x * TS - 4, y * TS + 5, TS + 8, 2);
+    }
+    return c;
+  }
+
+  function resetActors() {
+    player.x = START.x; player.y = START.y; player.dx = -1; player.dy = 0; player.want = null; player.face = 0; player.tilt = 0;
+    var homes = [[GATE.x, GATE.y], [10, 9], [9, 9], [11, 9]];
+    var waits = [0, 1.5, 4.5, 8];
+    var sc = Math.max(0.3, 1 - (G.level - 1) * 0.12);
+    storms = STORMS.map(function (s, i) {
+      return { i: i, x: homes[i][0], y: homes[i][1], dx: i === 0 ? -1 : 0, dy: 0, state: i === 0 ? "out" : "home", wait: waits[i] * sc, scared: false, anim: Math.random() * 6 };
+    });
+    G.frightT = 0; G.freezeT = 0; G.modeT = 0; G.modeIdx = 0; G.chain = 0; G.invuln = 0; G.jetT = 0; G.magT = 0;
+    G.combo = 0; G.mult = 1;
+  }
+
+  function newGame(daily) {
+    G.daily = !!daily;
+    var d = today();
+    G.rand = daily ? rng(seedOf("daily" + d)) : Math.random;
+    G.level = daily ? 3 : 1;
+    G.maze = daily ? seedOf("dm" + d) % MAZES.length : 0;
+    G.score = 0; G.lives = daily ? 1 : 3; G.nextLife = daily ? Infinity : 10000; G.shield = false; G.dblT = 0;
+    G.run = { score: 0, level: G.level, bestChain: 0, bestMult: 1, pows: 0, blocks: 0, clean: 0, eaten: 0, froze: 0, daily: G.daily, goalsHit: [] };
+    save.games++; persist();
+    startLevel();
+  }
+  function startLevel() {
+    buildLevel(); resetActors();
+    G.levelT = 0; G.item = null; G.itemSpawns = 0; G.hitThisLevel = false; G.dblT = 0;
+    parts.length = 0;
+    hud(); readyGo(G.level > 1 || G.daily ? (G.daily ? "Daily Flight" : "Level " + G.level) : "Ready!");
+  }
+  function readyGo(text) {
+    G.mode = "ready"; G.timer = 1.8;
+    showCall(text + "<small>" + MAZE_NAMES[G.maze] + (G.daily ? " &middot; one life!" : "") + "</small>", true);
+    sfx("ready"); musicStart();
+  }
+
+  // ---------------- input ----------------
+  var DIRS = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] };
+  function want(name) {
+    if (G.mode === "title" || G.mode === "over") return;
+    var d = DIRS[name]; if (!d) return;
+    player.want = d;
+    if (G.mode !== "play") return;
+    // turning around is instant
+    if (d[0] === -player.dx && d[1] === -player.dy && (d[0] || d[1])) { player.dx = d[0]; player.dy = d[1]; return; }
+    // forgiving corners: snap onto the turn if we're close enough to it
+    if ((d[0] && player.dy) || (d[1] && player.dx) || (!player.dx && !player.dy)) {
+      var cx = Math.round(player.x), cy = Math.round(player.y);
+      var off = player.dx ? Math.abs(player.x - cx) : Math.abs(player.y - cy);
+      if (off < 0.42 && open(cx + d[0], cy + d[1])) { player.x = cx; player.y = cy; player.dx = d[0]; player.dy = d[1]; }
+    }
+  }
+  document.addEventListener("keydown", function (e) {
+    if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
+    var k = e.key, map = { ArrowLeft: "left", a: "left", A: "left", ArrowRight: "right", d: "right", D: "right", ArrowUp: "up", w: "up", W: "up", ArrowDown: "down", s: "down", S: "down" };
+    if (map[k]) { if (G.mode === "play" || G.mode === "ready") { e.preventDefault(); want(map[k]); } else if (/^Arrow/.test(k) && !overlay.hidden) e.preventDefault(); return; }
+    if (k === " " || k === "Enter") {
+      if (G.mode === "title" || G.mode === "over") { if (!overlay.hidden && document.activeElement && document.activeElement.tagName === "BUTTON" && overlay.contains(document.activeElement)) return; e.preventDefault(); if (!shopOpen) { closeDialog(); newGame(false); } }
+      else if (G.mode === "paused") { e.preventDefault(); resume(); }
+      return;
+    }
+    if (k === "p" || k === "P" || k === "Escape") { if (G.mode === "play" || G.mode === "ready") pause(); else if (G.mode === "paused") resume(); }
+    if (k === "m" || k === "M") toggleMusic();
+  });
+  // swipes anywhere on the game
+  var sw = null;
+  var swipeArea = $("sgMain");
+  swipeArea.addEventListener("touchstart", function (e) {
+    if (e.target.closest && e.target.closest("button, a, .sg-overlay")) return;
+    var t = e.touches[0]; sw = { x: t.clientX, y: t.clientY }; audio();
+  }, { passive: true });
+  swipeArea.addEventListener("touchmove", function (e) {
+    if (!sw) return;
+    if (G.mode === "play" || G.mode === "ready") e.preventDefault();
+    var t = e.touches[0], dx = t.clientX - sw.x, dy = t.clientY - sw.y;
+    if (Math.abs(dx) < 16 && Math.abs(dy) < 16) return;
+    want(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up"));
+    sw = { x: t.clientX, y: t.clientY };
+  }, { passive: false });
+  swipeArea.addEventListener("touchend", function () { sw = null; }, { passive: true });
+  Array.prototype.forEach.call(document.querySelectorAll("#sgPad button"), function (btn) {
+    function go(e) { e.preventDefault(); audio(); btn.classList.add("on"); want(btn.getAttribute("data-d")); }
+    function up() { btn.classList.remove("on"); }
+    btn.addEventListener("touchstart", go, { passive: false }); btn.addEventListener("mousedown", go);
+    btn.addEventListener("touchend", up); btn.addEventListener("mouseup", up); btn.addEventListener("mouseleave", up);
+  });
+
+  // ---------------- movement ----------------
+  function wrap(e) { if (e.x < 0) e.x += COLS; else if (e.x > COLS - 1) e.x -= COLS; }
+  function moveAlong(e, dist, atCenter) {
+    var guard = 0;
+    while (dist > 1e-6 && guard++ < 10) {
+      if (!e.dx && !e.dy) { atCenter(e); if (!e.dx && !e.dy) return; }
+      var cur = e.dx ? e.x : e.y, s = e.dx || e.dy;
+      var next = s > 0 ? Math.floor(cur + 1e-6) + 1 : Math.ceil(cur - 1e-6) - 1;
+      var to = Math.abs(next - cur);
+      if (dist < to) { if (e.dx) e.x += s * dist; else e.y += s * dist; dist = 0; }
+      else { if (e.dx) e.x = next; else e.y = next; dist -= to; wrap(e); atCenter(e); }
+    }
+  }
+  function playerCenter(e) {
+    var x = Math.round(e.x), y = Math.round(e.y);
+    if (e.want && open(x + e.want[0], y + e.want[1])) { e.dx = e.want[0]; e.dy = e.want[1]; }
+    else if (!open(x + e.dx, y + e.dy)) { e.dx = 0; e.dy = 0; }
+  }
+
+  function speedMult() {
+    var m = Math.min(1 + 0.055 * (G.level - 1), 1.7);
+    var creep = 1 + Math.min(G.levelT / 120, 1) * 0.08;
+    return m * creep;
+  }
+
+  var MODE_TIMES = [7, 20, 7, 20, 5, 25, 5, 1e9];
+  function stormTarget(s) {
+    var px = Math.round(player.x), py = Math.round(player.y), pdx = player.dx || (player.face ? 1 : -1) * (player.dy ? 0 : 1), pdy = player.dy;
+    var chase = G.modeIdx % 2 === 1;
+    if (!chase) return STORMS[s.i].corner;
+    if (s.i === 0) return { x: px, y: py };
+    if (s.i === 1) return { x: px + pdx * 4, y: py + pdy * 4 };
+    if (s.i === 2) { var t = storms[0], ax = px + pdx * 2, ay = py + pdy * 2; return { x: ax * 2 - t.x, y: ay * 2 - t.y }; }
+    var dd = (s.x - px) * (s.x - px) + (s.y - py) * (s.y - py);
+    return dd > 64 ? { x: px, y: py } : STORMS[3].corner;
+  }
+  function stormCenter(s) {
+    var x = Math.round(s.x), y = Math.round(s.y), opts = [], k;
+    var dirs = [[0, -1], [-1, 0], [0, 1], [1, 0]];
+    for (k = 0; k < 4; k++) {
+      var d = dirs[k];
+      if (d[0] === -s.dx && d[1] === -s.dy && (s.dx || s.dy)) continue;
+      if (open(x + d[0], y + d[1])) opts.push(d);
+    }
+    if (!opts.length) { s.dx = -s.dx; s.dy = -s.dy; return; }
+    var pick;
+    if (s.state === "eaten") {
+      var bestD = 1e9;
+      opts.forEach(function (d) { var nx = (x + d[0] + COLS) % COLS, v = bfs[y + d[1]][nx]; if (v < bestD) { bestD = v; pick = d; } });
+    } else if (s.scared) {
+      pick = opts[Math.floor(G.rand() * opts.length)];
+    } else {
+      var tg = stormTarget(s), best = 1e9;
+      opts.forEach(function (d) { var nx = x + d[0], ny = y + d[1], v = (nx - tg.x) * (nx - tg.x) + (ny - tg.y) * (ny - tg.y); if (v < best) { best = v; pick = d; } });
+    }
+    s.dx = pick[0]; s.dy = pick[1];
+  }
+
+  function updateStorms(dt, sm) {
+    var base = 5.4 * sm * Math.min(1 + 0.02 * (G.level - 1), 1.14);
+    storms.forEach(function (s) {
+      s.anim += dt * 6;
+      if (G.freezeT > 0 && s.state === "out") return;
+      if (s.state === "home") {
+        s.y = 9 + Math.sin(G.t * 5 + s.i) * 0.25;
+        s.wait -= dt;
+        if (s.wait <= 0) s.state = "leave";
+        return;
+      }
+      if (s.state === "leave") {
+        var sp = 3.5 * dt;
+        if (Math.abs(s.x - GATE.x) > 0.01) s.x += Math.max(-sp, Math.min(sp, GATE.x - s.x));
+        else { s.x = GATE.x; s.y -= sp; if (s.y <= GATE.y) { s.y = GATE.y; s.state = "out"; s.dx = G.rand() < 0.5 ? -1 : 1; s.dy = 0; } }
+        return;
+      }
+      if (s.state === "enter") {
+        s.y += 6 * dt;
+        if (s.y >= 9) { s.y = 9; s.state = "leave"; s.scared = false; }
+        return;
+      }
+      var spd;
+      if (s.state === "eaten") spd = 13;
+      else if (s.scared) spd = base * 0.58;
+      else spd = base * (s.i === 0 && G.sparks < 25 ? 1.1 : 1);
+      var tx = Math.round(s.x), ty = Math.round(s.y);
+      if (s.state !== "eaten" && ty === 9 && (tx < 4 || tx > COLS - 5)) spd *= 0.55;   // slow in the jetstream tunnel
+      moveAlong(s, spd * dt, stormCenter);
+      if (s.state === "eaten" && Math.abs(s.x - GATE.x) < 0.2 && Math.abs(s.y - GATE.y) < 0.2) { s.x = GATE.x; s.y = GATE.y; s.state = "enter"; s.dx = 0; s.dy = 0; }
+    });
+  }
+
+  // ---------------- the main update ----------------
+  function update(dt) {
+    G.t += dt;
+    if (G.mode === "ready") {
+      G.timer -= dt;
+      if (G.timer <= 0) { G.mode = "play"; showCall("Go!", false); }
+      return;
+    }
+    if (G.mode === "dying") {
+      G.deathT += dt;
+      if (G.deathT > 1.6) afterDeath();
+      return;
+    }
+    if (G.mode === "clear") {
+      G.timer -= dt; G.flash += dt;
+      if (G.timer <= 0) { G.level++; G.maze = (G.maze + 1) % MAZES.length; startLevel(); }
+      return;
+    }
+    if (G.mode !== "play") return;
+    if (G.hitPause > 0) { G.hitPause -= dt; return; }
+
+    G.levelT += dt;
+    var sm = speedMult();
+    // scatter / chase rhythm (paused while the storms are scared or frozen)
+    if (G.frightT <= 0 && G.freezeT <= 0) {
+      G.modeT += dt;
+      var limit = MODE_TIMES[G.modeIdx] * (G.modeIdx % 2 === 0 ? Math.max(0.5, 1 - (G.level - 1) * 0.08) : 1);
+      if (G.modeT >= limit) { G.modeT = 0; G.modeIdx = Math.min(G.modeIdx + 1, MODE_TIMES.length - 1); reverseStorms(); }
+    }
+    if (G.frightT > 0) { G.frightT -= dt; if (G.frightT <= 0) { storms.forEach(function (s) { s.scared = false; }); G.chain = 0; } }
+    if (G.freezeT > 0) G.freezeT -= dt;
+    if (G.jetT > 0) G.jetT -= dt;
+    if (G.magT > 0) G.magT -= dt;
+    if (G.dblT > 0) G.dblT -= dt;
+    if (G.invuln > 0) G.invuln -= dt;
+    if (G.item) { G.item.t -= dt; if (G.item.t <= 0) G.item = null; }
+    if (G.t - G.lastEat > 0.6 && G.combo) { G.combo = 0; setMult(1); }
+
+    // Glider
+    var pspd = 6.0 * sm * (G.jetT > 0 ? 1.4 : 1);
+    var bx = player.x, by = player.y;
+    moveAlong(player, pspd * dt, playerCenter);
+    var moving = player.x !== bx || player.y !== by;
+    if (moving) player.anim += dt * 9;
+    if (player.dx) { player.face = player.dx > 0 ? 1 : 0; player.tilt = 0; }
+    else if (player.dy) player.tilt = player.dy;
+    if (moving && G.t % 0.05 < dt) trailPuff();
+
+    eatAt(Math.round(player.x), Math.round(player.y));
+    if (G.magT > 0) magnet();
+    if (G.item && Math.abs(player.x - G.item.x) < 0.6 && Math.abs(player.y - G.item.y) < 0.6) takeItem();
+
+    updateStorms(dt, sm);
+    collide();
+    hudTick();
+  }
+
+  function reverseStorms() { storms.forEach(function (s) { if (s.state === "out") { s.dx = -s.dx; s.dy = -s.dy; } }); }
+
+  function points(n, x, y, cls) {
+    var mult = G.dblT > 0 ? 2 : 1;
+    n *= mult;
+    G.score += n;
+    if (x !== undefined) floatAt(x, y, "+" + n.toLocaleString(), cls);
+    if (G.score >= G.nextLife) {
+      G.nextLife += 25000;
+      if (G.lives < 5) { G.lives++; sfx("life"); showCall("Extra Life!", false, "rainbow"); }
+    }
+    return n;
+  }
+
+  function setMult(m) {
+    if (m > G.mult) { sfx("combo"); var p = toPage(player.x, player.y - 1); fx.float(p.x, p.y, "x" + m + " Combo!", m >= 5 ? "x3" : m >= 3 ? "x2" : "gold"); }
+    G.mult = m;
+    if (G.run && m > G.run.bestMult) G.run.bestMult = m;
+  }
+
+  function eatAt(x, y) {
+    x = ((x % COLS) + COLS) % COLS;
+    if (y < 0 || y >= ROWS) return;
+    var c = G.grid[y][x];
+    if (c !== "." && c !== "o") return;
+    G.grid[y][x] = " "; G.sparks--;
+    if (G.t - G.lastEat < 0.6) G.combo++; else G.combo = 1;
+    G.lastEat = G.t;
+    setMult(Math.min(5, 1 + Math.floor(G.combo / 18)));
+    if (c === ".") { points(10 * G.mult); sfx("spark", G.mult - 1); }
+    else { points(50 * G.mult, x, y, "gold"); sunPower(); }
+    var eatenSoFar = G.total - G.sparks;
+    if ((G.itemSpawns === 0 && eatenSoFar >= 45) || (G.itemSpawns === 1 && eatenSoFar >= 105) || (G.itemSpawns === 2 && eatenSoFar >= 160 && G.level >= 3)) spawnItem();
+    if (G.sparks <= 0) levelClear();
+  }
+
+  function magnet() {
+    var px = player.x, py = player.y, r = 3.2;
+    for (var y = Math.max(0, Math.floor(py - r)); y <= Math.min(ROWS - 1, Math.ceil(py + r)); y++)
+      for (var x = Math.floor(px - r); x <= Math.ceil(px + r); x++) {
+        var wx = ((x % COLS) + COLS) % COLS;
+        if (G.grid[y][wx] !== ".") continue;
+        if ((x - px) * (x - px) + (y - py) * (y - py) > r * r) continue;
+        parts.push({ kind: "fly", x: wx, y: y, life: 0.25, max: 0.25, c: "#ffe14d" });
+        eatAt(wx, y);
+        if (G.mode !== "play") return;
+      }
+  }
+
+  function sunPower() {
+    sfx("sun");
+    var dur = Math.max(1.8, 7 - 0.5 * (G.level - 1));
+    G.frightT = dur; G.frightMax = dur; G.chain = 0;
+    storms.forEach(function (s) { if (s.state === "out") { s.scared = true; s.dx = -s.dx; s.dy = -s.dy; } });
+    fx.flash(stage, "gold");
+  }
+
+  function spawnItem() {
+    G.itemSpawns++;
+    // somewhere open and not right next to Glider
+    var spots = [];
+    for (var y = 1; y < ROWS - 1; y++) for (var x = 1; x < COLS - 1; x++) {
+      if (!open(x, y) || (y === 9) || (y >= 7 && y <= 11 && x >= 7 && x <= 13)) continue;
+      if (Math.abs(x - player.x) + Math.abs(y - player.y) < 7) continue;
+      spots.push([x, y]);
+    }
+    if (!spots.length) return;
+    var s = spots[Math.floor(G.rand() * spots.length)];
+    var pool = ["jet", "magnet", "shield", "snow", "dbl", "jet", "magnet", "dbl", "snow", "shield"];
+    var kind = pool[Math.floor(G.rand() * pool.length)];
+    if (!G.daily && G.lives < 5 && G.rand() < 0.07) kind = "heart";
+    G.item = { x: s[0], y: s[1], kind: kind, t: 10 };
+  }
+
+  function takeItem() {
+    var it = G.item; G.item = null;
+    var p = POWERS[it.kind];
+    points(100, it.x, it.y, "green");
+    sfx("power");
+    var pp = toPage(it.x, it.y); fx.burst(pp.x, pp.y, 2);
+    if (it.kind === "jet") G.jetT = p.time;
+    else if (it.kind === "magnet") G.magT = p.time;
+    else if (it.kind === "shield") G.shield = true;
+    else if (it.kind === "snow") { G.freezeT = p.time; G.run.froze++; sfx("freeze"); }
+    else if (it.kind === "dbl") G.dblT = p.time;
+    else if (it.kind === "heart") { G.lives = Math.min(5, G.lives + 1); sfx("life"); }
+    showCall(p.name + "!<small>" + p.tip + "</small>", false);
+    G.run.pows++;
+    checkGoals();
+  }
+
+  function collide() {
+    storms.forEach(function (s) {
+      if (s.state !== "out") return;
+      var dx = Math.abs(s.x - player.x); dx = Math.min(dx, COLS - dx);
+      var dy = Math.abs(s.y - player.y);
+      if (dx > 0.62 || dy > 0.62) return;
+      if (s.scared) {
+        s.scared = false; s.state = "eaten";
+        var v = 200 * Math.pow(2, G.chain); G.chain++;
+        var got = points(v, s.x, s.y, G.chain >= 4 ? "x3" : G.chain >= 3 ? "x2" : "gold");
+        sfx("eat", G.chain);
+        var p = toPage(s.x, s.y); fx.burst(p.x, p.y, G.chain >= 4 ? 3 : 2);
+        G.hitPause = 0.35; G.run.eaten++;
+        if (G.chain > G.run.bestChain) G.run.bestChain = G.chain;
+        if (G.chain === 4) { fx.quake(stage, true); showCall("Storm Sweep!<small>+" + got.toLocaleString() + "</small>", false, "rainbow"); }
+        checkGoals();
+        return;
+      }
+      if (G.freezeT > 0 || G.invuln > 0) return;
+      if (G.shield) {
+        G.shield = false; G.invuln = 1.2; s.state = "eaten"; G.run.blocks++;
+        sfx("shield"); var q = toPage(s.x, s.y); fx.burst(q.x, q.y, 1); fx.float(q.x, q.y, "Blocked!", "green");
+        checkGoals();
+        return;
+      }
+      die();
+    });
+  }
+
+  function die() {
+    G.mode = "dying"; G.deathT = 0; G.hitThisLevel = true;
+    sfx("die"); musicStop();
+    fx.quake(stage, true); fx.flash(stage, "red");
+    var p = toPage(player.x, player.y); fx.burst(p.x, p.y, 1);
+    for (var i = 0; i < 14; i++) parts.push({ kind: "puff", x: player.x, y: player.y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, life: 0.9, max: 0.9, c: "#ffffff" });
+  }
+  function afterDeath() {
+    G.lives--; G.jetT = 0; G.magT = 0; G.dblT = 0; G.shield = false; G.item = null;
+    if (G.lives <= 0) return gameOver();
+    resetActors(); hud(); readyGo("Ready!");
+  }
+
+  function levelClear() {
+    G.mode = "clear"; G.timer = 2.3; G.flash = 0;
+    musicStop(); sfx("clear");
+    var bonus = 500 * G.level;
+    if (!G.hitThisLevel) { bonus += 2000; G.run.clean++; }
+    G.score += bonus;
+    G.run.level = G.level + 1;
+    showCall((G.hitThisLevel ? "Level Clear!" : "Perfect!") + "<small>+" + bonus.toLocaleString() + " bonus</small>", false, "rainbow");
+    fx.confetti(stage.getBoundingClientRect(), 60);
+    if (G.level + 1 > save.topLv) { save.topLv = G.level + 1; persist(); }
+    checkGoals(); hud();
+  }
+
+  function gameOver() {
+    G.mode = "over";
+    G.run.score = G.score;
+    hud();
+    checkGoals();
+    var earned = Math.floor(G.score / 250);
+    save.stars += earned;
+    var newBest = G.score > save.best;
+    if (newBest) save.best = G.score;
+    var dailyNew = false;
+    if (G.daily) {
+      if (!save.daily || save.daily.date !== today()) save.daily = { date: today(), best: 0 };
+      if (G.score > save.daily.best) { save.daily.best = G.score; dailyNew = true; }
+    }
+    persist(); sideStats();
+    setTimeout(function () {
+      var html = '<div class="dt">' + (G.daily ? "Daily Flight" : "Game Over") + '</div><div class="db">' +
+        '<h2 class="oops">' + (G.daily ? "Flight over!" : "Oops! Game over") + '</h2>' +
+        '<div class="big" id="sgEndScore">0</div>' +
+        (newBest ? '<div class="newbest">NEW BEST!</div>' : '<p>Best: <b>' + save.best.toLocaleString() + '</b></p>') +
+        '<div class="sg-kv"><div>Level reached</div><div class="v">' + G.level + '</div>' +
+        '<div>Storms eaten</div><div class="v">' + G.run.eaten + '</div>' +
+        (G.daily ? '<div>Today\'s best</div><div class="v">' + save.daily.best.toLocaleString() + (dailyNew ? " &#9733;" : "") + '</div>' : '') +
+        '<div>Stars earned</div><div class="v">&#9733; ' + earned + '</div></div>' +
+        goalsHtml() +
+        '<button class="sg-btn go wide" id="sgAgain">&#9654; Fly Again <kbd>(Space)</kbd></button>' +
+        '<div class="sg-row2"><button class="sg-btn" id="sgToShop">&#9992; Hangar</button><button class="sg-btn" id="sgToMenu">Menu</button></div></div>';
+      openDialog(html);
+      $("sgAgain").onclick = function () { sfx("click"); closeDialog(); newGame(false); };
+      $("sgToShop").onclick = function () { sfx("click"); openShop(); };
+      $("sgToMenu").onclick = function () { sfx("click"); titleScreen(); };
+      if (window.CwJuice) fx.roll($("sgEndScore"), 0, G.score, 900, function (v) { return Math.round(v).toLocaleString(); });
+      else $("sgEndScore").textContent = G.score.toLocaleString();
+      if (newBest || dailyNew) fx.confetti(stage.getBoundingClientRect(), 80);
+    }, 300);
+  }
+
+  function checkGoals() {
+    if (!G.run) return;
+    G.run.score = G.score; G.run.level = Math.max(G.run.level, G.level);
+    var list = todaysGoals();
+    list.forEach(function (g) {
+      if (save.goals.done.indexOf(g.id) >= 0) return;
+      if (g.test(G.run)) {
+        save.goals.done.push(g.id); save.stars += g.stars; G.run.goalsHit.push(g.id); persist();
+        sfx("goal");
+        var p = toPage(10, 3); fx.float(p.x, p.y, "Goal done! +" + g.stars + " &#9733;", "purple");
+        sideStats();
+      }
+    });
+  }
+  function goalsHtml() {
+    var list = todaysGoals(), done = save.goals.done.length >= 3 ? list.length : 0;
+    return '<div class="sg-goals"><div class="gh"><span>Today\'s Flight Goals</span><span>' + list.filter(function (g) { return save.goals.done.indexOf(g.id) >= 0; }).length + '/3</span></div>' +
+      list.map(function (g) {
+        var d = save.goals.done.indexOf(g.id) >= 0, fresh = G.run && G.run.goalsHit.indexOf(g.id) >= 0;
+        return '<div class="sg-goal' + (d ? " done" : "") + (fresh ? " new" : "") + '"><i class="ck">' + (d ? "&#10003;" : "") + '</i><span>' + g.text + '</span><b class="rw">&#9733; ' + g.stars + '</b></div>';
+      }).join("") + (done ? "" : "") + '</div>';
+  }
+
+  // ---------------- particles (trails, puffs) ----------------
+  function trailPuff() {
+    var t = save.trail, jet = G.jetT > 0;
+    if (t === "none" && !jet) return;
+    var bx = player.x - (player.dx || 0) * 0.7, by = player.y - (player.dy || 0) * 0.7 + 0.15;
+    if (jet) parts.push({ kind: "dot", x: bx, y: by, life: 0.35, max: 0.35, c: Math.random() < 0.5 ? "#ff8a00" : "#ffe14d", s: 2 });
+    if (t === "puff") parts.push({ kind: "dot", x: bx, y: by, life: 0.6, max: 0.6, c: "#ffffff", s: 3 });
+    if (t === "spark") parts.push({ kind: "dot", x: bx + (Math.random() - 0.5) * 0.6, y: by + (Math.random() - 0.5) * 0.6, life: 0.5, max: 0.5, c: Math.random() < 0.5 ? "#ffe14d" : "#ffffff", s: 2, blink: true });
+    if (t === "rainbow") { for (var i = 0; i < 3; i++) parts.push({ kind: "dot", x: bx, y: by - 0.25 + i * 0.25, life: 0.5, max: 0.5, c: RAINBOW[(i * 2 + Math.floor(G.t * 10)) % 7], s: 2 }); }
+  }
+
+  // ---------------- drawing ----------------
+  function toPage(tx, ty) {
+    var r = canvas.getBoundingClientRect(), k = r.width / (COLS * TS);
+    return { x: r.left + (tx * TS + TS / 2) * k, y: r.top + (ty * TS + TS / 2) * k };
+  }
+  function floatAt(tx, ty, text, cls) { var p = toPage(tx, ty); fx.float(p.x, p.y, text, cls); }
+
+  function spr(img, cx, cy, flipY, rot) {
+    // cx, cy in tile coords (centers); drawn at PX scale
+    var w = img.width * PX, h = img.height * PX;
+    var x = Math.round((cx * TS + TS / 2) * PX), y = Math.round((cy * TS + TS / 2) * PX);
+    if (rot) { b.save(); b.translate(x, y); b.rotate(rot); b.drawImage(img, -w / 2, -h / 2, w, h); b.restore(); }
+    else b.drawImage(img, x - Math.round(w / 2), y - Math.round(h / 2), w, h);
+  }
+  function sprWrap(img, cx, cy, rot) {
+    spr(img, cx, cy, false, rot);
+    if (cx < 1) spr(img, cx + COLS, cy, false, rot);
+    if (cx > COLS - 2) spr(img, cx - COLS, cy, false, rot);
+  }
+
+  function render() {
+    b.imageSmoothingEnabled = false;
+    var flashOn = G.mode === "clear" && Math.floor(G.flash * 6) % 2 === 1;
+    if (mazeArt) b.drawImage(flashOn ? mazeFlash : mazeArt, 0, 0, BW, BW);
+    else { b.fillStyle = "#7ea2f0"; b.fillRect(0, 0, BW, BW); }
+    if (!G.grid) return blit();
+
+    // sparkles and suns
+    var tw = Math.floor(G.t * 4);
+    for (var y = 0; y < ROWS; y++) for (var x = 0; x < COLS; x++) {
+      var c = G.grid[y][x];
+      if (c === ".") {
+        var cx = (x * TS + 6) * PX, cy = (y * TS + 6) * PX;
+        var big = ((x * 7 + y * 13 + tw) % 9) === 0;
+        b.fillStyle = "#1b1b2b"; b.fillRect(cx - 3, cy - 3, 6, 6);
+        b.fillStyle = "#ffe14d"; b.fillRect(cx - 2, cy - 2, 4, 4);
+        if (big) { b.fillStyle = "#fff6b0"; b.fillRect(cx - 1, cy - 5, 2, 10); b.fillRect(cx - 5, cy - 1, 10, 2); }
+        b.fillStyle = "#ffffff"; b.fillRect(cx - 2, cy - 2, 2, 2);
+      } else if (c === "o") {
+        var pulse = Math.floor(G.t * 4) % 2;
+        if (pulse || G.mode !== "play") {
+          spr(SUN, x, y);
+          b.fillStyle = "#ffe14d";
+          var rx = (x * TS + 6) * PX, ry = (y * TS + 6) * PX, rr = 13 + (Math.floor(G.t * 8) % 2) * 2;
+          b.fillRect(rx - 1, ry - rr - 2, 2, 4); b.fillRect(rx - 1, ry + rr - 2, 2, 4); b.fillRect(rx - rr - 2, ry - 1, 4, 2); b.fillRect(rx + rr - 2, ry - 1, 4, 2);
+        } else spr(SUN, x, y);
+      }
+    }
+
+    // power-up item floating in a bubble
+    if (G.item && (G.item.t > 3 || Math.floor(G.t * 8) % 2)) {
+      var bob = Math.sin(G.t * 4) * 0.12;
+      var ix = (G.item.x * TS + 6) * PX, iy = ((G.item.y + bob) * TS + 6) * PX;
+      b.fillStyle = "rgba(255,255,255,.55)"; b.fillRect(ix - 13, iy - 11, 26, 22); b.fillRect(ix - 11, iy - 13, 22, 26);
+      b.fillStyle = "#ffffff"; b.fillRect(ix - 9, iy - 11, 4, 2);
+      spr(ICON[G.item.kind], G.item.x, G.item.y + bob);
+    }
+
+    // particles
+    for (var i = parts.length - 1; i >= 0; i--) {
+      var p = parts[i];
+      p.life -= 1 / 60;
+      if (p.life <= 0) { parts.splice(i, 1); continue; }
+      if (p.kind === "fly") {
+        var f = 1 - p.life / p.max;
+        var fx2 = p.x + (player.x - p.x) * f, fy = p.y + (player.y - p.y) * f;
+        b.fillStyle = p.c; b.fillRect(Math.round((fx2 * TS + 6) * PX) - 2, Math.round((fy * TS + 6) * PX) - 2, 4, 4);
+        continue;
+      }
+      if (p.vx) { p.x += p.vx / 60; p.y += p.vy / 60; p.vx *= 0.94; p.vy *= 0.94; }
+      if (p.blink && Math.floor(p.life * 20) % 2) continue;
+      var s = (p.kind === "puff" ? 5 : p.s) * PX * (0.4 + 0.6 * p.life / p.max);
+      b.fillStyle = p.c; b.fillRect(Math.round((p.x * TS + 6) * PX - s / 2), Math.round((p.y * TS + 6) * PX - s / 2), Math.ceil(s), Math.ceil(s));
+    }
+
+    // storms
+    storms.forEach(function (s) { drawStorm(s); });
+
+    // Glider
+    drawPlayer();
+    blit();
+  }
+
+  function drawStorm(s) {
+    var fr = Math.floor(s.anim) % 2, img;
+    if (s.state === "eaten" || s.state === "enter") { drawEyes(s, s.x, s.y, true); return; }
+    if (s.scared) {
+      var flashing = G.frightT < 2 && Math.floor(G.t * 6) % 2;
+      img = (flashing ? SCARED_FLASH : SCARED_ART)[fr];
+    } else if (G.freezeT > 0 && s.state === "out") img = FROZEN_ART[0];
+    else img = STORM_ART[s.i][fr];
+    sprWrap(img, s.x, s.y - 0.05);
+    drawFace(s);
+  }
+  function drawFace(s) {
+    var ox = Math.round((s.x * TS + 6) * PX) - 16, oy = Math.round(((s.y - 0.05) * TS + 6) * PX) - 16;
+    function px(x, y, c) { b.fillStyle = c; b.fillRect(ox + x * PX, oy + y * PX, PX, PX); }
+    if (s.scared) {
+      var mc = G.frightT < 2 && Math.floor(G.t * 6) % 2 ? "#c03070" : "#3050c0";
+      px(5, 6, mc); px(5, 7, mc); px(10, 6, mc); px(10, 7, mc);
+      [[4, 10], [5, 9], [6, 10], [7, 9], [8, 10], [9, 9], [10, 10], [11, 9]].forEach(function (q) { px(q[0], q[1], mc); });
+      return;
+    }
+    drawEyes(s, s.x, s.y - 0.05, false);
+    if (!(G.freezeT > 0 && s.state === "out")) {
+      px(4, 4, "#1b1b2b"); px(5, 4, "#1b1b2b"); px(6, 5, "#1b1b2b");
+      px(11, 4, "#1b1b2b"); px(10, 4, "#1b1b2b"); px(9, 5, "#1b1b2b");
+    }
+  }
+  function drawEyes(s, x, y, alone) {
+    var ox = Math.round((x * TS + 6) * PX) - 16, oy = Math.round((y * TS + 6) * PX) - 16;
+    var lx = s.dx > 0 ? 1 : 0, ly = s.dy > 0 ? 1 : 0;
+    if (s.dx < 0) lx = 0; if (s.dy < 0) ly = 0;
+    [[5, 6], [9, 6]].forEach(function (e) {
+      if (alone) { b.fillStyle = "#1b1b2b"; b.fillRect(ox + (e[0] - 1) * PX, oy + (e[1] - 1) * PX, 4 * PX, 4 * PX); }
+      b.fillStyle = "#ffffff"; b.fillRect(ox + e[0] * PX, oy + e[1] * PX, 2 * PX, 2 * PX);
+      b.fillStyle = "#1b1b2b"; b.fillRect(ox + (e[0] + lx) * PX, oy + (e[1] + ly) * PX, PX, PX);
+    });
+    if (alone) { b.fillStyle = STORMS[s.i].rain === "#ffffff" ? "#a8e8ff" : STORMS[s.i].rain; b.fillRect(ox + 7 * PX, oy + 11 * PX, 2 * PX, 3 * PX); }
+  }
+
+  function drawPlayer() {
+    if (!G.grid) return;
+    var liv = LIVERIES.filter(function (l) { return l.id === save.liv; })[0] || LIVERIES[0];
+    var set = gliderSet(save.liv, liv.rainbow ? Math.floor(G.t * 10) : 0);
+    var frame = Math.floor(player.anim) % 2;
+    var img = set[player.face][frame];
+    var rot = 0, bob = 0;
+    if (G.mode === "dying") {
+      var d = G.deathT;
+      rot = d * 9 * (player.face ? 1 : -1);
+      if (d > 1.1) return;
+      bob = d * d * 1.2;
+    } else {
+      bob = Math.sin(G.t * (player.tilt ? 14 : 6)) * (player.tilt ? 0.1 : 0.06);
+    }
+    if (G.invuln > 0 && Math.floor(G.t * 12) % 2) return;
+    sprWrap(img, player.x, player.y - 0.1 + bob, rot);
+    if (G.shield && G.mode !== "dying") {
+      var cx = Math.round((player.x * TS + 6) * PX), cy = Math.round(((player.y - 0.1) * TS + 6) * PX), r = 19;
+      b.fillStyle = Math.floor(G.t * 8) % 2 ? "#40d0ff" : "#ffffff";
+      for (var a = 0; a < 24; a++) { var an = a / 24 * Math.PI * 2 + G.t * 2; b.fillRect(Math.round(cx + Math.cos(an) * r) - 1, Math.round(cy + Math.sin(an) * r) - 1, 3, 3); }
+    }
+    if (G.magT > 0) {
+      var mx = Math.round((player.x * TS + 6) * PX), my = Math.round((player.y * TS + 6) * PX), mr = 3.2 * TS * PX * ((G.t * 1.5) % 1);
+      b.fillStyle = "rgba(255,80,80,.6)";
+      for (var k = 0; k < 16; k++) { var ang = k / 16 * Math.PI * 2; b.fillRect(Math.round(mx + Math.cos(ang) * mr) - 1, Math.round(my + Math.sin(ang) * mr) - 1, 2, 2); }
+    }
+  }
+
+  function blit() {
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(buf, 0, 0, canvas.width, canvas.height);
+  }
+
+  // ---------------- HUD ----------------
+  var lastHud = {};
+  function hud() {
+    $("sgLevel").textContent = G.level;
+    var lv = $("sgLives"); lv.innerHTML = "";
+    var set = gliderSet(save.liv, 0);
+    for (var i = 0; i < Math.min(G.lives - (G.mode === "dying" ? 0 : 0), 5); i++) {
+      var c = mk(20, 15); c.getContext("2d").drawImage(set[1][0], 0, 0); lv.appendChild(c);
+    }
+    if (!G.lives) lv.innerHTML = "-";
+    lastHud = { lives: G.lives };
+    hudTick();
+  }
+  function hudTick() {
+    if (lastHud.score !== G.score) { $("sgScore").textContent = G.score.toLocaleString(); lastHud.score = G.score; }
+    var cm = "x" + G.mult;
+    if (lastHud.mult !== cm) { var ce = $("sgCombo"); ce.textContent = cm; ce.className = G.mult > 1 ? "c" + G.mult : ""; if (G.mult > 1) fx.restart(ce, "cw-bump"); lastHud.mult = cm; }
+    if (lastHud.lives !== G.lives) { lastHud.lives = G.lives; hud(); return; }
+    var sm = speedMult(), pct = Math.round(sm * 100) + "%";
+    if (lastHud.spd !== pct) { $("sgSpeedTxt").textContent = pct; $("sgSpeed").style.width = Math.min(100, (sm - 1) / 0.85 * 100) + "%"; lastHud.spd = pct; }
+    // power-up timers
+    var list = [];
+    if (G.jetT > 0) list.push(["jet", G.jetT / POWERS.jet.time, G.jetT]);
+    if (G.magT > 0) list.push(["magnet", G.magT / POWERS.magnet.time, G.magT]);
+    if (G.freezeT > 0) list.push(["snow", G.freezeT / POWERS.snow.time, G.freezeT]);
+    if (G.dblT > 0) list.push(["dbl", G.dblT / POWERS.dbl.time, G.dblT]);
+    if (G.shield) list.push(["shield", 1, 9]);
+    var key = list.map(function (l) { return l[0] + Math.ceil(l[1] * 10) + (l[2] < 1.5 ? "L" : ""); }).join(",");
+    if (lastHud.pows === key) return;
+    lastHud.pows = key;
+    var box = $("sgPows");
+    if (!list.length) { box.innerHTML = '<span class="none">' + (G.mode === "title" ? "Power-ups show up here" : "No power-ups") + '</span>'; return; }
+    box.innerHTML = "";
+    list.forEach(function (l) {
+      var d = document.createElement("div"); d.className = "sg-pow" + (l[2] < 1.5 ? " low" : "");
+      var c = mk(ICON[l[0]].width, ICON[l[0]].height); c.getContext("2d").drawImage(ICON[l[0]], 0, 0);
+      d.appendChild(c);
+      var t = document.createElement("span"); t.textContent = POWERS[l[0]].name; d.appendChild(t);
+      if (l[0] !== "shield") { var bar = document.createElement("i"); bar.innerHTML = '<b style="width:' + Math.round(l[1] * 100) + '%"></b>'; d.appendChild(bar); }
+      box.appendChild(d);
+    });
+  }
+  function sideStats() {
+    $("sgBest").textContent = save.best.toLocaleString();
+    $("sgTopLv").textContent = save.topLv;
+    $("sgStars").innerHTML = "&#9733; " + save.stars.toLocaleString();
+    $("sgDailyBest").textContent = save.daily && save.daily.date === today() ? save.daily.best.toLocaleString() : "-";
+  }
+  function buildLegend() {
+    var html = "";
+    STORMS.forEach(function (s, i) { html += '<canvas data-s="' + i + '" width="16" height="16"></canvas><span><b>' + s.name + '</b>: ' + s.tip + '</span>'; });
+    html += '<canvas data-i="sun" width="11" height="9"></canvas><span><b>Sun</b>: scare the storms</span>';
+    ["jet", "magnet", "shield", "snow", "dbl"].forEach(function (k) { html += '<canvas data-i="' + k + '"></canvas><span><b>' + POWERS[k].name + '</b>: ' + POWERS[k].tip + '</span>'; });
+    var lg = $("sgLegend"); lg.innerHTML = html;
+    Array.prototype.forEach.call(lg.querySelectorAll("canvas"), function (c) {
+      var g, src;
+      if (c.hasAttribute("data-s")) {
+        var i = +c.getAttribute("data-s"); g = c.getContext("2d"); g.drawImage(STORM_ART[i][0], 0, 0);
+        g.fillStyle = "#fff"; g.fillRect(5, 6, 2, 2); g.fillRect(9, 6, 2, 2); g.fillStyle = "#1b1b2b"; g.fillRect(5, 7, 1, 1); g.fillRect(9, 7, 1, 1);
+        g.fillRect(4, 4, 2, 1); g.fillRect(6, 5, 1, 1); g.fillRect(10, 4, 2, 1); g.fillRect(9, 5, 1, 1);
+      } else {
+        var k = c.getAttribute("data-i"); src = k === "sun" ? SUN : ICON[k];
+        c.width = src.width; c.height = src.height; c.getContext("2d").drawImage(src, 0, 0);
+      }
+    });
+  }
+
+  // ---------------- callouts / dialogs ----------------
+  var callTimer = null;
+  function showCall(html, stay, cls) {
+    clearTimeout(callTimer);
+    callEl.className = "sg-call";
+    var hopped = html.replace(/^([^<]*)/, function (m) { return m.split("").map(function (ch, i) { return ch === " " ? " " : '<span class="cw-hop" style="animation-delay:' + (i * 0.035) + 's">' + ch + '</span>'; }).join(""); });
+    callEl.innerHTML = hopped;
+    void callEl.offsetWidth;
+    callEl.classList.add(stay ? "stay" : "show");
+    if (cls) callEl.classList.add(cls);
+    if (stay) callTimer = setTimeout(function () { callEl.className = "sg-call"; }, 1800);
+  }
+  function openDialog(html) { dialog.innerHTML = html; overlay.hidden = false; var f = dialog.querySelector(".sg-btn.go"); if (f && !matchMedia("(pointer: coarse)").matches) f.focus({ preventScroll: true }); }
+  function closeDialog() { overlay.hidden = true; dialog.innerHTML = ""; shopOpen = false; }
+
+  var flyCanvas = null;
+  function titleScreen() {
+    G.mode = "title"; shopOpen = false;
+    musicStop();
+    var dailyBest = save.daily && save.daily.date === today() ? save.daily.best : 0;
+    var html = '<div class="dt">Sky Glider</div><div class="db">' +
+      '<div class="sg-title">' + "Sky Glider".split("").map(function (ch, i) { return ch === " " ? " " : '<span class="cw-hop" style="animation-delay:' + i * 0.06 + 's">' + ch + '</span>'; }).join("") + '</div>' +
+      '<div class="sg-flyby" id="sgFlyby"></div>' +
+      '<p>Grab every sparkle. Dodge the storms.<br>It gets faster every level!</p>' +
+      '<button class="sg-btn go wide" id="sgPlay">&#9654; Fly! <kbd>(Space)</kbd></button>' +
+      '<div class="sg-row2"><button class="sg-btn" id="sgDaily">&#9728; Daily Flight' + (dailyBest ? " (" + dailyBest.toLocaleString() + ")" : "") + '</button><button class="sg-btn" id="sgShop2">&#9992; Hangar</button></div>' +
+      goalsHtml() +
+      '<p>Best: <b>' + save.best.toLocaleString() + '</b> &nbsp;&middot;&nbsp; <span class="sg-feath">&#9733; ' + save.stars.toLocaleString() + '</span></p></div>';
+    openDialog(html);
+    var fly = $("sgFlyby"), set = gliderSet(save.liv, 0), c = mk(20, 15);
+    c.getContext("2d").drawImage(set[0][0], 0, 0); fly.appendChild(c);
+    var fr = 0, flyTimer = setInterval(function () {
+      if (!document.body.contains(c)) return clearInterval(flyTimer);
+      fr ^= 1; var g = c.getContext("2d"); g.clearRect(0, 0, 20, 15);
+      var l = LIVERIES.filter(function (q) { return q.id === save.liv; })[0];
+      g.drawImage(gliderSet(save.liv, l && l.rainbow ? Math.floor(Date.now() / 100) : 0)[0][fr], 0, 0);
+    }, 140);
+    $("sgPlay").onclick = function () { sfx("click"); closeDialog(); newGame(false); };
+    $("sgDaily").onclick = function () { sfx("click"); closeDialog(); newGame(true); };
+    $("sgShop2").onclick = function () { sfx("click"); openShop(); };
+    hud();
+  }
+
+  function pause() {
+    if (G.mode !== "play" && G.mode !== "ready") return;
+    G.prevMode = G.mode; G.mode = "paused"; musicStop();
+    openDialog('<div class="dt">Paused</div><div class="db"><h2>Paused</h2>' +
+      '<button class="sg-btn go wide" id="sgResume">&#9654; Keep Flying <kbd>(Space)</kbd></button>' +
+      '<button class="sg-btn" id="sgQuit">Quit to Menu</button></div>');
+    $("sgResume").onclick = function () { sfx("click"); resume(); };
+    $("sgQuit").onclick = function () { sfx("click"); closeDialog(); titleScreen(); };
+  }
+  function resume() {
+    if (G.mode !== "paused") return;
+    closeDialog(); G.mode = G.prevMode || "play"; musicStart(); last = performance.now();
+  }
+
+  var shopOpen = false;
+  function openShop() {
+    shopOpen = true;
+    var back = G.mode === "over" ? "over" : "title";
+    function item(kind, it) {
+      var owned = save.own[kind].indexOf(it.id) >= 0, on = save[kind] === it.id;
+      return '<button class="sg-item' + (on ? " on" : "") + (owned ? "" : " locked") + (!owned && save.stars < it.cost ? " poor" : "") + '" data-k="' + kind + '" data-id="' + it.id + '">' +
+        '<canvas width="20" height="15" data-prev="' + kind + ':' + it.id + '"></canvas>' + it.name +
+        '<span class="pr">' + (on ? "Flying" : owned ? "Use" : it.cost) + '</span></button>';
+    }
+    var html = '<div class="dt">Hangar</div><div class="db"><h2>&#9992; Hangar</h2><p>You have <span class="sg-feath">&#9733; ' + save.stars.toLocaleString() + '</span> stars</p>' +
+      '<div class="sg-shop"><h3>Paint Jobs</h3><div class="sg-items">' + LIVERIES.map(function (l) { return item("liv", l); }).join("") + '</div>' +
+      '<h3>Trails</h3><div class="sg-items">' + TRAILS.map(function (t) { return item("trail", t); }).join("") + '</div></div>' +
+      '<p style="font-size:13px">Earn stars every flight (1 for every 250 points) and from Flight Goals.</p>' +
+      '<button class="sg-btn go wide" id="sgShopBack">Done</button></div>';
+    openDialog(html);
+    Array.prototype.forEach.call(dialog.querySelectorAll("canvas[data-prev]"), function (c) {
+      var parts2 = c.getAttribute("data-prev").split(":"), g = c.getContext("2d");
+      if (parts2[0] === "liv") g.drawImage(gliderSet(parts2[1], 2)[1][0], 0, 0);
+      else {
+        g.drawImage(gliderSet(save.liv, 2)[1][0], 6, 0);
+        var t = parts2[1];
+        for (var i = 0; i < 6; i++) {
+          if (t === "puff") { g.fillStyle = "#fff"; g.fillRect(i * 1 - 0, 8 + (i % 2), 2, 2); }
+          if (t === "spark") { g.fillStyle = i % 2 ? "#ffe14d" : "#fff"; g.fillRect(i, 6 + (i * 3) % 6, 1, 1); }
+          if (t === "rainbow") { for (var r = 0; r < 3; r++) { g.fillStyle = RAINBOW[r * 2]; g.fillRect(i, 7 + r, 1, 1); } }
+        }
+      }
+    });
+    Array.prototype.forEach.call(dialog.querySelectorAll(".sg-item"), function (btn) {
+      btn.onclick = function () {
+        var kind = btn.getAttribute("data-k"), id = btn.getAttribute("data-id");
+        var list = kind === "liv" ? LIVERIES : TRAILS, it = list.filter(function (x) { return x.id === id; })[0];
+        if (save.own[kind].indexOf(id) < 0) {
+          if (save.stars < it.cost) { sfx("nope"); fx.restart(btn, "cw-blink"); return; }
+          save.stars -= it.cost; save.own[kind].push(id); sfx("buy");
+          var p = fx.center ? fx.center(btn) : null; if (p) fx.burst(p.x, p.y, 2);
+        } else sfx("click");
+        save[kind] = id; persist(); sideStats(); hud();
+        openShop();
+      };
+    });
+    $("sgShopBack").onclick = function () { sfx("click"); shopOpen = false; if (back === "over") { G.mode = "title"; } titleScreen(); };
+  }
+
+  // ---------------- settings ----------------
+  function syncButtons() {
+    $("sgSound").textContent = "Sound: " + (save.sound ? "On" : "Off");
+    $("sgMusic").textContent = "Music: " + (save.music ? "On" : "Off");
+    $("sgFx").textContent = "Effects: " + (save.fx ? "On" : "Off");
+    $("sgSoundM").style.opacity = save.sound ? 1 : 0.45;
+    $("sgMusicM").style.opacity = save.music ? 1 : 0.45;
+    document.body.classList.toggle("sg-nofx", !save.fx);
+  }
+  function toggleMusic() {
+    save.music = !save.music; persist(); syncButtons();
+    if (save.music && (G.mode === "play" || G.mode === "ready")) musicStart(); else musicStop();
+  }
+  $("sgSound").onclick = $("sgSoundM").onclick = function () { save.sound = !save.sound; persist(); syncButtons(); sfx("click"); };
+  $("sgMusic").onclick = $("sgMusicM").onclick = function () { toggleMusic(); };
+  $("sgFx").onclick = function () { save.fx = !save.fx; persist(); syncButtons(); };
+  $("sgHangarBtn").onclick = function () { if (G.mode === "play" || G.mode === "ready") pause(); sfx("click"); if (G.mode !== "paused") openShop(); else { closeDialog(); G.mode = "title"; openShop(); } };
+  $("sgPauseM").onclick = function () { if (G.mode === "paused") resume(); else pause(); };
+  $("sgHelpBtn").onclick = function () { if (G.mode === "play" || G.mode === "ready") pause(); $("sgHelp").classList.add("open"); };
+  $("sgHelpClose").onclick = function () { $("sgHelp").classList.remove("open"); };
+  document.addEventListener("visibilitychange", function () { if (document.hidden) { pause(); musicStop(); } });
+  window.addEventListener("pagehide", function () { musicStop(); });
+  document.addEventListener("pointerdown", function () { audio(); }, { once: true });
+
+  // ---------------- sizing ----------------
+  function fit() {
+    var main = $("sgMain"), pad = $("sgPad"), phone = matchMedia("(max-width: 720px)").matches;
+    if (phone) {
+      var hudH = $("sgHud").offsetHeight, powH = $("sgPows").offsetHeight;
+      var W = main.clientWidth, H = main.clientHeight;
+      pad.classList.remove("hide");
+      var size = Math.min(W, H - hudH - powH - pad.offsetHeight - 14);
+      if (size < W * 0.86) { pad.classList.add("hide"); size = Math.min(W, H - hudH - powH - 6); }
+      size = Math.max(200, Math.floor(size));
+      main.style.setProperty("--sgw", size + "px");
+    } else main.style.removeProperty("--sgw");
+    var r = canvas.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 3);
+    var px = Math.max(BW, Math.round(r.width * dpr));
+    if (canvas.width !== px) { canvas.width = px; canvas.height = px; }
+    render();
+  }
+  window.addEventListener("resize", fit);
+  window.addEventListener("orientationchange", function () { setTimeout(fit, 200); });
+
+  // ---------------- loop ----------------
+  var last = performance.now(), acc = 0, STEP = 1 / 120;
+  function loop(now) {
+    var dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (G.mode !== "paused") {
+      acc += dt;
+      while (acc >= STEP) { update(STEP); acc -= STEP; }
+    }
+    render();
+    requestAnimationFrame(loop);
+  }
+
+  // start: show the first maze behind the title so it looks alive
+  G.maze = 0; buildLevel(); resetActors(); player.dx = 0;
+  syncButtons(); sideStats(); buildLegend(); fit(); titleScreen();
+  requestAnimationFrame(loop);
+})();
+</script>

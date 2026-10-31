@@ -15,7 +15,7 @@
   function markNav() {
     var here = norm(location.pathname);
     // each game counts as part of the Games section
-    if (/^\/(linesdx|blackjack|luckyflip)$/.test(here)) here = "/games";
+    if (/^\/(linesdx|blackjack|luckyflip|skyglider)$/.test(here)) here = "/games";
     var links = document.querySelectorAll(".navbar a[href^='/']");
     for (var i = 0; i < links.length; i++) {
       if (norm(links[i].getAttribute("href")) === here) links[i].setAttribute("aria-current", "page");
@@ -29,7 +29,7 @@
 
   function setupWindow(t) {
     // the games have their own title bars and controls
-    if (t.closest(".content.pf, .content.bj, .content.fl, .gv")) return;
+    if (t.closest(".content.pf, .content.bj, .content.fl, .content.sg, .gv")) return;
     var body = t.nextElementSibling;
     if (!body) return;
     var name = (t.textContent || "").trim();
