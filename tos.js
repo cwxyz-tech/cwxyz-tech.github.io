@@ -65,6 +65,17 @@
     });
   }
 
+  // 1 in 10 page views, the tagline under the logo shows a verse instead
+  function swapTagline() {
+    if (Math.random() >= 0.1) return;
+    var t = document.querySelectorAll(".tagline");
+    for (var i = 0; i < t.length; i++) {
+      t[i].textContent = "Est. 2023... rejoice always, God is good!";
+      t[i].title = "Philippians 4:4";
+    }
+  }
+  document.addEventListener("DOMContentLoaded", function () { if (!pageSrc) swapTagline(); });
+
   function showPage(html) {
     if (errBox && errBox.parentNode) errBox.parentNode.removeChild(errBox);
     errBox = null;
@@ -72,6 +83,7 @@
     holder.innerHTML = html;
     var nodes = Array.prototype.slice.call(holder.childNodes);
     for (var n = 0; n < nodes.length; n++) document.body.appendChild(nodes[n]);
+    swapTagline();
     runScripts(Array.prototype.slice.call(document.body.querySelectorAll("script")), 0);
   }
 
