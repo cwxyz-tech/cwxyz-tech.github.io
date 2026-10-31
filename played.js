@@ -28,7 +28,7 @@
   function already(id) {
     var s;
     if (id === "blackjack") { s = read("cw_blackjack"); return !!(s && (s.hands > 0 || s.wins > 0 || s.losses > 0)); }
-    if (id === "luckyflip") { s = read("cw_flip"); return !!(s && (s.wins > 0 || s.losses > 0 || s.round || s.level > 1)); }
+    if (id === "luckyflip") { s = read("cw_flip"); return !!(s && (s.wins > 0 || s.losses > 0 || s.level > 1)); }
     if (id === "linesdx") {
       s = read("lines-plus-save");
       var best = 0; try { best = parseInt(localStorage.getItem("prismfall-best"), 10) || 0; } catch (e) {}

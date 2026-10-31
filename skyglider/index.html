@@ -42,7 +42,8 @@
   .sg-hud #sgScore { color: #ffee00; }
   .sg-hud #sgCombo { color: #fff; }
   .sg-hud #sgCombo.c2 { color: #60ff60; } .sg-hud #sgCombo.c3 { color: #60c0ff; } .sg-hud #sgCombo.c4 { color: #ff80ff; } .sg-hud #sgCombo.c5 { color: #ff4040; animation: sg-rbw .5s steps(1) infinite; }
-  .sg-lives { display: flex; gap: 2px; align-items: center; height: 19px; }
+  .sg-lives { display: flex; gap: 2px; align-items: center; height: 19px; min-width: 0; }
+  .sg-hud > div { overflow: hidden; }
   .sg-lives canvas { width: 20px; height: 20px; image-rendering: pixelated; image-rendering: crisp-edges; }
 
   .sg-stage { position: relative; background: #7ea2f0; border: 3px inset #fff; line-height: 0; touch-action: none; -webkit-user-select: none; user-select: none; overflow: hidden; }
@@ -178,7 +179,7 @@
   .sg button { touch-action: manipulation; }
 
   /* ===== phones: the game takes the whole screen, like the other games ===== */
-  @media (max-width: 720px) {
+  @media (max-width: 720px), (pointer: coarse) and (max-height: 520px) {
     html, body { height: 100%; }
     body { overflow: hidden; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; overscroll-behavior: none;
       padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px); box-sizing: border-box; }
@@ -202,6 +203,7 @@
     .sg-hud, .sg-stage, .sg-pows { width: var(--sgw, 100%); box-sizing: border-box; }
     .sg-hud b { font-size: 17px; }
     .sg-hud > div { padding: 2px 5px 3px; }
+    .sg-lives canvas { width: 17px; height: 17px; flex-shrink: 1; min-width: 12px; }
     .sg-stage canvas#sgCanvas { width: 100%; }
     .sg-dialog { max-width: 310px; }
     .sg-title { font-size: 40px; }
@@ -210,6 +212,8 @@
     /* thumb pad under the maze when there's room for it (swipes work anywhere too) */
     .sg-pad { display: grid; grid-template-columns: repeat(3, 76px); grid-template-rows: repeat(2, 58px); gap: 4px; margin-top: 6px; flex-shrink: 0; }
     .sg-pad.hide { display: none; }
+    /* phone on its side: the arrow pad sits beside the maze */
+    .sg-pad.side { position: fixed; right: max(18px, env(safe-area-inset-right)); bottom: 18px; margin: 0; display: grid; }
     .sg-pad button { font: bold 22px "Times New Roman", Times, serif !important; background: #c0c0c0; border: 2px outset #fff; color: #000; padding: 0; touch-action: none; }
     .sg-pad button.on { border-style: inset; background: #a8a8a8; }
     .sg-pad .u { grid-column: 2; grid-row: 1; } .sg-pad .l { grid-column: 1; grid-row: 2; } .sg-pad .d { grid-column: 2; grid-row: 2; } .sg-pad .r { grid-column: 3; grid-row: 2; }

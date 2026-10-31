@@ -582,7 +582,6 @@
     return r;
   }
   function newRound(resume) {
-    if (window.CwPlayed) CwPlayed.mark("luckyflip");
     var sets = LEVELS[level - 1], pick5 = sets[Math.floor(Math.random() * sets.length)];
     var i;
     vals = resume ? resume.vals.slice() : makeBoard(pick5, SAFE_LINES[level - 1] || 0);
@@ -642,6 +641,7 @@
     if (state !== "play" || open[i]) return;
     if (tut && tut.allow !== i) return;
     if (memo && !tut) { toggleMark(i, memoMark); return; }
+    if (window.CwPlayed) CwPlayed.mark("luckyflip");
     open[i] = true;
     var v = vals[i];
     if (v === 0) {

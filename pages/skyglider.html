@@ -1060,6 +1060,7 @@
     }
     persist(); sideStats();
     setTimeout(function () {
+      if (G.mode !== "over") return;
       var html = '<div class="dt">' + (G.daily ? "Daily Flight" : "Game Over") + '</div><div class="db">' +
         '<h2 class="oops">' + (G.daily ? "Flight over!" : "Oops! Game over") + '</h2>' +
         '<div class="big" id="sgEndScore">0</div>' +
@@ -1308,6 +1309,7 @@
   function drawPlayer() {
     if (!G.grid) return;
     if (G.pop && G.hitPause > 0) return;   // hidden while the points show, like the arcade
+    if (G.mode === "over") return;
     var liv = LIVERIES.filter(function (l) { return l.id === save.liv; })[0] || LIVERIES[0];
     var set = gliderSet(save.liv, liv.rainbow ? Math.floor(G.t * 10) : 0);
     var happy = G.frightT > 0 || G.mode === "clear" || G.hitPause > 0;
@@ -1554,6 +1556,9 @@
   function pause() {
     if (G.mode !== "play" && G.mode !== "ready") return;
     G.prevMode = G.mode; G.mode = "paused"; musicStop();
+    pauseMenu();
+  }
+  function pauseMenu() {
     openDialog('<div class="dt">Paused</div><div class="db"><h2>Paused</h2>' +
       '<button class="sg-btn go wide" id="sgResume">&#9654; Keep Flying <kbd>(Space)</kbd></button>' +
       '<button class="sg-btn" id="sgQuit">Quit to Menu</button></div>');
@@ -1568,7 +1573,7 @@
   var shopOpen = false;
   function openShop() {
     shopOpen = true;
-    var back = G.mode === "over" ? "over" : "title";
+    var back = G.mode === "paused" ? "pause" : "title";
     function item(kind, it) {
       var owned = save.own[kind].indexOf(it.id) >= 0, on = save[kind] === it.id;
       return '<button class="sg-item' + (on ? " on" : "") + (owned ? "" : " locked") + (!owned && save.stars < it.cost ? " poor" : "") + '" data-k="' + kind + '" data-id="' + it.id + '">' +
@@ -1607,7 +1612,7 @@
         openShop();
       };
     });
-    $("sgShopBack").onclick = function () { sfx("click"); shopOpen = false; if (back === "over") { G.mode = "title"; } titleScreen(); };
+    $("sgShopBack").onclick = function () { sfx("click"); shopOpen = false; if (back === "pause") pauseMenu(); else titleScreen(); };
   }
 
   // ---------------- settings ----------------
@@ -1626,7 +1631,13 @@
   $("sgSound").onclick = $("sgSoundM").onclick = function () { save.sound = !save.sound; persist(); syncButtons(); sfx("click"); };
   $("sgMusic").onclick = $("sgMusicM").onclick = function () { toggleMusic(); };
   $("sgFx").onclick = function () { save.fx = !save.fx; persist(); syncButtons(); };
-  $("sgHangarBtn").onclick = function () { if (G.mode === "play" || G.mode === "ready") pause(); sfx("click"); if (G.mode !== "paused") openShop(); else { closeDialog(); G.mode = "title"; openShop(); } };
+  $("sgHangarBtn").onclick = function () {
+    sfx("click");
+    if (G.mode === "play" || G.mode === "ready") pause();
+    if (G.mode === "dying" || G.mode === "clear" || G.mode === "cut") return;   // wait for the moment to pass
+    if (G.mode === "over") G.mode = "title";
+    openShop();
+  };
   $("sgPauseM").onclick = function () { if (G.mode === "paused") resume(); else pause(); };
   $("sgHelpBtn").onclick = function () { if (G.mode === "play" || G.mode === "ready") pause(); $("sgHelp").classList.add("open"); };
   $("sgHelpClose").onclick = function () { $("sgHelp").classList.remove("open"); };
@@ -1636,13 +1647,19 @@
 
   // ---------------- sizing ----------------
   function fit() {
-    var main = $("sgMain"), pad = $("sgPad"), phone = matchMedia("(max-width: 720px)").matches;
+    var main = $("sgMain"), pad = $("sgPad"), phone = matchMedia("(max-width: 720px), (pointer: coarse) and (max-height: 520px)").matches;
     if (phone) {
       var hudH = $("sgHud").offsetHeight, powH = $("sgPows").offsetHeight;
       var W = main.clientWidth, H = main.clientHeight;
-      pad.classList.remove("hide");
-      var size = Math.min(W, H - hudH - powH - pad.offsetHeight - 14);
-      if (size < W * 0.86) { pad.classList.add("hide"); size = Math.min(W, H - hudH - powH - 6); }
+      pad.classList.remove("hide"); pad.classList.remove("side");
+      var size;
+      if (W > H * 1.3 && W - (H - hudH - powH) > 2 * 250) {
+        // landscape: maze as big as the height allows, arrow pad off to the side
+        pad.classList.add("side"); size = Math.min(W, H - hudH - powH - 6);
+      } else {
+        size = Math.min(W, H - hudH - powH - pad.offsetHeight - 14);
+        if (size < W * 0.86) { pad.classList.add("hide"); size = Math.min(W, H - hudH - powH - 6); }
+      }
       size = Math.max(200, Math.floor(size));
       main.style.setProperty("--sgw", size + "px");
     } else main.style.removeProperty("--sgw");
