@@ -123,10 +123,9 @@
     { game: "Lines DX",     title: "Hard Mode",    src: "/music/tracks/lines-hard-mode.mp3",  loop: 64 * 60 / 96,      color: [160, 0, 0] },
     { game: "Lines DX",     title: "The Shop",     src: "/music/tracks/lines-the-shop.mp3",   loop: 64 * 60 / 104,     color: [0, 128, 128] },
     { game: "Lucky Flip",   title: "Lucky Flip",   src: "/music/tracks/lucky-flip.mp3",       loop: 64 * 60 / 150,     color: [0, 96, 200] },
-    { game: "Sky Glider",   title: "Cloud Runner", src: "/music/tracks/cloud-runner.mp3",     loop: 256 * 15 / 136,    color: [0, 150, 220], locked: true },
     { game: "Sky Glider",   title: "Hangar Lounge", src: "/music/tracks/hangar-lounge.mp3",   loop: 384 * 15 / 100,    color: [230, 140, 30], locked: true }
   ];
-  // Sky Glider's songs stay locked until Sky Glider itself is unlocked (play Blackjack DX, Lines DX and Lucky Flip)
+  // Sky Glider's song stays locked until Sky Glider itself is unlocked (play Blackjack DX, Lines DX and Lucky Flip)
   function unlocked(t) { return !t.locked || !window.CwPlayed || CwPlayed.status().unlocked; }
   // These are the jukebox cuts of the game songs: the loop, then the top of the song again fading out over a
   // few seconds, so each one ends gently on every phone and computer. Loop mode jumps back before the fade.
