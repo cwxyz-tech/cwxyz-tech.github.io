@@ -29,7 +29,6 @@
         <button class="sg-tb" id="sgHelpBtn" aria-label="How to play">?</button>
         <button class="sg-tb" id="sgPauseM" aria-label="Pause">II</button>
         <button class="sg-tb" id="sgSoundM" aria-label="Toggle sound">&#9834;</button>
-        <button class="sg-tb" id="sgMusicM" aria-label="Toggle music">&#9835;</button>
         <a class="sg-tb" href="/games" aria-label="Back to the games">&times;</a>
       </span>
     </div>
@@ -83,7 +82,6 @@
           <div class="sg-win-body">
             <button class="sg-btn" id="sgHangarBtn">&#9992; Hangar</button>
             <button class="sg-btn" id="sgSound">Sound: On</button>
-            <button class="sg-btn" id="sgMusic">Music: On</button>
             <button class="sg-btn" id="sgFx">Effects: On</button>
           </div>
         </div>
@@ -98,7 +96,7 @@
       <p>Grab a <b>sun</b> and the storms get scared and puff up white. Fly into them for big points: 200, 400, 800, then 1600 for the whole set. Keep grabbing sparkles without a break to build your <b>combo</b>, all the way up to x5.</p>
       <p>Power-ups pop up in the maze: <b>Jet</b> makes you faster, <b>Magnet</b> pulls in sparkles, <b>Shield</b> blocks one storm, <b>Snow</b> freezes the storms, <b>2x</b> doubles your points, and if you're lucky a <b>heart</b> gives you an extra life.</p>
       <p>Every level gets a little faster, and so does every second you spend on one. Earn stars every flight to buy new paint jobs and trails in the <b>Hangar</b>, and check your <b>Flight Goals</b> for bonus stars. The <b>Daily Flight</b> is the same for everyone and you only get one life.</p>
-      <p><span class="sg-kbonly">Keyboard: arrow keys or WASD to fly, Space to start, P to pause, M for music.</span> On a phone, swipe anywhere or use the arrow pad.</p>
+      <p><span class="sg-kbonly">Keyboard: arrow keys or WASD to fly, Space to start, P to pause, M to mute.</span> On a phone, swipe anywhere or use the arrow pad.</p>
       <button class="sg-btn go sg-helpx" id="sgHelpClose">Got it!</button>
     </div>
   </div>
@@ -415,12 +413,17 @@
   }
 
   // ---------------- audio ----------------
-  var ac = null, master = null, musicGain = null, noiseBuf = null, PULSE = {};
+  var ac = null, master = null, noiseBuf = null, PULSE = {};
   function audio() {
     if (!ac) {
       var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
-      ac = new AC(); master = ac.createGain(); master.gain.value = 0.5; master.connect(ac.destination);
-      musicGain = ac.createGain(); musicGain.gain.value = 0.18; musicGain.connect(master);
+      // everything goes through a compressor with makeup gain, so the effects sound big and present
+      // without the loud ones (the crash) clipping
+      ac = new AC(); master = ac.createGain(); master.gain.value = 1.15;
+      var comp = ac.createDynamicsCompressor(), post = ac.createGain();
+      comp.threshold.value = -20; comp.knee.value = 8; comp.ratio.value = 4; comp.attack.value = 0.003; comp.release.value = 0.18;
+      post.gain.value = 1.5;
+      master.connect(comp); comp.connect(post); post.connect(ac.destination);
       noiseBuf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
       var d = noiseBuf.getChannelData(0); for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
       // NES-style pulse waves (thin 12.5%, classic 25%)
@@ -431,7 +434,6 @@
       });
     }
     if (ac.state === "suspended") ac.resume();
-    songLoad();
     return ac;
   }
   function osc(type) {
@@ -519,7 +521,7 @@
     if (!save.sound || !audio()) return;
     var i;
     switch (name) {
-      case "spark": chirp ^= 1; tone((chirp ? 988 : 1319) * (1 + Math.min(arg || 0, 4) * 0.06), 0, 0.05, 0.07, "triangle"); break;
+      case "spark": chirp ^= 1; tone((chirp ? 988 : 1319) * (1 + Math.min(arg || 0, 4) * 0.06), 0, 0.06, 0.1, "triangle"); tone((chirp ? 494 : 659), 0, 0.04, 0.04, 0.25); break;
       case "sun": tone(330, 0, 0.25, 0.12, "square", 1320); tone(660, 0.08, 0.3, 0.08, "triangle", 1760); break;
       case "eat": for (i = 0; i < 4; i++) tone(440 * Math.pow(1.26, i + (arg || 0)), i * 0.04, 0.08, 0.1, "square"); break;
       case "power": [523, 659, 784, 1047, 1319].forEach(function (f, k) { tone(f, k * 0.05, 0.1, 0.09, "square"); }); break;
@@ -531,121 +533,75 @@
       case "clear": [523, 659, 784, 1047, 784, 1047, 1319].forEach(function (f, k) { tone(f, k * 0.09, 0.14, 0.09, "square"); tone(f / 2, k * 0.09, 0.14, 0.06, "triangle"); }); break;
       case "goal": [1047, 1319, 1568, 2093].forEach(function (f, k) { tone(f, k * 0.07, 0.12, 0.08, "triangle"); }); break;
       case "ready": [392, 523, 659, 784].forEach(function (f, k) { tone(f, k * 0.12, 0.12, 0.08, "square"); }); break;
-      case "click": tone(1200, 0, 0.03, 0.05, "square"); break;
+      case "click": tone(1200, 0, 0.03, 0.07, "square"); break;
       case "buy": [659, 880, 1175].forEach(function (f, k) { tone(f, k * 0.06, 0.1, 0.08, "square"); }); break;
       case "nope": tone(180, 0, 0.15, 0.1, "square"); break;
       case "itemIn": [1568, 1319, 1568, 2093].forEach(function (f, k) { tone(f, k * 0.05, 0.06, 0.05, "square"); }); break;
-      case "bounce": tone(330, 0, 0.06, 0.04, "triangle", 660); break;
+      case "bounce": tone(330, 0, 0.06, 0.06, "triangle", 660); break;
+      // new ones
+      case "go": noiseF(0, 0.4, 0.22, "bandpass", 500, 1.4, master, 2800, 0.05); tone(196, 0, 0.3, 0.09, 0.25, 523); break;
+      case "turn": noiseF(0, 0.07, 0.07, "bandpass", 1500, 1.6, master, 3200); break;
+      case "tunnel": noiseF(0, 0.5, 0.26, "bandpass", 350, 1.3, master, 2800, 0.08); tone(1200, 0.05, 0.35, 0.05, "sine", 300); break;
+      case "stormOut": noiseF(0, 0.7, 0.2, "lowpass", 320, 0.9, master, 80, 0.05); tone(70, 0, 0.4, 0.12, "sine", 45); break;
+      case "stormHome": tone(180, 0, 0.16, 0.1, 0.25, 720); noiseF(0.02, 0.18, 0.12, "bandpass", 900, 2); break;
+      case "frightEnd": [784, 622, 523, 392].forEach(function (f, k) { tone(f, k * 0.05, 0.08, 0.08, 0.25); }); break;
+      case "powerEnd": tone(988, 0, 0.32, 0.09, 0.25, 247); tone(494, 0, 0.32, 0.05, "triangle", 123); break;
+      case "itemGone": noiseF(0, 0.22, 0.16, "highpass", 1500); tone(1400, 0, 0.2, 0.05, "triangle", 350); break;
+      case "chase": noiseF(0, 1.1, 0.16, "lowpass", 240, 0.8, master, 55, 0.12); break;
+      case "pause": tone(988, 0, 0.06, 0.08, 0.25); tone(659, 0.07, 0.09, 0.08, 0.25); break;
+      case "resume": tone(659, 0, 0.06, 0.08, 0.25); tone(988, 0.07, 0.09, 0.08, 0.25); break;
+      case "gameover": [523, 494, 466, 440].forEach(function (f, k) { tone(f, k * 0.22, 0.2, 0.09, 0.25); tone(f / 2, k * 0.22, 0.2, 0.08, "triangle"); });
+        tone(349, 0.9, 0.7, 0.09, 0.25, 330); tone(175, 0.9, 0.7, 0.1, "triangle", 165); break;
+      case "newbest": [523, 659, 784, 1047, 0, 784, 1047, 1319].forEach(function (f, k) { if (f) { tone(f, k * 0.1, 0.16, 0.09, 0.25); tone(f / 2, k * 0.1, 0.16, 0.07, "triangle"); } });
+        tone(1568, 0.85, 0.6, 0.08, 0.25); tone(784, 0.85, 0.6, 0.08, "triangle"); break;
     }
   }
 
-  // ---- "Cloud Runner": the Sky Glider theme. Fast, driving 8-bit in D minor, and it speeds up with the level ----
-  // It plays from the same mp3 as the Music page: half a second of padding, the seamless loop, then a fade-out tail
-  // (the loop points skip the tail). Faster levels just play it faster. Frightened storms get a spooky arpeggio on top
-  // while the song ducks down under a muffle.
-  var SONG = { src: "/skyglider/music.mp3", pad: 0.5, loop: 256 * 15 / 136, bpm: 136, vol: 0.18 };
-  function midi(n) { return 440 * Math.pow(2, (n - 69) / 12); }
-  var FRIGHT = [84,88,91,88,84,88,91,96, 83,86,91,86,83,86,91,95];
-  var mus = { on: false, timer: null, buf: null, loading: false, src: null, filt: null, pos: 0, lastT: 0, rate: 1, fr: false, step: 0, next: 0 };
-  function songLoad() {
-    if (mus.buf || mus.loading || !ac) return;
-    mus.loading = true;
-    fetch(SONG.src).then(function (r) { if (!r.ok) throw new Error("bad status"); return r.arrayBuffer(); })
-      .then(function (data) { return new Promise(function (ok, bad) { var pr = ac.decodeAudioData(data, ok, bad); if (pr && pr.catch) pr.catch(bad); }); })
-      .then(function (buf) { mus.buf = buf; mus.loading = false; if (mus.on && !mus.src) songStart(); })
-      .catch(function () { mus.loading = false; });
-  }
-  function songRate() { return Math.min(136 + (G.level - 1) * 5, 182) / SONG.bpm; }
-  function songStart() {
-    if (!mus.buf) { songLoad(); return; }   // starts by itself once it has loaded
-    var src = ac.createBufferSource();
-    src.buffer = mus.buf; src.loop = true; src.loopStart = SONG.pad; src.loopEnd = SONG.pad + SONG.loop;
-    mus.rate = songRate(); src.playbackRate.value = mus.rate;
-    if (!mus.filt) { mus.filt = ac.createBiquadFilter(); mus.filt.type = "lowpass"; mus.filt.frequency.value = 20000; mus.filt.connect(musicGain); }
-    src.connect(mus.filt);
-    var at = ac.currentTime + 0.03;
-    mus.pos = mus.pos % SONG.loop;
-    src.start(at, SONG.pad + mus.pos);
-    mus.lastT = at; mus.src = src;
-  }
-  function songKill() { if (mus.src) { try { mus.src.stop(ac.currentTime + 0.32); } catch (e) {} mus.src = null; } }
-  function musicTick() {
-    if (!ac || !mus.on) return;
+  // ---- the sky while you fly (no music): Glider's propeller hums along and revs up with the level and the jet boost,
+  // scared storms get a wobbly "wah-wah" siren that speeds up as it runs out, and eaten storms zip home with fast chirps.
+  var amb = { on: false, timer: null, bus: null, prop: null, lfo: null, lp: null, step: 0, next: 0 };
+  function ambStart() {
+    if (!save.sound || !audio() || amb.on) return;
     var now = ac.currentTime;
-    if (mus.src) {
-      if (now > mus.lastT) { mus.pos += (now - mus.lastT) * mus.rate; mus.lastT = now; }
-      var r = songRate();
-      if (r !== mus.rate) { mus.rate = r; mus.src.playbackRate.setTargetAtTime(r, now, 0.05); }
+    amb.on = true; amb.step = 0; amb.next = now;
+    amb.bus = ac.createGain(); amb.bus.gain.setValueAtTime(0.0001, now); amb.bus.gain.linearRampToValueAtTime(1, now + 0.4); amb.bus.connect(master);
+    // the propeller: a buzzy saw through a low-pass, chopped by a fast wobble so it goes "brrrrr"
+    var pr = osc("sawtooth"), lp = ac.createBiquadFilter(), g = ac.createGain(), lfo = osc("triangle"), lg = ac.createGain();
+    lp.type = "lowpass"; lp.frequency.value = 650; lp.Q.value = 3;
+    pr.frequency.value = 62; g.gain.value = 0.07; lfo.frequency.value = 16; lg.gain.value = 0.04;
+    lfo.connect(lg); lg.connect(g.gain); pr.connect(lp); lp.connect(g); g.connect(amb.bus);
+    pr.start(now); lfo.start(now);
+    amb.prop = pr; amb.lfo = lfo; amb.lp = lp;
+    amb.timer = setInterval(ambTick, 30);
+  }
+  function ambTick() {
+    if (!ac || !amb.on) return;
+    var now = ac.currentTime, play = G.mode === "play";
+    var sm = play ? speedMult() : 0.85, jet = play && G.jetT > 0 ? 1.3 : 1;
+    amb.prop.frequency.setTargetAtTime(62 * sm * jet, now, 0.15);
+    amb.lfo.frequency.setTargetAtTime(16 * sm * jet, now, 0.15);
+    amb.lp.frequency.setTargetAtTime(jet > 1 ? 1500 : G.freezeT > 0 ? 380 : 650, now, 0.2);
+    if (amb.next < now) amb.next = now + 0.02;
+    while (amb.next < now + 0.1) {
+      var t = amb.next - now, d = 0.06;
+      var homing = play && storms.some(function (s) { return s.state === "eaten"; });
+      if (homing) {                                       // eaten storm racing home: fast rising chirps
+        var k = amb.step % 4;
+        tone(520 + k * 240, t, 0.05, 0.06, 0.25, 1200 + k * 300, amb.bus); d = 0.055;
+      } else if (play && G.frightT > 0 && G.hitPause <= 0) {   // scared storms: wah-wah, faster when it's almost over
+        var end = G.frightT < 2, up = amb.step % 2;
+        tone(up ? 260 : 350, t, end ? 0.09 : 0.15, 0.08, 0.125, up ? 350 : 260, amb.bus); d = end ? 0.1 : 0.16;
+      }
+      amb.step++; amb.next += d;
     }
-    // frightened storms: duck and muffle the song, play the spooky arpeggio in time with it
-    var fr = G.frightT > 0;
-    if (fr !== mus.fr && mus.filt) {
-      mus.fr = fr;
-      mus.filt.frequency.setTargetAtTime(fr ? 900 : 20000, now, 0.08);
-      musicGain.gain.setTargetAtTime(fr ? SONG.vol * 0.6 : SONG.vol, now, 0.08);
-    }
-    var sl = 60 / (SONG.bpm * mus.rate) / 4;
-    if (!fr) { mus.next = now; return; }
-    if (mus.next < now) mus.next = now + 0.02;
-    while (mus.next < now + 0.12) {
-      if (mus.step % 2 === 0) tone(midi(FRIGHT[(mus.step / 2) % 16]), mus.next - now, sl * 1.6, 0.05 / 0.6, 0.25, 0, musicGain);
-      mus.step++; mus.next += sl;
-    }
   }
-  function musicStart() {
-    if (!save.music || !audio() || mus.on) return;
-    mus.on = true; mus.fr = false; mus.next = ac.currentTime;
-    if (mus.filt) mus.filt.frequency.setValueAtTime(20000, ac.currentTime);
-    musicGain.gain.cancelScheduledValues(ac.currentTime); musicGain.gain.setValueAtTime(SONG.vol, ac.currentTime);
-    songStart();
-    mus.timer = setInterval(musicTick, 30);
-  }
-  function musicStop() {
-    if (!mus.on) return;
-    mus.on = false; clearInterval(mus.timer);
-    if (ac) {
-      if (mus.src && ac.currentTime > mus.lastT) mus.pos += (ac.currentTime - mus.lastT) * mus.rate;
-      musicGain.gain.cancelScheduledValues(ac.currentTime);
-      musicGain.gain.setValueAtTime(musicGain.gain.value, ac.currentTime); musicGain.gain.linearRampToValueAtTime(0.0001, ac.currentTime + 0.3);
-    }
-    songKill();
-  }
-
-  // ---- "Hangar Lounge": the hangar song. Laid-back, swingy 8-bit in F major at 100 bpm, while Glider gets a new paint job ----
-  // Same mp3 layout as Cloud Runner (half a second of padding, the seamless loop, then a fade-out tail). It fades in when
-  // the Hangar opens, fades out when you leave, and picks up where it left off next time.
-  var HANGAR = { src: "/skyglider/hangar.mp3", pad: 0.5, loop: 384 * 15 / 100, vol: 0.18 };
-  var hg = { buf: null, loading: false, src: null, gain: null, want: false, pos: 0, t0: 0 };
-  function hangarLoad() {
-    if (hg.buf || hg.loading || !ac) return;
-    hg.loading = true;
-    fetch(HANGAR.src).then(function (r) { if (!r.ok) throw new Error("bad status"); return r.arrayBuffer(); })
-      .then(function (data) { return new Promise(function (ok, bad) { var pr = ac.decodeAudioData(data, ok, bad); if (pr && pr.catch) pr.catch(bad); }); })
-      .then(function (buf) { hg.buf = buf; hg.loading = false; if (hg.want && !hg.src) hangarStart(); })
-      .catch(function () { hg.loading = false; });
-  }
-  function hangarStart() {
-    if (!save.music || !audio()) return;
-    hg.want = true;
-    if (hg.src) return;                           // already playing (the Hangar redraws itself after every purchase)
-    if (!hg.buf) { hangarLoad(); return; }        // starts by itself once it has loaded
-    var src = ac.createBufferSource(), g = ac.createGain(), now = ac.currentTime;
-    src.buffer = hg.buf; src.loop = true; src.loopStart = HANGAR.pad; src.loopEnd = HANGAR.pad + HANGAR.loop;
-    g.gain.setValueAtTime(0.0001, now); g.gain.linearRampToValueAtTime(HANGAR.vol, now + 0.6);
-    src.connect(g); g.connect(master);
-    hg.pos = hg.pos % HANGAR.loop;
-    src.start(now + 0.02, HANGAR.pad + hg.pos);
-    hg.src = src; hg.gain = g; hg.t0 = now + 0.02;
-  }
-  function hangarStop() {
-    hg.want = false;
-    if (!hg.src || !ac) return;
-    var now = ac.currentTime;
-    if (now > hg.t0) hg.pos += now - hg.t0;
-    hg.gain.gain.cancelScheduledValues(now);
-    hg.gain.gain.setValueAtTime(hg.gain.gain.value, now); hg.gain.gain.linearRampToValueAtTime(0.0001, now + 0.4);
-    try { hg.src.stop(now + 0.42); } catch (e) {}
-    hg.src = null; hg.gain = null;
+  function ambStop() {
+    if (!amb.on) return;
+    amb.on = false; clearInterval(amb.timer);
+    if (!ac) return;
+    var now = ac.currentTime, b = amb.bus.gain;
+    b.cancelScheduledValues(now); b.setValueAtTime(b.value, now); b.linearRampToValueAtTime(0.0001, now + 0.25);
+    try { amb.prop.stop(now + 0.3); amb.lfo.stop(now + 0.3); } catch (e) {}
   }
 
   // ---------------- elements ----------------
@@ -777,7 +733,7 @@
   function readyGo(text) {
     G.mode = "ready"; G.timer = 1.8;
     showCall(text + "<small>" + MAZE_NAMES[G.maze] + (G.daily ? " &middot; one life!" : "") + "</small>", true);
-    sfx("ready"); musicStart();
+    sfx("ready"); ambStart();
   }
 
   // ---------------- input ----------------
@@ -806,7 +762,7 @@
       return;
     }
     if (k === "p" || k === "P" || k === "Escape") { if (G.mode === "play" || G.mode === "ready") pause(); else if (G.mode === "paused") resume(); }
-    if (k === "m" || k === "M") toggleMusic();
+    if (k === "m" || k === "M") toggleSound();
   });
   // swipes anywhere on the game
   var sw = null;
@@ -903,7 +859,7 @@
       if (s.state === "leave") {
         var sp = 3.5 * dt;
         if (Math.abs(s.x - GATE.x) > 0.01) s.x += Math.max(-sp, Math.min(sp, GATE.x - s.x));
-        else { s.x = GATE.x; s.y -= sp; if (s.y <= GATE.y) { s.y = GATE.y; s.state = "out"; s.dx = G.rand() < 0.5 ? -1 : 1; s.dy = 0; } }
+        else { s.x = GATE.x; s.y -= sp; if (s.y <= GATE.y) { s.y = GATE.y; s.state = "out"; s.dx = G.rand() < 0.5 ? -1 : 1; s.dy = 0; if (G.mode === "play") sfx("stormOut"); } }
         return;
       }
       if (s.state === "enter") {
@@ -918,7 +874,7 @@
       var tx = Math.round(s.x), ty = Math.round(s.y);
       if (s.state !== "eaten" && ty === 9 && (tx < 4 || tx > COLS - 5)) spd *= 0.55;   // slow in the jetstream tunnel
       moveAlong(s, spd * dt, stormCenter);
-      if (s.state === "eaten" && Math.abs(s.x - GATE.x) < 0.2 && Math.abs(s.y - GATE.y) < 0.2) { s.x = GATE.x; s.y = GATE.y; s.state = "enter"; s.dx = 0; s.dy = 0; }
+      if (s.state === "eaten" && Math.abs(s.x - GATE.x) < 0.2 && Math.abs(s.y - GATE.y) < 0.2) { s.x = GATE.x; s.y = GATE.y; s.state = "enter"; s.dx = 0; s.dy = 0; sfx("stormHome"); }
     });
   }
 
@@ -928,7 +884,7 @@
     if (G.mode === "ready") {
       if (G.reveal < 1) G.reveal = Math.min(1, G.reveal + dt * 1.8);
       G.timer -= dt;
-      if (G.timer <= 0) { G.mode = "play"; showCall("Go!", false); }
+      if (G.timer <= 0) { G.mode = "play"; showCall("Go!", false); sfx("go"); }
       return;
     }
     if (G.mode === "dying") {
@@ -959,13 +915,13 @@
     if (G.frightT <= 0 && G.freezeT <= 0) {
       G.modeT += dt;
       var limit = MODE_TIMES[G.modeIdx] * (G.modeIdx % 2 === 0 ? Math.max(0.5, 1 - (G.level - 1) * 0.08) : 1);
-      if (G.modeT >= limit) { G.modeT = 0; G.modeIdx = Math.min(G.modeIdx + 1, MODE_TIMES.length - 1); reverseStorms(); }
+      if (G.modeT >= limit) { G.modeT = 0; G.modeIdx = Math.min(G.modeIdx + 1, MODE_TIMES.length - 1); reverseStorms(); sfx("chase"); }
     }
-    if (G.frightT > 0) { G.frightT -= dt; if (G.frightT <= 0) { storms.forEach(function (s) { s.scared = false; }); G.chain = 0; } }
-    if (G.freezeT > 0) G.freezeT -= dt;
-    if (G.jetT > 0) G.jetT -= dt;
-    if (G.magT > 0) G.magT -= dt;
-    if (G.dblT > 0) G.dblT -= dt;
+    if (G.frightT > 0) { G.frightT -= dt; if (G.frightT <= 0) { storms.forEach(function (s) { s.scared = false; }); G.chain = 0; sfx("frightEnd"); } }
+    if (G.freezeT > 0) { G.freezeT -= dt; if (G.freezeT <= 0) sfx("powerEnd"); }
+    if (G.jetT > 0) { G.jetT -= dt; if (G.jetT <= 0) sfx("powerEnd"); }
+    if (G.magT > 0) { G.magT -= dt; if (G.magT <= 0) sfx("powerEnd"); }
+    if (G.dblT > 0) { G.dblT -= dt; if (G.dblT <= 0) sfx("powerEnd"); }
     if (G.invuln > 0) G.invuln -= dt;
     if (G.item) updateItem(dt);
     if (G.t - G.lastEat > 0.6 && G.combo) { G.combo = 0; setMult(1); }
@@ -974,7 +930,8 @@
     var pspd = 8.6 * sm * (G.jetT > 0 ? 1.35 : 1);
     var bx = player.x, by = player.y, odx = player.dx, ody = player.dy;
     moveAlong(player, pspd * dt, playerCenter);
-    if ((player.dx !== odx || player.dy !== ody) && (player.dx || player.dy)) player.squash = 0.16;
+    if ((player.dx !== odx || player.dy !== ody) && (player.dx || player.dy)) { player.squash = 0.16; if (!(G.t - G.lastTurn < 0.12)) { G.lastTurn = G.t; sfx("turn"); } }
+    if (Math.abs(player.x - bx) > COLS / 2) sfx("tunnel");
     if (player.squash > 0) player.squash -= dt;
     var moving = player.x !== bx || player.y !== by;
     if (moving) player.anim += dt * 9;
@@ -1076,6 +1033,7 @@
     var it = G.item;
     it.t -= dt; it.hop += dt;
     if (it.t <= 0) {
+      sfx("itemGone");
       for (var i = 0; i < 10; i++) parts.push({ kind: "dot", x: it.x, y: it.y, vx: (Math.random() - 0.5) * 7, vy: (Math.random() - 0.5) * 7, life: 0.5, max: 0.5, c: "#ffffff", s: 3 });
       G.item = null; return;
     }
@@ -1143,7 +1101,7 @@
     G.crashY = ROWS - 1.4;
     for (var yy = cy + 1; yy < ROWS; yy++) if (G.grid[yy][cx] === "#") { G.crashY = yy - 0.45; break; }
     if (G.crashY < player.y + 0.6) G.crashY = player.y + 0.6;
-    sfx("die"); musicStop();
+    sfx("die"); ambStop();
     fx.quake(stage, true); fx.flash(stage, "red");
     var p = toPage(player.x, player.y); fx.burst(p.x, p.y, 1);
     G.popped = false;
@@ -1171,7 +1129,7 @@
 
   function levelClear() {
     G.mode = "clear"; G.timer = 2.3; G.flash = 0;
-    musicStop(); sfx("clear");
+    ambStop(); sfx("clear");
     var bonus = 500 * G.level;
     if (!G.hitThisLevel) { bonus += 2000; G.run.clean++; }
     G.score += bonus;
@@ -1198,6 +1156,7 @@
       if (!save.daily || save.daily.date !== today()) save.daily = { date: today(), best: 0 };
       if (G.score > save.daily.best) { save.daily.best = G.score; dailyNew = true; }
     }
+    sfx(newBest || dailyNew ? "newbest" : "gameover");
     persist(); sideStats();
     setTimeout(function () {
       if (G.mode !== "over") return;
@@ -1577,7 +1536,7 @@
     if (stay) callTimer = setTimeout(function () { callEl.className = "sg-call"; }, 1800);
   }
   function openDialog(html) { dialog.innerHTML = html; overlay.hidden = false; var f = dialog.querySelector(".sg-btn.go"); if (f && !matchMedia("(pointer: coarse)").matches) f.focus({ preventScroll: true }); }
-  function closeDialog() { overlay.hidden = true; dialog.innerHTML = ""; shopOpen = false; hangarStop(); }
+  function closeDialog() { overlay.hidden = true; dialog.innerHTML = ""; shopOpen = false; }
 
   var flyCanvas = null;
   function locked() { return !!(window.CwPlayed && !CwPlayed.status().unlocked); }
@@ -1591,8 +1550,8 @@
       '<a class="sg-btn go wide" href="/games" style="text-decoration:none">Back to the Games</a></div>');
   }
   function titleScreen() {
-    G.mode = "title"; shopOpen = false; hangarStop();
-    musicStop();
+    G.mode = "title"; shopOpen = false;
+    ambStop();
     if (locked()) { lockScreen(); hud(); return; }
     var dailyBest = save.daily && save.daily.date === today() ? save.daily.best : 0;
     var html = '<div class="dt">Sky Glider</div><div class="db">' +
@@ -1628,7 +1587,7 @@
 
   function pause() {
     if (G.mode !== "play" && G.mode !== "ready") return;
-    G.prevMode = G.mode; G.mode = "paused"; musicStop();
+    G.prevMode = G.mode; G.mode = "paused"; ambStop(); sfx("pause");
     pauseMenu();
   }
   function pauseMenu() {
@@ -1640,12 +1599,12 @@
   }
   function resume() {
     if (G.mode !== "paused") return;
-    closeDialog(); G.mode = G.prevMode || "play"; musicStart(); last = performance.now();
+    closeDialog(); G.mode = G.prevMode || "play"; sfx("resume"); ambStart(); last = performance.now();
   }
 
   var shopOpen = false;
   function openShop() {
-    shopOpen = true; hangarStart();
+    shopOpen = true;
     var back = G.mode === "paused" ? "pause" : "title";
     function item(kind, it) {
       var owned = save.own[kind].indexOf(it.id) >= 0, on = save[kind] === it.id;
@@ -1685,25 +1644,21 @@
         openShop();
       };
     });
-    $("sgShopBack").onclick = function () { sfx("click"); shopOpen = false; hangarStop(); if (back === "pause") pauseMenu(); else titleScreen(); };
+    $("sgShopBack").onclick = function () { sfx("click"); shopOpen = false; if (back === "pause") pauseMenu(); else titleScreen(); };
   }
 
   // ---------------- settings ----------------
   function syncButtons() {
     $("sgSound").textContent = "Sound: " + (save.sound ? "On" : "Off");
-    $("sgMusic").textContent = "Music: " + (save.music ? "On" : "Off");
     $("sgFx").textContent = "Effects: " + (save.fx ? "On" : "Off");
     $("sgSoundM").style.opacity = save.sound ? 1 : 0.45;
-    $("sgMusicM").style.opacity = save.music ? 1 : 0.45;
     document.body.classList.toggle("sg-nofx", !save.fx);
   }
-  function toggleMusic() {
-    save.music = !save.music; persist(); syncButtons();
-    if (save.music && (G.mode === "play" || G.mode === "ready")) musicStart(); else musicStop();
-    if (save.music && shopOpen) hangarStart(); else hangarStop();
+  function toggleSound() {
+    save.sound = !save.sound; persist(); syncButtons(); sfx("click");
+    if (save.sound && (G.mode === "play" || G.mode === "ready")) ambStart(); else ambStop();
   }
-  $("sgSound").onclick = $("sgSoundM").onclick = function () { save.sound = !save.sound; persist(); syncButtons(); sfx("click"); };
-  $("sgMusic").onclick = $("sgMusicM").onclick = function () { toggleMusic(); };
+  $("sgSound").onclick = $("sgSoundM").onclick = function () { toggleSound(); };
   $("sgFx").onclick = function () { save.fx = !save.fx; persist(); syncButtons(); };
   $("sgHangarBtn").onclick = function () {
     sfx("click");
@@ -1715,8 +1670,8 @@
   $("sgPauseM").onclick = function () { if (G.mode === "paused") resume(); else pause(); };
   $("sgHelpBtn").onclick = function () { if (G.mode === "play" || G.mode === "ready") pause(); $("sgHelp").classList.add("open"); };
   $("sgHelpClose").onclick = function () { $("sgHelp").classList.remove("open"); };
-  document.addEventListener("visibilitychange", function () { if (document.hidden) { pause(); musicStop(); hangarStop(); } else if (shopOpen) hangarStart(); });
-  window.addEventListener("pagehide", function () { musicStop(); hangarStop(); });
+  document.addEventListener("visibilitychange", function () { if (document.hidden) { pause(); ambStop(); } });
+  window.addEventListener("pagehide", function () { ambStop(); });
   document.addEventListener("pointerdown", function () { audio(); }, { once: true });
 
   // ---------------- sizing ----------------
