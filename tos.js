@@ -28,7 +28,8 @@
   function runScripts(list, i) {
     if (i >= list.length) {
       if (location.hash) {
-        var target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+        var target = null;
+        try { target = document.getElementById(decodeURIComponent(location.hash.slice(1))); } catch (e) {}   // a mangled link shouldn't stop the page
         if (target) target.scrollIntoView();
       }
       try { document.dispatchEvent(new CustomEvent("cw:page-loaded")); } catch (e) {}

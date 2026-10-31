@@ -74,7 +74,8 @@ function readBundled(rel) {
 
 function serve(request) {
   const url = new URL(request.url);
-  let rel = decodeURIComponent(url.pathname);
+  let rel;
+  try { rel = decodeURIComponent(url.pathname); } catch (e) { return new Response("Bad request", { status: 400, headers: { "Content-Type": "text/plain" } }); }
   if (rel.endsWith("/")) rel += "index.html";
   const hit = readBundled(rel);
   if (!hit) return new Response("Not found", { status: 404, headers: { "Content-Type": "text/plain" } });
@@ -312,6 +313,9 @@ app.whenReady().then(() => {
   // the app never goes online: no spellcheck dictionary downloads (there's no typing in the games anyway)
   try { session.defaultSession.setSpellCheckerLanguages([]); } catch (e) {}
   session.defaultSession.setSpellCheckerEnabled(false);
+  // the games never need the camera, microphone, location, notifications or anything else: say no to all of it
+  session.defaultSession.setPermissionRequestHandler((wc, permission, callback) => callback(false));
+  session.defaultSession.setPermissionCheckHandler(() => false);
   protocol.handle(SCHEME, serve);
   Menu.setApplicationMenu(Menu.buildFromTemplate(menuTemplate()));
   createWindow();

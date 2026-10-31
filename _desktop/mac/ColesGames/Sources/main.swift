@@ -472,8 +472,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSToolbarDelegate,
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
                  for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         if let url = navigationAction.request.url {
-            if url.scheme?.lowercased() == Self.scheme { webView.load(navigationAction.request) }
-            else { NSWorkspace.shared.open(url) }
+            let scheme = url.scheme?.lowercased() ?? ""
+            if scheme == Self.scheme { webView.load(navigationAction.request) }
+            else if ["http", "https", "mailto"].contains(scheme) { NSWorkspace.shared.open(url) }   // same rule as normal links
         }
         return nil
     }

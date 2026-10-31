@@ -1,3 +1,4 @@
+<script>/* opened straight from /pages/? send it to the real page, behind the terms */ if (location.pathname.indexOf("/pages/") === 0) location.replace("/" + location.pathname.slice(7).replace(/\.html$/, "").replace(/^(home|404)$/, ""));</script>
 <div class="wrap">
 
   <div class="header">
@@ -366,13 +367,25 @@
   // ---------------- save data ----------------
   var save = {};
   try { save = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { save = {}; }
-  save.best = save.best || 0; save.stars = save.stars || 0; save.topLv = save.topLv || 1;
-  save.own = save.own || { liv: ["sky"], trail: ["none"] };
-  save.liv = save.liv || "sky"; save.trail = save.trail || "none";
-  if (save.sound === undefined) save.sound = true;
-  if (save.music === undefined) save.music = true;
-  if (save.fx === undefined) save.fx = true;
-  save.games = save.games || 0;
+  if (typeof save !== "object" || Array.isArray(save)) save = {};
+  // saves are plain browser storage, so treat them as untrusted: keep only real numbers and known ids
+  function num(v, lo, hi, d) { v = Math.floor(Number(v)); return isFinite(v) ? Math.max(lo, Math.min(hi, v)) : d; }
+  function ids(list, all, base) {
+    var out = (Array.isArray(list) ? list : []).filter(function (id, i, a) { return all.some(function (x) { return x.id === id; }) && a.indexOf(id) === i; });
+    if (out.indexOf(base) < 0) out.unshift(base);
+    return out;
+  }
+  save.best = num(save.best, 0, 1e9, 0); save.stars = num(save.stars, 0, 1e9, 0); save.topLv = num(save.topLv, 1, 999, 1);
+  var own = save.own && typeof save.own === "object" ? save.own : {};
+  save.own = { liv: ids(own.liv, LIVERIES, "sky"), trail: ids(own.trail, TRAILS, "none") };
+  if (save.own.liv.indexOf(save.liv) < 0) save.liv = "sky";
+  if (save.own.trail.indexOf(save.trail) < 0) save.trail = "none";
+  save.sound = save.sound !== false; save.music = save.music !== false; save.fx = save.fx !== false;
+  save.games = num(save.games, 0, 1e9, 0);
+  if (!save.goals || typeof save.goals !== "object" || typeof save.goals.date !== "string" || !Array.isArray(save.goals.done)) delete save.goals;
+  else save.goals.done = save.goals.done.filter(function (id) { return typeof id === "string"; }).slice(0, 3);
+  if (!save.daily || typeof save.daily !== "object" || typeof save.daily.date !== "string") delete save.daily;
+  else save.daily.best = num(save.daily.best, 0, 1e9, 0);
   function persist() { try { localStorage.setItem(KEY, JSON.stringify(save)); } catch (e) {} }
 
   function today() { var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
@@ -612,7 +625,7 @@
     frightT: 0, frightMax: 1, chain: 0, freezeT: 0, jetT: 0, magT: 0, dblT: 0, shield: false,
     combo: 0, lastEat: -9, mult: 1, levelT: 0, modeT: 0, modeIdx: 0, timer: 0, hitPause: 0,
     item: null, itemSpawns: 0, eatenCount: 0, nextLife: 10000, daily: false, rand: Math.random, hitThisLevel: false, invuln: 0,
-    run: null, flash: 0, t: 0, deathT: 0, reveal: 1, pop: null, cutT: 0, act: 0, cuts: 0, popped: false
+    run: null, flash: 0, t: 0, deathT: 0, reveal: 1, pop: null, popped: false
   };
   var player = { x: 10, y: 15, dx: 0, dy: 0, want: null, face: 0, tilt: 0, anim: 0, squash: 0, blink: 2 };
   var storms = [];
@@ -748,7 +761,6 @@
   }
   document.addEventListener("keydown", function (e) {
     if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
-    if (G.mode === "cut") { e.preventDefault(); skipCut(); return; }
     var k = e.key, map = { ArrowLeft: "left", a: "left", A: "left", ArrowRight: "right", d: "right", D: "right", ArrowUp: "up", w: "up", W: "up", ArrowDown: "down", s: "down", S: "down" };
     if (map[k]) { if (G.mode === "play" || G.mode === "ready") { e.preventDefault(); want(map[k]); } else if (/^Arrow/.test(k) && !overlay.hidden) e.preventDefault(); return; }
     if (k === " " || k === "Enter") {
@@ -765,7 +777,6 @@
   swipeArea.addEventListener("touchstart", function (e) {
     if (e.target.closest && e.target.closest("button, a, .sg-overlay")) return;
     var t = e.touches[0]; sw = { x: t.clientX, y: t.clientY }; audio();
-    if (G.mode === "cut") skipCut();
   }, { passive: true });
   swipeArea.addEventListener("touchmove", function (e) {
     if (!sw) return;
@@ -877,11 +888,6 @@
   // ---------------- the main update ----------------
   function update(dt) {
     G.t += dt;
-    if (G.mode === "cut") {
-      G.cutT += dt;
-      if (G.cutT >= ACTS[G.act].dur) endCut();
-      return;
-    }
     if (G.mode === "ready") {
       if (G.reveal < 1) G.reveal = Math.min(1, G.reveal + dt * 1.8);
       G.timer -= dt;
@@ -904,7 +910,7 @@
     }
     if (G.mode === "clear") {
       G.timer -= dt; G.flash += dt;
-      if (G.timer <= 0) { if (G.level % 3 === 2) startCut(); else nextLevel(); }
+      if (G.timer <= 0) nextLevel();
       return;
     }
     if (G.mode !== "play") return;
@@ -1141,21 +1147,6 @@
 
   function nextLevel() { G.level++; G.maze = (G.maze + 1) % MAZES.length; startLevel(); }
 
-  // ---------------- cutscenes between levels (every 3 levels, like the arcade) ----------------
-  var ACTS = [
-    { name: "Storm Chase", dur: 7 },
-    { name: "Here Comes the Sun", dur: 7.5 },
-    { name: "Rainbow Break", dur: 6 }
-  ];
-  function startCut() {
-    G.mode = "cut"; G.cutT = 0; G.act = G.cuts % ACTS.length; G.cuts++;
-    parts.length = 0;
-    showCall("Act " + (G.act + 1) + "<small>" + ACTS[G.act].name + "</small>", true);
-    if (save.music) { musicStart(); }
-  }
-  function endCut() { callEl.className = "sg-call"; musicStop(); nextLevel(); }
-  function skipCut() { if (G.mode === "cut" && G.cutT > 0.4) G.cutT = 99; }
-
   function gameOver() {
     G.mode = "over";
     G.run.score = G.score;
@@ -1283,7 +1274,6 @@
   function render() {
     b.imageSmoothingEnabled = false;
     drawSky();
-    if (G.mode === "cut") { renderCut(); return blit(); }
     var flashOn = G.mode === "clear" && Math.floor(G.flash * 6) % 2 === 1;
     var rv = G.reveal < 1 ? G.reveal : 1, ease = 1 - Math.pow(1 - rv, 3);
     b.save();
@@ -1365,12 +1355,12 @@
   }
 
   function drawStorm(s) {
-    var fr = Math.floor(s.anim) % 2, img, cut = !!s.cut;
-    var frozen = !cut && G.freezeT > 0 && s.state === "out";
+    var fr = Math.floor(s.anim) % 2, img;
+    var frozen = G.freezeT > 0 && s.state === "out";
     // a bouncy little bob, faster when they're scared
     var vy = s.y - 0.05 + (frozen ? 0 : Math.sin(s.anim * (s.scared ? 2.2 : 1.1) + s.i) * 0.07);
     if (s.state === "eaten" || s.state === "enter") { drawEyes(s, s.x, vy, true); return; }
-    var flashing = s.scared && !cut && G.frightT < 2 && Math.floor(G.t * 6) % 2;
+    var flashing = s.scared && G.frightT < 2 && Math.floor(G.t * 6) % 2;
     if (s.scared) img = (flashing ? SCARED_FLASH : SCARED_ART)[fr];
     else if (frozen) img = FROZEN_ART[0];
     else img = STORM_ART[s.i][fr];
@@ -1462,72 +1452,6 @@
     }
   }
 
-  // ---------------- cutscene drawing ----------------
-  function cutStorm(i, x, y, scared, dir) {
-    drawStorm({ i: i, x: x, y: y, dx: dir, dy: 0, anim: G.t * 6 + i, scared: scared, state: "out", cut: true });
-  }
-  function cutGlider(x, y, face, frame, scale) {
-    var liv = LIVERIES.filter(function (l) { return l.id === save.liv; })[0] || LIVERIES[0];
-    var set = gliderSet(save.liv, liv.rainbow ? Math.floor(G.t * 10) : 0);
-    spr(set[face][frame], x, y, false, 0, scale || 1, scale || 1);
-  }
-  function cloudBand(y, off) {
-    for (var x = 0; x < 24; x++) {
-      var m = BW + 72, cx = (((x * TS * PX + off) % m) + m) % m - 36, cy = y * TS * PX;
-      b.fillStyle = "#3b5cc4"; b.fillRect(cx - 2, cy - 2, 28, 22); b.fillRect(cx + 4, cy - 8, 16, 10);
-      b.fillStyle = "#ffffff"; b.fillRect(cx, cy, 24, 18); b.fillRect(cx + 6, cy - 6, 12, 8);
-      b.fillStyle = "#b8cdf8"; b.fillRect(cx, cy + 14, 24, 4);
-    }
-  }
-  function renderCut() {
-    var t = G.cutT, run = Math.floor(G.t * 10) % 2;
-    cloudBand(5.2, -G.t * 30);
-    cloudBand(15.2, G.t * 20);
-    var y = 11.2;
-    if (G.act === 0) {                                   // Storm Chase
-      if (t < 3.6) {
-        var gx = 22 - t * 7.2;
-        cutGlider(gx, y, 0, run);
-        cutStorm(0, gx + 3, y, false, -1); cutStorm(1, gx + 5.2, y, false, -1);
-      } else {
-        var t2 = t - 3.6, bx = -4 + t2 * 8.2;
-        cutStorm(0, bx + 5, y, true, 1); cutStorm(1, bx + 7, y, true, 1);
-        cutGlider(bx, y - 0.8, 1, run ? 4 : 3, 2);
-      }
-    } else if (G.act === 1) {                            // Here Comes the Sun
-      var gx2 = Math.min(10, -2 + t * 6);
-      var flee = t > 3.4;
-      if (!flee) {
-        cutGlider(gx2, y, 1, t < 2 ? run : 2);
-        for (var i = 0; i < 4; i++) cutStorm(i, 24 - Math.min(t, 3) * 3.4 + i * 2.2, y, false, -1);
-        if (t > 2) { var sy2 = Math.min(y - 1.6, -2 + (t - 2) * 9); spr(SUN, gx2, sy2); }
-        if (t > 3.1) { b.fillStyle = "rgba(255,238,0," + (0.6 - (t - 3.1)) + ")"; b.fillRect(0, 0, BW, BW); }
-      } else {
-        var t3 = t - 3.4;
-        for (var j = 0; j < 4; j++) cutStorm(j, 13.8 + j * 2.2 + t3 * 6.5, y, true, 1);
-        cutGlider(10 + t3 * 6, y, 1, run ? 4 : 3);
-      }
-    } else {                                             // Rainbow Break
-      var grow = Math.min(1, t / 1.5), cols = ["#ff3030", "#ff9900", "#ffe000", "#20d020", "#20c8ff", "#4060ff", "#d040ff"];
-      for (var r = 0; r < 7; r++) {
-        var rad = (7.5 - r * 0.45) * TS * PX;
-        b.fillStyle = cols[r];
-        for (var a = 0; a <= 60 * grow; a++) { var an = Math.PI + a / 60 * Math.PI; b.fillRect(Math.round(BW / 2 + Math.cos(an) * rad) - 3, Math.round(12.6 * TS * PX + Math.sin(an) * rad) - 3, 6, 6); }
-      }
-      var face = Math.floor(t / 0.45) % 2, hopY = -Math.abs(Math.sin(t * 7)) * 0.7;
-      cutGlider(10, y + hopY, face, 3);
-      cutStorm(2, 3.5, y + 0.1, false, 1); cutStorm(3, 16.5, y + 0.1, false, -1);
-      if (G.t % 0.25 < 1 / 60) parts.push({ kind: "dot", x: 10 + (Math.random() - 0.5) * 3, y: y - 1, vx: 0, vy: -3, life: 1.2, max: 1.2, c: "#ff6080", s: 4 });
-    }
-    // particles still run in cutscenes
-    for (var k = parts.length - 1; k >= 0; k--) {
-      var p = parts[k]; p.life -= 1 / 60;
-      if (p.life <= 0) { parts.splice(k, 1); continue; }
-      p.x += (p.vx || 0) / 60; p.y += (p.vy || 0) / 60;
-      b.fillStyle = p.c; var sz = p.s * PX; b.fillRect(Math.round((p.x * TS + 6) * PX), Math.round((p.y * TS + 6) * PX), sz, sz);
-    }
-    if (t > 1) { b.fillStyle = "rgba(0,0,0,.35)"; b.fillRect(0, BW - 22, BW, 22); b.fillStyle = "#fff"; b.font = "bold 14px SgComic, 'Comic Sans MS', cursive"; b.textAlign = "center"; b.fillText(matchMedia("(pointer: coarse)").matches ? "Tap to skip" : "Press any key to skip", BW / 2, BW - 7); }
-  }
 
   function blit() {
     ctx.imageSmoothingEnabled = false;
@@ -1746,7 +1670,7 @@
   $("sgHangarBtn").onclick = function () {
     sfx("click");
     if (G.mode === "play" || G.mode === "ready") pause();
-    if (G.mode === "dying" || G.mode === "clear" || G.mode === "cut") return;   // wait for the moment to pass
+    if (G.mode === "dying" || G.mode === "clear") return;   // wait for the moment to pass
     if (G.mode === "over") G.mode = "title";
     openShop();
   };
@@ -1787,7 +1711,6 @@
     if (canvas.width !== px) { canvas.width = px; canvas.height = px; }
     render();
   }
-  stage.addEventListener("mousedown", function () { if (G.mode === "cut") skipCut(); });
   window.addEventListener("resize", fit);
   window.addEventListener("orientationchange", function () { setTimeout(fit, 200); });
 

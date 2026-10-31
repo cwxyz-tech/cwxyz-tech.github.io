@@ -18,8 +18,10 @@ jobs:
     steps:
       - name: Get the code
         run: |
-          git clone --depth 1 --branch main "https://github.com/$GITHUB_REPOSITORY.git" .
-          git checkout --quiet "$GITHUB_SHA" 2>/dev/null || true
+          # exactly the commit that triggered this run (the release is tagged on it), not whatever main is by now
+          git init --quiet .
+          git fetch --quiet --depth 1 "https://github.com/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
+          git checkout --quiet FETCH_HEAD
 
       - name: Check the version
         id: v

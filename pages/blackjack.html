@@ -1,3 +1,4 @@
+<script>/* opened straight from /pages/? send it to the real page, behind the terms */ if (location.pathname.indexOf("/pages/") === 0) location.replace("/" + location.pathname.slice(7).replace(/\.html$/, "").replace(/^(home|404)$/, ""));</script>
 <div class="wrap">
 
   <div class="header">
@@ -193,6 +194,8 @@
   var ac = null, lastTick = 0, noise = null;
   function audio() {
     if (mute || document.hidden) return null;
+    // no sound until the player has clicked or tapped something: browsers block it anyway, and the blips would pile up and all play at once
+    if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return null;
     try {
       if (!ac) { var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; ac = new AC(); }
       if (ac.state !== "running") ac.resume();   // iPhones report "interrupted" after a call or the app switcher
