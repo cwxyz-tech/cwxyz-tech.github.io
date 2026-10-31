@@ -51,6 +51,7 @@
           <thead><tr><th>#</th><th>Song</th><th>Game</th><th>Length</th><th></th></tr></thead>
           <tbody id="jb-tracks"></tbody>
         </table>
+        <p class="jb-lockmsg" id="jb-lockmsg" role="status"></p>
         <p class="jb-note">Songs loop forever in the games, so here each one plays through once and moves on. Turn on Loop to keep one going.</p>
       </div>
 
@@ -101,8 +102,14 @@
   .jb-list tr.jb-on .jb-row-play { color: #000080; }
   .jb-list tr.jb-on .jb-row-play::before { content: "\25B6\FE0E  "; color: #cc0000; }
   .jb-note { margin: 10px 0 0 !important; font-size: 13px; color: #444; }
+  .jb-list tr.jb-locked td { color: #808080; }
+  .jb-list tr.jb-locked .jb-row-play { color: #808080; text-decoration: none; }
+  .jb-list tr.jb-locked .jb-row-play:hover { color: #000; }
+  .jb-lockmsg { margin: 8px 0 0; padding: 8px 10px; background: #ffffcc; border: 2px inset #808080; font-size: 14px; display: none; }
+  .jb-lockmsg.on { display: block; }
 </style>
 <audio id="jb-audio" preload="none" crossorigin="anonymous"></audio>
+<script src="/played.js?v=1"></script>
 <script>
 (function () {
   // Every song from the games. Each file starts with half a second of padding, then the seamless loop.
@@ -114,8 +121,11 @@
     { game: "Lines DX",     title: "Main Theme",   src: "/music/tracks/lines-main-theme.mp3?v=2", loop: 64 * 60 / 132,     color: [96, 64, 192] },
     { game: "Lines DX",     title: "Hard Mode",    src: "/music/tracks/lines-hard-mode.mp3",  loop: 64 * 60 / 96,      color: [160, 0, 0] },
     { game: "Lines DX",     title: "The Shop",     src: "/music/tracks/lines-the-shop.mp3",   loop: 64 * 60 / 104,     color: [0, 128, 128] },
-    { game: "Lucky Flip",   title: "Lucky Flip",   src: "/music/tracks/lucky-flip.mp3",       loop: 64 * 60 / 150,     color: [0, 96, 200] }
+    { game: "Lucky Flip",   title: "Lucky Flip",   src: "/music/tracks/lucky-flip.mp3",       loop: 64 * 60 / 150,     color: [0, 96, 200] },
+    { game: "Sky Glider",   title: "Cloud Runner", src: "/music/tracks/cloud-runner.mp3",     loop: 256 * 15 / 136,    color: [0, 150, 220], locked: true }
   ];
+  // Sky Glider's song stays locked until Sky Glider itself is unlocked (play Blackjack DX, Lines DX and Lucky Flip)
+  function unlocked(t) { return !t.locked || !window.CwPlayed || CwPlayed.status().unlocked; }
   // These are the jukebox cuts of the game songs: the loop, then the top of the song again fading out over a
   // few seconds, so each one ends gently on every phone and computer. Loop mode jumps back before the fade.
   var TAIL = 7;   // seconds of fade-out after the loop point
@@ -128,16 +138,42 @@
   function fmt(s) { s = Math.max(0, Math.floor(s)); return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2); }
 
   // ---------- the track list ----------
-  var tbody = $("jb-tracks"), rows = [];
+  var tbody = $("jb-tracks"), rows = [], lockMsg = $("jb-lockmsg");
   TRACKS.forEach(function (t, i) {
     var tr = document.createElement("tr");
-    var b = document.createElement("button"); b.type = "button"; b.className = "jb-row-play"; b.textContent = t.title;
-    b.addEventListener("click", function () { if (i === cur) toggle(); else playTrack(i); });
+    var b = document.createElement("button"); b.type = "button"; b.className = "jb-row-play";
+    b.addEventListener("click", function () {
+      if (!unlocked(t)) { showLock(); return; }
+      if (i === cur) toggle(); else playTrack(i);
+    });
     var save = document.createElement("a"); save.href = t.src.split("?")[0]; save.setAttribute("download", t.game + " - " + t.title + ".mp3"); save.textContent = "Save";
     var cells = [String(i + 1), b, t.game, fmt(t.loop + TAIL), save];
     cells.forEach(function (c) { var td = document.createElement("td"); if (typeof c === "string") td.textContent = c; else td.appendChild(c); tr.appendChild(td); });
-    tbody.appendChild(tr); rows.push(tr);
+    tbody.appendChild(tr); rows.push({ tr: tr, btn: b, save: save, t: t });
   });
+  function showLock() {
+    var st = CwPlayed.status(), names = { blackjack: "Blackjack DX", linesdx: "Lines DX", luckyflip: "Lucky Flip" };
+    var left = CwPlayed.games.filter(function (id) { return !st[id]; }).map(function (id) { return names[id]; });
+    lockMsg.innerHTML = "";
+    lockMsg.appendChild(document.createTextNode("\uD83D\uDD12\uFE0E This song unlocks with Sky Glider. Still need to play: " + left.join(", ") + ". "));
+    var a = document.createElement("a"); a.href = "/games"; a.textContent = "Go to Games"; lockMsg.appendChild(a);
+    lockMsg.className = "jb-lockmsg on";
+  }
+  function paintLocks() {
+    rows.forEach(function (r) {
+      var open = unlocked(r.t);
+      r.tr.classList.toggle("jb-locked", !open);
+      r.btn.textContent = open ? r.t.title : "\uD83D\uDD12\uFE0E Locked";
+      r.btn.setAttribute("aria-label", open ? r.t.title : "Locked song. Unlock Sky Glider to play it.");
+      r.save.style.visibility = open ? "" : "hidden";
+    });
+    if (unlocked(TRACKS[TRACKS.length - 1])) lockMsg.className = "jb-lockmsg";
+  }
+  paintLocks();
+  // unlocked it in another tab? pick that up when they come back
+  window.addEventListener("focus", paintLocks);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) paintLocks(); });
+  window.addEventListener("storage", function (e) { if (!e.key || e.key === "cw_played") paintLocks(); });
 
   // ---------- sound ----------
   // On computers the song runs through Web Audio for smooth fades and a real EQ. On phones it plays straight from the
@@ -172,7 +208,10 @@
   function playTrack(i) {
     var other = $("music-preview-audio"); if (other && !other.paused) other.pause();
     audioGraph();
-    cur = (i + TRACKS.length) % TRACKS.length;
+    var dir = i < cur ? -1 : 1, n = 0;
+    i = (i + TRACKS.length) % TRACKS.length;
+    while (!unlocked(TRACKS[i]) && n++ < TRACKS.length) i = (i + dir + TRACKS.length) % TRACKS.length;
+    cur = i;
     var t = TRACKS[cur];
     wantPlay = true;
     audio.src = t.src;
@@ -272,7 +311,7 @@
     $("jb-ico-play").style.display = playing ? "none" : "";
     $("jb-ico-pause").style.display = playing ? "" : "none";
     $("jb-play").setAttribute("aria-label", playing ? "Pause" : "Play");
-    rows.forEach(function (r, i) { r.classList.toggle("jb-on", i === cur); });
+    rows.forEach(function (r, i) { r.tr.classList.toggle("jb-on", i === cur); });
   }
 
   // ---------- the clock: seamless loops and the time display ----------
