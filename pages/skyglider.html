@@ -106,7 +106,7 @@
   </div>
 
 </div>
-<script src="/juice.js?v=2"></script>
+<script src="/juice.js?v=3"></script>
 <script src="/played.js?v=1"></script>
 <script>
 (function () {
@@ -1572,7 +1572,7 @@
     if (cls) callEl.classList.add(cls);
     if (stay) callTimer = setTimeout(function () { callEl.className = "sg-call"; }, 1800);
   }
-  function openDialog(html) { dialog.innerHTML = html; overlay.hidden = false; var f = dialog.querySelector(".sg-btn.go"); if (f && !matchMedia("(pointer: coarse)").matches) f.focus({ preventScroll: true }); }
+  function openDialog(html) { stage.classList.remove("cw-quake", "cw-quakebig"); dialog.innerHTML = html; overlay.hidden = false; var f = dialog.querySelector(".sg-btn.go"); if (f && !matchMedia("(pointer: coarse)").matches) f.focus({ preventScroll: true }); }
   function closeDialog() { overlay.hidden = true; dialog.innerHTML = ""; shopOpen = false; hangarStop(); }
 
   var flyCanvas = null;

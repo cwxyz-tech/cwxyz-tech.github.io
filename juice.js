@@ -265,6 +265,11 @@
       if (off() || !el) return;
       el.classList.remove("cw-quake"); el.classList.remove("cw-quakebig");
       void el.offsetWidth; el.classList.add(big ? "cw-quakebig" : "cw-quake");
+      // take the shake off when it's done, so the board doesn't keep trapping pop-ups and menus inside it
+      if (!el._cwQuakeEnd) {
+        el._cwQuakeEnd = function (e) { if (e.target === el) { el.classList.remove("cw-quake"); el.classList.remove("cw-quakebig"); } };
+        el.addEventListener("animationend", el._cwQuakeEnd);
+      }
     }
     function bump(el) { if (!off()) restart(el, "cw-bump"); }
     function blink(el) { if (!off()) restart(el, "cw-blink"); }
