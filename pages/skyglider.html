@@ -611,6 +611,43 @@
     songKill();
   }
 
+  // ---- "Hangar Lounge": the hangar song. Laid-back, swingy 8-bit in F major at 100 bpm, while Glider gets a new paint job ----
+  // Same mp3 layout as Cloud Runner (half a second of padding, the seamless loop, then a fade-out tail). It fades in when
+  // the Hangar opens, fades out when you leave, and picks up where it left off next time.
+  var HANGAR = { src: "/skyglider/hangar.mp3", pad: 0.5, loop: 384 * 15 / 100, vol: 0.18 };
+  var hg = { buf: null, loading: false, src: null, gain: null, want: false, pos: 0, t0: 0 };
+  function hangarLoad() {
+    if (hg.buf || hg.loading || !ac) return;
+    hg.loading = true;
+    fetch(HANGAR.src).then(function (r) { if (!r.ok) throw new Error("bad status"); return r.arrayBuffer(); })
+      .then(function (data) { return new Promise(function (ok, bad) { var pr = ac.decodeAudioData(data, ok, bad); if (pr && pr.catch) pr.catch(bad); }); })
+      .then(function (buf) { hg.buf = buf; hg.loading = false; if (hg.want && !hg.src) hangarStart(); })
+      .catch(function () { hg.loading = false; });
+  }
+  function hangarStart() {
+    if (!save.music || !audio()) return;
+    hg.want = true;
+    if (hg.src) return;                           // already playing (the Hangar redraws itself after every purchase)
+    if (!hg.buf) { hangarLoad(); return; }        // starts by itself once it has loaded
+    var src = ac.createBufferSource(), g = ac.createGain(), now = ac.currentTime;
+    src.buffer = hg.buf; src.loop = true; src.loopStart = HANGAR.pad; src.loopEnd = HANGAR.pad + HANGAR.loop;
+    g.gain.setValueAtTime(0.0001, now); g.gain.linearRampToValueAtTime(HANGAR.vol, now + 0.6);
+    src.connect(g); g.connect(master);
+    hg.pos = hg.pos % HANGAR.loop;
+    src.start(now + 0.02, HANGAR.pad + hg.pos);
+    hg.src = src; hg.gain = g; hg.t0 = now + 0.02;
+  }
+  function hangarStop() {
+    hg.want = false;
+    if (!hg.src || !ac) return;
+    var now = ac.currentTime;
+    if (now > hg.t0) hg.pos += now - hg.t0;
+    hg.gain.gain.cancelScheduledValues(now);
+    hg.gain.gain.setValueAtTime(hg.gain.gain.value, now); hg.gain.gain.linearRampToValueAtTime(0.0001, now + 0.4);
+    try { hg.src.stop(now + 0.42); } catch (e) {}
+    hg.src = null; hg.gain = null;
+  }
+
   // ---------------- elements ----------------
   var canvas = $("sgCanvas"), ctx = canvas.getContext("2d");
   var buf = mk(BW, BW), b = buf.getContext("2d");
@@ -1540,7 +1577,7 @@
     if (stay) callTimer = setTimeout(function () { callEl.className = "sg-call"; }, 1800);
   }
   function openDialog(html) { dialog.innerHTML = html; overlay.hidden = false; var f = dialog.querySelector(".sg-btn.go"); if (f && !matchMedia("(pointer: coarse)").matches) f.focus({ preventScroll: true }); }
-  function closeDialog() { overlay.hidden = true; dialog.innerHTML = ""; shopOpen = false; }
+  function closeDialog() { overlay.hidden = true; dialog.innerHTML = ""; shopOpen = false; hangarStop(); }
 
   var flyCanvas = null;
   function locked() { return !!(window.CwPlayed && !CwPlayed.status().unlocked); }
@@ -1554,7 +1591,7 @@
       '<a class="sg-btn go wide" href="/games" style="text-decoration:none">Back to the Games</a></div>');
   }
   function titleScreen() {
-    G.mode = "title"; shopOpen = false;
+    G.mode = "title"; shopOpen = false; hangarStop();
     musicStop();
     if (locked()) { lockScreen(); hud(); return; }
     var dailyBest = save.daily && save.daily.date === today() ? save.daily.best : 0;
@@ -1608,7 +1645,7 @@
 
   var shopOpen = false;
   function openShop() {
-    shopOpen = true;
+    shopOpen = true; hangarStart();
     var back = G.mode === "paused" ? "pause" : "title";
     function item(kind, it) {
       var owned = save.own[kind].indexOf(it.id) >= 0, on = save[kind] === it.id;
@@ -1648,7 +1685,7 @@
         openShop();
       };
     });
-    $("sgShopBack").onclick = function () { sfx("click"); shopOpen = false; if (back === "pause") pauseMenu(); else titleScreen(); };
+    $("sgShopBack").onclick = function () { sfx("click"); shopOpen = false; hangarStop(); if (back === "pause") pauseMenu(); else titleScreen(); };
   }
 
   // ---------------- settings ----------------
@@ -1663,6 +1700,7 @@
   function toggleMusic() {
     save.music = !save.music; persist(); syncButtons();
     if (save.music && (G.mode === "play" || G.mode === "ready")) musicStart(); else musicStop();
+    if (save.music && shopOpen) hangarStart(); else hangarStop();
   }
   $("sgSound").onclick = $("sgSoundM").onclick = function () { save.sound = !save.sound; persist(); syncButtons(); sfx("click"); };
   $("sgMusic").onclick = $("sgMusicM").onclick = function () { toggleMusic(); };
@@ -1677,8 +1715,8 @@
   $("sgPauseM").onclick = function () { if (G.mode === "paused") resume(); else pause(); };
   $("sgHelpBtn").onclick = function () { if (G.mode === "play" || G.mode === "ready") pause(); $("sgHelp").classList.add("open"); };
   $("sgHelpClose").onclick = function () { $("sgHelp").classList.remove("open"); };
-  document.addEventListener("visibilitychange", function () { if (document.hidden) { pause(); musicStop(); } });
-  window.addEventListener("pagehide", function () { musicStop(); });
+  document.addEventListener("visibilitychange", function () { if (document.hidden) { pause(); musicStop(); hangarStop(); } else if (shopOpen) hangarStart(); });
+  window.addEventListener("pagehide", function () { musicStop(); hangarStop(); });
   document.addEventListener("pointerdown", function () { audio(); }, { once: true });
 
   // ---------------- sizing ----------------
