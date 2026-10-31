@@ -136,6 +136,7 @@
 </div>
 
 <script src="/juice.js?v=2"></script>
+<script src="/played.js?v=1"></script>
 <script>
 (() => {
 "use strict";
@@ -1321,6 +1322,7 @@ function showSheet() {
 }
 
 function start(asDaily = daily) {
+  if (window.CwPlayed) CwPlayed.mark("linesdx");
   // a ranked daily can't be thrown away: R / New Game ends the run and posts the score instead
   if (daily && ranked && (mode === "play" || mode === "pause")) { overlay.hidden = true; gameOver(); return; }
   if (mode === "play" || mode === "pause") keepBest();

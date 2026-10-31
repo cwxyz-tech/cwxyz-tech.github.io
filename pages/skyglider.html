@@ -108,6 +108,7 @@
 
 </div>
 <script src="/juice.js?v=2"></script>
+<script src="/played.js?v=1"></script>
 <script>
 (function () {
   "use strict";
@@ -132,27 +133,33 @@
 
   // ---------------- pixel art ----------------
   var GLIDER = [
-    "..k...k.........kk..",
-    ".kwk.kwk.......kbwk.",
-    ".kwwkwwk......kbwk..",
-    "kkkkkkkkkk...kbwwk..",
-    "kswbkswbkk..kbwk....",
-    "kwwwwwwwwk..kwwwk...",
-    "kwkwwwkwwkkkwwwwwk..",
-    "kwgwwwgwwwwwwwwwwk..",
-    "kbwppwwwwwkwkwkwwk..",
-    ".kbwwwwwwwwwwwwwk...",
-    "..kkwwwwlllllllllk..",
-    "...kwwwwkbbbbbbbbk..",
-    "...kwkkwwwkkwwkkk...",
-    "...kwk.kwk..kwk.....",
-    "...kek.kek..kek....."
+    "..k.......k.........",
+    ".kwk.....kwk........",
+    ".kwwkkkkkwwk......kk",
+    ".kkkkkkkkkkkk....kbk",
+    "kssbwkssbwkkk...kbwk",
+    "kkkkkkkkkkkwwk..kbwk",
+    "kwwwwwwwwwwwwwk.kbwk",
+    "kwkkwwwwkkwwwwwkkwwk",
+    "kwGgkwwkGgkwwwwwwwk.",
+    "kwghkwwkghkwwwwwwwk.",
+    "kwggkwwkggkwwkwkwk..",
+    "kwppwkkwppwwwwwwwk..",
+    ".kwwwwkwwwwwllllllk.",
+    "..kkwwwwwwkbbbbbbk..",
+    "...kwkkkkwwkkkkkk...",
+    "...kek..kek........."
   ];
-  var GLIDER2 = GLIDER.slice(0, 12).concat([
-    "...kwkkwwwkkwwkkk...",
-    "..kwk...kwk..kwk....",
-    "..kek...kek..kek...."
-  ]);
+  var GLIDER_RUN = GLIDER.slice(0, 14).concat(["..kwkkkkkwk.kkkkk...", "..kek...kek........."]);
+  // the eyes are in rows 7-10, left eye columns 2-4, right eye columns 8-10
+  function eyes(src, kind) {
+    var g = src.map(function (r) { return r.split(""); }), y, x;
+    for (y = 7; y <= 10; y++) [2, 3, 4, 8, 9, 10].forEach(function (x2) { g[y][x2] = "w"; });
+    if (kind === "blink") { [2, 3, 8, 9].forEach(function (x2) { g[9][x2] = "k"; }); }
+    else { g[8][3] = "k"; g[9][2] = "k"; g[9][4] = "k"; g[8][9] = "k"; g[9][8] = "k"; g[9][10] = "k"; }
+    return g.map(function (r) { return r.join(""); });
+  }
+  var GLIDER_FRAMES = [GLIDER, GLIDER_RUN, eyes(GLIDER, "blink"), eyes(GLIDER, "happy"), eyes(GLIDER_RUN, "happy")];
   var LIVERIES = [
     { id: "sky", name: "Sky Blue", cost: 0, pal: { b: "#3a6ad8", l: "#96b4f0" } },
     { id: "sunset", name: "Sunset", cost: 40, pal: { b: "#e0502a", l: "#ffb08a" } },
@@ -169,7 +176,7 @@
     { id: "rainbow", name: "Rainbow", cost: 500 }
   ];
   var RAINBOW = ["#ff3030", "#ff9900", "#ffe000", "#20d020", "#20c8ff", "#4060ff", "#d040ff"];
-  var BASEPAL = { k: "#1b1b2b", w: "#ffffff", g: "#2e8c3c", s: "#141414", p: "#ff7890", e: "#6e6e78" };
+  var BASEPAL = { k: "#1b1b2b", w: "#ffffff", g: "#2e9a44", G: "#145a24", h: "#ffffff", s: "#141414", p: "#ff7890", e: "#6e6e78" };
 
   var ICONS = {
     jet: ["...yy...", "..yooy..", "..yooy..", ".yoyyoy.", ".yoyyoy.", "yoyrryoy", "yoyrryoy", ".yorroy.", "..yrry..", "...rr..."],
@@ -235,7 +242,7 @@
     var liv = LIVERIES.filter(function (l) { return l.id === livId; })[0] || LIVERIES[0];
     var pal = Object.assign({}, BASEPAL, liv.pal);
     if (liv.rainbow) pal.b = RAINBOW[(hueStep || 0) % RAINBOW.length];
-    var set = [[bake(GLIDER, pal, false), bake(GLIDER2, pal, false)], [bake(GLIDER, pal, true), bake(GLIDER2, pal, true)]];
+    var set = [GLIDER_FRAMES.map(function (f) { return bake(f, pal, false); }), GLIDER_FRAMES.map(function (f) { return bake(f, pal, true); })];
     gliderCache[key] = set;
     return set;
   }
@@ -357,6 +364,8 @@
       case "click": tone(1200, 0, 0.03, 0.05, "square"); break;
       case "buy": [659, 880, 1175].forEach(function (f, k) { tone(f, k * 0.06, 0.1, 0.08, "square"); }); break;
       case "nope": tone(180, 0, 0.15, 0.1, "square"); break;
+      case "itemIn": [1568, 1319, 1568, 2093].forEach(function (f, k) { tone(f, k * 0.05, 0.06, 0.05, "square"); }); break;
+      case "bounce": tone(330, 0, 0.06, 0.04, "triangle", 660); break;
     }
   }
 
@@ -369,7 +378,7 @@
   function midi(n) { return 440 * Math.pow(2, (n - 69) / 12); }
   function musicTick() {
     if (!ac || !mus.on) return;
-    var bpm = Math.min(124 + (G.level - 1) * 6, 186), sl = 60 / bpm / 4;
+    var bpm = Math.min(140 + (G.level - 1) * 6, 196), sl = 60 / bpm / 4;
     while (mus.next < ac.currentTime + 0.12) {
       var s = mus.step % 64, t = mus.next - ac.currentTime, bar = Math.floor(s / 16), frightNow = G.frightT > 0;
       if (frightNow) { if (s % 2 === 0) tone(midi(FRIGHT[(s / 2) % 16]), t, sl * 1.6, 0.05, "square", 0, musicGain); }
@@ -406,9 +415,9 @@
     frightT: 0, frightMax: 1, chain: 0, freezeT: 0, jetT: 0, magT: 0, dblT: 0, shield: false,
     combo: 0, lastEat: -9, mult: 1, levelT: 0, modeT: 0, modeIdx: 0, timer: 0, hitPause: 0,
     item: null, itemSpawns: 0, eatenCount: 0, nextLife: 10000, daily: false, rand: Math.random, hitThisLevel: false, invuln: 0,
-    run: null, flash: 0, t: 0, deathT: 0
+    run: null, flash: 0, t: 0, deathT: 0, reveal: 1, pop: null, cutT: 0, act: 0, cuts: 0, popped: false
   };
-  var player = { x: 10, y: 15, dx: 0, dy: 0, want: null, face: 0, tilt: 0, anim: 0 };
+  var player = { x: 10, y: 15, dx: 0, dy: 0, want: null, face: 0, tilt: 0, anim: 0, squash: 0, blink: 2 };
   var storms = [];
   var parts = [];
   var mazeArt = null, mazeFlash = null, bfs = null;
@@ -475,8 +484,9 @@
       } else {
         var cc = G.grid[ty][tx];
         if (cc === "H") col = HOUSE;
-        else col = ((px + py * 3) % 16 === 0 && (py % 4 === 0)) ? SKY2 : SKY;
+        else col = null;
       }
+      if (!col) { d[i + 3] = 0; continue; }
       d[i] = col[0]; d[i + 1] = col[1]; d[i + 2] = col[2]; d[i + 3] = 255;
     }
     g.putImageData(img, 0, 0);
@@ -488,7 +498,7 @@
   }
 
   function resetActors() {
-    player.x = START.x; player.y = START.y; player.dx = -1; player.dy = 0; player.want = null; player.face = 0; player.tilt = 0;
+    player.x = START.x; player.y = START.y; player.dx = -1; player.dy = 0; player.want = null; player.face = 0; player.tilt = 0; player.squash = 0; G.pop = null; G.hitPause = 0;
     var homes = [[GATE.x, GATE.y], [10, 9], [9, 9], [11, 9]];
     var waits = [0, 1.5, 4.5, 8];
     var sc = Math.max(0.3, 1 - (G.level - 1) * 0.12);
@@ -500,6 +510,7 @@
   }
 
   function newGame(daily) {
+    if (locked()) { G.mode = "title"; lockScreen(); return; }
     G.daily = !!daily;
     var d = today();
     G.rand = daily ? rng(seedOf("daily" + d)) : Math.random;
@@ -512,7 +523,7 @@
   }
   function startLevel() {
     buildLevel(); resetActors();
-    G.levelT = 0; G.item = null; G.itemSpawns = 0; G.hitThisLevel = false; G.dblT = 0;
+    G.levelT = 0; G.item = null; G.itemSpawns = 0; G.hitThisLevel = false; G.dblT = 0; G.reveal = 0;
     parts.length = 0;
     hud(); readyGo(G.level > 1 || G.daily ? (G.daily ? "Daily Flight" : "Level " + G.level) : "Ready!");
   }
@@ -540,6 +551,7 @@
   }
   document.addEventListener("keydown", function (e) {
     if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
+    if (G.mode === "cut") { e.preventDefault(); skipCut(); return; }
     var k = e.key, map = { ArrowLeft: "left", a: "left", A: "left", ArrowRight: "right", d: "right", D: "right", ArrowUp: "up", w: "up", W: "up", ArrowDown: "down", s: "down", S: "down" };
     if (map[k]) { if (G.mode === "play" || G.mode === "ready") { e.preventDefault(); want(map[k]); } else if (/^Arrow/.test(k) && !overlay.hidden) e.preventDefault(); return; }
     if (k === " " || k === "Enter") {
@@ -556,6 +568,7 @@
   swipeArea.addEventListener("touchstart", function (e) {
     if (e.target.closest && e.target.closest("button, a, .sg-overlay")) return;
     var t = e.touches[0]; sw = { x: t.clientX, y: t.clientY }; audio();
+    if (G.mode === "cut") skipCut();
   }, { passive: true });
   swipeArea.addEventListener("touchmove", function (e) {
     if (!sw) return;
@@ -593,8 +606,8 @@
   }
 
   function speedMult() {
-    var m = Math.min(1 + 0.055 * (G.level - 1), 1.7);
-    var creep = 1 + Math.min(G.levelT / 120, 1) * 0.08;
+    var m = Math.min(1 + 0.045 * (G.level - 1), 1.5);
+    var creep = 1 + Math.min(G.levelT / 100, 1) * 0.07;
     return m * creep;
   }
 
@@ -632,7 +645,7 @@
   }
 
   function updateStorms(dt, sm) {
-    var base = 5.4 * sm * Math.min(1 + 0.02 * (G.level - 1), 1.14);
+    var base = 7.7 * sm * Math.min(1 + 0.02 * (G.level - 1), 1.12);
     storms.forEach(function (s) {
       s.anim += dt * 6;
       if (G.freezeT > 0 && s.state === "out") return;
@@ -654,7 +667,7 @@
         return;
       }
       var spd;
-      if (s.state === "eaten") spd = 13;
+      if (s.state === "eaten") spd = 17;
       else if (s.scared) spd = base * 0.58;
       else spd = base * (s.i === 0 && G.sparks < 25 ? 1.1 : 1);
       var tx = Math.round(s.x), ty = Math.round(s.y);
@@ -667,23 +680,38 @@
   // ---------------- the main update ----------------
   function update(dt) {
     G.t += dt;
+    if (G.mode === "cut") {
+      G.cutT += dt;
+      if (G.cutT >= ACTS[G.act].dur) endCut();
+      return;
+    }
     if (G.mode === "ready") {
+      if (G.reveal < 1) G.reveal = Math.min(1, G.reveal + dt * 1.8);
       G.timer -= dt;
       if (G.timer <= 0) { G.mode = "play"; showCall("Go!", false); }
       return;
     }
     if (G.mode === "dying") {
       G.deathT += dt;
-      if (G.deathT > 1.6) afterDeath();
+      if (G.deathT > 0.3 && !G.popped) {
+        var ft = G.deathT - 0.3;
+        G.fallY = player.y + 9 * ft * ft;
+        if (G.t % 0.04 < dt) {
+          parts.push({ kind: "puff", x: player.x + (player.face ? -0.4 : 0.4), y: G.fallY - 0.3, vx: (Math.random() - 0.5) * 1.5, vy: -1.5, life: 0.8, max: 0.8, c: Math.random() < 0.5 ? "#606070" : "#9a9aa8" });
+          if (Math.random() < 0.6) parts.push({ kind: "dot", x: player.x, y: G.fallY, vx: (Math.random() - 0.5) * 2, vy: -2, life: 0.25, max: 0.25, c: Math.random() < 0.5 ? "#ff8a00" : "#ffe14d", s: 3 });
+        }
+        if (G.fallY >= G.crashY) { G.fallY = G.crashY; G.popped = true; G.crashAt = G.deathT; crash(); }
+      }
+      if (G.popped && G.deathT - G.crashAt > 1.3) afterDeath();
       return;
     }
     if (G.mode === "clear") {
       G.timer -= dt; G.flash += dt;
-      if (G.timer <= 0) { G.level++; G.maze = (G.maze + 1) % MAZES.length; startLevel(); }
+      if (G.timer <= 0) { if (G.level % 3 === 2) startCut(); else nextLevel(); }
       return;
     }
     if (G.mode !== "play") return;
-    if (G.hitPause > 0) { G.hitPause -= dt; return; }
+    if (G.hitPause > 0) { G.hitPause -= dt; if (G.hitPause <= 0) G.pop = null; return; }
 
     G.levelT += dt;
     var sm = speedMult();
@@ -699,13 +727,15 @@
     if (G.magT > 0) G.magT -= dt;
     if (G.dblT > 0) G.dblT -= dt;
     if (G.invuln > 0) G.invuln -= dt;
-    if (G.item) { G.item.t -= dt; if (G.item.t <= 0) G.item = null; }
+    if (G.item) updateItem(dt);
     if (G.t - G.lastEat > 0.6 && G.combo) { G.combo = 0; setMult(1); }
 
     // Glider
-    var pspd = 6.0 * sm * (G.jetT > 0 ? 1.4 : 1);
-    var bx = player.x, by = player.y;
+    var pspd = 8.6 * sm * (G.jetT > 0 ? 1.35 : 1);
+    var bx = player.x, by = player.y, odx = player.dx, ody = player.dy;
     moveAlong(player, pspd * dt, playerCenter);
+    if ((player.dx !== odx || player.dy !== ody) && (player.dx || player.dy)) player.squash = 0.16;
+    if (player.squash > 0) player.squash -= dt;
     var moving = player.x !== bx || player.y !== by;
     if (moving) player.anim += dt * 9;
     if (player.dx) { player.face = player.dx > 0 ? 1 : 0; player.tilt = 0; }
@@ -714,7 +744,7 @@
 
     eatAt(Math.round(player.x), Math.round(player.y));
     if (G.magT > 0) magnet();
-    if (G.item && Math.abs(player.x - G.item.x) < 0.6 && Math.abs(player.y - G.item.y) < 0.6) takeItem();
+    if (G.item) { var idx = Math.abs(player.x - G.item.x); idx = Math.min(idx, COLS - idx); if (idx < 0.7 && Math.abs(player.y - G.item.y) < 0.7) takeItem(); }
 
     updateStorms(dt, sm);
     collide();
@@ -750,8 +780,13 @@
     if (G.t - G.lastEat < 0.6) G.combo++; else G.combo = 1;
     G.lastEat = G.t;
     setMult(Math.min(5, 1 + Math.floor(G.combo / 18)));
-    if (c === ".") { points(10 * G.mult); sfx("spark", G.mult - 1); }
-    else { points(50 * G.mult, x, y, "gold"); sunPower(); }
+    if (c === ".") {
+      points(10 * G.mult); sfx("spark", G.mult - 1);
+      for (var k = 0; k < 4; k++) { var a = k * Math.PI / 2 + Math.PI / 4; parts.push({ kind: "dot", x: x, y: y, vx: Math.cos(a) * 5, vy: Math.sin(a) * 5, life: 0.18, max: 0.18, c: k % 2 ? "#ffffff" : "#ffe14d", s: 2 }); }
+    } else {
+      points(50 * G.mult, x, y, "gold"); sunPower();
+      for (var q = 0; q < 20; q++) { var an = q / 20 * Math.PI * 2; parts.push({ kind: "dot", x: x, y: y, vx: Math.cos(an) * 10, vy: Math.sin(an) * 10, life: 0.4, max: 0.4, c: q % 2 ? "#ffe14d" : "#ff9a00", s: 3 }); }
+    }
     var eatenSoFar = G.total - G.sparks;
     if ((G.itemSpawns === 0 && eatenSoFar >= 45) || (G.itemSpawns === 1 && eatenSoFar >= 105) || (G.itemSpawns === 2 && eatenSoFar >= 160 && G.level >= 3)) spawnItem();
     if (G.sparks <= 0) levelClear();
@@ -778,21 +813,40 @@
     fx.flash(stage, "gold");
   }
 
+  // power-ups bounce in from a jetstream tunnel and wander the maze, like the fruit in the arcade
   function spawnItem() {
     G.itemSpawns++;
-    // somewhere open and not right next to Glider
-    var spots = [];
-    for (var y = 1; y < ROWS - 1; y++) for (var x = 1; x < COLS - 1; x++) {
-      if (!open(x, y) || (y === 9) || (y >= 7 && y <= 11 && x >= 7 && x <= 13)) continue;
-      if (Math.abs(x - player.x) + Math.abs(y - player.y) < 7) continue;
-      spots.push([x, y]);
-    }
-    if (!spots.length) return;
-    var s = spots[Math.floor(G.rand() * spots.length)];
     var pool = ["jet", "magnet", "shield", "snow", "dbl", "jet", "magnet", "dbl", "snow", "shield"];
     var kind = pool[Math.floor(G.rand() * pool.length)];
     if (!G.daily && G.lives < 5 && G.rand() < 0.07) kind = "heart";
-    G.item = { x: s[0], y: s[1], kind: kind, t: 10 };
+    var left = G.rand() < 0.5;
+    G.item = { x: left ? -1 : COLS, y: 9, dx: left ? 1 : -1, dy: 0, kind: kind, t: 15, hop: 0 };
+    sfx("itemIn");
+  }
+  function itemCenter(e) {
+    var x = Math.round(e.x), y = Math.round(e.y), opts = [];
+    [[0, -1], [-1, 0], [0, 1], [1, 0]].forEach(function (d) {
+      if (d[0] === -e.dx && d[1] === -e.dy) return;
+      if (open(x + d[0], y + d[1])) opts.push(d);
+    });
+    if (!opts.length) { e.dx = -e.dx; e.dy = -e.dy; return; }
+    var d = opts[Math.floor(G.rand() * opts.length)]; e.dx = d[0]; e.dy = d[1];
+  }
+  function updateItem(dt) {
+    var it = G.item;
+    it.t -= dt; it.hop += dt;
+    if (it.t <= 0) {
+      for (var i = 0; i < 10; i++) parts.push({ kind: "dot", x: it.x, y: it.y, vx: (Math.random() - 0.5) * 7, vy: (Math.random() - 0.5) * 7, life: 0.5, max: 0.5, c: "#ffffff", s: 3 });
+      G.item = null; return;
+    }
+    // coming in from off the edge of the maze
+    if (it.x < 0 || it.x > COLS - 1) {
+      it.x += it.dx * 3.4 * dt;
+      if (it.dx > 0 && it.x >= 0) it.x = 0; if (it.dx < 0 && it.x <= COLS - 1) it.x = COLS - 1;
+      return;
+    }
+    moveAlong(it, 3.4 * dt, itemCenter);
+    if (Math.floor(it.hop / 0.36) !== Math.floor((it.hop - dt) / 0.36)) sfx("bounce");
   }
 
   function takeItem() {
@@ -824,7 +878,8 @@
         var got = points(v, s.x, s.y, G.chain >= 4 ? "x3" : G.chain >= 3 ? "x2" : "gold");
         sfx("eat", G.chain);
         var p = toPage(s.x, s.y); fx.burst(p.x, p.y, G.chain >= 4 ? 3 : 2);
-        G.hitPause = 0.35; G.run.eaten++;
+        G.hitPause = 0.6; G.pop = { x: s.x, y: s.y, n: got }; G.run.eaten++;
+        for (var r = 0; r < 14; r++) parts.push({ kind: "dot", x: s.x, y: s.y, vx: (Math.random() - 0.5) * 9, vy: (Math.random() - 0.5) * 9, life: 0.55, max: 0.55, c: r % 2 ? STORMS[s.i].body : STORMS[s.i].rain, s: 3 });
         if (G.chain > G.run.bestChain) G.run.bestChain = G.chain;
         if (G.chain === 4) { fx.quake(stage, true); showCall("Storm Sweep!<small>+" + got.toLocaleString() + "</small>", false, "rainbow"); }
         checkGoals();
@@ -842,14 +897,34 @@
   }
 
   function die() {
-    G.mode = "dying"; G.deathT = 0; G.hitThisLevel = true;
+    G.mode = "dying"; G.deathT = 0; G.hitThisLevel = true; G.fallY = player.y;
+    // fall to the floor of the maze below Glider (or the bottom of the sky)
+    var cy = Math.round(player.y), cx = ((Math.round(player.x) % COLS) + COLS) % COLS;
+    G.crashY = ROWS - 1.4;
+    for (var yy = cy + 1; yy < ROWS; yy++) if (G.grid[yy][cx] === "#") { G.crashY = yy - 0.45; break; }
+    if (G.crashY < player.y + 0.6) G.crashY = player.y + 0.6;
     sfx("die"); musicStop();
     fx.quake(stage, true); fx.flash(stage, "red");
     var p = toPage(player.x, player.y); fx.burst(p.x, p.y, 1);
-    for (var i = 0; i < 14; i++) parts.push({ kind: "puff", x: player.x, y: player.y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, life: 0.9, max: 0.9, c: "#ffffff" });
+    G.popped = false;
+  }
+  function crash() {
+    // boom
+    if (save.sound && audio()) { noise(0, 0.6, 0.45, 120); noise(0, 0.25, 0.3, 1500); tone(110, 0, 0.5, 0.18, "square", 30); }
+    fx.quake(stage, true); fx.flash(stage, "white");
+    var x = player.x, y = G.crashY, i, a;
+    for (i = 0; i < 26; i++) { a = Math.PI + Math.random() * Math.PI; var sp = 4 + Math.random() * 9;
+      parts.push({ kind: "dot", x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, grav: 14, life: 0.8, max: 0.8, c: ["#ff3000", "#ff8a00", "#ffe14d", "#ffffff"][i % 4], s: 3 + (i % 3) }); }
+    for (i = 0; i < 12; i++) parts.push({ kind: "puff", x: x + (Math.random() - 0.5), y: y, vx: (Math.random() - 0.5) * 3, vy: -1 - Math.random() * 3, life: 1.3, max: 1.3, c: i % 2 ? "#505060" : "#7a7a88" });
+    // bits of Glider flying off
+    ["#ffffff", "#ffffff", "#3a6ad8", "#96b4f0", "#1b1b2b", "#ffffff", "#2e9a44"].forEach(function (c) {
+      a = Math.PI + 0.3 + Math.random() * (Math.PI - 0.6);
+      parts.push({ kind: "dot", x: x, y: y, vx: Math.cos(a) * 8, vy: Math.sin(a) * 10, grav: 22, life: 1.1, max: 1.1, c: c, s: 4, spin: true });
+    });
+    G.fire = { x: x, y: y, t: 1.3 };
   }
   function afterDeath() {
-    G.lives--; G.jetT = 0; G.magT = 0; G.dblT = 0; G.shield = false; G.item = null;
+    G.lives--; G.jetT = 0; G.magT = 0; G.dblT = 0; G.shield = false; G.item = null; G.fire = null; parts.length = 0;
     if (G.lives <= 0) return gameOver();
     resetActors(); hud(); readyGo("Ready!");
   }
@@ -866,6 +941,23 @@
     if (G.level + 1 > save.topLv) { save.topLv = G.level + 1; persist(); }
     checkGoals(); hud();
   }
+
+  function nextLevel() { G.level++; G.maze = (G.maze + 1) % MAZES.length; startLevel(); }
+
+  // ---------------- cutscenes between levels (every 3 levels, like the arcade) ----------------
+  var ACTS = [
+    { name: "Storm Chase", dur: 7 },
+    { name: "Here Comes the Sun", dur: 7.5 },
+    { name: "Rainbow Break", dur: 6 }
+  ];
+  function startCut() {
+    G.mode = "cut"; G.cutT = 0; G.act = G.cuts % ACTS.length; G.cuts++;
+    parts.length = 0;
+    showCall("Act " + (G.act + 1) + "<small>" + ACTS[G.act].name + "</small>", true);
+    if (save.music) { musicStart(); }
+  }
+  function endCut() { callEl.className = "sg-call"; musicStop(); nextLevel(); }
+  function skipCut() { if (G.mode === "cut" && G.cutT > 0.4) G.cutT = 99; }
 
   function gameOver() {
     G.mode = "over";
@@ -930,6 +1022,7 @@
   // ---------------- particles (trails, puffs) ----------------
   function trailPuff() {
     var t = save.trail, jet = G.jetT > 0;
+    if (G.mult >= 5) t = "rainbow";
     if (t === "none" && !jet) return;
     var bx = player.x - (player.dx || 0) * 0.7, by = player.y - (player.dy || 0) * 0.7 + 0.15;
     if (jet) parts.push({ kind: "dot", x: bx, y: by, life: 0.35, max: 0.35, c: Math.random() < 0.5 ? "#ff8a00" : "#ffe14d", s: 2 });
@@ -945,25 +1038,60 @@
   }
   function floatAt(tx, ty, text, cls) { var p = toPage(tx, ty); fx.float(p.x, p.y, text, cls); }
 
-  function spr(img, cx, cy, flipY, rot) {
-    // cx, cy in tile coords (centers); drawn at PX scale
-    var w = img.width * PX, h = img.height * PX;
+  function spr(img, cx, cy, flipY, rot, sx, sy) {
+    // cx, cy in tile coords (centers); drawn at PX scale, optionally squashed (sx, sy) or turned (rot)
+    sx = sx || 1; sy = sy || 1;
+    var w = Math.round(img.width * PX * sx), h = Math.round(img.height * PX * sy);
     var x = Math.round((cx * TS + TS / 2) * PX), y = Math.round((cy * TS + TS / 2) * PX);
     if (rot) { b.save(); b.translate(x, y); b.rotate(rot); b.drawImage(img, -w / 2, -h / 2, w, h); b.restore(); }
-    else b.drawImage(img, x - Math.round(w / 2), y - Math.round(h / 2), w, h);
+    else b.drawImage(img, x - Math.round(w / 2), y + Math.round(img.height * PX / 2) - h, w, h);
   }
-  function sprWrap(img, cx, cy, rot) {
-    spr(img, cx, cy, false, rot);
-    if (cx < 1) spr(img, cx + COLS, cy, false, rot);
-    if (cx > COLS - 2) spr(img, cx - COLS, cy, false, rot);
+  function sprWrap(img, cx, cy, rot, sx, sy) {
+    spr(img, cx, cy, false, rot, sx, sy);
+    if (cx < 1) spr(img, cx + COLS, cy, false, rot, sx, sy);
+    if (cx > COLS - 2) spr(img, cx - COLS, cy, false, rot, sx, sy);
+  }
+
+  // the sky behind the clouds: soft wind streaks drifting by
+  var STREAKS = []; for (var si = 0; si < 14; si++) STREAKS.push({ y: Math.random() * BW, x: Math.random() * BW, l: 14 + Math.random() * 40, v: 14 + Math.random() * 30 });
+  function drawSky() {
+    b.fillStyle = "#7ea2f0"; b.fillRect(0, 0, BW, BW);
+    b.fillStyle = "#8aaef4";
+    var off = (G.t * 6) % 16;
+    for (var y = 0; y < BW; y += 16) for (var x = -16; x < BW; x += 16) b.fillRect(Math.round(x + off + (y % 32 ? 8 : 0)), y, 2, 2);
+    b.fillStyle = "#a4c0f8";
+    STREAKS.forEach(function (st) {
+      var x = ((st.x + G.t * st.v) % (BW + 80)) - 60;
+      b.fillRect(Math.round(x), Math.round(st.y), Math.round(st.l), 2);
+    });
+  }
+
+  // little 3x5 pixel numbers for points shown right in the maze
+  var DIG = { "0": "111101101101111", "1": "010110010010111", "2": "111001111100111", "3": "111001111001111", "4": "101101111001001", "5": "111100111001111", "6": "111100111101111", "7": "111001010010010", "8": "111101111101111", "9": "111101111001111" };
+  function pixNum(str, cx, cy, col) {
+    var sc = PX * 2, w = str.length * 4 * sc - sc, x0 = Math.round((cx * TS + 6) * PX - w / 2), y0 = Math.round((cy * TS + 6) * PX - 2.5 * sc);
+    for (var pass = 0; pass < 2; pass++) {
+      b.fillStyle = pass ? col : "#1b1b2b";
+      for (var i = 0; i < str.length; i++) {
+        var m = DIG[str[i]]; if (!m) continue;
+        for (var k = 0; k < 15; k++) if (m[k] === "1") {
+          var px2 = x0 + i * 4 * sc + (k % 3) * sc, py2 = y0 + Math.floor(k / 3) * sc;
+          if (pass) b.fillRect(px2, py2, sc, sc); else b.fillRect(px2 - PX, py2 - PX, sc + PX * 2, sc + PX * 2);
+        }
+      }
+    }
   }
 
   function render() {
     b.imageSmoothingEnabled = false;
+    drawSky();
+    if (G.mode === "cut") { renderCut(); return blit(); }
     var flashOn = G.mode === "clear" && Math.floor(G.flash * 6) % 2 === 1;
+    var rv = G.reveal < 1 ? G.reveal : 1, ease = 1 - Math.pow(1 - rv, 3);
+    b.save();
+    if (rv < 1) { var hw = Math.round(BW / 2 * ease); b.beginPath(); b.rect(BW / 2 - hw, 0, hw * 2, BW); b.clip(); }
     if (mazeArt) b.drawImage(flashOn ? mazeFlash : mazeArt, 0, 0, BW, BW);
-    else { b.fillStyle = "#7ea2f0"; b.fillRect(0, 0, BW, BW); }
-    if (!G.grid) return blit();
+    if (!G.grid) { b.restore(); return blit(); }
 
     // sparkles and suns
     var tw = Math.floor(G.t * 4);
@@ -987,13 +1115,18 @@
       }
     }
 
-    // power-up item floating in a bubble
+    b.restore();
+    if (rv < 1) { blit(); return; }
+
+    // power-up bouncing through the maze in a bubble, with its shadow
     if (G.item && (G.item.t > 3 || Math.floor(G.t * 8) % 2)) {
-      var bob = Math.sin(G.t * 4) * 0.12;
-      var ix = (G.item.x * TS + 6) * PX, iy = ((G.item.y + bob) * TS + 6) * PX;
-      b.fillStyle = "rgba(255,255,255,.55)"; b.fillRect(ix - 13, iy - 11, 26, 22); b.fillRect(ix - 11, iy - 13, 22, 26);
-      b.fillStyle = "#ffffff"; b.fillRect(ix - 9, iy - 11, 4, 2);
-      spr(ICON[G.item.kind], G.item.x, G.item.y + bob);
+      var ph = (G.item.hop % 0.36) / 0.36, hop = Math.sin(ph * Math.PI) * 0.45;
+      var squish = ph < 0.12 || ph > 0.9 ? 1 : 0;
+      var ix = Math.round((G.item.x * TS + 6) * PX), iy = Math.round(((G.item.y - hop) * TS + 6) * PX), gy = Math.round((G.item.y * TS + 6) * PX);
+      b.fillStyle = "rgba(20,30,90,.25)"; b.fillRect(ix - 8 + hop * 6, gy + 8, 16 - hop * 12, 4);
+      b.fillStyle = "rgba(255,255,255,.55)"; b.fillRect(ix - 13, iy - 11 + squish * 3, 26, 22 - squish * 3); b.fillRect(ix - 11, iy - 13 + squish * 3, 22, 26 - squish * 3);
+      b.fillStyle = "#ffffff"; b.fillRect(ix - 9, iy - 11 + squish * 3, 4, 2);
+      sprWrap(ICON[G.item.kind], G.item.x, G.item.y - hop, 0, squish ? 1.15 : 1, squish ? 0.85 : 1);
     }
 
     // particles
@@ -1007,14 +1140,26 @@
         b.fillStyle = p.c; b.fillRect(Math.round((fx2 * TS + 6) * PX) - 2, Math.round((fy * TS + 6) * PX) - 2, 4, 4);
         continue;
       }
-      if (p.vx) { p.x += p.vx / 60; p.y += p.vy / 60; p.vx *= 0.94; p.vy *= 0.94; }
+      if (p.vx || p.vy) { p.x += p.vx / 60; p.y += p.vy / 60; if (p.grav) { p.vy += p.grav / 60; p.vx *= 0.99; } else { p.vx *= 0.94; p.vy *= 0.94; } }
       if (p.blink && Math.floor(p.life * 20) % 2) continue;
       var s = (p.kind === "puff" ? 5 : p.s) * PX * (0.4 + 0.6 * p.life / p.max);
       b.fillStyle = p.c; b.fillRect(Math.round((p.x * TS + 6) * PX - s / 2), Math.round((p.y * TS + 6) * PX - s / 2), Math.ceil(s), Math.ceil(s));
     }
 
+    // fire left burning at the crash site
+    if (G.fire && G.mode === "dying") {
+      var fxp = Math.round((G.fire.x * TS + 6) * PX), fyp = Math.round((G.fire.y * TS + 6) * PX) + 6;
+      for (var fi = 0; fi < 7; fi++) {
+        var fh = 6 + ((fi * 7 + Math.floor(G.t * 20)) % 5) * 3;
+        b.fillStyle = fi % 3 === 0 ? "#ffe14d" : fi % 3 === 1 ? "#ff8a00" : "#ff3000";
+        b.fillRect(fxp - 14 + fi * 4, fyp - fh, 4, fh);
+      }
+      if (G.t % 0.08 < 1 / 60) parts.push({ kind: "puff", x: G.fire.x + (Math.random() - 0.5) * 0.8, y: G.fire.y - 0.3, vx: (Math.random() - 0.5), vy: -2.5, life: 1, max: 1, c: "#505060" });
+    }
+
     // storms
     storms.forEach(function (s) { drawStorm(s); });
+    if (G.pop) pixNum(String(G.pop.n), G.pop.x, G.pop.y, "#60e8ff");
 
     // Glider
     drawPlayer();
@@ -1022,27 +1167,37 @@
   }
 
   function drawStorm(s) {
-    var fr = Math.floor(s.anim) % 2, img;
-    if (s.state === "eaten" || s.state === "enter") { drawEyes(s, s.x, s.y, true); return; }
-    if (s.scared) {
-      var flashing = G.frightT < 2 && Math.floor(G.t * 6) % 2;
-      img = (flashing ? SCARED_FLASH : SCARED_ART)[fr];
-    } else if (G.freezeT > 0 && s.state === "out") img = FROZEN_ART[0];
+    var fr = Math.floor(s.anim) % 2, img, cut = !!s.cut;
+    var frozen = !cut && G.freezeT > 0 && s.state === "out";
+    // a bouncy little bob, faster when they're scared
+    var vy = s.y - 0.05 + (frozen ? 0 : Math.sin(s.anim * (s.scared ? 2.2 : 1.1) + s.i) * 0.07);
+    if (s.state === "eaten" || s.state === "enter") { drawEyes(s, s.x, vy, true); return; }
+    var flashing = s.scared && !cut && G.frightT < 2 && Math.floor(G.t * 6) % 2;
+    if (s.scared) img = (flashing ? SCARED_FLASH : SCARED_ART)[fr];
+    else if (frozen) img = FROZEN_ART[0];
     else img = STORM_ART[s.i][fr];
-    sprWrap(img, s.x, s.y - 0.05);
-    drawFace(s);
+    // Thunder lets off a lightning bolt every couple of seconds
+    if (s.i === 0 && !s.scared && !frozen && ((G.t + s.anim * 0.01) % 2.3) < 0.16) {
+      var lx = Math.round((s.x * TS + 6) * PX), ly = Math.round((vy * TS + 6) * PX) + 10;
+      b.fillStyle = "#1b1b2b"; [[0, 0], [-4, 6], [2, 8], [-3, 16]].forEach(function (q, k, arr) { if (k) b.fillRect(lx + Math.min(q[0], arr[k - 1][0]) - 3, ly + arr[k - 1][1] - 1, Math.abs(q[0] - arr[k - 1][0]) + 6, q[1] - arr[k - 1][1] + 2); });
+      b.fillStyle = "#ffee00"; [[0, 0], [-4, 6], [2, 8], [-3, 16]].forEach(function (q, k, arr) { if (k) b.fillRect(lx + Math.min(q[0], arr[k - 1][0]) - 1, ly + arr[k - 1][1], Math.abs(q[0] - arr[k - 1][0]) + 2, q[1] - arr[k - 1][1]); });
+    }
+    sprWrap(img, s.x, vy);
+    drawFace(s, vy, flashing, frozen);
   }
-  function drawFace(s) {
-    var ox = Math.round((s.x * TS + 6) * PX) - 16, oy = Math.round(((s.y - 0.05) * TS + 6) * PX) - 16;
+  function drawFace(s, vy, flashing, frozen) {
+    var ox = Math.round((s.x * TS + 6) * PX) - 16, oy = Math.round((vy * TS + 6) * PX) - 16;
     function px(x, y, c) { b.fillStyle = c; b.fillRect(ox + x * PX, oy + y * PX, PX, PX); }
     if (s.scared) {
-      var mc = G.frightT < 2 && Math.floor(G.t * 6) % 2 ? "#c03070" : "#3050c0";
+      var mc = flashing ? "#c03070" : "#3050c0", wob = Math.floor(G.t * 8) % 2;
       px(5, 6, mc); px(5, 7, mc); px(10, 6, mc); px(10, 7, mc);
-      [[4, 10], [5, 9], [6, 10], [7, 9], [8, 10], [9, 9], [10, 10], [11, 9]].forEach(function (q) { px(q[0], q[1], mc); });
+      [[4, 10], [5, 9], [6, 10], [7, 9], [8, 10], [9, 9], [10, 10], [11, 9]].forEach(function (q, k) { px(q[0], q[1] + ((k + wob) % 2 ? 0 : 0), mc); });
+      // little sweat drop
+      if (wob) { px(13, 4, "#60c8ff"); px(13, 5, "#60c8ff"); }
       return;
     }
-    drawEyes(s, s.x, s.y - 0.05, false);
-    if (!(G.freezeT > 0 && s.state === "out")) {
+    drawEyes(s, s.x, vy, false);
+    if (!frozen) {
       px(4, 4, "#1b1b2b"); px(5, 4, "#1b1b2b"); px(6, 5, "#1b1b2b");
       px(11, 4, "#1b1b2b"); px(10, 4, "#1b1b2b"); px(9, 5, "#1b1b2b");
     }
@@ -1050,42 +1205,131 @@
   function drawEyes(s, x, y, alone) {
     var ox = Math.round((x * TS + 6) * PX) - 16, oy = Math.round((y * TS + 6) * PX) - 16;
     var lx = s.dx > 0 ? 1 : 0, ly = s.dy > 0 ? 1 : 0;
-    if (s.dx < 0) lx = 0; if (s.dy < 0) ly = 0;
+    var blink = !alone && ((s.anim * 0.35 + s.i * 1.3) % 4) < 0.12;
     [[5, 6], [9, 6]].forEach(function (e) {
       if (alone) { b.fillStyle = "#1b1b2b"; b.fillRect(ox + (e[0] - 1) * PX, oy + (e[1] - 1) * PX, 4 * PX, 4 * PX); }
+      if (blink) { b.fillStyle = "#1b1b2b"; b.fillRect(ox + e[0] * PX, oy + (e[1] + 1) * PX, 2 * PX, PX); return; }
       b.fillStyle = "#ffffff"; b.fillRect(ox + e[0] * PX, oy + e[1] * PX, 2 * PX, 2 * PX);
       b.fillStyle = "#1b1b2b"; b.fillRect(ox + (e[0] + lx) * PX, oy + (e[1] + ly) * PX, PX, PX);
     });
     if (alone) { b.fillStyle = STORMS[s.i].rain === "#ffffff" ? "#a8e8ff" : STORMS[s.i].rain; b.fillRect(ox + 7 * PX, oy + 11 * PX, 2 * PX, 3 * PX); }
   }
 
+  // which picture of Glider to use right now: 0 open, 1 running, 2 blinking, 3 happy, 4 happy running
+  function gliderFrame(running, happy) {
+    var run = running ? Math.floor(player.anim) % 2 : 0;
+    if (happy) return run ? 4 : 3;
+    if ((G.t % 3.1) < 0.12 || (G.t % 3.1 > 0.24 && G.t % 3.1 < 0.33 && Math.floor(G.t / 3.1) % 3 === 0)) return 2;
+    return run;
+  }
   function drawPlayer() {
     if (!G.grid) return;
+    if (G.pop && G.hitPause > 0) return;   // hidden while the points show, like the arcade
     var liv = LIVERIES.filter(function (l) { return l.id === save.liv; })[0] || LIVERIES[0];
     var set = gliderSet(save.liv, liv.rainbow ? Math.floor(G.t * 10) : 0);
-    var frame = Math.floor(player.anim) % 2;
-    var img = set[player.face][frame];
-    var rot = 0, bob = 0;
+    var happy = G.frightT > 0 || G.mode === "clear" || G.hitPause > 0;
+    var moving = G.mode === "play" && (player.dx || player.dy);
+    var img = set[player.face][gliderFrame(moving, happy)];
+    var rot = 0, bob = 0, sx = 1, sy = 1, y = player.y;
     if (G.mode === "dying") {
       var d = G.deathT;
-      rot = d * 9 * (player.face ? 1 : -1);
-      if (d > 1.1) return;
-      bob = d * d * 1.2;
+      if (G.popped) return;
+      img = set[player.face][2];
+      if (d < 0.3) { sx = 1 + Math.sin(d * 60) * 0.08; }                       // hit: wobble with eyes shut
+      else {                                                                    // nosedive
+        y = G.fallY;
+        var tip = Math.min(1, (d - 0.3) * 2.2);
+        rot = (player.face ? 1 : -1) * tip * 1.15 + Math.sin(d * 30) * 0.08;
+      }
+    } else if (G.mode === "clear") {
+      bob = -Math.abs(Math.sin(G.t * 9)) * 0.35;
+      if (Math.floor(G.t * 2.2) % 2) img = set[player.face ? 0 : 1][3];
+    } else if (G.mode === "ready" && G.reveal < 1) {
+      return;
     } else {
       bob = Math.sin(G.t * (player.tilt ? 14 : 6)) * (player.tilt ? 0.1 : 0.06);
+      if (player.squash > 0) { var q = player.squash / 0.16; sx = 1 - 0.18 * q; sy = 1 + 0.22 * q; if (!player.dy) { sx = 1 + 0.22 * q; sy = 1 - 0.18 * q; } }
+      if (G.mode === "ready") { var pop = Math.min(1, (1.8 - G.timer) * 4); sx *= pop; sy *= pop; if (pop <= 0) return; }
     }
     if (G.invuln > 0 && Math.floor(G.t * 12) % 2) return;
-    sprWrap(img, player.x, player.y - 0.1 + bob, rot);
+    sprWrap(img, player.x, y - 0.12 + bob, rot, sx, sy);
     if (G.shield && G.mode !== "dying") {
-      var cx = Math.round((player.x * TS + 6) * PX), cy = Math.round(((player.y - 0.1) * TS + 6) * PX), r = 19;
+      var cx = Math.round((player.x * TS + 6) * PX), cy = Math.round(((player.y - 0.1) * TS + 6) * PX), r = 21;
       b.fillStyle = Math.floor(G.t * 8) % 2 ? "#40d0ff" : "#ffffff";
       for (var a = 0; a < 24; a++) { var an = a / 24 * Math.PI * 2 + G.t * 2; b.fillRect(Math.round(cx + Math.cos(an) * r) - 1, Math.round(cy + Math.sin(an) * r) - 1, 3, 3); }
     }
-    if (G.magT > 0) {
+    if (G.magT > 0 && G.mode !== "dying") {
       var mx = Math.round((player.x * TS + 6) * PX), my = Math.round((player.y * TS + 6) * PX), mr = 3.2 * TS * PX * ((G.t * 1.5) % 1);
       b.fillStyle = "rgba(255,80,80,.6)";
       for (var k = 0; k < 16; k++) { var ang = k / 16 * Math.PI * 2; b.fillRect(Math.round(mx + Math.cos(ang) * mr) - 1, Math.round(my + Math.sin(ang) * mr) - 1, 2, 2); }
     }
+  }
+
+  // ---------------- cutscene drawing ----------------
+  function cutStorm(i, x, y, scared, dir) {
+    drawStorm({ i: i, x: x, y: y, dx: dir, dy: 0, anim: G.t * 6 + i, scared: scared, state: "out", cut: true });
+  }
+  function cutGlider(x, y, face, frame, scale) {
+    var liv = LIVERIES.filter(function (l) { return l.id === save.liv; })[0] || LIVERIES[0];
+    var set = gliderSet(save.liv, liv.rainbow ? Math.floor(G.t * 10) : 0);
+    spr(set[face][frame], x, y, false, 0, scale || 1, scale || 1);
+  }
+  function cloudBand(y, off) {
+    for (var x = 0; x < 24; x++) {
+      var m = BW + 72, cx = (((x * TS * PX + off) % m) + m) % m - 36, cy = y * TS * PX;
+      b.fillStyle = "#3b5cc4"; b.fillRect(cx - 2, cy - 2, 28, 22); b.fillRect(cx + 4, cy - 8, 16, 10);
+      b.fillStyle = "#ffffff"; b.fillRect(cx, cy, 24, 18); b.fillRect(cx + 6, cy - 6, 12, 8);
+      b.fillStyle = "#b8cdf8"; b.fillRect(cx, cy + 14, 24, 4);
+    }
+  }
+  function renderCut() {
+    var t = G.cutT, run = Math.floor(G.t * 10) % 2;
+    cloudBand(5.2, -G.t * 30);
+    cloudBand(15.2, G.t * 20);
+    var y = 11.2;
+    if (G.act === 0) {                                   // Storm Chase
+      if (t < 3.6) {
+        var gx = 22 - t * 7.2;
+        cutGlider(gx, y, 0, run);
+        cutStorm(0, gx + 3, y, false, -1); cutStorm(1, gx + 5.2, y, false, -1);
+      } else {
+        var t2 = t - 3.6, bx = -4 + t2 * 8.2;
+        cutStorm(0, bx + 5, y, true, 1); cutStorm(1, bx + 7, y, true, 1);
+        cutGlider(bx, y - 0.8, 1, run ? 4 : 3, 2);
+      }
+    } else if (G.act === 1) {                            // Here Comes the Sun
+      var gx2 = Math.min(10, -2 + t * 6);
+      var flee = t > 3.4;
+      if (!flee) {
+        cutGlider(gx2, y, 1, t < 2 ? run : 2);
+        for (var i = 0; i < 4; i++) cutStorm(i, 24 - Math.min(t, 3) * 3.4 + i * 2.2, y, false, -1);
+        if (t > 2) { var sy2 = Math.min(y - 1.6, -2 + (t - 2) * 9); spr(SUN, gx2, sy2); }
+        if (t > 3.1) { b.fillStyle = "rgba(255,238,0," + (0.6 - (t - 3.1)) + ")"; b.fillRect(0, 0, BW, BW); }
+      } else {
+        var t3 = t - 3.4;
+        for (var j = 0; j < 4; j++) cutStorm(j, 13.8 + j * 2.2 + t3 * 6.5, y, true, 1);
+        cutGlider(10 + t3 * 6, y, 1, run ? 4 : 3);
+      }
+    } else {                                             // Rainbow Break
+      var grow = Math.min(1, t / 1.5), cols = ["#ff3030", "#ff9900", "#ffe000", "#20d020", "#20c8ff", "#4060ff", "#d040ff"];
+      for (var r = 0; r < 7; r++) {
+        var rad = (7.5 - r * 0.45) * TS * PX;
+        b.fillStyle = cols[r];
+        for (var a = 0; a <= 60 * grow; a++) { var an = Math.PI + a / 60 * Math.PI; b.fillRect(Math.round(BW / 2 + Math.cos(an) * rad) - 3, Math.round(12.6 * TS * PX + Math.sin(an) * rad) - 3, 6, 6); }
+      }
+      var face = Math.floor(t / 0.45) % 2, hopY = -Math.abs(Math.sin(t * 7)) * 0.7;
+      cutGlider(10, y + hopY, face, 3);
+      cutStorm(2, 3.5, y + 0.1, false, 1); cutStorm(3, 16.5, y + 0.1, false, -1);
+      if (G.t % 0.25 < 1 / 60) parts.push({ kind: "dot", x: 10 + (Math.random() - 0.5) * 3, y: y - 1, vx: 0, vy: -3, life: 1.2, max: 1.2, c: "#ff6080", s: 4 });
+    }
+    // particles still run in cutscenes
+    for (var k = parts.length - 1; k >= 0; k--) {
+      var p = parts[k]; p.life -= 1 / 60;
+      if (p.life <= 0) { parts.splice(k, 1); continue; }
+      p.x += (p.vx || 0) / 60; p.y += (p.vy || 0) / 60;
+      b.fillStyle = p.c; var sz = p.s * PX; b.fillRect(Math.round((p.x * TS + 6) * PX), Math.round((p.y * TS + 6) * PX), sz, sz);
+    }
+    if (t > 1) { b.fillStyle = "rgba(0,0,0,.35)"; b.fillRect(0, BW - 22, BW, 22); b.fillStyle = "#fff"; b.font = "bold 14px SgComic, 'Comic Sans MS', cursive"; b.textAlign = "center"; b.fillText(matchMedia("(pointer: coarse)").matches ? "Tap to skip" : "Press any key to skip", BW / 2, BW - 7); }
   }
 
   function blit() {
@@ -1107,6 +1351,8 @@
     hudTick();
   }
   function hudTick() {
+    var fr = G.frightT > 0 && G.mode === "play";
+    if (lastHud.fr !== fr) { stage.classList.toggle("fright", fr); lastHud.fr = fr; }
     if (lastHud.score !== G.score) { $("sgScore").textContent = G.score.toLocaleString(); lastHud.score = G.score; }
     var cm = "x" + G.mult;
     if (lastHud.mult !== cm) { var ce = $("sgCombo"); ce.textContent = cm; ce.className = G.mult > 1 ? "c" + G.mult : ""; if (G.mult > 1) fx.restart(ce, "cw-bump"); lastHud.mult = cm; }
@@ -1176,9 +1422,20 @@
   function closeDialog() { overlay.hidden = true; dialog.innerHTML = ""; shopOpen = false; }
 
   var flyCanvas = null;
+  function locked() { return !!(window.CwPlayed && !CwPlayed.status().unlocked); }
+  function lockScreen() {
+    var st = CwPlayed.status(), names = { blackjack: ["Blackjack DX", "/blackjack"], linesdx: ["Lines DX", "/linesdx"], luckyflip: ["Lucky Flip", "/luckyflip"] };
+    openDialog('<div class="dt">Sky Glider</div><div class="db"><div class="sg-lock">&#128274;</div><h2>Locked!</h2>' +
+      '<p>Glider is waiting in the hangar. Play all 3 of my other games to unlock Sky Glider!</p>' +
+      '<div class="sg-lockl">' + CwPlayed.games.map(function (id) {
+        return st[id] ? '<div class="ok">&#10004; ' + names[id][0] + '</div>' : '<div>&#9744; <a href="' + names[id][1] + '">Play ' + names[id][0] + '</a></div>';
+      }).join("") + '</div><p><b>' + st.count + ' / 3</b> played</p>' +
+      '<a class="sg-btn go wide" href="/games" style="text-decoration:none">Back to the Games</a></div>');
+  }
   function titleScreen() {
     G.mode = "title"; shopOpen = false;
     musicStop();
+    if (locked()) { lockScreen(); hud(); return; }
     var dailyBest = save.daily && save.daily.date === today() ? save.daily.best : 0;
     var html = '<div class="dt">Sky Glider</div><div class="db">' +
       '<div class="sg-title">' + "Sky Glider".split("").map(function (ch, i) { return ch === " " ? " " : '<span class="cw-hop" style="animation-delay:' + i * 0.06 + 's">' + ch + '</span>'; }).join("") + '</div>' +
@@ -1191,11 +1448,19 @@
     openDialog(html);
     var fly = $("sgFlyby"), set = gliderSet(save.liv, 0), c = mk(20, 15);
     c.getContext("2d").drawImage(set[0][0], 0, 0); fly.appendChild(c);
+    var ch1 = mk(16, 16), ch2 = mk(16, 16); ch1.className = "chaser"; ch2.className = "chaser2";
+    fly.appendChild(ch1); fly.appendChild(ch2);
+    function paintChaser(cv, i, f) {
+      var g = cv.getContext("2d"); g.clearRect(0, 0, 16, 16); g.drawImage(STORM_ART[i][f], 0, 0);
+      g.fillStyle = "#fff"; g.fillRect(5, 6, 2, 2); g.fillRect(9, 6, 2, 2); g.fillStyle = "#1b1b2b"; g.fillRect(5, 7, 1, 1); g.fillRect(9, 7, 1, 1);
+      g.fillRect(4, 4, 2, 1); g.fillRect(6, 5, 1, 1); g.fillRect(10, 4, 2, 1); g.fillRect(9, 5, 1, 1);
+    }
     var fr = 0, flyTimer = setInterval(function () {
       if (!document.body.contains(c)) return clearInterval(flyTimer);
       fr ^= 1; var g = c.getContext("2d"); g.clearRect(0, 0, 20, 15);
       var l = LIVERIES.filter(function (q) { return q.id === save.liv; })[0];
       g.drawImage(gliderSet(save.liv, l && l.rainbow ? Math.floor(Date.now() / 100) : 0)[0][fr], 0, 0);
+      paintChaser(ch1, 0, fr); paintChaser(ch2, 1, fr ^ 1);
     }, 140);
     $("sgPlay").onclick = function () { sfx("click"); closeDialog(); newGame(false); };
     $("sgDaily").onclick = function () { sfx("click"); closeDialog(); newGame(true); };
@@ -1303,6 +1568,7 @@
     if (canvas.width !== px) { canvas.width = px; canvas.height = px; }
     render();
   }
+  stage.addEventListener("mousedown", function () { if (G.mode === "cut") skipCut(); });
   window.addEventListener("resize", fit);
   window.addEventListener("orientationchange", function () { setTimeout(fit, 200); });
 

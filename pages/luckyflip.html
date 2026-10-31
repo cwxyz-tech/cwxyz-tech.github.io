@@ -104,6 +104,7 @@
   </div>
 
 </div>
+<script src="/played.js?v=1"></script>
 <script>
 (function () {
   "use strict";
@@ -581,6 +582,7 @@
     return r;
   }
   function newRound(resume) {
+    if (window.CwPlayed) CwPlayed.mark("luckyflip");
     var sets = LEVELS[level - 1], pick5 = sets[Math.floor(Math.random() * sets.length)];
     var i;
     vals = resume ? resume.vals.slice() : makeBoard(pick5, SAFE_LINES[level - 1] || 0);

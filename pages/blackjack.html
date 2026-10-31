@@ -134,6 +134,7 @@
 
 </div>
 <script src="/juice.js?v=2"></script>
+<script src="/played.js?v=1"></script>
 <script>
 (function () {
   "use strict";
@@ -798,6 +799,7 @@
   // ---------- a round ----------
   async function deal() {
     if (busy) return;
+    if (window.CwPlayed) CwPlayed.mark("blackjack");
     if (state === "done") {
       var rb = Math.min(lastBet, bank);
       clearTable();

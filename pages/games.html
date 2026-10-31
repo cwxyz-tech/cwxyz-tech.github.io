@@ -12,6 +12,17 @@
   .gm-info ul { margin: 0 0 12px; padding-left: 20px; line-height: 1.4; }
   .gm-play { display: inline-block; font: bold 16px "Times New Roman", Times, serif; color: #000 !important; text-decoration: none; background: #b4ebcf; border: 2px outset #fff; padding: 6px 16px; }
   .gm-play:active { border-style: inset; }
+  /* Sky Glider stays locked until the other 3 games have been played */
+  .gm-card.locked .gm-shot { position: relative; }
+  .gm-card.locked .gm-shot img { filter: grayscale(1) brightness(.75); }
+  .gm-card.locked .gm-shot::after { content: "\1F512  LOCKED"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-6deg); background: #000; color: #ffee00;
+    border: 3px solid #ffee00; font: bold 22px "Times New Roman", Times, serif; padding: 6px 14px; line-height: 1.2; white-space: nowrap; box-shadow: 3px 3px 0 #000; }
+  .gm-lock { background: #ffffcc; border: 2px inset #808080; padding: 8px 10px; margin: 0 0 10px; line-height: 1.4; }
+  .gm-lock b { display: block; margin-bottom: 4px; }
+  .gm-lock ul { list-style: none; padding: 0 !important; margin: 0 !important; }
+  .gm-lock li.done { color: #006400; }
+  .gm-lock li a { color: #000080; }
+  .gm-card.locked .gm-play { background: #c0c0c0; }
   .gm-new { color: #cc0000; font-size: 14px; font-weight: bold; animation: cw-blink 1s step-start infinite; vertical-align: 3px; margin-left: 4px; }
 
   /* "Get the app" box for phones (only shown by the script below) */
@@ -50,6 +61,7 @@
   .gm-appfoot a { color: #fff; }
 </style>
 
+<script src="/played.js?v=1"></script>
 <div class="wrap">
 
   <div class="gm-appbar"><a href="/games/?app=1"><img src="/logo.png" alt="coleswebsite.xyz" width="239" height="34"></a></div>
@@ -87,8 +99,8 @@
       <p class="gm-intro">Free games I made, right here on the site. No downloads, no sign up, and they work on your phone too. Click a game to play!</p>
       <p class="gm-intro gm-dl">Want them on your computer, even offline? <a href="/downloads">Get the Cole's Games app for Windows, Mac and Linux</a>.</p>
 
-      <div class="gm-card">
-        <a class="gm-shot" href="/skyglider"><img src="/games/skyglider.gif?v=1" alt="Sky Glider gameplay" width="480" height="398"></a>
+      <div class="gm-card" id="gmSky">
+        <a class="gm-shot" href="/skyglider"><img src="/games/skyglider.gif?v=2" alt="Sky Glider gameplay" width="480" height="398"></a>
         <div class="gm-info">
           <h2><a href="/skyglider">Sky Glider</a> <span class="gm-new">NEW!</span></h2>
           <p>Fly Glider through the cloud maze, grab every sparkle and dodge the storms. It gets faster every level!</p>
@@ -97,7 +109,8 @@
             <li>Power-ups: jets, magnets, shields, snow and 2x</li>
             <li>Daily Flight, Flight Goals and paint jobs to unlock</li>
           </ul>
-          <a class="gm-play" href="/skyglider">&#9654; Play</a>
+          <div class="gm-lock" id="gmSkyLock" hidden></div>
+          <a class="gm-play" href="/skyglider" id="gmSkyPlay">&#9654; Play</a>
         </div>
       </div>
 
@@ -154,6 +167,23 @@
 
 </div>
 
+<script>
+(function () {
+  // Sky Glider unlocks after playing Blackjack DX, Lines DX and Lucky Flip
+  if (!window.CwPlayed) return;
+  var st = CwPlayed.status(), card = document.getElementById("gmSky");
+  if (!card || st.unlocked) return;
+  card.classList.add("locked");
+  var names = { blackjack: ["Blackjack DX", "/blackjack"], linesdx: ["Lines DX", "/linesdx"], luckyflip: ["Lucky Flip", "/luckyflip"] };
+  var box = document.getElementById("gmSkyLock");
+  box.innerHTML = "<b>Play all 3 of my other games to unlock it! (" + st.count + "/3)</b><ul>" +
+    CwPlayed.games.map(function (id) {
+      return st[id] ? '<li class="done">&#10004; ' + names[id][0] + '</li>' : '<li>&#9744; <a href="' + names[id][1] + '">' + names[id][0] + '</a></li>';
+    }).join("") + "</ul>";
+  box.hidden = false;
+  document.getElementById("gmSkyPlay").innerHTML = "&#128274; Locked (" + st.count + "/3)";
+})();
+</script>
 <script>
 (function () {
   var box = document.getElementById("gm-install");

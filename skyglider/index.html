@@ -46,6 +46,16 @@
   .sg-lives canvas { width: 26px; height: 20px; image-rendering: pixelated; image-rendering: crisp-edges; }
 
   .sg-stage { position: relative; background: #7ea2f0; border: 3px inset #fff; line-height: 0; touch-action: none; -webkit-user-select: none; user-select: none; overflow: hidden; }
+  .sg-stage.fright { animation: sg-frb .25s steps(1) infinite; }
+  @keyframes sg-frb { 50% { border-color: #ffee00 #ff9900 #ff9900 #ffee00; } }
+  .sg-flyby canvas.chaser { width: 44px; height: 44px; top: 4px; animation: sg-fly 4s linear .55s infinite backwards; }
+  .sg-flyby canvas.chaser2 { width: 44px; height: 44px; top: 4px; animation: sg-fly 4s linear .95s infinite backwards; }
+  .sg-lockl { width: 100%; text-align: left; background: #fff; border: 2px inset #808080; font-size: 15px; }
+  .sg-lockl div { padding: 5px 8px; border-top: 1px solid #ddd; display: flex; align-items: center; gap: 8px; }
+  .sg-lockl div:first-child { border-top: 0; }
+  .sg-lockl .ok { color: #006400; font-weight: bold; }
+  .sg-lockl a { color: #000080; font-weight: bold; }
+  .sg-lock { font-size: 40px; line-height: 1; }
   .sg-stage canvas#sgCanvas { display: block; width: 100%; aspect-ratio: 1 / 1; image-rendering: pixelated; image-rendering: crisp-edges; }
 
   /* active power-up timers under the sky */
@@ -145,7 +155,7 @@
 
   /* Effects: OFF */
   body.sg-nofx .sg-call.show, body.sg-nofx .sg-dialog, body.sg-nofx .sg-btn.go, body.sg-nofx .sg-pow.low, body.sg-nofx .sg-title .cw-hop,
-  body.sg-nofx .sg-call.rainbow .cw-hop, body.sg-nofx .sg-goal.new, body.sg-nofx #sgCombo.c5, body.sg-nofx .sg-dialog .newbest { animation: none !important; }
+  body.sg-nofx .sg-call.rainbow .cw-hop, body.sg-nofx .sg-goal.new, body.sg-nofx #sgCombo.c5, body.sg-nofx .sg-dialog .newbest, body.sg-nofx .sg-stage.fright { animation: none !important; }
   body.sg-nofx .sg-call.show { opacity: 1; }
 </style>
 <link rel="stylesheet" href="/site.css?v=2">
