@@ -96,7 +96,8 @@
       <p>Grab a <b>sun</b> and the storms get scared and puff up white. Fly into them for big points: 200, 400, 800, then 1600 for the whole set. Keep grabbing sparkles without a break to build your <b>combo</b>, all the way up to x5.</p>
       <p>Power-ups pop up in the maze: <b>Jet</b> makes you faster, <b>Magnet</b> pulls in sparkles, <b>Shield</b> blocks one storm, <b>Snow</b> freezes the storms, <b>2x</b> doubles your points, and if you're lucky a <b>heart</b> gives you an extra life.</p>
       <p>Every level gets a little faster, and so does every second you spend on one. Earn stars every flight to buy new paint jobs and trails in the <b>Hangar</b>, and check your <b>Flight Goals</b> for bonus stars. The <b>Daily Flight</b> is the same for everyone and you only get one life.</p>
-      <p><span class="sg-kbonly">Keyboard: arrow keys or WASD to fly, Space to start, P to pause, M to mute.</span> On a phone, swipe anywhere or use the arrow pad.</p>
+      <p><span class="sg-kbonly">Keyboard: arrow keys or WASD to fly, Space to start, P to pause, M to mute.</span> On a phone, swipe anywhere, tap the maze where you want to go, or hold the arrow pad and slide your thumb around it to steer.</p>
+      <p><b>Credits:</b> Glider made by <a href="https://www.instagram.com/sqeakz_/" target="_blank" rel="noopener noreferrer">sqeakz_</a> on Instagram. Concept and game made by Cole.</p>
       <button class="sg-btn go sg-helpx" id="sgHelpClose">Got it!</button>
     </div>
   </div>
@@ -803,28 +804,63 @@
     if (k === "p" || k === "P" || k === "Escape") { if (G.mode === "play" || G.mode === "ready") pause(); else if (G.mode === "paused") resume(); }
     if (k === "m" || k === "M") toggleSound();
   });
-  // swipes anywhere on the game
+  function dirOf(dx, dy) { return Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up"); }
+  function playing() { return G.mode === "play" || G.mode === "ready"; }
+  // swipes anywhere in the game area (not just on the maze), and a quick tap on the maze steers Glider toward the tap
   var sw = null;
-  var swipeArea = $("sgMain");
+  var swipeArea = document.querySelector(".sg-body") || $("sgMain");
   swipeArea.addEventListener("touchstart", function (e) {
-    if (e.target.closest && e.target.closest("button, a, .sg-overlay")) return;
-    var t = e.touches[0]; sw = { x: t.clientX, y: t.clientY }; audio();
+    if (e.target.closest && e.target.closest("button, a, .sg-overlay, .sg-pad")) return;
+    var t = e.touches[0]; sw = { x: t.clientX, y: t.clientY, x0: t.clientX, y0: t.clientY, t0: performance.now(), moved: false }; audio();
   }, { passive: true });
   swipeArea.addEventListener("touchmove", function (e) {
     if (!sw) return;
-    if (G.mode === "play" || G.mode === "ready") e.preventDefault();
+    if (playing()) e.preventDefault();
     var t = e.touches[0], dx = t.clientX - sw.x, dy = t.clientY - sw.y;
-    if (Math.abs(dx) < 16 && Math.abs(dy) < 16) return;
-    want(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up"));
-    sw = { x: t.clientX, y: t.clientY };
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+    want(dirOf(dx, dy));
+    sw.x = t.clientX; sw.y = t.clientY; sw.moved = true;
   }, { passive: false });
-  swipeArea.addEventListener("touchend", function () { sw = null; }, { passive: true });
-  Array.prototype.forEach.call(document.querySelectorAll("#sgPad button"), function (btn) {
-    function go(e) { e.preventDefault(); audio(); btn.classList.add("on"); want(btn.getAttribute("data-d")); }
-    function up() { btn.classList.remove("on"); }
-    btn.addEventListener("touchstart", go, { passive: false }); btn.addEventListener("mousedown", go);
-    btn.addEventListener("touchend", up); btn.addEventListener("mouseup", up); btn.addEventListener("mouseleave", up);
+  swipeArea.addEventListener("touchend", function (e) {
+    var s = sw; sw = null;
+    if (!s || s.moved || !playing() || performance.now() - s.t0 > 350) return;
+    var t = e.changedTouches && e.changedTouches[0]; if (!t) return;
+    var r = canvas.getBoundingClientRect();
+    if (t.clientX < r.left || t.clientX > r.right || t.clientY < r.top || t.clientY > r.bottom) return;
+    var p = toPage(player.x, player.y), dx = t.clientX - p.x, dy = t.clientY - p.y;
+    if (Math.hypot(dx, dy) < r.width / COLS * 0.6) return;   // tapped right on Glider
+    want(dirOf(dx, dy));
+  }, { passive: true });
+  swipeArea.addEventListener("touchcancel", function () { sw = null; }, { passive: true });
+
+  // the arrow pad works like a joystick: press anywhere on it (corners too) and slide your thumb to change direction without lifting
+  var padEl = $("sgPad"), padBtns = {}, padDir = null, padId = null;
+  Array.prototype.forEach.call(padEl.querySelectorAll("button"), function (btn) { padBtns[btn.getAttribute("data-d")] = btn; });
+  function padLight(d) {
+    if (padDir === d) return;
+    if (padDir) padBtns[padDir].classList.remove("on");
+    padDir = d;
+    if (d) { padBtns[d].classList.add("on"); want(d); if (navigator.vibrate && save.fx) try { navigator.vibrate(8); } catch (_) {} }
+  }
+  function padAt(e) {
+    var r = padEl.getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+    if (Math.hypot(dx, dy) < r.width * 0.11) return;   // little dead spot in the middle
+    padLight(dirOf(dx, dy));
+  }
+  function padUp(e) {
+    if (e.pointerId !== padId) return;
+    padId = null; padLight(null);
+  }
+  padEl.addEventListener("pointerdown", function (e) {
+    e.preventDefault(); audio();
+    padId = e.pointerId; try { padEl.setPointerCapture(e.pointerId); } catch (_) {}
+    padAt(e);
   });
+  padEl.addEventListener("pointermove", function (e) { if (e.pointerId === padId) padAt(e); });
+  padEl.addEventListener("pointerup", padUp);
+  padEl.addEventListener("pointercancel", padUp);
+  padEl.addEventListener("lostpointercapture", padUp);
+  padEl.addEventListener("contextmenu", function (e) { e.preventDefault(); });
 
   // ---------------- movement ----------------
   function wrap(e) { if (e.x < 0) e.x += COLS; else if (e.x > COLS - 1) e.x -= COLS; }
@@ -1601,7 +1637,8 @@
       '<button class="sg-btn go wide" id="sgPlay">&#9654; Fly! <kbd>(Space)</kbd></button>' +
       '<div class="sg-row2"><button class="sg-btn" id="sgDaily">&#9728; Daily Flight' + (dailyBest ? " (" + dailyBest.toLocaleString() + ")" : "") + '</button><button class="sg-btn" id="sgShop2">&#9992; Hangar</button></div>' +
       goalsHtml() +
-      '<p>Best: <b>' + save.best.toLocaleString() + '</b> &nbsp;&middot;&nbsp; <span class="sg-feath">&#9733; ' + save.stars.toLocaleString() + '</span></p></div>';
+      '<p>Best: <b>' + save.best.toLocaleString() + '</b> &nbsp;&middot;&nbsp; <span class="sg-feath">&#9733; ' + save.stars.toLocaleString() + '</span></p>' +
+      '<button class="sg-btn" id="sgCredits">&#9733; Credits</button></div>';
     openDialog(html);
     var fly = $("sgFlyby"), set = gliderSet(save.liv, 0), c = mk(20, 20);
     c.getContext("2d").drawImage(set[0][0], 0, 0); fly.appendChild(c);
@@ -1622,7 +1659,28 @@
     $("sgPlay").onclick = function () { sfx("click"); closeDialog(); newGame(false); };
     $("sgDaily").onclick = function () { sfx("click"); closeDialog(); newGame(true); };
     $("sgShop2").onclick = function () { sfx("click"); openShop(); };
+    $("sgCredits").onclick = function () { sfx("click"); creditsScreen(); };
     hud();
+  }
+  function creditsScreen() {
+    openDialog('<div class="dt">Credits</div><div class="db">' +
+      '<h2>Credits</h2>' +
+      '<div class="sg-credpic" id="sgCredPic"></div>' +
+      '<div class="sg-creds">' +
+        '<div class="ck">Glider made by</div><div class="cv"><a href="https://www.instagram.com/sqeakz_/" target="_blank" rel="noopener noreferrer">sqeakz_</a> <small>on Instagram</small></div>' +
+        '<div class="ck">Concept and game made by</div><div class="cv">Cole</div>' +
+      '</div>' +
+      '<p>Thanks for flying!</p>' +
+      '<button class="sg-btn go wide" id="sgCredBack">&#9664; Back</button></div>');
+    var c = mk(20, 20), pic = $("sgCredPic"), fr = 0;
+    pic.appendChild(c);
+    var t = setInterval(function () {
+      if (!document.body.contains(c)) return clearInterval(t);
+      fr ^= 1; var g = c.getContext("2d"); g.clearRect(0, 0, 20, 20);
+      var l = LIVERIES.filter(function (q) { return q.id === save.liv; })[0];
+      g.drawImage(gliderSet(save.liv, l && l.rainbow ? Math.floor(Date.now() / 100) : 0)[0][fr], 0, 0);
+    }, 160);
+    $("sgCredBack").onclick = function () { sfx("click"); titleScreen(); };
   }
 
   function pause() {

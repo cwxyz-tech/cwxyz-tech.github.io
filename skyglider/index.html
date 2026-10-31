@@ -154,6 +154,17 @@
 
   .sg-pad { display: none; }
 
+  /* credits */
+  .sg-credpic { width: 100%; height: 92px; background: #7ea2f0; border: 2px inset #808080; display: flex; align-items: center; justify-content: center; }
+  .sg-credpic canvas { width: 80px; height: 80px; image-rendering: pixelated; image-rendering: crisp-edges; animation: sg-bob 1s steps(2) infinite; }
+  @keyframes sg-bob { 50% { transform: translateY(-5px); } }
+  .sg-creds { width: 100%; background: #fff; border: 2px inset #808080; text-align: center; font-size: 15px; }
+  .sg-creds .ck { background: #dce6f5; font-size: 13px; font-weight: bold; padding: 2px 6px; }
+  .sg-creds .cv { padding: 5px 6px 7px; font-weight: bold; font-size: 18px; color: #000080; }
+  .sg-creds .cv small { font-size: 13px; color: #555; font-weight: normal; }
+  .sg-creds a { color: #000080; }
+  body.sg-nofx .sg-credpic canvas { animation: none; }
+
   /* Effects: OFF */
   body.sg-nofx .sg-call.show, body.sg-nofx .sg-dialog, body.sg-nofx .sg-btn.go, body.sg-nofx .sg-pow.low, body.sg-nofx .sg-title .cw-hop,
   body.sg-nofx .sg-call.rainbow .cw-hop, body.sg-nofx .sg-goal.new, body.sg-nofx #sgCombo.c5, body.sg-nofx .sg-dialog .newbest, body.sg-nofx .sg-stage.fright { animation: none !important; }
@@ -213,13 +224,13 @@
     .sg-btn { height: 42px; font-size: 16px; }
 
     /* thumb pad under the maze when there's room for it (swipes work anywhere too) */
-    .sg-pad { --pc: 64px; display: grid; grid-template-columns: repeat(3, var(--pc)); grid-template-rows: repeat(3, var(--pc)); gap: 6px; margin: auto 0; padding: 6px 0; flex-shrink: 0; }
+    .sg-pad { --pc: 64px; touch-action: none; -webkit-touch-callout: none; display: grid; grid-template-columns: repeat(3, var(--pc)); grid-template-rows: repeat(3, var(--pc)); gap: 6px; margin: auto 0; padding: 6px 0; flex-shrink: 0; }
     .sg-pad.hide { display: none; }
     /* phone on its side: the arrow pad sits beside the maze */
     .sg-pad.side { position: fixed; right: max(16px, env(safe-area-inset-right)); top: 50%; transform: translateY(-50%); margin: 0; padding: 0; display: grid; }
     .sg-pad.side.left { right: auto; left: max(16px, env(safe-area-inset-left)); }
     .sg-pad button { font: bold calc(var(--pc) * .42) "Times New Roman", Times, serif !important; background: #c0c0c0; border: 3px outset #fff; color: #000; padding: 0;
-      touch-action: none; -webkit-touch-callout: none; box-shadow: 2px 2px 0 #000; }
+      touch-action: none; -webkit-touch-callout: none; box-shadow: 2px 2px 0 #000; pointer-events: none; }
     .sg-pad button.on { box-shadow: none; transform: translate(2px, 2px); }
     .sg-pad::after { content: ""; grid-column: 2; grid-row: 2; background: #a8a8a8; box-shadow: inset 2px 2px 0 #808080, inset -2px -2px 0 #e0e0e0; border-radius: 50%; margin: 24%; }
     .sg-pad button.on { border-style: inset; background: #a8a8a8; }
