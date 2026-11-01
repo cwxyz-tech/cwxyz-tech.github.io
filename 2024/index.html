@@ -12,67 +12,73 @@
 <script>
   // this version of the site only loads for people who flew here. everyone else gets the normal "not found" page.
   (function () {
-    var ok = false;
-    try { ok = !!localStorage.getItem("cw_2024"); } catch (e) {}
+    var ok = false, gone = false;
+    try { ok = !!localStorage.getItem("cw_2024"); gone = !!localStorage.getItem("cw_2024_gone"); } catch (e) {}
+    if (ok && gone) {
+      window.cwGone = true;
+      document.documentElement.style.display = "none";
+      document.addEventListener("DOMContentLoaded", function () {
+        document.body.innerHTML = '<p>This page has been removed.</p>';
+        document.body.setAttribute("style", "margin:0;background:#000;color:#555;font:15px 'Courier New',monospace;display:flex;align-items:center;justify-content:center;min-height:100vh;filter:none;animation:none");
+        document.documentElement.style.background = "#000";
+        document.documentElement.style.display = "";
+      });
+      return;
+    }
     if (ok) return;
     document.documentElement.style.display = "none";
     fetch("/404.html").then(function (r) { return r.text(); }).then(function (h) { document.open(); document.write(h); document.close(); })
       .catch(function () { location.replace("/404.html"); });
   })();
 </script>
-<!-- the storms were never chasing him. they were running from something. -->
 <style>
-  html, body { margin: 0; background: #050505; }
-  body { font-family: "Times New Roman", Times, serif; color: #9a9a9a; font-size: 16px; min-height: 100vh; }
-  ::selection { background: #3a0000; color: #ff4040; }
-  .wrap { max-width: 900px; margin: 0 auto; background: #141414; border-left: 2px solid #222; border-right: 2px solid #222; min-height: 100vh; animation: v24-in 4s ease-out both; }
-  @keyframes v24-in { 0% { opacity: 0; filter: blur(3px); } 60% { opacity: .6; } 100% { opacity: 1; filter: none; } }
-  .header { background: #1f2a2a; padding: 18px 20px 10px; border-bottom: 2px solid #000; display: flex; align-items: baseline; gap: 14px; }
-  .logo { font-size: 46px; font-weight: bold; letter-spacing: -1px; color: #3a4466; text-shadow: 2px 2px 0 #000; }
-  .logo span { color: #5a1e1e; }
-  .motto { font-style: italic; color: #6a6a6a; }
-  .motto .gone { display: inline-block; min-width: 9ch; border-bottom: 1px dotted #333; }
-  .stripe { height: 6px; background: repeating-linear-gradient(90deg, #2c2c2c 0 24px, #3a3a3a 24px 48px, #262626 48px 72px, #333 72px 96px); }
-  .navbar { display: flex; gap: 8px; padding: 10px 14px; background: #101010; border-bottom: 1px solid #222; }
-  .navbar button { font: bold 15px "Times New Roman", Times, serif; color: #8a8a8a; background: #222; border: 2px outset #333; padding: 4px 14px; cursor: pointer; }
-  .navbar button.on { color: #c8c8c8; border-style: inset; }
-  .navbar button:hover { color: #d0d0d0; }
-  .navbar .q { color: #5a1e1e; margin-left: auto; }
-  .content { padding: 22px 26px 40px; }
-  .box { border: 2px solid #2a2a2a; background: #0e0e0e; margin-bottom: 18px; }
-  .box-title { background: #1a1a33; color: #8a8aa8; font-weight: bold; padding: 4px 10px; display: flex; justify-content: space-between; }
-  .box-title i { font-style: normal; color: #444; letter-spacing: 3px; }
+  /* the site as it was in 2024: same look as now, just faded, like an old saved copy */
+  html { background: #0a0a0a; }
+  body { margin: 0; min-height: 100vh; font-family: "Times New Roman", Times, serif; font-size: 16px; color: #000;
+    background-color: #008080; background-image: radial-gradient(rgba(0,0,0,.18) 1px, transparent 1px); background-size: 4px 4px;
+    filter: saturate(.45) brightness(.82) contrast(.92) sepia(.12); animation: v24-in 2.5s ease-out both; }
+  @keyframes v24-in { from { opacity: 0; } to { opacity: 1; } }
+  .wrap { max-width: 900px; margin: 18px auto; background: #c0c0c0; border: 2px solid #fff; border-right-color: #404040; border-bottom-color: #404040; box-shadow: 4px 4px 0 #000; }
+  .header { padding: 16px 20px 8px; display: flex; align-items: baseline; gap: 14px; }
+  .logo { font-size: 46px; font-weight: bold; letter-spacing: -1px; color: #000080; text-shadow: 2px 2px 0 #808080; }
+  .logo span { color: #cc0000; }
+  .motto { font-style: italic; }
+  .stripe { height: 6px; background: repeating-linear-gradient(90deg, #f00 0 24px, #f80 24px 48px, #ff0 48px 72px, #0c0 72px 96px, #00f 96px 120px, #c0c 120px 144px); }
+  .navbar { display: flex; gap: 8px; padding: 8px 12px; border-bottom: 2px groove #fff; }
+  .navbar button { font: bold 15px "Times New Roman", Times, serif; color: #000; background: #c0c0c0; border: 2px outset #fff; padding: 3px 14px; cursor: pointer; }
+  .navbar button.on { color: #000080; border-style: inset; }
+  .navbar button:hover { color: #cc0000; }
+  .navbar .q { margin-left: auto; }
+  .content { padding: 20px 26px 30px; }
+  .box { border: 2px inset #fff; background: #fff; margin-bottom: 18px; }
+  .box-title { background: linear-gradient(90deg, #000080, #1084d0); color: #fff; font-weight: bold; padding: 3px 8px; display: flex; justify-content: space-between; }
+  .box-title i { font-style: normal; font-weight: normal; opacity: .7; }
   .box-body { padding: 14px 16px; line-height: 1.6; }
   .panel[hidden] { display: none; }
-  .dim { color: #4a4a4a; }
-  .faint { color: #1c1c1c; }            /* select it */
-  .red { color: #8a2020; }
-  .counter { display: inline-block; font-family: "Courier New", monospace; background: #000; color: #3c8a3c; padding: 2px 6px; border: 1px inset #333; letter-spacing: 3px; }
-  .entry { border-bottom: 1px dashed #222; padding: 8px 0; }
-  .entry b { color: #7a7a9a; }
-  .entry small { color: #444; margin-left: 8px; font-family: "Courier New", monospace; }
-  .entry.you b { color: #8a2020; }
-  .broken { width: 260px; height: 170px; border: 2px inset #333; background: #0a0a0a; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 6px; font-size: 13px; color: #555; font-family: Arial, sans-serif; }
-  .broken .x { width: 16px; height: 16px; border: 1px solid #555; color: #8a2020; font: bold 12px/14px Arial; text-align: center; }
-  .word { font: 16px "Courier New", monospace; background: #000; color: #9a9a9a; border: 1px inset #333; padding: 4px 8px; width: 200px; }
-  .word:focus { outline: 1px solid #5a1e1e; }
+  .dim { color: #666; }
+  .counter { display: inline-block; font-family: "Courier New", monospace; background: #000; color: #3f3; padding: 2px 6px; border: 2px inset #808080; letter-spacing: 3px; }
+  .entry { border-bottom: 1px dashed #aaa; padding: 8px 0; }
+  .entry b { color: #000080; }
+  .entry small { color: #777; margin-left: 8px; font-family: "Courier New", monospace; }
+  .entry.blank b { color: #999; font-weight: normal; }
+  .broken { width: 260px; height: 170px; border: 2px inset #fff; background: #e8e8e8; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 6px; font-size: 13px; color: #555; font-family: Arial, sans-serif; flex-shrink: 0; }
+  .broken .x { width: 16px; height: 16px; border: 1px solid #888; color: #c00; font: bold 12px/14px Arial; text-align: center; }
+  .word { font: 16px "Courier New", monospace; background: #fff; color: #000; border: 2px inset #fff; padding: 3px 6px; width: 200px; }
   .typed { font-family: "Courier New", monospace; white-space: pre-wrap; min-height: 1.4em; }
-  .doors { font-family: "Courier New", monospace; color: #5a1e1e; letter-spacing: 2px; }
-  .footer { border-top: 1px solid #222; padding: 14px 26px 30px; font-size: 13px; color: #3a3a3a; display: flex; justify-content: space-between; gap: 12px; }
-  .footer .hex { font-family: "Courier New", monospace; letter-spacing: 2px; color: #2e2e2e; }
-  .footer a, .footer a:visited { color: #444; }
+  .doors { font-family: "Courier New", monospace; letter-spacing: 2px; color: #555; }
+  .footer { padding: 10px 20px 14px; font-size: 13px; color: #444; display: flex; justify-content: space-between; gap: 12px; border-top: 2px groove #fff; }
+  .footer .hex { font-family: "Courier New", monospace; letter-spacing: 2px; color: #999; }
+  .footer a, .footer a:visited { color: #000080; }
   .shake { animation: v24-shake .25s steps(3) 1; }
-  @keyframes v24-shake { 33% { transform: translate(2px, -1px); } 66% { transform: translate(-2px, 1px); } }
-  .flick { animation: v24-flick 7s steps(1) infinite; }
-  @keyframes v24-flick { 0%, 96% { opacity: 1; } 97% { opacity: .2; } 98% { opacity: 1; } 99% { opacity: .4; } }
-  @media (prefers-reduced-motion: reduce) { .wrap, .shake, .flick { animation: none !important; } }
+  @keyframes v24-shake { 33% { translate: 3px -2px; } 66% { translate: -3px 2px; } }
+  @media (prefers-reduced-motion: reduce) { body, .shake { animation: none !important; } }
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="header">
-    <div class="logo flick">coleswebsite<span>.xyz</span></div>
-    <div class="motto">Est. 2023... stay optimistic, the best is <span class="gone" id="gone"></span></div>
+    <div class="logo">coleswebsite<span>.xyz</span></div>
+    <div class="motto">Est. 2023... stay optimistic, the best is yet to</div>
   </div>
   <div class="stripe"></div>
   <div class="navbar">
@@ -86,39 +92,35 @@
   <div class="content">
     <div class="panel" id="p-home">
       <div class="box">
-        <div class="box-title"><span>welcome to my website!!</span><i>2024</i></div>
+        <div class="box-title"><span>Welcome to my website!!</span><i>2024</i></div>
         <div class="box-body">
-          <p>hi!! welcome to my website. it's still under construction so things might be broken. :)</p>
-          <p>i'm making a game. it's about a little plane named Glider who flies through the clouds.
-            he's not finished yet. <span class="dim">he's still in the hangar.</span></p>
+          <p>hi!! welcome to my website. it's still under construction so some stuff might be broken :)</p>
+          <p>i'm making a game!! it's about a dragon plane named Glider who flies through the clouds and dodges storms. it's not done yet but you can see the first sketch on the Glider page.</p>
           <p>you are visitor <span class="counter" id="counter">000001</span></p>
           <p class="dim">last updated: 11.01.2024</p>
-          <p class="faint">you're the only one who has ever been here. he made sure of that.</p>
         </div>
       </div>
     </div>
 
     <div class="panel" id="p-about" hidden>
       <div class="box">
-        <div class="box-title"><span>About Me</span><i>removed</i></div>
+        <div class="box-title"><span>About Me</span><i></i></div>
         <div class="box-body">
-          <p>This page was removed.</p>
-          <p class="typed red" id="aboutLate"></p>
+          <p>This page has been removed.</p>
         </div>
       </div>
     </div>
 
     <div class="panel" id="p-guestbook" hidden>
       <div class="box">
-        <div class="box-title"><span>Guestbook</span><i>7 entries</i></div>
+        <div class="box-title"><span>Guestbook</span><i>6 entries</i></div>
         <div class="box-body">
           <div class="entry"><b>cole</b><small>03.14.2024</small><br>first post!! sign my guestbook :)</div>
           <div class="entry"><b>anonymous</b><small>06.02.2024</small><br>cool site</div>
           <div class="entry"><b>anonymous</b><small>08.19.2024</small><br>is the game coming out soon?</div>
-          <div class="entry"><b>glider</b><small>10.30.2024</small><br>is anyone still here</div>
-          <div class="entry"><b>glider</b><small>10.31.2024</small><br>it's so quiet without the music. the clouds keep moving when i'm not looking at them.</div>
-          <div class="entry"><b>????</b><small>11.01.2024</small><br>the storms are getting closer. they don't want him. they want out.</div>
-          <div class="entry you"><b>you</b><small>11.01.2024 03:33</small><br>i went too fast.</div>
+          <div class="entry"><b>cole</b><small>08.20.2024</small><br>soon!! glider is almost done. just have to fix the storms</div>
+          <div class="entry"><b>cole</b><small>10.31.2024</small><br>does anyone know how to make him stop speeding up</div>
+          <div class="entry blank"><b>(no name)</b><small>11.01.2024 03:33</small><br>&nbsp;</div>
           <p class="dim" style="margin-top:12px">The guestbook is closed.</p>
         </div>
       </div>
@@ -126,13 +128,12 @@
 
     <div class="panel" id="p-glider" hidden>
       <div class="box">
-        <div class="box-title"><span>Glider (early sketch)</span><i>wip</i></div>
+        <div class="box-title"><span>Glider (first sketch)</span><i></i></div>
         <div class="box-body" style="display:flex;gap:18px;align-items:flex-start">
-          <div class="broken" title="he isn't ready to be seen"><div class="x">x</div>glider_v0.png</div>
+          <div class="broken"><div class="x">x</div>glider_v0.png</div>
           <div>
             <p>first sketch of Glider!! he doesn't have his shades yet.</p>
-            <p class="dim">he doesn't like it when you look at him without them.</p>
-            <p class="faint">the doors only open for the word on the floor.</p>
+            <p class="dim">(sorry the picture isn't loading, i'll fix it)</p>
           </div>
         </div>
       </div>
@@ -140,7 +141,7 @@
 
     <div class="panel" id="p-q" hidden>
       <div class="box">
-        <div class="box-title"><span>???</span><i>&nbsp;</i></div>
+        <div class="box-title"><span>???</span><i></i></div>
         <div class="box-body">
           <p>what's the word?</p>
           <p><input class="word" id="word" maxlength="24" autocomplete="off" spellcheck="false" aria-label="the word"></p>
@@ -151,7 +152,7 @@
   </div>
 
   <div class="footer">
-    <span>&copy; 2024 coleswebsite.xyz &middot; <a href="/" id="back">go back?</a></span>
+    <span>&copy; 2024 coleswebsite.xyz &middot; <a href="/" id="back">home</a></span>
     <span class="hex">48 41 4E 47 41 52</span>
   </div>
 </div>
@@ -159,36 +160,25 @@
 <script>
 (function () {
   "use strict";
-  try { if (!localStorage.getItem("cw_2024")) return; } catch (e) { return; }
+  try { if (!localStorage.getItem("cw_2024") || window.cwGone) return; } catch (e) { return; }
   var $ = function (id) { return document.getElementById(id); };
 
-  // what the motto should end with, typed out and taken back, over and over
-  var gone = $("gone"), says = ["yet to come", "yet to", "yet", "gone", ""], si = 0;
-  setInterval(function () { gone.textContent = says[si % says.length]; si++; }, 2600);
-
   // the menu
-  var btns = document.querySelectorAll(".navbar button"), aboutDone = false;
+  var btns = document.querySelectorAll(".navbar button");
   Array.prototype.forEach.call(btns, function (b) {
     b.addEventListener("click", function () {
       Array.prototype.forEach.call(btns, function (x) { x.classList.toggle("on", x === b); });
       Array.prototype.forEach.call(document.querySelectorAll(".panel"), function (p) { p.hidden = p.id !== "p-" + b.getAttribute("data-p"); });
       hum(); blip(140);
-      if (b.getAttribute("data-p") === "about" && !aboutDone) { aboutDone = true; setTimeout(function () { type($("aboutLate"), "he took it down. he took a lot of things down.\nbut this part he couldn't find."); }, 3200); }
-      if (b.getAttribute("data-p") === "q") setTimeout(function () { $("word").focus(); }, 30);
+      if (b.getAttribute("data-p") === "q") { preload(); setTimeout(function () { $("word").focus(); }, 30); }
     });
   });
 
   // the visitor counter tries to count up, and can't
   var counter = $("counter");
   setInterval(function () {
-    if (Math.random() < 0.25) { counter.textContent = "000002"; setTimeout(function () { counter.textContent = "000001"; }, 120); }
-  }, 3000);
-
-  // the tab's title sometimes says something else
-  setInterval(function () {
-    var t = document.title; document.title = "is anyone there";
-    setTimeout(function () { document.title = t; }, 900);
-  }, 21000);
+    if (Math.random() < 0.08) { counter.textContent = "000002"; setTimeout(function () { counter.textContent = "000001"; }, 90); }
+  }, 4000);
 
   function type(el, text, done) {
     el.textContent = ""; var i = 0;
@@ -209,18 +199,14 @@
     busy = true;
     if (h(w) === ANSWER) {
       try { localStorage.setItem("cw_2024_word", "1"); } catch (e2) {}
-      document.querySelector(".wrap").classList.add("shake");
-      type(out, "...\nnot yet.\n\nthe hangar doors are still closed.\ncome back when the sky is ready.", function () {
-        var d = document.createElement("p"); d.className = "doors"; d.textContent = "▓▓░░░░░░  2/8";
-        out.parentNode.appendChild(d); busy = false;
-      });
+      burn();   // starts the song right away, while this keypress still counts as you touching the page
     } else {
-      type(out, ["no.", "that's not it.", "look down.", "he wouldn't have said that."][Math.floor(Math.random() * 4)], function () { busy = false; });
+      type(out, "no.", function () { busy = false; });
     }
   });
 
   // sound only after you touch something (browsers won't allow it before)
-  var ac = null, humOn = false;
+  var ac = null, humOn = false, humG = null;
   function A() {
     if (!ac) { var C = window.AudioContext || window.webkitAudioContext; if (!C) return null; ac = new C(); }
     if (ac.state === "suspended") ac.resume();
@@ -230,8 +216,9 @@
     if (humOn || !A()) return; humOn = true;
     var t = ac.currentTime, g = ac.createGain(), a = ac.createOscillator(), c = ac.createOscillator(), lp = ac.createBiquadFilter();
     a.type = "sine"; a.frequency.value = 43; c.type = "triangle"; c.frequency.value = 43.6; lp.type = "lowpass"; lp.frequency.value = 170;
-    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.06, t + 8);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.035, t + 12);
     a.connect(lp); c.connect(lp); lp.connect(g); g.connect(ac.destination); a.start(t); c.start(t);
+    humG = g;
   }
   function blip(f) {
     if (!ac) return;
@@ -241,8 +228,205 @@
   }
   document.addEventListener("pointerdown", hum, { once: true });
 
-  // for whoever opens the console
-  try { console.log("%cyou're looking in the right place.", "color:#8a2020;font:14px 'Courier New',monospace"); } catch (e) {}
+  // =====================================================================
+  // the end of the 2024 site: the song plays and the whole page comes apart, piece by piece.
+  // times are in seconds into the song (120 bpm, a bar is 2 seconds).
+  // =====================================================================
+  var SONG = "/music/tracks/burn-it-down.mp3", song = null;
+  function preload() { if (!song) { song = new Audio(SONG); song.preload = "auto"; } }
+
+  var LYRICS = [
+    [16, "i was a storm in a little room"], [20, "i broke the things that i swore i'd keep"],
+    [24, "i called it love when i made you small"], [28, "i called it tired when i couldn't sleep"],
+    [32, "burn it down, burn it down"], [36, "the boy who lived here isn't around"],
+    [40, "burn it down, burn it down"], [44, "i'm not him now. i'm not him now."],
+    [48, "the voice in the walls was only mine"], [52, "it was always mine, it was always mine"],
+    [56, "i hurt the ones who held me up"], [60, "and blamed the sky for every time"],
+    [64, "burn it down, burn it down"], [68, "the boy who lived here isn't around"],
+    [72, "burn it down, burn it down"], [76, "i'm not him now. i'm not him now."],
+    [80, ""],
+    [96, "burn it down, burn it down"], [100, "the boy who lived here isn't around"],
+    [104, "burn it down, burn it down"], [108, "i'm not him now. i'm not him now."],
+    [112, "burn it down, burn it down"], [116, "the boy who lived here isn't around"],
+    [120, "burn it down, burn it down"], [124, "i'm not him now. i'm not him now."]
+  ];
+
+  function burn() {
+    var calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var root = document.documentElement, wrap = document.querySelector(".wrap");
+    preload();
+    var playing = false, t0 = performance.now();
+    try { song.currentTime = 0; var pr = song.play(); if (pr && pr.then) pr.then(function () { playing = true; }, function () {}); else playing = true; } catch (e) {}
+    if (humG && ac) humG.gain.setTargetAtTime(0.0001, ac.currentTime, 0.4);
+    function now() { return playing && song.currentTime > 0 ? song.currentTime : (performance.now() - t0) / 1000; }
+
+    // the door meter fills the rest of the way
+    var meter = document.createElement("p"); meter.className = "doors"; out.textContent = ""; out.parentNode.appendChild(meter);
+    var filled = 2;
+    (function fill() { meter.textContent = "▓".repeat(filled) + "░".repeat(8 - filled) + "  " + filled + "/8"; if (filled++ < 8) setTimeout(fill, 260); })();
+
+    // everything on the site, out on the page at once, shrunk to fit the window
+    setTimeout(function () {
+      Array.prototype.forEach.call(document.querySelectorAll(".panel"), function (p) { p.hidden = false; });
+      Array.prototype.forEach.call(btns, function (x) { x.classList.remove("on"); x.disabled = true; });
+      window.scrollTo(0, 0);
+      var sc = Math.max(0.78, Math.min(1, (innerHeight - 30) / wrap.offsetHeight));   // anything below the window just falls off unseen
+      wrap.style.transformOrigin = "50% 0"; wrap.style.transform = "scale(" + sc.toFixed(3) + ")";
+      document.body.style.overflow = "hidden";
+    }, 2400);
+
+    // the color drains out of everything during the music box
+    document.body.style.transition = "filter 16s linear";
+    requestAnimationFrame(function () { document.body.style.filter = "saturate(0) brightness(.62) contrast(1.05)"; });
+
+    // the logo comes apart one letter at a time
+    var logo = document.querySelector(".logo"), letters = [];
+    (function split(node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (n) {
+        if (n.nodeType === 3) {
+          var f = document.createDocumentFragment();
+          n.nodeValue.split("").forEach(function (ch) { var sp = document.createElement("span"); sp.textContent = ch; f.appendChild(sp); letters.push(sp); });
+          n.parentNode.replaceChild(f, n);
+        } else split(n);
+      });
+    })(logo);
+
+    // a lyric box, Side B style, outside the faded page so it stays sharp
+    var lyr = document.createElement("div");
+    lyr.style.cssText = "position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:9999;min-width:min(560px,88vw);box-sizing:border-box;padding:14px 20px;" +
+      "background:#000;color:#ddd;border:3px solid #ddd;font:19px/1.4 'Courier New',monospace;letter-spacing:1px;text-align:center;visibility:hidden";
+    root.appendChild(lyr);
+    function sing(text) {
+      if (!text) { lyr.style.visibility = "hidden"; return; }
+      lyr.style.visibility = "visible"; lyr.textContent = "";
+      var i = 0;
+      (function next() { if (i > text.length) return; lyr.textContent = text.slice(0, i); i++; setTimeout(next, 38); })();
+    }
+
+    function q(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+    function fall(el) {
+      if (!el || el.getAttribute("data-fell")) return;
+      el.setAttribute("data-fell", "1");
+      if (getComputedStyle(el).display === "inline") el.style.display = "inline-block";
+      if (calm) { el.style.transition = "opacity 1.2s"; el.style.opacity = "0"; return; }
+      var r = (Math.random() - 0.5) * 60, x = (Math.random() - 0.5) * 80;
+      el.style.transition = "transform 1.6s cubic-bezier(.55,0,.9,.55), opacity 1.6s ease-in";
+      el.style.transform = "translate(" + x.toFixed(0) + "px,150vh) rotate(" + r.toFixed(0) + "deg)";
+      el.style.opacity = "0.15";
+    }
+    function scorch(el) {
+      if (!el) return;
+      el.style.transition = "filter .5s";
+      el.style.filter = "brightness(.25) contrast(1.6)";
+      setTimeout(function () { fall(el); }, 650);
+    }
+    function shake(el) {
+      if (calm || !el) return;
+      el.classList.remove("shake"); void el.offsetWidth; el.classList.add("shake");
+    }
+
+    var ev = [];
+    function at(t, fn) { ev.push([t, fn]); }
+
+    // intro (0-16): the visitor counter finally starts counting up
+    var cnt = 1;
+    for (var c = 4; c < 16; c += 0.5) at(c, function () { cnt += 1 + Math.floor(cnt / 6); counter.textContent = ("000000" + cnt).slice(-6); });
+    LYRICS.forEach(function (l) { at(l[0], function () { sing(l[1]); }); });
+
+    // verse 1 (16-32): the little things go first, one a bar
+    var small = [".footer .hex", ".footer span", ".navbar .q", ".navbar [data-p=glider]", ".navbar [data-p=guestbook]", ".navbar [data-p=about]", ".navbar [data-p=home]", ".motto"];
+    small.forEach(function (sel, i) { at(16 + i * 2, function () { fall(document.querySelector(sel)); }); });
+    // chorus 1 (32-48): the page jolts on the beat and the logo falls apart
+    for (var b = 32; b < 48; b += 1) at(b, function () { shake(wrap); });
+    letters.forEach(function (sp, i) { at(32 + i * (16 / letters.length), function () { fall(sp); }); });
+    // verse 2 (48-64): the words go
+    var words = [];
+    at(48, function () {
+      words = q("#p-home p, #p-about p, #p-glider p, #p-glider .broken, #p-q p, .box-title > span, .box-title i, .stripe")
+        .filter(function (el) { return !el.closest("#p-guestbook"); });
+    });
+    for (var w2 = 0; w2 < 16; w2++) (function (k) {
+      at(48 + k, function () { var n = Math.ceil(words.length / 16); words.splice(0, n).forEach(fall); });
+    })(w2);
+    // chorus 2 (64-80): whole pieces burn and drop
+    for (var b2 = 64; b2 < 80; b2 += 1) at(b2, function () { shake(wrap); });
+    ["#p-q", "#p-glider", "#p-about", "#p-home", ".navbar", ".header", ".footer"].forEach(function (sel, i) {
+      at(64 + i * 2, function () { scorch(document.querySelector(sel)); });
+    });
+    at(76, function () { q("#p-guestbook .entry:not(.blank), #p-guestbook p.dim").forEach(function (el, i) { setTimeout(function () { fall(el); }, i * 380); }); });
+    at(78, function () {
+      wrap.style.transition = "background-color 2s, border-color 2s, box-shadow 2s";
+      wrap.style.backgroundColor = "#000"; wrap.style.borderColor = "#000"; wrap.style.boxShadow = "none";
+      document.body.style.transition = "filter 2s, background-color 2s";
+      document.body.style.backgroundImage = "none"; document.body.style.backgroundColor = "#000";
+      var gb = document.querySelector("#p-guestbook .box"); gb.style.transition = "background-color 2s, border-color 2s"; gb.style.backgroundColor = "#000"; gb.style.borderColor = "#333";
+      var gt = document.querySelector("#p-guestbook .box-title"); gt.style.transition = "opacity 2s"; gt.style.opacity = "0";
+    });
+
+    // bridge (80-96): only the empty guestbook post is left. it comes to the middle of the screen and gets written.
+    var blank = document.querySelector(".entry.blank"), post = null, who = null, when = null, msg = null;
+    at(80, function () {
+      blank.style.transition = "opacity .8s"; blank.style.opacity = "0";
+      wrap.style.transition = "opacity 1.5s"; wrap.style.opacity = "0";
+      post = document.createElement("div");
+      post.style.cssText = "position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9998;width:min(520px,86vw);box-sizing:border-box;" +
+        "color:#ddd;font:19px/1.6 'Courier New',monospace;letter-spacing:1px;opacity:0;transition:opacity 1.5s";
+      post.innerHTML = '<div><b style="font-family:\'Times New Roman\',serif;font-size:20px">(no name)</b><small style="color:#777;margin-left:12px;font-size:14px">11.01.2024 03:33</small></div><div style="white-space:pre-wrap;min-height:5em;margin-top:6px"></div>';
+      root.appendChild(post);
+      who = post.querySelector("b"); when = post.querySelector("small"); msg = post.lastChild;
+      requestAnimationFrame(function () { post.style.opacity = "1"; });
+    });
+    at(81.5, function () { type(who, "cole"); });
+    at(82.2, function () {
+      var d = new Date(), p2 = function (n) { return ("0" + n).slice(-2); };
+      when.textContent = p2(d.getMonth() + 1) + "." + p2(d.getDate()) + "." + d.getFullYear() + " " + p2(d.getHours()) + ":" + p2(d.getMinutes());
+    });
+    var said = "";
+    [[82, "i'm sorry."], [86, "i can't take it back."], [90, "but i can stop."]].forEach(function (l) {
+      at(l[0], function () {
+        var base = said ? said + "\n" : "", i = 0;
+        said = base + l[1];
+        (function next() { if (i > l[1].length) return; msg.textContent = base + l[1].slice(0, i); i++; setTimeout(next, 70); })();
+      });
+    });
+
+    // final chorus (96-128): the last post shakes harder and harder, then goes too
+    for (var b3 = 96; b3 < 128; b3 += 0.5) at(b3, function () { shake(post); });
+    at(112, function () { msg.textContent = said.replace(/[a-z]/g, function (ch) { return Math.random() < 0.3 ? "█" : ch; }); });
+    at(118, function () { msg.textContent = said.replace(/[a-z]/g, function (ch) { return Math.random() < 0.6 ? "▓" : ch; }); });
+    at(124, function () { post.style.transition = "opacity .2s"; fall(msg); fall(who); fall(when); });
+
+    // 128: everything cuts out at once
+    at(128, function () {
+      try { localStorage.setItem("cw_2024_gone", String(Date.now())); } catch (e) {}
+      lyr.remove(); wrap.style.display = "none"; if (post) post.remove();
+      document.body.style.transition = "none"; document.body.style.filter = "none"; document.body.style.background = "#000";
+      root.style.background = "#000";
+    });
+    // and then, quietly, in a major key
+    at(129.5, function () {
+      var end = document.createElement("div");
+      end.style.cssText = "position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;" +
+        "background:#000;color:#e8e8e8;font:20px 'Courier New',monospace;letter-spacing:1px;text-align:center;padding:24px;box-sizing:border-box";
+      var line = document.createElement("div"); end.appendChild(line); root.appendChild(end);
+      var txt = "i am a changed man now.", i = 0;
+      (function next() { if (i > txt.length) return; line.textContent = txt.slice(0, i); i++; setTimeout(next, 120); })();
+      setTimeout(function () {
+        var a = document.createElement("a"); a.href = "/"; a.textContent = "[ go home ]";
+        a.style.cssText = "color:#777;text-decoration:none;font-size:15px;letter-spacing:2px;opacity:0;transition:opacity 2s";
+        end.appendChild(a); requestAnimationFrame(function () { a.style.opacity = "1"; });
+      }, 7500);
+    });
+
+    ev.sort(function (a, b) { return a[0] - b[0]; });
+    var ei = 0;
+    (function tick() {
+      var t = now();
+      while (ei < ev.length && ev[ei][0] <= t) { try { ev[ei][1](); } catch (e) {} ei++; }
+      if (ei < ev.length) requestAnimationFrame(tick);
+    })();
+  }
+
 })();
 </script>
 </body>
