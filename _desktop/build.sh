@@ -7,9 +7,9 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 SITE="$(cd "$HERE/.." && pwd)"
 OUT="$HERE/out"
-ELECTRON=v45.1.0
+ELECTRON=v45.2.1
 # official checksums from Electron's SHASUMS256.txt for this version: any other file is refused
-SHA_LINUX=9dafab2c57ce209f8f716f8f3e4fddd8ffe0820e2455bfbbfc00b0fc13e03a3b
+SHA_LINUX=616efc1ae4784af1a4f3f0e8774e73e7030e7bd1708da9d09bcf543dfa499beb
 STAMP="2026-10-30 00:00:00 UTC"   # every file gets the same date, so builds don't record when or where they ran
 
 rm -rf "$OUT" && mkdir -p "$OUT/dl" "$OUT/release"
