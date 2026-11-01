@@ -242,7 +242,7 @@
   // Note times are seconds from the start of the line (an eighth note is 0.25s).
   var VN = [0, .25, .5, .75, 1, 1.25, 1.5], VN4 = [0, .25, .5, .75, 1, 1.5];              // verse riff, one bar per line
   var CA = [0, .25, .5, 1.5, 1.75, 2, 2.75, 3, 3.5];                                    // chorus bars 1-2 and 5-6
-  var CB = [0, .25, .5, .75, 1, 1.25, 1.5, 1.75, 2, 3, 3.5];                           // chorus bars 3-4
+  var CB = [0, .25, .5, .75, 1, 1.5, 1.75, 2, 3, 3.5];                                 // chorus bars 3-4
   var CD = [0, .5, .75, 1, 1.5, 2];                                                      // chorus bars 7-8
   // verse 1: building this place in the fall of 2023, then outgrowing it
   var V1 = ["i built this place in the fall", "my first se-mes-ter a-way", "i drew a dra-gon that flew", "i talked to him all day",
@@ -253,13 +253,13 @@
   function verseAt(t0, lines) { return lines.map(function (l, i) { return [t0 + i * 2, i % 4 === 3 ? VN4 : VN, l]; }); }
   // the hook. same four lines every time, so it sticks.
   //   burn it DOWN, burn it DOWN to the GROUND                  (A C E~ | A C F~ E D~ C~)
-  //   the per-son who LIVED here isn't here, AN-y-MORE          (E E D C D~ C B | G#~ B E~)
+  //   the PER-son who LIVED here is GONE for GOOD               (E E D C D~ C B | G#~ B E~)
   //   burn it DOWN, burn it DOWN to the GROUND
-  //   THAT kid is GONE for GOOD                                 (E~ D C B~ G#~ | A~)
+  //   I'M not him AN-y-MORE                                     (E~ D C B~ G#~ | A~)
   function chorusAt(t0) {
     // the 4th value marks the held notes (by syllable number), which get a bigger bounce
-    return [[t0, CA, "burn it down, burn it down to the ground", [2, 5, 8]], [t0 + 4, CB, "the per-son who lived here isn't here, an-y-more", [4, 8, 10]],
-            [t0 + 8, CA, "burn it down, burn it down to the ground", [2, 5, 8]], [t0 + 12, CD, "that kid is gone for good", [0, 3, 5]]];
+    return [[t0, CA, "burn it down, burn it down to the ground", [2, 5, 8]], [t0 + 4, CB, "the per-son who lived here is gone for good", [4, 7, 9]],
+            [t0 + 8, CA, "burn it down, burn it down to the ground", [2, 5, 8]], [t0 + 12, CD, "i'm not him an-y-more", [0, 3, 5]]];
   }
   var SUNG = [].concat(verseAt(16, V1), chorusAt(32), verseAt(48, V2), chorusAt(64), chorusAt(96), chorusAt(112));
   // the bridge is written into the guestbook post along with the music box
