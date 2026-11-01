@@ -1932,6 +1932,7 @@
     storms.forEach(function (s) { s.scared = false; });
     // no flash, no confetti, no words. it just starts to come on.
     warpOn();
+    chaosStart();
     megaSound(0);
   }
   // the turbo's sound, scheduled from `from` seconds into the flight (so a pause can stop it and pick it back up in the same spot).
@@ -1970,7 +1971,28 @@
         });
         tb += gap; gap = Math.max(0.24, gap * 0.9);
       }
-      megaSnd = { buses: [out], o: oscs };
+      // the chaos: little 8-bit squeals that come faster and faster until they're a swarm
+      var cs = now + L * C_START, cg = 0.45, sq = ac.createGain();
+      sq.gain.value = 1; sq.connect(master);
+      while (cs < now + L) {
+        if (cs >= real) {
+          var so = ac.createOscillator(), sgn = ac.createGain(), f0 = 180 + Math.random() * 1800 * (0.4 + (cs - now) / L);
+          so.type = Math.random() < 0.5 ? "square" : "sawtooth";
+          so.frequency.setValueAtTime(f0, cs); so.frequency.exponentialRampToValueAtTime(f0 * (Math.random() < 0.5 ? 0.3 : 3), cs + 0.09);
+          sgn.gain.setValueAtTime(0.0001, cs); sgn.gain.linearRampToValueAtTime(0.022, cs + 0.005); sgn.gain.exponentialRampToValueAtTime(0.0001, cs + 0.1);
+          so.connect(sgn); sgn.connect(sq); so.start(cs); so.stop(cs + 0.11); oscs.push(so);
+        }
+        cs += cg * (0.5 + Math.random()); cg = Math.max(0.025, cg * 0.93);
+      }
+      // and static that rises under all of it
+      var nl = ac.sampleRate * 2, nb = ac.createBuffer(1, nl, ac.sampleRate), nd = nb.getChannelData(0);
+      for (var ni = 0; ni < nl; ni++) nd[ni] = Math.random() * 2 - 1;
+      var ns = ac.createBufferSource(), nbp = ac.createBiquadFilter(), ng = ac.createGain();
+      ns.buffer = nb; ns.loop = true; nbp.type = "bandpass"; nbp.Q.value = 0.8;
+      nbp.frequency.setValueAtTime(300, now + L * C_START); nbp.frequency.exponentialRampToValueAtTime(7000, now + L);
+      ng.gain.setValueAtTime(0.0001, now + L * C_START); ng.gain.linearRampToValueAtTime(0.07, now + L);
+      ns.connect(nbp); nbp.connect(ng); ng.connect(master); ns.start(real); oscs.push(ns);
+      megaSnd = { buses: [out, sq, ng], o: oscs };
     }
   }
 
@@ -1983,7 +2005,7 @@
     var f = "hue-rotate(" + Math.round(m.hue) + "deg) saturate(" + sat.toFixed(2) + ")";
     if (!calm) {
       var breathe = Math.sin(m.t * (1.1 + 5 * k * k)) * 0.5 + 0.5;
-      f += " blur(" + (breathe * (1.4 * sstep(0.08, 0.4, k) + 1.6 * sstep(0.6, 1, k))).toFixed(2) + "px)";
+      f += " blur(" + (breathe * 1.4 * sstep(0.08, 0.3, k) * (1 - sstep(C_START, 0.5, k))).toFixed(2) + "px)";   // the blur gives way to the chaos (and keeps it running smooth)
       if (k > M_UNRAVEL && Math.random() < 0.06 * k) f += " invert(1)";   // a frame here and there flips inside out
       f += " contrast(" + (1 + 0.6 * sstep(M_UNRAVEL, 1, k)).toFixed(2) + ")";
     }
@@ -2004,6 +2026,8 @@
     }
     // letters around the page come loose, more and more of them, and near the end they stop coming back
     if (k > M_UNRAVEL && m.t > m.nextScramble) { scrambleSome(1 + Math.floor((k - M_UNRAVEL) * 18), k > 0.8); m.nextScramble = m.t + Math.max(0.08, 0.6 - 0.9 * (k - M_UNRAVEL)); }
+    // and the whole site loses its mind
+    chaosTick(m, k);
     // and then, mid-thought, it's just gone
     if (m.t >= m.len) cutToBlack();
   }
@@ -2030,6 +2054,7 @@
     var wrap = document.querySelector(".wrap"); if (wrap) wrap.style.transform = "";
     if (megaVeil) megaVeil.style.opacity = "0";
     if (megaWarp) stage.style.filter = "";   // the pause menu sits inside the game window, so it would melt too
+    chaosReset();
   }
   function megaResume() {
     if (!G.mega) return;
@@ -2039,7 +2064,7 @@
   function megaClean() {
     megaSoundOff();
     if (megaVeil) { megaVeil.remove(); megaVeil = null; }
-    warpOff();
+    warpOff(); chaosEnd();
     var wrap = document.querySelector(".wrap"); if (wrap) wrap.style.transform = "";
     root.style.filter = ""; stage.style.transform = "";
   }
@@ -2075,7 +2100,7 @@
   // swap letters in the page's titles and menu for wrong ones (put back afterwards unless it's too late)
   var GLYPHS = "░▒▓█¿§ØÞЖЯΔ#?!01";
   function scrambleSome(n, keep) {
-    var els = Array.prototype.slice.call(document.querySelectorAll(".navbar a, .box-title > span, .sg-hud small, #sgLegend b, .content h2, .content h3"));
+    var els = Array.prototype.slice.call(document.querySelectorAll(".navbar a, .box-title > span, .sg-hud small, #sgLegend b, .content h2, .content h3, .wrap p, .wrap li, .footer a, .header *, .sg-help span"));
     for (var i = 0; i < n && els.length; i++) {
       var el = els[Math.floor(Math.random() * els.length)];
       if (!el.firstChild || el.firstChild.nodeType !== 3) continue;
@@ -2089,6 +2114,100 @@
   function unscramble() {
     glitched.forEach(function (el) { if (el.firstChild) el.firstChild.nodeValue = el.getAttribute("data-sg-orig"); el.removeAttribute("data-sg-orig"); });
     glitched = [];
+  }
+
+
+  // ---------------- the whole site losing its mind (2023 only, since that's the only place Mega Turbo exists) ----------------
+  // every piece of the page starts moving on its own, copies of the page and of Glider fly everywhere,
+  // more and more of them, faster and faster, right up until the cut.
+  var C_START = 0.22, chaosEls = [], chaosLayer = null, chaosLive = 0, chaosSpawn = 0, chaosShot = null, chaosShotT = -9, chaosWords = [];
+  function chaosStart() {
+    chaosEnd();
+    if (calmFx()) return;
+    chaosEls = Array.prototype.slice.call(document.querySelectorAll(".wrap .header > *, .wrap .navbar a, .wrap .box-title, .wrap p, .wrap li, .wrap h2, .wrap h3, .wrap img, .wrap .footer, .sg-hud > *, #sgLegend canvas, #sgLegend span"))
+      .filter(function (el) { return el !== stage && !stage.contains(el) && !el.contains(stage); })
+      .slice(0, 140).map(function (el) {
+        var fixd = getComputedStyle(el).display === "inline"; if (fixd) el.style.display = "inline-block";
+        return { el: el, fixd: fixd, a: Math.random() * 6.28, b: Math.random() * 6.28, sp: 0.6 + Math.random() * 2.4, dir: Math.random() < 0.5 ? -1 : 1, spin: Math.random() < 0.25 };
+      });
+    chaosWords = [];
+    var tw = document.createTreeWalker(document.querySelector(".wrap") || document.body, NodeFilter.SHOW_TEXT), n;
+    while ((n = tw.nextNode()) && chaosWords.length < 200) { var t = n.nodeValue.trim(); if (t.length > 1) chaosWords.push(t.slice(0, 28)); }
+    if (!chaosWords.length) chaosWords = ["Sky Glider", "2023", "Glider"];
+    chaosLayer = document.createElement("div");
+    chaosLayer.style.cssText = "position:fixed;inset:0;z-index:2147483000;pointer-events:none;overflow:hidden";
+    document.body.appendChild(chaosLayer);
+  }
+  function chaosTick(m, k) {
+    if (!chaosLayer || calmFx()) return;
+    var c = sstep(C_START, 0.9, k), t = m.t;
+    if (c <= 0) return;
+    chaosLayer.style.visibility = "";
+    var wild = c * c;
+    // every piece of the page wobbles, spins and flies off on its own
+    chaosEls.forEach(function (o) {
+      var s2 = o.sp * (1 + 4 * c);
+      var x = Math.sin(t * s2 + o.a) * 60 * wild + (Math.random() - 0.5) * 24 * wild;
+      var y = Math.cos(t * s2 * 0.8 + o.b) * 40 * wild + (Math.random() - 0.5) * 24 * wild;
+      var r = o.spin ? o.dir * t * 400 * wild : Math.sin(t * s2 * 1.3 + o.a) * 50 * c;
+      var sc = 1 + Math.sin(t * s2 * 2 + o.b) * 0.5 * wild;
+      o.el.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px) rotate(" + r.toFixed(1) + "deg) scale(" + sc.toFixed(3) + ")";
+      if (wild > 0.3) o.el.style.color = "hsl(" + Math.floor(Math.random() * 360) + ",100%,50%)";
+    });
+    // the whole page lurches around underneath
+    var wrap = document.querySelector(".wrap");
+    if (wrap) {
+      var wx = (Math.random() - 0.5) * 70 * wild, wy = (Math.random() - 0.5) * 50 * wild;
+      wrap.style.transform = "translate(" + wx.toFixed(1) + "px," + wy.toFixed(1) + "px) rotate(" + (Math.sin(t * 3.1) * 9 * wild).toFixed(2) + "deg) scale(" + (1 + Math.sin(t * 5.3) * 0.12 * wild).toFixed(3) + ")";
+    }
+    document.body.style.backgroundColor = "hsl(" + Math.floor((t * 300 * c) % 360) + ",90%," + (30 + 25 * Math.random() * c).toFixed(0) + "%)";
+    document.body.style.backgroundPosition = Math.round(t * 400 * c) + "px " + Math.round(t * 250 * c) + "px";
+    // copies of the page and of Glider fly across the screen, more every second
+    if (t - chaosShotT > 0.4) { try { chaosShot = canvas.toDataURL(); } catch (e) { chaosShot = null; } chaosShotT = t; }
+    chaosSpawn += (3 + 140 * wild) / 60;
+    while (chaosSpawn >= 1) { chaosSpawn--; if (chaosLive < 120) chaosGhost(c); }
+  }
+  function chaosGhost(c) {
+    var W = innerWidth, H = innerHeight, g, roll = Math.random();
+    if (roll < 0.3 && chaosShot) {
+      g = document.createElement("img"); g.src = chaosShot; g.alt = "";
+      var sz = 40 + Math.random() * 220; g.style.width = sz + "px"; g.style.imageRendering = "pixelated";
+    } else if (roll < 0.45 && chaosEls.length) {
+      g = chaosEls[Math.floor(Math.random() * chaosEls.length)].el.cloneNode(true);
+      g.removeAttribute("id"); g.style.transform = ""; g.style.background = Math.random() < 0.5 ? "#c0c0c0" : "transparent";
+    } else {
+      g = document.createElement("div"); g.textContent = chaosWords[Math.floor(Math.random() * chaosWords.length)];
+      g.style.font = (Math.random() < 0.5 ? "bold " : "") + Math.round(14 + Math.random() * 70 * c) + "px " + (Math.random() < 0.5 ? "'Times New Roman',serif" : "'Courier New',monospace");
+      g.style.color = "hsl(" + Math.floor(Math.random() * 360) + ",100%,55%)"; g.style.whiteSpace = "nowrap";
+      g.style.textShadow = "3px 3px 0 #000";
+    }
+    g.style.position = "absolute"; g.style.left = "0"; g.style.top = "0"; g.style.margin = "0"; g.style.willChange = "transform";
+    chaosLayer.appendChild(g); chaosLive++;
+    var x0 = Math.random() * W, y0 = Math.random() * H, x1 = Math.random() * W, y1 = Math.random() * H;
+    if (Math.random() < 0.5) { x0 = Math.random() < 0.5 ? -300 : W + 50; } else { y0 = Math.random() < 0.5 ? -200 : H + 50; }
+    var r0 = (Math.random() - 0.5) * 360, r1 = r0 + (Math.random() - 0.5) * 1440, d = (2200 - 1700 * c) * (0.6 + Math.random() * 0.8);
+    var done = function () { if (g.parentNode) g.remove(); chaosLive--; };
+    if (g.animate) {
+      var an = g.animate([
+        { transform: "translate(" + x0 + "px," + y0 + "px) rotate(" + r0 + "deg) scale(" + (0.3 + Math.random()) + ")" },
+        { transform: "translate(" + x1 + "px," + y1 + "px) rotate(" + r1 + "deg) scale(" + (0.5 + Math.random() * 2.5) + ")" }
+      ], { duration: d, easing: "linear" });
+      an.onfinish = done;
+    } else setTimeout(done, 300);
+  }
+  // paused: everything snaps back into place so the pause menu can be read, and the flying copies hide until it starts again
+  function chaosReset() {
+    if (chaosLayer) chaosLayer.style.visibility = "hidden";
+    chaosEls.forEach(function (o) { o.el.style.transform = ""; o.el.style.color = ""; });
+    var wrap = document.querySelector(".wrap"); if (wrap) wrap.style.transform = "";
+    document.body.style.backgroundColor = ""; document.body.style.backgroundPosition = "";
+  }
+  function chaosEnd() {
+    chaosReset();
+    chaosEls.forEach(function (o) { if (o.fixd) o.el.style.display = ""; });
+    chaosEls = [];
+    if (chaosLayer) { chaosLayer.remove(); chaosLayer = null; }
+    chaosLive = 0; chaosSpawn = 0; chaosShot = null; chaosShotT = -9;
   }
 
   // ---------------- the void ----------------

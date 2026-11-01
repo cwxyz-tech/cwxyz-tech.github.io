@@ -14,6 +14,8 @@
   (function () {
     var ok = false, gone = false;
     try { ok = !!localStorage.getItem("cw_2023"); gone = !!localStorage.getItem("cw_2023_gone"); } catch (e) {}
+    // after it's gone, the FAQ can bring it back once more, just to watch it go again
+    if (gone && /[?&]again\b/.test(location.search)) { window.cwAgain = true; return; }
     if (ok && gone) {
       window.cwGone = true;
       document.documentElement.style.display = "none";
@@ -161,7 +163,7 @@
 <script>
 (function () {
   "use strict";
-  try { if (!localStorage.getItem("cw_2023") || window.cwGone) return; } catch (e) { return; }
+  try { if ((!localStorage.getItem("cw_2023") && !window.cwAgain) || window.cwGone) return; } catch (e) { return; }
   var $ = function (id) { return document.getElementById(id); };
 
   // the menu
@@ -240,26 +242,28 @@
   // Note times are seconds from the start of the line (an eighth note is 0.25s).
   var VN = [0, .25, .5, .75, 1, 1.25, 1.5], VN4 = [0, .25, .5, .75, 1, 1.5];              // verse riff, one bar per line
   var CA = [0, .25, .5, 1.5, 1.75, 2, 2.75, 3, 3.5];                                    // chorus bars 1-2 and 5-6
-  var CB = [0, .25, .5, .75, 1, 1.5, 1.75, 2, 3, 3.5];                                  // chorus bars 3-4
+  var CB = [0, .25, .5, .75, 1, 1.25, 1.5, 1.75, 2, 3, 3.5];                           // chorus bars 3-4
   var CD = [0, .5, .75, 1, 1.5, 2];                                                      // chorus bars 7-8
-  var V1 = ["there was a storm in the room", "no-bo-dy o-pened the door", "i kept the pie-ces i broke", "un-der the bed, lights out",
-            "count to three, then three, then three", "small e-nough to fit a hand", "i called it love, i called it", "it rained in-side for years"];
-  var V2 = ["the voice in the walls was mine", "it's al-ways been mine, al-ways", "i wore the shades in the dark", "so you can't see the eyes",
-            "the ones who held up the wings", "i let them fall, let them fall", "and blamed the sky ev-ery time", "you're the on-ly one here"];
+  // verse 1: building this place in the fall of 2023, then outgrowing it
+  var V1 = ["i built this place in the fall", "my first se-mes-ter a-way", "i drew a dra-gon that flew", "i talked to him all day",
+            "but ev-ery-thing moved too fast", "the old me star-ted to fade", "i left the lights on for years", "in rooms that i had made"];
+  // verse 2: coming back and letting it go
+  var V2 = ["now ev-ery page here is dust", "the guest-book's emp-ty and cold", "i don't miss who i was then", "the sto-ry's all been told",
+            "so light a match, let it burn", "the walls, the hang-ar, the past", "i'm not a-fraid an-y-more", "the new me's built to last"];
   function verseAt(t0, lines) { return lines.map(function (l, i) { return [t0 + i * 2, i % 4 === 3 ? VN4 : VN, l]; }); }
   // the hook. same four lines every time, so it sticks.
-  //   burn it DOWN, burn it DOWN to the GROUND   (A C E~ | A C F~ E D~ C~)
-  //   NO-bo-dy lives HERE an-y MORE, no MORE     (E E D C D~ C B | G#~ B E~)
+  //   burn it DOWN, burn it DOWN to the GROUND                  (A C E~ | A C F~ E D~ C~)
+  //   the per-son who LIVED here isn't here, AN-y-MORE          (E E D C D~ C B | G#~ B E~)
   //   burn it DOWN, burn it DOWN to the GROUND
-  //   I'M not him AN-y-MORE                       (E~ D C B~ G#~ | A~)
+  //   THAT kid is GONE for GOOD                                 (E~ D C B~ G#~ | A~)
   function chorusAt(t0) {
     // the 4th value marks the held notes (by syllable number), which get a bigger bounce
-    return [[t0, CA, "burn it down, burn it down to the ground", [2, 5, 8]], [t0 + 4, CB, "no-bo-dy lives here an-y-more, no more", [4, 7, 9]],
-            [t0 + 8, CA, "burn it down, burn it down to the ground", [2, 5, 8]], [t0 + 12, CD, "i'm not him an-y-more", [0, 3, 5]]];
+    return [[t0, CA, "burn it down, burn it down to the ground", [2, 5, 8]], [t0 + 4, CB, "the per-son who lived here isn't here, an-y-more", [4, 8, 10]],
+            [t0 + 8, CA, "burn it down, burn it down to the ground", [2, 5, 8]], [t0 + 12, CD, "that kid is gone for good", [0, 3, 5]]];
   }
   var SUNG = [].concat(verseAt(16, V1), chorusAt(32), verseAt(48, V2), chorusAt(64), chorusAt(96), chorusAt(112));
   // the bridge is written into the guestbook post along with the music box
-  var BRIDGE = [[82, VN, "i found the room."], [86, VN4, "i o-pened the door."], [90, VN, "it was just a room."]];
+  var BRIDGE = [[82, VN, "i'm not sad, i'm not mad."], [86, VN4, "i just grew up."], [90, VN, "good-bye, 2023."]];
   // "i am a changed man now", one word per note of the music box at the end, the period on its last chord
   var OUTRO = [128.5, VN.map(function (x) { return x * 2; }).slice(0, 6).concat([3]), "i am a changed man now ."];
 
@@ -319,7 +323,7 @@
 
     // a lyric box, in the same style as the dark at the end of Sky Glider, outside the faded page so it stays sharp
     var lyr = document.createElement("div");
-    lyr.style.cssText = "position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:9999;min-width:min(560px,88vw);box-sizing:border-box;padding:14px 20px;" +
+    lyr.style.cssText = "position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:9999;min-width:min(700px,92vw);box-sizing:border-box;padding:14px 20px;" +
       "background:#000;color:#ddd;border:3px solid #ddd;font:19px/1.4 'Courier New',monospace;letter-spacing:1px;text-align:center;visibility:hidden";
     root.appendChild(lyr);
     // karaoke style: the whole line is there from the start (so nothing shifts), and each syllable lights up on its note.
@@ -457,7 +461,7 @@
         "background:#000;color:#e8e8e8;font:20px 'Courier New',monospace;letter-spacing:1px;text-align:center;padding:24px;box-sizing:border-box";
       endLine = document.createElement("div"); endLine.style.minHeight = "1.3em"; end.appendChild(endLine); root.appendChild(end);
       setTimeout(function () {
-        var a = document.createElement("a"); a.href = "/"; a.textContent = "[ go home ]";
+        var a = document.createElement("a"); a.href = window.cwAgain ? "/faq" : "/"; a.textContent = window.cwAgain ? "[ back ]" : "[ go home ]";
         a.style.cssText = "color:#777;text-decoration:none;font-size:15px;letter-spacing:2px;opacity:0;transition:opacity 2s";
         end.appendChild(a); requestAnimationFrame(function () { a.style.opacity = "1"; });
       }, 9000);
@@ -479,6 +483,18 @@
       while (ei < ev.length && ev[ei][0] <= t) { try { ev[ei][1](); } catch (e) {} ei++; }
       if (ei < ev.length) requestAnimationFrame(tick);
     })();
+  }
+
+  // replay from the FAQ: the old page sits there faded, and one click lets it burn again
+  if (window.cwAgain) {
+    var gate = document.createElement("div");
+    gate.style.cssText = "position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55)";
+    var go = document.createElement("button"); go.type = "button"; go.textContent = "[ play it again ]";
+    go.style.cssText = "background:#000;color:#ddd;border:3px solid #ddd;font:19px 'Courier New',monospace;letter-spacing:2px;padding:14px 26px;cursor:pointer";
+    gate.appendChild(go); document.documentElement.appendChild(gate);
+    preload();
+    go.addEventListener("click", function () { gate.remove(); A(); burn(); });
+    setTimeout(function () { go.focus(); }, 50);
   }
 
 })();
