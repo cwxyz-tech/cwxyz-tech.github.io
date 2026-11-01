@@ -1263,7 +1263,7 @@ const dailyReward = st => 10 + 2 * Math.min(st, 10);
 function dialog(title, body) {
   sheet.innerHTML = `<div class="dt"><span>${title}</span><span>&times;</span></div><div class="db">${body}</div>`;
 }
-const PATCH_NOTES = `<details class="cw-notes"><summary>Patch Notes <span class="ver">Version 2.3</span></summary><dl><dt>2.3</dt><dd>&bull; Bigger board and buttons on phones</dd><dd>&bull; Pauses if you turn your phone sideways</dd><dt>2.2</dt><dd>&bull; Bug fixes</dd><dt>2.1</dt><dd>&bull; Daily Challenge</dd><dd>&bull; Special moves</dd><dt>2.0</dt><dd>&bull; Now Lines DX!</dd><dd>&bull; Shop, T-spins and Hard Mode</dd><dt>1.x</dt><dd>&bull; The good old days</dd></dl></details>`;
+const PATCH_NOTES = `<details class="cw-notes"><summary>Patch Notes <span class="ver">Version 2.3.1</span></summary><dl><dt>2.3.1</dt><dd>&bull; Smoother on phones</dd><dt>2.3</dt><dd>&bull; Bigger board and buttons on phones</dd><dd>&bull; Pauses if you turn your phone sideways</dd><dt>2.2</dt><dd>&bull; Bug fixes</dd><dt>2.1</dt><dd>&bull; Daily Challenge</dd><dd>&bull; Special moves</dd><dt>2.0</dt><dd>&bull; Now Lines DX!</dd><dd>&bull; Shop, T-spins and Hard Mode</dd><dt>1.x</dt><dd>&bull; The good old days</dd></dl></details>`;
 function showSheet() {
   overlay.hidden = false;
   if (mode === "title" && hard) {
@@ -1480,7 +1480,7 @@ function buildTiles() {
 }
 
 // ---------- layout
-let padExtra = 0;
+let padExtra = 0, layoutKey = "";
 function layout() {
   dpr = Math.min(window.devicePixelRatio || 1, touchy ? 1.5 : 2);
   const narrow = innerWidth <= 720;
@@ -1492,15 +1492,21 @@ function layout() {
     const extra = Math.max(0, Math.min(34, Math.floor((h + 2 * padExtra - VIS * cell) / 2) - 6));
     if (extra !== padExtra) { padExtra = extra; document.documentElement.style.setProperty("--padx", extra + "px"); }
   }
+  let newMini;
+  if (narrow) newMini = Math.max(8, Math.min(14, Math.floor(((innerWidth - COLS * cell - 6) / 2 - 22) / 4.4)));
+  else newMini = 13;
+  // nothing changed size (phones fire this when the touch buttons grow, the address bar moves, etc.):
+  // keep the tiles and canvases as they are instead of throwing them away and redrawing everything
+  const key = [cell, dpr, newMini, narrow].join(",");
+  if (key === layoutKey) return;
+  layoutKey = key;
   boardC.style.width = COLS * cell + "px"; boardC.style.height = VIS * cell + "px";
   boardC.width = COLS * cell * dpr; boardC.height = VIS * cell * dpr;
+  miniCell = newMini;
   if (narrow) {
-    const side = (innerWidth - COLS * cell - 6) / 2 - 22;
-    miniCell = Math.max(8, Math.min(14, Math.floor(side / 4.4)));
     sizeMini(holdC, miniCell * 4.4, miniCell * 2.8);
     sizeMini(nextC, miniCell * 4.4, miniCell * 8.4);
   } else {
-    miniCell = 13;
     sizeMini(holdC, 148, 52);
     sizeMini(nextC, 148, 132);
   }
@@ -1510,7 +1516,9 @@ function sizeMini(cv, w, h) {
   cv.style.width = w + "px"; cv.style.height = h + "px"; cv.width = w * dpr; cv.height = h * dpr;
   cv.dataset.w = w; cv.dataset.h = h;
 }
-new ResizeObserver(layout).observe(well);
+// laid out on the next frame, so resizing the touch buttons inside layout() doesn't set off a resize loop
+let layoutQueued = false;
+new ResizeObserver(() => { if (!layoutQueued) { layoutQueued = true; requestAnimationFrame(() => { layoutQueued = false; layout(); }); } }).observe(well);
 
 // ---------- drawing
 function drawMiniPiece(c, type, cx, cy, dim) {

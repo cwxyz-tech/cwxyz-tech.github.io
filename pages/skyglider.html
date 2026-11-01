@@ -109,7 +109,7 @@
       <p>Every level gets a little faster, and so does every second you spend on one. Earn stars every flight to buy new paint jobs and trails in the <b>Hangar</b>, and check your <b>Flight Goals</b> for bonus stars. The <b>Daily Flight</b> is the same for everyone and you only get one life.</p>
       <p><span class="sg-kbonly">Keyboard: arrow keys or WASD to fly, Space to start, P to pause, M to mute.</span> On a phone, swipe anywhere, tap the maze where you want to go, or hold the arrow pad and slide your thumb around it to steer.</p>
       <p><b>Credits:</b> Glider made by <a href="https://www.instagram.com/_sqeakz/" target="_blank" rel="noopener noreferrer">cherrie/sqeakz</a> on Instagram. Concept and game made by Cole.</p>
-      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.6</span></summary><dl><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
+      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.6.1</span></summary><dl><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
       <button class="sg-btn go sg-helpx" id="sgHelpClose">Got it!</button>
     </div>
   </div>
@@ -336,8 +336,10 @@
 
   // Glider sprites for a paint job: [facing][frame] where facing 0 = left (like the drawing), 1 = right
   var gliderCache = {};
+  var livById = {};
+  function livOf(id) { return livById[id] || (livById[id] = LIVERIES.filter(function (l) { return l.id === id; })[0] || LIVERIES[0]); }
   function gliderSet(livId, hueStep) {
-    var liv = LIVERIES.filter(function (l) { return l.id === livId; })[0] || LIVERIES[0];
+    var liv = livOf(livId);
     hueStep = liv.rainbow ? (hueStep || 0) % RAINBOW.length : 0;
     var key = livId + ":" + hueStep;
     if (gliderCache[key]) return gliderCache[key];
@@ -659,8 +661,12 @@
   }
 
   // ---------------- elements ----------------
-  var canvas = $("sgCanvas"), ctx = canvas.getContext("2d");
-  var buf = mk(BW, BW), b = buf.getContext("2d");
+  // The game draws straight onto the on-screen canvas at its real 504px size, and the browser blows it up to fit
+  // the screen with crisp pixels (image-rendering: pixelated). Same picture as before, but phones no longer copy a
+  // full-screen-sized image every frame, which was most of the work.
+  var canvas = $("sgCanvas"), ctx = canvas.getContext("2d", { alpha: false });
+  if (canvas.width !== BW) { canvas.width = BW; canvas.height = BW; }
+  var b = ctx;
   b.imageSmoothingEnabled = false;
   var stage = $("sgStage"), callEl = $("sgCall"), overlay = $("sgOverlay"), dialog = $("sgDialog");
   var fx = window.CwJuice ? CwJuice.create({ font: '"SgComic", "Comic Sans MS", "Comic Sans", cursive', off: function () { return !save.fx; } })
@@ -1036,7 +1042,6 @@
 
     updateStorms(dt, sm);
     collide();
-    hudTick();
   }
 
   function reverseStorms() { storms.forEach(function (s) { if (s.state === "out") { s.dx = -s.dx; s.dy = -s.dy; } }); }
@@ -1330,11 +1335,16 @@
 
   // the sky behind the clouds: soft wind streaks drifting by
   var STREAKS = []; for (var si = 0; si < 14; si++) STREAKS.push({ y: Math.random() * BW, x: Math.random() * BW, l: 14 + Math.random() * 40, v: 14 + Math.random() * 30 });
+  // the dotted sky is drawn once into a slightly wider picture, then slid along each frame (one copy instead of ~1,000 dots)
+  var SKY = (function () {
+    var c = mk(BW + 32, BW), g = c.getContext("2d");
+    g.fillStyle = "#7ea2f0"; g.fillRect(0, 0, c.width, BW);
+    g.fillStyle = "#8aaef4";
+    for (var y = 0; y < BW; y += 16) for (var x = 0; x < BW + 32; x += 16) g.fillRect(x + (y % 32 ? 8 : 0), y, 2, 2);
+    return c;
+  })();
   function drawSky() {
-    b.fillStyle = "#7ea2f0"; b.fillRect(0, 0, BW, BW);
-    b.fillStyle = "#8aaef4";
-    var off = (G.t * 6) % 16;
-    for (var y = 0; y < BW; y += 16) for (var x = -16; x < BW; x += 16) b.fillRect(Math.round(x + off + (y % 32 ? 8 : 0)), y, 2, 2);
+    b.drawImage(SKY, Math.round((G.t * 6) % 16) - 16, 0);
     b.fillStyle = "#a4c0f8";
     STREAKS.forEach(function (st) {
       var x = ((st.x + G.t * st.v) % (BW + 80)) - 60;
@@ -1358,7 +1368,8 @@
     }
   }
 
-  function render() {
+  function render(fdt) {
+    fdt = fdt || 0;   // real time since the last frame, so effects run at the same speed on 60Hz and 120Hz phones
     b.imageSmoothingEnabled = false;
     drawSky();
     var flashOn = G.mode === "clear" && Math.floor(G.flash * 6) % 2 === 1;
@@ -1368,18 +1379,25 @@
     if (mazeArt) b.drawImage(flashOn ? mazeFlash : mazeArt, 0, 0, BW, BW);
     if (!G.grid) { b.restore(); return blit(); }
 
-    // sparkles and suns
-    var tw = Math.floor(G.t * 4);
-    for (var y = 0; y < ROWS; y++) for (var x = 0; x < COLS; x++) {
-      var c = G.grid[y][x];
-      if (c === ".") {
-        var cx = (x * TS + 6) * PX, cy = (y * TS + 6) * PX;
-        var big = ((x * 7 + y * 13 + tw) % 9) === 0;
-        b.fillStyle = "#1b1b2b"; b.fillRect(cx - 3, cy - 3, 6, 6);
-        b.fillStyle = "#ffe14d"; b.fillRect(cx - 2, cy - 2, 4, 4);
-        if (big) { b.fillStyle = "#fff6b0"; b.fillRect(cx - 1, cy - 5, 2, 10); b.fillRect(cx - 5, cy - 1, 10, 2); }
-        b.fillStyle = "#ffffff"; b.fillRect(cx - 2, cy - 2, 2, 2);
-      } else if (c === "o") {
+    // sparkles: drawn one colour at a time (four fills for all of them, instead of a colour change for every square)
+    var tw = Math.floor(G.t * 4), x, y, c, cx, cy;
+    for (var pass = 0; pass < 4; pass++) {
+      b.beginPath();
+      for (y = 0; y < ROWS; y++) for (x = 0; x < COLS; x++) {
+        if (G.grid[y][x] !== ".") continue;
+        cx = (x * TS + 6) * PX; cy = (y * TS + 6) * PX;
+        if (pass === 0) b.rect(cx - 3, cy - 3, 6, 6);
+        else if (pass === 1) b.rect(cx - 2, cy - 2, 4, 4);
+        else if (pass === 2) { if (((x * 7 + y * 13 + tw) % 9) === 0) { b.rect(cx - 1, cy - 5, 2, 10); b.rect(cx - 5, cy - 1, 10, 2); } }
+        else b.rect(cx - 2, cy - 2, 2, 2);
+      }
+      b.fillStyle = pass === 0 ? "#1b1b2b" : pass === 1 ? "#ffe14d" : pass === 2 ? "#fff6b0" : "#ffffff";
+      b.fill();
+    }
+    // suns
+    for (y = 0; y < ROWS; y++) for (x = 0; x < COLS; x++) {
+      c = G.grid[y][x];
+      if (c === "o") {
         var pulse = Math.floor(G.t * 4) % 2;
         if (pulse || G.mode !== "play") {
           spr(SUN, x, y);
@@ -1405,9 +1423,10 @@
     }
 
     // particles
+    var drag = Math.pow(0.94, fdt * 60), drag2 = Math.pow(0.99, fdt * 60);
     for (var i = parts.length - 1; i >= 0; i--) {
       var p = parts[i];
-      p.life -= 1 / 60;
+      p.life -= fdt;
       if (p.life <= 0) { parts.splice(i, 1); continue; }
       if (p.kind === "fly") {
         var f = 1 - p.life / p.max;
@@ -1415,7 +1434,7 @@
         b.fillStyle = p.c; b.fillRect(Math.round((fx2 * TS + 6) * PX) - 2, Math.round((fy * TS + 6) * PX) - 2, 4, 4);
         continue;
       }
-      if (p.vx || p.vy) { p.x += p.vx / 60; p.y += p.vy / 60; if (p.grav) { p.vy += p.grav / 60; p.vx *= 0.99; } else { p.vx *= 0.94; p.vy *= 0.94; } }
+      if (fdt && (p.vx || p.vy)) { p.x += p.vx * fdt; p.y += p.vy * fdt; if (p.grav) { p.vy += p.grav * fdt; p.vx *= drag2; } else { p.vx *= drag; p.vy *= drag; } }
       if (p.blink && Math.floor(p.life * 20) % 2) continue;
       var s = (p.kind === "puff" ? 5 : p.s) * PX * (0.4 + 0.6 * p.life / p.max);
       b.fillStyle = p.c; b.fillRect(Math.round((p.x * TS + 6) * PX - s / 2), Math.round((p.y * TS + 6) * PX - s / 2), Math.ceil(s), Math.ceil(s));
@@ -1429,7 +1448,7 @@
         b.fillStyle = fi % 3 === 0 ? "#ffe14d" : fi % 3 === 1 ? "#ff8a00" : "#ff3000";
         b.fillRect(fxp - 14 + fi * 4, fyp - fh, 4, fh);
       }
-      if (G.t % 0.08 < 1 / 60) parts.push({ kind: "puff", x: G.fire.x + (Math.random() - 0.5) * 0.8, y: G.fire.y - 0.3, vx: (Math.random() - 0.5), vy: -2.5, life: 1, max: 1, c: "#505060" });
+      if (fdt && G.t % 0.08 < fdt) parts.push({ kind: "puff", x: G.fire.x + (Math.random() - 0.5) * 0.8, y: G.fire.y - 0.3, vx: (Math.random() - 0.5), vy: -2.5, life: 1, max: 1, c: "#505060" });
     }
 
     // storms
@@ -1499,7 +1518,7 @@
     if (!G.grid) return;
     if (G.pop && G.hitPause > 0) return;   // hidden while the points show, like the arcade
     if (G.mode === "over") return;
-    var liv = LIVERIES.filter(function (l) { return l.id === save.liv; })[0] || LIVERIES[0];
+    var liv = livOf(save.liv);
     var set = gliderSet(save.liv, liv.rainbow ? Math.floor(G.t * 10) : 0);
     var happy = G.frightT > 0 || G.mode === "clear" || G.hitPause > 0;
     var moving = G.mode === "play" && (player.dx || player.dy);
@@ -1540,10 +1559,7 @@
   }
 
 
-  function blit() {
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(buf, 0, 0, canvas.width, canvas.height);
-  }
+  function blit() {}   // everything is already drawn on the screen canvas
 
   // ---------------- HUD ----------------
   var lastHud = {};
@@ -1574,20 +1590,30 @@
     if (G.freezeT > 0) list.push(["snow", G.freezeT / POWERS.snow.time, G.freezeT]);
     if (G.dblT > 0) list.push(["dbl", G.dblT / POWERS.dbl.time, G.dblT]);
     if (G.shield) list.push(["shield", 1, 9]);
-    var key = list.map(function (l) { return l[0] + Math.ceil(l[1] * 10) + (l[2] < 1.5 ? "L" : ""); }).join(",");
-    if (lastHud.pows === key) return;
-    lastHud.pows = key;
+    // the row is only rebuilt when a power-up starts, ends or starts running low; the timer bars just get shorter in place
+    var key = "", i;
+    for (i = 0; i < list.length; i++) key += list[i][0] + (list[i][2] < 1.5 ? "L" : "") + ",";
+    if (G.mode === "title") key += "t";
     var box = $("sgPows");
-    if (!list.length) { box.innerHTML = '<span class="none">' + (G.mode === "title" ? "Power-ups show up here" : "No power-ups") + '</span>'; return; }
-    box.innerHTML = "";
-    list.forEach(function (l) {
-      var d = document.createElement("div"); d.className = "sg-pow" + (l[2] < 1.5 ? " low" : "");
-      var c = mk(ICON[l[0]].width, ICON[l[0]].height); c.getContext("2d").drawImage(ICON[l[0]], 0, 0);
-      d.appendChild(c);
-      var t = document.createElement("span"); t.textContent = POWERS[l[0]].name; d.appendChild(t);
-      if (l[0] !== "shield") { var bar = document.createElement("i"); bar.innerHTML = '<b style="width:' + Math.round(l[1] * 100) + '%"></b>'; d.appendChild(bar); }
-      box.appendChild(d);
-    });
+    if (lastHud.pows !== key) {
+      lastHud.pows = key; lastHud.bars = {};
+      if (!list.length) { box.innerHTML = '<span class="none">' + (G.mode === "title" ? "Power-ups show up here" : "No power-ups") + '</span>'; return; }
+      box.innerHTML = "";
+      list.forEach(function (l) {
+        var d = document.createElement("div"); d.className = "sg-pow" + (l[2] < 1.5 ? " low" : "");
+        var c = mk(ICON[l[0]].width, ICON[l[0]].height); c.getContext("2d").drawImage(ICON[l[0]], 0, 0);
+        d.appendChild(c);
+        var t = document.createElement("span"); t.textContent = POWERS[l[0]].name; d.appendChild(t);
+        if (l[0] !== "shield") { var bar = document.createElement("i"), fill = document.createElement("b"); bar.appendChild(fill); d.appendChild(bar); lastHud.bars[l[0]] = { el: fill, w: -1 }; }
+        box.appendChild(d);
+      });
+    }
+    for (i = 0; i < list.length; i++) {
+      var bw = lastHud.bars[list[i][0]];
+      if (!bw) continue;
+      var w = Math.ceil(list[i][1] * 10) * 10;   // steps of 10%, like before
+      if (bw.w !== w) { bw.w = w; bw.el.style.width = w + "%"; }
+    }
   }
   function sideStats() {
     $("sgBest").textContent = save.best.toLocaleString();
@@ -1814,23 +1840,22 @@
       size = Math.max(200, Math.floor(size));
       main.style.setProperty("--sgw", size + "px");
     } else main.style.removeProperty("--sgw");
-    var r = canvas.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 3);
-    var px = Math.max(BW, Math.round(r.width * dpr));
-    if (canvas.width !== px) { canvas.width = px; canvas.height = px; }
     render();
   }
   window.addEventListener("resize", fit);
   window.addEventListener("orientationchange", function () { setTimeout(fit, 200); });
 
   // ---------------- loop ----------------
-  var last = performance.now(), acc = 0, STEP = 1 / 120;
+  var last = performance.now(), acc = 0, STEP = 1 / 120, lastDraw = 0;
   function loop(now) {
     var dt = Math.min(0.05, (now - last) / 1000); last = now;
     if (G.mode !== "paused") {
+      var wasPlay = G.mode === "play";
       acc += dt;
       while (acc >= STEP) { update(STEP); acc -= STEP; }
-    }
-    render();
+      if (wasPlay || G.mode === "play") hudTick();   // once a frame (it used to run 120 times a second)
+      render(dt); lastDraw = now;
+    } else if (now - lastDraw > 250) { render(0); lastDraw = now; }   // paused: nothing moves, so just a few redraws a second to save battery
     requestAnimationFrame(loop);
   }
 
