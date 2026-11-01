@@ -109,7 +109,7 @@
       <p>Every level gets a little faster, and so does every second you spend on one. Earn stars every flight to buy new paint jobs and trails in the <b>Hangar</b>, and check your <b>Flight Goals</b> for bonus stars. The <b>Daily Flight</b> is the same for everyone and you only get one life.</p>
       <p><span class="sg-kbonly">Keyboard: arrow keys or WASD to fly, Space to start, P to pause, M to mute.</span> On a phone, swipe anywhere, tap the maze where you want to go, or hold the arrow pad and slide your thumb around it to steer.</p>
       <p><b>Credits:</b> Glider made by <a href="https://www.instagram.com/_sqeakz/" target="_blank" rel="noopener noreferrer">cherrie/sqeakz</a> on Instagram. Concept and game made by Cole.</p>
-      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.9.1</span></summary><dl><dt>1.9.1</dt><dd>&bull; Only one kind of fuel on the other side</dd><dd>&bull; The lane is closed</dd><dd>&bull; Bug fixes</dd><dt>1.9</dt><dd>&bull; Everything is breathing</dd><dd>&bull; Tell him he can</dd><dt>1.8.1</dt><dd>&bull; Some lanes are darker than others</dd><dt>1.8</dt><dd>&bull; The hangar is listening</dd><dd>&bull; Don&rsquo;t fly too fast</dd><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
+      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.9.1</span></summary><dl><dt>1.9.1</dt><dd>&bull; Only one kind of fuel in 2023</dd><dd>&bull; The lane is closed</dd><dd>&bull; Bug fixes</dd><dt>1.9</dt><dd>&bull; Everything is breathing</dd><dd>&bull; Tell him he can</dd><dt>1.8.1</dt><dd>&bull; Some lanes are darker than others</dd><dt>1.8</dt><dd>&bull; The hangar is listening</dd><dd>&bull; Don&rsquo;t fly too fast</dd><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
       <button class="sg-btn go sg-helpx" id="sgHelpClose">Got it!</button>
     </div>
   </div>
@@ -397,7 +397,7 @@
   save.own = { liv: ids(own.liv, LIVERIES, "sky"), trail: ids(own.trail, TRAILS, "none") };
   if (save.own.liv.indexOf(save.liv) < 0) save.liv = "sky";
   if (save.own.trail.indexOf(save.trail) < 0) save.trail = "none";
-  save.sound = save.sound !== false; save.music = save.music !== false; save.fx = save.fx !== false; save.arg = save.arg === true;
+  save.sound = save.sound !== false; save.music = save.music !== false; save.fx = save.fx !== false; save.y2023 = save.y2023 === true;
   save.games = num(save.games, 0, 1e9, 0);
   if (!save.goals || typeof save.goals !== "object" || typeof save.goals.date !== "string" || !Array.isArray(save.goals.done)) delete save.goals;
   else save.goals.done = save.goals.done.filter(function (id) { return typeof id === "string"; }).slice(0, 3);
@@ -685,7 +685,7 @@
     combo: 0, lastEat: -9, mult: 1, levelT: 0, modeT: 0, modeIdx: 0, timer: 0, hitPause: 0,
     item: null, itemSpawns: 0, eatenCount: 0, nextLife: 10000, daily: false, rand: Math.random, hitThisLevel: false, invuln: 0,
     run: null, flash: 0, t: 0, deathT: 0, reveal: 1, pop: null, popped: false,
-    fuel: 0, mega: null, argRun: false
+    fuel: 0, mega: null, run2023: false
   };
   var player = { x: 10, y: 15, dx: 0, dy: 0, want: null, face: 0, tilt: 0, anim: 0, squash: 0, blink: 2 };
   var storms = [];
@@ -787,7 +787,7 @@
     G.rand = daily ? rng(seedOf("daily" + d)) : Math.random;
     G.level = daily ? 3 : 1;
     G.maze = daily ? seedOf("dm" + d) % MAZES.length : 0;
-    G.score = 0; G.lives = daily ? 1 : 3; G.nextLife = daily ? Infinity : 10000; G.shield = false; G.dblT = 0; G.fuel = 0; G.mega = null; G.argRun = save.arg;
+    G.score = 0; G.lives = daily ? 1 : 3; G.nextLife = daily ? Infinity : 10000; G.shield = false; G.dblT = 0; G.fuel = 0; G.mega = null; G.run2023 = save.y2023;
     G.run = { score: 0, level: G.level, bestChain: 0, bestMult: 1, pows: 0, blocks: 0, clean: 0, eaten: 0, froze: 0, daily: G.daily, goalsHit: [] };
     save.games++; persist();
     startLevel();
@@ -1124,9 +1124,9 @@
   function spawnItem() {
     G.itemSpawns++;
     if (G.mega) return;
-    // Side B: Jets are the only thing that shows up, so the tank fills to 3/3 a lot sooner
+    // 2023 mode: Jets are the only thing that shows up, so the tank fills to 3/3 a lot sooner
     var kind = "jet";
-    if (!G.argRun) {
+    if (!G.run2023) {
       var pool = ["jet", "magnet", "shield", "snow", "dbl", "jet", "magnet", "dbl", "snow", "shield"];
       kind = pool[Math.floor(G.rand() * pool.length)];
       if (!G.daily && G.lives < 5 && G.rand() < 0.07) kind = "heart";
@@ -1168,7 +1168,7 @@
     points(100, it.x, it.y, "green");
     sfx("power");
     var pp = toPage(it.x, it.y); fx.burst(pp.x, pp.y, 2);
-    if (it.kind === "jet" && !G.argRun) G.jetT = p.time;
+    if (it.kind === "jet" && !G.run2023) G.jetT = p.time;
     else if (it.kind === "jet") {
       G.jetT = p.time; G.fuel = Math.min(FUEL_MAX, G.fuel + 1);
       if (G.fuel >= FUEL_MAX) { G.run.pows++; checkGoals(); return megaStart(); }
@@ -1630,7 +1630,7 @@
     if (G.dblT > 0) list.push(["dbl", G.dblT / POWERS.dbl.time, G.dblT]);
     if (G.shield) list.push(["shield", 1, 9]);
     if (G.mega) list = [["mega", 1, 9]];
-    else if (G.argRun && G.fuel > 0) list.push(["fuel", G.fuel / FUEL_MAX, 9]);
+    else if (G.run2023 && G.fuel > 0) list.push(["fuel", G.fuel / FUEL_MAX, 9]);
     // the row is only rebuilt when a power-up starts, ends or starts running low; the timer bars just get shorter in place
     var key = "", i;
     for (i = 0; i < list.length; i++) key += list[i][0] + (list[i][0] === "fuel" ? G.fuel : "") + (list[i][2] < 1.5 ? "L" : "") + ",";
@@ -1717,9 +1717,9 @@
     if (locked()) { lockScreen(); hud(); return; }
     var dailyBest = save.daily && save.daily.date === today() ? save.daily.best : 0;
     var html = '<div class="dt">Sky Glider</div><div class="db">' +
-      '<div class="sg-title' + (save.arg ? ' arg' : '') + '" id="sgTitleName">' + "Sky Glider".split("").map(function (ch, i) { return ch === " " ? " " : '<span class="cw-hop" style="animation-delay:' + i * 0.06 + 's">' + ch + '</span>'; }).join("") + '</div>' +
+      '<div class="sg-title' + (save.y2023 ? ' y2023' : '') + '" id="sgTitleName">' + "Sky Glider".split("").map(function (ch, i) { return ch === " " ? " " : '<span class="cw-hop" style="animation-delay:' + i * 0.06 + 's">' + ch + '</span>'; }).join("") + '</div>' +
       '<div class="sg-flyby" id="sgFlyby"></div>' +
-      (save.arg ? '<p>Grab every sparkle. Dodge the storms.<br><span class="sg-argline">' + (wrongOnce() ? "He was wrong." : "Don\'t fly too fast.") + '</span></p>'
+      (save.y2023 ? '<p>Grab every sparkle. Dodge the storms.<br><span class="sg-2023line">' + (wrongOnce() ? "He was wrong." : "Don\'t fly too fast.") + '</span></p>'
         : '<p>Grab every sparkle. Dodge the storms.<br>It gets faster every level!</p>') +
       '<button class="sg-btn go wide" id="sgPlay">&#9654; Fly! <kbd>(Space)</kbd></button>' +
       '<div class="sg-row2"><button class="sg-btn" id="sgDaily">&#9728; Daily Flight' + (dailyBest ? " (" + dailyBest.toLocaleString() + ")" : "") + '</button><button class="sg-btn" id="sgShop2">&#9992; Hangar</button></div>' +
@@ -2289,7 +2289,7 @@
       if (keyH) { document.removeEventListener("keydown", keyH, true); keyH = null; }
       silence();
       v.innerHTML = ""; v.appendChild(css); v.style.background = "#000"; v.style.cursor = "none";
-      try { localStorage.setItem("cw_side_b", "1"); localStorage.setItem("cw_2023", String(Date.now())); } catch (e) {}
+      try { localStorage.setItem("cw_2023", String(Date.now())); } catch (e) {}
       // a few seconds of nothing, then you're just... there
       setTimeout(function () { location.href = "/2023/"; }, 2800);
     }
@@ -2316,19 +2316,19 @@
     }
   }
 
-  // ---------------- ARG mode ----------------
-  // Konami code, or tap the name "Sky Glider" 5 times. Only in ARG mode do Jets fill the fuel tank (and lead to Mega Turbo).
-  var taps = 0, lastTap = 0, argBusy = false;
+  // ---------------- 2023 mode ----------------
+  // Konami code, or tap the name "Sky Glider" 5 times. Only in 2023 mode do Jets fill the fuel tank (and lead to Mega Turbo).
+  var taps = 0, lastTap = 0, busy2023 = false;
   function nameTap() {
     var now = Date.now();
     taps = now - lastTap < 1200 ? taps + 1 : 1; lastTap = now;
-    if (taps >= 5) { taps = 0; toggleArg(); }
+    if (taps >= 5) { taps = 0; toggle2023(); }
   }
-  function toggleArg() {
-    if (locked() || argBusy) return;
-    argBusy = true;
-    save.arg = !save.arg; persist();
-    var on = save.arg, mid = G.mode === "play" || G.mode === "ready" || G.mode === "paused";
+  function toggle2023() {
+    if (locked() || busy2023) return;
+    busy2023 = true;
+    save.y2023 = !save.y2023; persist();
+    var on = save.y2023, mid = G.mode === "play" || G.mode === "ready" || G.mode === "paused";
     // the game window goes dark for a moment
     var v = document.createElement("div");
     v.style.cssText = "position:absolute;inset:0;z-index:50;background:#000;display:flex;align-items:center;justify-content:center;text-align:center;" +
@@ -2342,16 +2342,16 @@
     }
     setTimeout(function () {
       v.style.opacity = "0";
-      setTimeout(function () { v.remove(); argBusy = false; }, 300);
+      setTimeout(function () { v.remove(); busy2023 = false; }, 300);
       if (G.mode === "title") titleScreen();
       else if (mid) showCall(on ? "next flight..." : "Normal next flight", false);
     }, on ? 1900 : 900);
   }
-  window.cwKonami = toggleArg;
+  window.cwKonami = toggle2023;
   (function () {
-    var b = false; try { b = !!localStorage.getItem("cw_side_b"); } catch (e) {}
+    var b = false; try { b = !!localStorage.getItem("cw_2023"); } catch (e) {}
     var nm = document.querySelector(".sg > .box-title > span");
-    if (b && nm && nm.firstChild && nm.firstChild.nodeType === 3) nm.firstChild.nodeValue = nm.firstChild.nodeValue.replace(/\s*$/, "") + "_b";
+    if (b && nm && nm.firstChild && nm.firstChild.nodeType === 3) nm.firstChild.nodeValue = nm.firstChild.nodeValue.replace(/\s*$/, "") + " 2023";
   })();
 
   (function () { var nm = document.querySelector(".sg > .box-title > span") || document.querySelector(".box-title > span"); if (nm) nm.addEventListener("click", nameTap); })();
