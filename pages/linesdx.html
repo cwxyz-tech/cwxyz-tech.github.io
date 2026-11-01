@@ -1,3 +1,14 @@
+<style>
+  .cw-notes { margin: 10px 0 6px; background: #fff; border: 2px inset #808080; font-size: 13px; line-height: 1.35; text-align: left; width: 100%; box-sizing: border-box; }
+  .cw-notes summary { cursor: pointer; padding: 4px 8px; background: #dce6f5; font-weight: bold; color: #000080; list-style: none; }
+  .cw-notes summary::-webkit-details-marker { display: none; }
+  .cw-notes summary::before { content: "\25B6  "; font-size: 10px; }
+  .cw-notes[open] summary::before { content: "\25BC  "; }
+  .cw-notes .ver { float: right; color: #555; font-weight: normal; }
+  .cw-notes dl { margin: 0; padding: 2px 8px 6px; max-height: 210px; overflow-y: auto; }
+  .cw-notes dt { font-weight: bold; margin-top: 5px; color: #000080; }
+  .cw-notes dd { margin: 0 0 0 12px; }
+</style>
 <script>/* opened straight from /pages/? send it to the real page, behind the terms */ if (location.pathname.indexOf("/pages/") === 0) location.replace("/" + location.pathname.slice(7).replace(/\.html$/, "").replace(/^(home|404)$/, ""));</script>
 <div class="wrap">
 
@@ -1252,6 +1263,7 @@ const dailyReward = st => 10 + 2 * Math.min(st, 10);
 function dialog(title, body) {
   sheet.innerHTML = `<div class="dt"><span>${title}</span><span>&times;</span></div><div class="db">${body}</div>`;
 }
+const PATCH_NOTES = `<details class="cw-notes"><summary>Patch Notes <span class="ver">Version 2.3</span></summary><dl><dt>2.3</dt><dd>&bull; Bigger board and buttons on phones</dd><dd>&bull; Pauses if you turn your phone sideways</dd><dt>2.2</dt><dd>&bull; Bug fixes</dd><dt>2.1</dt><dd>&bull; Daily Challenge</dd><dd>&bull; Special moves</dd><dt>2.0</dt><dd>&bull; Now Lines DX!</dd><dd>&bull; Shop, T-spins and Hard Mode</dd><dt>1.x</dt><dd>&bull; The good old days</dd></dl></details>`;
 function showSheet() {
   overlay.hidden = false;
   if (mode === "title" && hard) {
@@ -1271,7 +1283,8 @@ function showSheet() {
       <div class="pf-row"><button class="pf-btn" id="go">${pixIcon("play", 16)}<span>Play</span></button><button class="pf-btn" id="shopGo">${pixIcon("shop", 16)}<span>Shop</span></button></div>
       <div class="pf-row"><button class="pf-btn pf-daily" id="dailyGo"><span>${dailyDone() ? "Daily (practice)" : "Daily Challenge"}</span></button></div>
       ${streakNow() ? `<p class="muted">Daily streak: <b>${streakNow()} day${streakNow() === 1 ? "" : "s"}</b>${dailyDone() ? "" : " &middot; play today to keep it!"}</p>` : `<p class="muted">New: a Daily Challenge with the same pieces for everyone!</p>`}
-      ${best ? `<p class="muted">Your best: <b>${best.toLocaleString()}</b></p>` : ""}`);
+      ${best ? `<p class="muted">Your best: <b>${best.toLocaleString()}</b></p>` : ""}
+      ${PATCH_NOTES}`);
   } else if (mode === "pause") {
     dialog("Paused", `
       <p>Level ${level} &middot; ${lines} lines &middot; ${score.toLocaleString()} pts</p>
