@@ -33,7 +33,7 @@
           </div>
         </div>
         <div class="err-btns">
-          <a href="/">OK</a><a href="javascript:history.back()">Back</a>
+          <a href="/">OK</a><a href="/" id="err-back">Back</a>
         </div>
       </div>
     </div>
@@ -44,4 +44,10 @@
 </div>
 <script>
   (function () { var el = document.getElementById("err-path"); if (el) el.textContent = location.pathname; })();
+  // Back goes to the last page on this site, or home if you came from somewhere else (or opened the link fresh)
+  (function () {
+    var b = document.getElementById("err-back"), ref = "";
+    try { ref = document.referrer && new URL(document.referrer).origin === location.origin ? document.referrer : ""; } catch (e) {}
+    if (b && ref && history.length > 1) b.addEventListener("click", function (e) { e.preventDefault(); history.back(); });
+  })();
 </script>
