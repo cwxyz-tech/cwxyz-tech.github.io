@@ -1686,6 +1686,7 @@
   // ---------------- callouts / dialogs ----------------
   var callTimer = null;
   function showCall(html, stay, cls) {
+    if (G.mega) return;   // no words during Mega Turbo
     clearTimeout(callTimer);
     callEl.className = "sg-call";
     var hopped = html.replace(/^([^<]*)/, function (m) { return m.split("").map(function (ch, i) { return ch === " " ? " " : '<span class="cw-hop" style="animation-delay:' + (i * 0.035) + 's">' + ch + '</span>'; }).join(""); });
@@ -1896,17 +1897,14 @@
 
 
   // ======================================================================
-  // MEGA TURBO: three Jets in one flight. It comes on slowly like a trip, the page breathes and melts,
-  // things come apart, everything fades and slows, a light opens up... and then it cuts to black.
+  // MEGA TURBO: three Jets in one flight. No words. It comes on slowly like a trip and just keeps getting
+  // worse: the page breathes, melts, comes apart, faster and faster... and then, at no set moment, it cuts to black.
   // ======================================================================
-  var FUEL_MAX = 3, MEGA_LEN = 24;
-  // quiet things it says, all lowercase. no exclamation points.
-  var MEGA_LINES = [
-    [2, "oh"], [6, "everything is breathing"], [10, "the clouds are so soft"], [13, "faster"],
-    [15.5, "don't look back"], [18.5, "where are you going"]
-  ];
-  // the phases, as fractions of the flight: the trip, things coming apart, then fading out to black (at 1)
-  var M_UNRAVEL = 0.5, M_FADE = 0.72;
+  var FUEL_MAX = 3;
+  // when the light goes out is random: somewhere between 17 and 27 seconds in
+  function megaLen() { return 17 + Math.random() * 10; }
+  // the trip, then things coming apart (as fractions of the flight; it never calms down)
+  var M_UNRAVEL = 0.45;
   var root = document.documentElement, megaSnd = null, glitched = [], megaVeil = null, megaWarp = null;
   function calmFx() { return !save.fx || matchMedia("(prefers-reduced-motion: reduce)").matches; }
   function sstep(a, b, x) { var t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
@@ -1928,52 +1926,49 @@
   }
 
   function megaStart() {
-    G.mega = { t: 0, hue: 0, line: 0, nextScramble: 15 };
+    G.mega = { t: 0, hue: 0, len: megaLen(), nextScramble: 0, nextJolt: 0 };
     G.jetT = 0; G.item = null; G.shield = false;
+    clearTimeout(callTimer); callEl.className = "sg-call";
     storms.forEach(function (s) { s.scared = false; });
-    // no flash, no confetti. it just starts to come on.
-    megaVeil = document.createElement("div");
-    megaVeil.style.cssText = "position:fixed;inset:0;z-index:2147483000;pointer-events:none;opacity:0;background:#000";
-    document.body.appendChild(megaVeil);
+    // no flash, no confetti, no words. it just starts to come on.
     warpOn();
     megaSound(0);
   }
-  // the turbo's sound, scheduled from `from` seconds into the flight (so a pause can stop it and pick it back up in the same spot)
+  // the turbo's sound, scheduled from `from` seconds into the flight (so a pause can stop it and pick it back up in the same spot).
+  // it only ever climbs; the cut to black is what stops it.
   function megaSound(from) {
     megaSoundOff();
     if (save.sound && audio()) {
-      var real = ac.currentTime, now = real - from, L = MEGA_LEN, out = ac.createGain(), lp = ac.createBiquadFilter(), oscs = [];
-      lp.type = "lowpass"; lp.frequency.setValueAtTime(500, now);
-      lp.frequency.linearRampToValueAtTime(2400, now + L * M_UNRAVEL); lp.frequency.linearRampToValueAtTime(300, now + L);
-      out.gain.setValueAtTime(0.0001, now); out.gain.linearRampToValueAtTime(0.05, now + 4);
-      out.gain.setValueAtTime(0.05, now + L * M_FADE); out.gain.linearRampToValueAtTime(0.0001, now + L * 0.97);
+      var real = ac.currentTime, now = real - from, L = G.mega.len, out = ac.createGain(), lp = ac.createBiquadFilter(), oscs = [];
+      lp.type = "lowpass"; lp.frequency.setValueAtTime(500, now); lp.frequency.linearRampToValueAtTime(5200, now + L);
+      out.gain.setValueAtTime(0.0001, now); out.gain.linearRampToValueAtTime(0.045, now + 4); out.gain.linearRampToValueAtTime(0.085, now + L);
       lp.connect(out); out.connect(master);
-      // a warm chord that breathes, then warbles, then sinks
+      // a warm chord that breathes, then warbles harder and harder and slowly bends upward
       var wob = ac.createOscillator(), wobAmt = ac.createGain();
-      wob.frequency.setValueAtTime(0.25, now); wob.frequency.linearRampToValueAtTime(3.2, now + L * M_FADE);
-      wobAmt.gain.setValueAtTime(4, now); wobAmt.gain.linearRampToValueAtTime(60, now + L * M_FADE);
+      wob.frequency.setValueAtTime(0.25, now); wob.frequency.linearRampToValueAtTime(2, now + L * 0.6); wob.frequency.linearRampToValueAtTime(9, now + L);
+      wobAmt.gain.setValueAtTime(4, now); wobAmt.gain.linearRampToValueAtTime(40, now + L * 0.6); wobAmt.gain.linearRampToValueAtTime(140, now + L);
       wob.connect(wobAmt); wob.start(now); oscs.push(wob);
       [110, 164.8, 220, 277.2].forEach(function (f, i) {
         var o = ac.createOscillator(), g = ac.createGain();
         o.type = i % 2 ? "triangle" : "sine";
-        o.frequency.setValueAtTime(f, now); o.frequency.setValueAtTime(f, now + L * M_FADE);
-        o.frequency.exponentialRampToValueAtTime(f * 0.5, now + L);
+        o.frequency.setValueAtTime(f, now); o.frequency.setValueAtTime(f, now + L * M_UNRAVEL);
+        o.frequency.exponentialRampToValueAtTime(f * (1.3 + i * 0.12), now + L);
         o.detune.setValueAtTime((i - 1.5) * 4, now); wobAmt.connect(o.detune);
         g.gain.value = i === 0 ? 0.5 : 0.28;
         o.connect(g); g.connect(lp); o.start(now); oscs.push(o);
       });
-      // a heartbeat that slows down, then stops
-      var tb = now + L * (M_FADE - 0.04), gap = 0.62;
-      while (tb < now + L * 0.94) {
-        [0, 0.17].forEach(function (d, j) {
+      // a heartbeat that comes in once it starts coming apart, and keeps speeding up
+      var tb = now + L * M_UNRAVEL, gap = 0.9;
+      while (tb < now + L + 1) {
+        [0, 0.15].forEach(function (d, j) {
           var t0 = tb + d;
           if (t0 < real) return;   // already went by before a pause
           var o = ac.createOscillator(), g = ac.createGain();
-          o.type = "sine"; o.frequency.setValueAtTime(j ? 52 : 60, t0); o.frequency.exponentialRampToValueAtTime(34, t0 + 0.16);
-          g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(j ? 0.16 : 0.24, t0 + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.22);
-          o.connect(g); g.connect(master); o.start(t0); o.stop(t0 + 0.25); oscs.push(o);
+          o.type = "sine"; o.frequency.setValueAtTime(j ? 52 : 60, t0); o.frequency.exponentialRampToValueAtTime(34, t0 + 0.14);
+          g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(j ? 0.16 : 0.24, t0 + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.2);
+          o.connect(g); g.connect(master); o.start(t0); o.stop(t0 + 0.22); oscs.push(o);
         });
-        tb += gap; gap *= 1.28;
+        tb += gap; gap = Math.max(0.24, gap * 0.9);
       }
       megaSnd = { buses: [out], o: oscs };
     }
@@ -1981,45 +1976,41 @@
 
   function megaTick(dt) {
     var m = G.mega; m.t += dt;
-    var k = Math.min(1, m.t / MEGA_LEN), calm = calmFx();
-    var fade = sstep(M_FADE, 0.97, k);
-    // colors slowly slide around and get richer... then drain out
-    m.hue = (m.hue + dt * (14 + 150 * sstep(0, M_FADE, k)) * (1 - fade)) % 360;
-    var sat = (1 + 1.6 * sstep(0, M_UNRAVEL, k)) * (1 - fade) + 0.05;
+    var k = Math.min(1, m.t / m.len), calm = calmFx();
+    // colors slide around faster and faster and get louder and louder
+    m.hue = (m.hue + dt * (14 + 420 * k * k)) % 360;
+    var sat = 1 + 1.6 * sstep(0, M_UNRAVEL, k) + 2.4 * sstep(M_UNRAVEL, 1, k);
     var f = "hue-rotate(" + Math.round(m.hue) + "deg) saturate(" + sat.toFixed(2) + ")";
     if (!calm) {
-      var breathe = Math.sin(m.t * 1.1) * 0.5 + 0.5;
-      f += " blur(" + (breathe * 1.4 * sstep(0.08, 0.4, k) * (1 - fade) + 1.5 * fade).toFixed(2) + "px)";
+      var breathe = Math.sin(m.t * (1.1 + 5 * k * k)) * 0.5 + 0.5;
+      f += " blur(" + (breathe * (1.4 * sstep(0.08, 0.4, k) + 1.6 * sstep(0.6, 1, k))).toFixed(2) + "px)";
+      if (k > M_UNRAVEL && Math.random() < 0.06 * k) f += " invert(1)";   // a frame here and there flips inside out
+      f += " contrast(" + (1 + 0.6 * sstep(M_UNRAVEL, 1, k)).toFixed(2) + ")";
     }
-    f += " brightness(" + (1 - 0.55 * fade).toFixed(2) + ")";
     root.style.filter = f;
-    // the page breathes in and out, and the game window sways like it's underwater
+    // the page breathes in and out, the game window sways like it's underwater, then starts to lurch
     var wrap = document.querySelector(".wrap");
     if (!calm) {
-      var amp = sstep(0.05, 0.35, k) * (1 - fade);
-      if (wrap) wrap.style.transform = "scale(" + (1 + Math.sin(m.t * 1.1) * 0.012 * amp).toFixed(4) + ")";
-      stage.style.transform = "rotate(" + (Math.sin(m.t * 0.7) * 2.2 * amp).toFixed(2) + "deg) skewX(" + (Math.sin(m.t * 0.53) * 3 * amp).toFixed(2) + "deg)";
+      var amp = sstep(0.05, 0.35, k) + 2.5 * sstep(M_UNRAVEL, 1, k), sp = 1 + 3 * k * k;
+      var jx = 0, jy = 0;
+      if (k > 0.6 && m.t > m.nextJolt) { jx = (Math.random() - 0.5) * 30 * k; jy = (Math.random() - 0.5) * 20 * k; m.nextJolt = m.t + 0.5 - 0.42 * k; }
+      if (wrap) wrap.style.transform = "scale(" + (1 + Math.sin(m.t * 1.1 * sp) * 0.012 * amp).toFixed(4) + ")";
+      stage.style.transform = "translate(" + jx.toFixed(1) + "px," + jy.toFixed(1) + "px) rotate(" + (Math.sin(m.t * 0.7 * sp) * 2.2 * amp).toFixed(2) + "deg) skewX(" + (Math.sin(m.t * 0.53 * sp) * 3 * amp).toFixed(2) + "deg)";
       if (megaWarp) {
-        var melt = sstep(0.1, M_UNRAVEL, k) * (1 - fade);
-        megaWarp.turb.setAttribute("baseFrequency", (0.008 + 0.004 * Math.sin(m.t * 0.4)).toFixed(4) + " " + (0.012 + 0.005 * Math.cos(m.t * 0.33)).toFixed(4));
+        var melt = sstep(0.1, M_UNRAVEL, k) + 2 * sstep(M_UNRAVEL, 1, k);
+        megaWarp.turb.setAttribute("baseFrequency", (0.008 + 0.004 * Math.sin(m.t * 0.4 * sp)).toFixed(4) + " " + (0.012 + 0.005 * Math.cos(m.t * 0.33 * sp)).toFixed(4));
         megaWarp.disp.setAttribute("scale", (28 * melt).toFixed(1));
       }
     }
-    // letters around the page come loose while it's coming apart
-    if (k > M_UNRAVEL && k < M_FADE && m.t > m.nextScramble) { scrambleSome(1 + Math.floor((k - M_UNRAVEL) * 14), k > 0.68); m.nextScramble = m.t + 0.6 - 0.4 * (k - M_UNRAVEL) * 4; }
-    // the edges go dark and close in until there's nothing left
-    if (megaVeil) {
-      var r = 80 - 80 * fade;
-      megaVeil.style.background = "radial-gradient(circle at 50% 50%, rgba(0,0,0,0) " + Math.max(0, r - 35).toFixed(1) + "%, rgba(0,0,0,1) " + Math.max(0.1, r).toFixed(1) + "%)";
-      megaVeil.style.opacity = String(Math.min(1, fade * 1.5));
-    }
-    while (m.line < MEGA_LINES.length && m.t >= MEGA_LINES[m.line][0]) { showCall(MEGA_LINES[m.line][1], false, ""); m.line++; }
-    if (m.t >= MEGA_LEN) cutToBlack();
+    // letters around the page come loose, more and more of them, and near the end they stop coming back
+    if (k > M_UNRAVEL && m.t > m.nextScramble) { scrambleSome(1 + Math.floor((k - M_UNRAVEL) * 18), k > 0.8); m.nextScramble = m.t + Math.max(0.08, 0.6 - 0.9 * (k - M_UNRAVEL)); }
+    // and then, mid-thought, it's just gone
+    if (m.t >= m.len) cutToBlack();
   }
-  // Glider speeds up as it comes on, then everything slows down to almost nothing
+  // Glider just keeps going faster
   function megaSpeed() {
-    var k = Math.min(1, G.mega.t / MEGA_LEN);
-    return (1.3 + 1.2 * sstep(0.1, M_FADE, k)) * (1 - 0.85 * sstep(M_FADE, 0.95, k));
+    var k = Math.min(1, G.mega.t / G.mega.len);
+    return 1.3 + 1.2 * sstep(0.1, 0.6, k) + 0.9 * sstep(0.6, 1, k);
   }
 
   function megaSoundOff() {
@@ -2069,11 +2060,11 @@
     fx.flash(stage, "white");
   }
 
-  // horizontal slices of the picture slipping sideways, worse and worse near the end
+  // horizontal slices of the picture slipping sideways, worse and worse right up to the cut
   function megaGlitch() {
-    var k = G.mega.t / MEGA_LEN;
-    if (k < M_UNRAVEL || k > M_FADE || calmFx()) return;
-    var n = Math.floor((k - M_UNRAVEL) * 24);
+    var k = G.mega.t / G.mega.len;
+    if (k < M_UNRAVEL || calmFx()) return;
+    var n = Math.floor((k - M_UNRAVEL) * 40);
     for (var i = 0; i < n; i++) {
       if (Math.random() > 0.35) continue;
       var y = Math.floor(Math.random() * BW), h = 4 + Math.floor(Math.random() * 26), dx = Math.round((Math.random() - 0.5) * 60 * k);
