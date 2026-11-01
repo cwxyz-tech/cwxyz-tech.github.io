@@ -261,3 +261,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, [tabindex]:focus-vis
 }
 .ux-jump a:hover { color: #cc0000; }
 .ux-jump a:active { border-style: inset; }
+
+/* tablet widths (an iPad standing up, a narrow window): the menu stays on one row */
+.navbar a, .navbar a:visited { white-space: nowrap; }
+@media (min-width: 701px) and (max-width: 980px) {
+  .navbar { padding: 8px 8px; }
+  .navbar a, .navbar a:visited { padding: 3px 8px; font-size: 13px; margin-right: 3px; }
+}

@@ -105,11 +105,11 @@
       <h3 class="sg-helphead">How to Play</h3>
       <p>Fly Glider through the cloud maze and grab every <b>sparkle</b> to clear the level. The storm clouds are out to get you, so don't let them touch you!</p>
       <p>Grab a <b>sun</b> and the storms get scared and puff up white. Fly into them for big points: 200, 400, 800, then 1600 for the whole set. Keep grabbing sparkles without a break to build your <b>combo</b>, all the way up to x5.</p>
-      <p>Power-ups pop up in the maze: <b>Jet</b> makes you faster, <b>Magnet</b> pulls in sparkles, <b>Shield</b> blocks one storm, <b>Snow</b> freezes the storms, <b>2x</b> doubles your points, and if you're lucky a <b>heart</b> gives you an extra life.</p>
+      <p>Power-ups pop up in the maze: <b>Jet</b> makes you faster, <b>Magnet</b> pulls in sparkles, <b>Shield</b> blocks one storm, <b>Snow</b> freezes the storms, <b>2x</b> doubles your points, and if you're lucky a <b>heart</b> gives you an extra life. Grab the same one again while it's running and it stacks, up to 3: two Jets is way faster, two 2x is 4x points. When Glider goes down you can steer him a little on the way, so aim for a sparkle.</p>
       <p>Every level gets a little faster, and so does every second you spend on one. Earn stars every flight to buy new paint jobs and trails in the <b>Hangar</b>, and check your <b>Flight Goals</b> for bonus stars. The <b>Daily Flight</b> is the same for everyone and you only get one life.</p>
       <p><span class="sg-kbonly">Keyboard: arrow keys or WASD to fly, Space to start, P to pause, M to mute.</span> On a phone, swipe anywhere, tap the maze where you want to go, or hold the arrow pad and slide your thumb around it to steer.</p>
       <p><b>Credits:</b> Glider made by <a href="https://www.instagram.com/_sqeakz/" target="_blank" rel="noopener noreferrer">cherrie/sqeakz</a> on Instagram. Concept and game made by Cole.</p>
-      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.9.2</span></summary><dl><dt>1.9.2</dt><dd>&bull; Goals are a little more honest now</dd><dt>1.9.1</dt><dd>&bull; Only one kind of fuel in 2023</dd><dd>&bull; The lane is closed</dd><dd>&bull; Bug fixes</dd><dt>1.9</dt><dd>&bull; Everything is breathing</dd><dd>&bull; Tell him he can</dd><dt>1.8.1</dt><dd>&bull; Some lanes are darker than others</dd><dt>1.8</dt><dd>&bull; The hangar is listening</dd><dd>&bull; Don&rsquo;t fly too fast</dd><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
+      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.10</span></summary><dl><dt>1.10</dt><dd>&bull; Power-ups stack</dd><dd>&bull; You can steer the fall</dd><dd>&bull; Fits short screens</dd><dt>1.9.2</dt><dd>&bull; Goals are a little more honest now</dd><dt>1.9.1</dt><dd>&bull; Only one kind of fuel in 2023</dd><dd>&bull; The lane is closed</dd><dd>&bull; Bug fixes</dd><dt>1.9</dt><dd>&bull; Everything is breathing</dd><dd>&bull; Tell him he can</dd><dt>1.8.1</dt><dd>&bull; Some lanes are darker than others</dd><dt>1.8</dt><dd>&bull; The hangar is listening</dd><dd>&bull; Don&rsquo;t fly too fast</dd><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
       <button class="sg-btn go sg-helpx" id="sgHelpClose">Got it!</button>
     </div>
   </div>
@@ -295,6 +295,10 @@
     dbl: { name: "2x", time: 10, tip: "Double points" },
     heart: { name: "Heart", time: 0, tip: "Extra life" }
   };
+  // grab the same power-up again while it's still running and it stacks (up to 3): jets get faster, magnets reach further,
+  // 2x becomes 4x then 6x, shields block one more storm each, snow lasts longer. Picking one up again refills the timer.
+  var STACK_MAX = 3;
+  function jetBoost() { return 1 + 0.35 * Math.max(1, G.jetN); }   // 1.35x, 1.7x, 2.05x
   var SUNMAP = ["...ooo...", "..oyyyo..", ".oyywyyo.", ".oyyyyyo.", ".oyyyyyo.", "..oyyyo..", "...ooo..."];
   var STORMS = [
     { name: "Thunder", body: "#6c5a8a", shade: "#4d3f66", rain: "#ffee00", corner: { x: COLS - 2, y: -3 }, tip: "Chases you" },
@@ -602,7 +606,7 @@
   function ambTick() {
     if (!ac || !amb.on) return;
     var now = ac.currentTime, play = G.mode === "play";
-    var sm = play ? speedMult() : 0.85, jet = play && G.jetT > 0 ? 1.3 : 1;
+    var sm = play ? speedMult() : 0.85, jet = play && G.jetT > 0 ? 1 + 0.3 * Math.max(1, G.jetN) : 1;
     amb.prop.frequency.setTargetAtTime(62 * sm * jet, now, 0.15);
     amb.lfo.frequency.setTargetAtTime(16 * sm * jet, now, 0.15);
     amb.lp.frequency.setTargetAtTime(jet > 1 ? 1500 : G.freezeT > 0 ? 380 : 650, now, 0.2);
@@ -681,7 +685,7 @@
   // ---------------- game state ----------------
   var G = {
     mode: "title", level: 1, score: 0, lives: 3, maze: 0, grid: null, sparks: 0, total: 0,
-    frightT: 0, frightMax: 1, chain: 0, freezeT: 0, jetT: 0, magT: 0, dblT: 0, shield: false,
+    frightT: 0, frightMax: 1, chain: 0, freezeT: 0, jetT: 0, magT: 0, dblT: 0, shield: false, jetN: 0, magN: 0, dblN: 0, shieldN: 0,
     combo: 0, lastEat: -9, mult: 1, levelT: 0, modeT: 0, modeIdx: 0, timer: 0, hitPause: 0,
     item: null, itemSpawns: 0, eatenCount: 0, nextLife: 10000, daily: false, rand: Math.random, hitThisLevel: false, invuln: 0,
     run: null, flash: 0, t: 0, deathT: 0, reveal: 1, pop: null, popped: false,
@@ -775,26 +779,27 @@
     storms = STORMS.map(function (s, i) {
       return { i: i, x: homes[i][0], y: homes[i][1], dx: i === 0 ? -1 : 0, dy: 0, state: i === 0 ? "out" : "home", wait: waits[i] * sc, scared: false, anim: Math.random() * 6 };
     });
-    G.frightT = 0; G.freezeT = 0; G.modeT = 0; G.modeIdx = 0; G.chain = 0; G.invuln = 0; G.jetT = 0; G.magT = 0;
+    G.frightT = 0; G.freezeT = 0; G.modeT = 0; G.modeIdx = 0; G.chain = 0; G.invuln = 0; G.jetT = 0; G.magT = 0; G.jetN = 0; G.magN = 0;
     G.combo = 0; G.mult = 1;
   }
 
   function newGame(daily) {
     megaStop();
     if (locked()) { G.mode = "title"; lockScreen(); return; }
+    showWholeGame();
     G.daily = !!daily;
     var d = today();
     G.rand = daily ? rng(seedOf("daily" + d)) : Math.random;
     G.level = G.startLevel = daily ? 3 : 1;
     G.maze = daily ? seedOf("dm" + d) % MAZES.length : 0;
-    G.score = 0; G.lives = daily ? 1 : 3; G.nextLife = daily ? Infinity : 10000; G.shield = false; G.dblT = 0; G.fuel = 0; G.mega = null; G.run2023 = save.y2023;
+    G.score = 0; G.lives = daily ? 1 : 3; G.nextLife = daily ? Infinity : 10000; G.shield = false; G.shieldN = 0; G.dblT = 0; G.dblN = 0; G.fuel = 0; G.mega = null; G.run2023 = save.y2023;
     G.run = { score: 0, level: 1, bestChain: 0, bestMult: 1, pows: 0, blocks: 0, clean: 0, eaten: 0, froze: 0, daily: G.daily, goalsHit: [] };
     save.games++; persist();
     startLevel();
   }
   function startLevel() {
     buildLevel(); resetActors();
-    G.levelT = 0; G.item = null; G.itemSpawns = 0; G.hitThisLevel = false; G.dblT = 0; G.reveal = 0;
+    G.levelT = 0; G.item = null; G.itemSpawns = 0; G.hitThisLevel = false; G.dblT = 0; G.dblN = 0; G.reveal = 0;
     parts.length = 0;
     hud(); readyGo(G.level > 1 || G.daily ? (G.daily ? "Daily Flight" : "Level " + G.level) : "Ready!");
   }
@@ -806,9 +811,18 @@
 
   // ---------------- input ----------------
   var DIRS = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] };
+  // steering on the way down: arrow keys / A-D held, the arrow pad held, or a swipe gives a short nudge
+  var keyHeldX = 0, nudgeX = 0, nudgeT = 0;
+  function steerX() {
+    if (padDir === "left") return -1;
+    if (padDir === "right") return 1;
+    if (keyHeldX) return keyHeldX;
+    return nudgeT > 0 ? nudgeX : 0;
+  }
   function want(name) {
     if (G.mode === "title" || G.mode === "over") return;
     var d = DIRS[name]; if (!d) return;
+    if (G.mode === "dying" && d[0]) { nudgeX = d[0]; nudgeT = 0.35; }
     player.want = d;
     if (G.mode !== "play") return;
     // turning around is instant
@@ -820,8 +834,16 @@
       if (off < 0.42 && open(cx + d[0], cy + d[1])) { player.x = cx; player.y = cy; player.dx = d[0]; player.dy = d[1]; }
     }
   }
+  document.addEventListener("keyup", function (e) {
+    var k = e.key;
+    if ((k === "ArrowLeft" || k === "a" || k === "A") && keyHeldX < 0) keyHeldX = 0;
+    if ((k === "ArrowRight" || k === "d" || k === "D") && keyHeldX > 0) keyHeldX = 0;
+  });
+  window.addEventListener("blur", function () { keyHeldX = 0; });
   document.addEventListener("keydown", function (e) {
     if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
+    if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") keyHeldX = -1;
+    else if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") keyHeldX = 1;
     var k = e.key, map = { ArrowLeft: "left", a: "left", A: "left", ArrowRight: "right", d: "right", D: "right", ArrowUp: "up", w: "up", W: "up", ArrowDown: "down", s: "down", S: "down" };
     if (map[k]) { if (G.mode === "play" || G.mode === "ready") { e.preventDefault(); want(map[k]); } else if (/^Arrow/.test(k) && !overlay.hidden) e.preventDefault(); return; }
     if (k === " " || k === "Enter") {
@@ -993,8 +1015,20 @@
     }
     if (G.mode === "dying") {
       G.deathT += dt;
+      if (nudgeT > 0) nudgeT -= dt;
       if (G.deathT > 0.3 && !G.popped) {
         var ft = G.deathT - 0.3, fromY = G.fallY;
+        // you can steer him a little while he falls (not through walls), and he lands on whatever's under him now
+        var sx2 = steerX();
+        if (sx2) {
+          player.face = sx2 < 0 ? 0 : 1;
+          var nx = player.x + sx2 * 4.5 * dt, edge = Math.round(nx + sx2 * 0.45), ry2 = Math.round(G.fallY);
+          if (nx > 0.2 && nx < COLS - 1.2 && !(G.grid[ry2] && G.grid[ry2][edge] === "#")) player.x = nx;
+        }
+        var cxNow = Math.round(player.x);
+        G.crashY = ROWS - 1.4;
+        for (var yy2 = Math.floor(G.fallY) + 1; yy2 < ROWS; yy2++) if (G.grid[yy2][cxNow] === "#") { G.crashY = yy2 - 0.45; break; }
+        if (G.crashY < G.fallY) G.crashY = G.fallY;
         G.fallY = Math.min(G.crashY, player.y + 9 * ft * ft);
         // still gobbling whatever's right in his path on the way down
         var fx0 = Math.round(player.x);
@@ -1026,16 +1060,16 @@
     }
     if (G.frightT > 0) { G.frightT -= dt; if (G.frightT <= 0) { storms.forEach(function (s) { s.scared = false; }); G.chain = 0; sfx("frightEnd"); } }
     if (G.freezeT > 0) { G.freezeT -= dt; if (G.freezeT <= 0) sfx("powerEnd"); }
-    if (G.jetT > 0) { G.jetT -= dt; if (G.jetT <= 0) sfx("powerEnd"); }
-    if (G.magT > 0) { G.magT -= dt; if (G.magT <= 0) sfx("powerEnd"); }
-    if (G.dblT > 0) { G.dblT -= dt; if (G.dblT <= 0) sfx("powerEnd"); }
+    if (G.jetT > 0) { G.jetT -= dt; if (G.jetT <= 0) { G.jetN = 0; sfx("powerEnd"); } }
+    if (G.magT > 0) { G.magT -= dt; if (G.magT <= 0) { G.magN = 0; sfx("powerEnd"); } }
+    if (G.dblT > 0) { G.dblT -= dt; if (G.dblT <= 0) { G.dblN = 0; sfx("powerEnd"); } }
     if (G.invuln > 0) G.invuln -= dt;
     if (G.item) updateItem(dt);
     if (G.t - G.lastEat > 0.6 && G.combo) { G.combo = 0; setMult(1); }
 
     // Glider
     if (G.mega) { megaTick(dt); if (G.mode !== "play") return; }
-    var pspd = 8.6 * sm * (G.mega ? megaSpeed() : G.jetT > 0 ? 1.35 : 1);
+    var pspd = 8.6 * sm * (G.mega ? megaSpeed() : G.jetT > 0 ? jetBoost() : 1);
     var bx = player.x, by = player.y, odx = player.dx, ody = player.dy;
     moveAlong(player, pspd * dt, playerCenter);
     if ((player.dx !== odx || player.dy !== ody) && (player.dx || player.dy)) { player.squash = 0.16; if (!(G.t - G.lastTurn < 0.12)) { G.lastTurn = G.t; sfx("turn"); } }
@@ -1059,7 +1093,7 @@
   function reverseStorms() { storms.forEach(function (s) { if (s.state === "out") { s.dx = -s.dx; s.dy = -s.dy; } }); }
 
   function points(n, x, y, cls) {
-    var mult = G.dblT > 0 ? 2 : 1;
+    var mult = G.dblT > 0 ? 2 * Math.max(1, G.dblN) : 1;   // 2x, then 4x, 6x...
     n *= mult;
     G.score += n;
     if (x !== undefined) floatAt(x, y, "+" + n.toLocaleString(), cls);
@@ -1100,7 +1134,7 @@
   }
 
   function magnet() {
-    var px = player.x, py = player.y, r = 3.2;
+    var px = player.x, py = player.y, r = 3.2 + 1.8 * (Math.max(1, G.magN) - 1);   // each extra magnet reaches further
     for (var y = Math.max(0, Math.floor(py - r)); y <= Math.min(ROWS - 1, Math.ceil(py + r)); y++)
       for (var x = Math.floor(px - r); x <= Math.ceil(px + r); x++) {
         var wx = ((x % COLS) + COLS) % COLS;
@@ -1168,18 +1202,25 @@
     points(100, it.x, it.y, "green");
     sfx("power");
     var pp = toPage(it.x, it.y); fx.burst(pp.x, pp.y, 2);
-    if (it.kind === "jet" && !G.run2023) G.jetT = p.time;
+    var n = 1;
+    if (it.kind === "jet" && !G.run2023) { n = G.jetN = G.jetT > 0 ? Math.min(STACK_MAX, G.jetN + 1) : 1; G.jetT = p.time; }
     else if (it.kind === "jet") {
+      G.jetN = G.jetT > 0 ? Math.min(STACK_MAX, G.jetN + 1) : 1;
       G.jetT = p.time; G.fuel = Math.min(FUEL_MAX, G.fuel + 1);
       if (G.fuel >= FUEL_MAX) { G.run.pows++; checkGoals(); return megaStart(); }
       showCall("Jet!<small>Fuel " + G.fuel + "/" + FUEL_MAX + "</small>", false); G.run.pows++; checkGoals(); return;
     }
-    else if (it.kind === "magnet") G.magT = p.time;
-    else if (it.kind === "shield") G.shield = true;
-    else if (it.kind === "snow") { G.freezeT = p.time; G.run.froze++; sfx("freeze"); }
-    else if (it.kind === "dbl") G.dblT = p.time;
+    else if (it.kind === "magnet") { n = G.magN = G.magT > 0 ? Math.min(STACK_MAX, G.magN + 1) : 1; G.magT = p.time; }
+    else if (it.kind === "shield") { n = G.shieldN = G.shield ? Math.min(STACK_MAX, G.shieldN + 1) : 1; G.shield = true; }
+    else if (it.kind === "snow") { n = G.freezeT > 0 ? 2 : 1; G.freezeT = G.freezeT > 0 ? Math.min(G.freezeT + p.time, p.time * 2.5) : p.time; G.run.froze++; sfx("freeze"); }
+    else if (it.kind === "dbl") { n = G.dblN = G.dblT > 0 ? Math.min(STACK_MAX, G.dblN + 1) : 1; G.dblT = p.time; }
     else if (it.kind === "heart") { G.lives = Math.min(5, G.lives + 1); sfx("life"); }
-    showCall(p.name + "!<small>" + p.tip + "</small>", false);
+    if (n > 1) {
+      // stacked: a bigger call-out and a little extra kick
+      var stackTip = { jet: "Way, way faster", magnet: "Pulls from further away", shield: "Blocks " + n + " storms", snow: "Frozen even longer", dbl: (2 * n) + "x points" }[it.kind];
+      showCall(p.name + " x" + n + "!<small>" + stackTip + "</small>", false, "rainbow");
+      fx.quake(stage, false);
+    } else showCall(p.name + "!<small>" + p.tip + "</small>", false);
     G.run.pows++;
     checkGoals();
   }
@@ -1211,7 +1252,7 @@
       }
       if (G.freezeT > 0 || G.invuln > 0) return;
       if (G.shield) {
-        G.shield = false; G.invuln = 1.2; s.state = "eaten"; G.run.blocks++;
+        G.shieldN = Math.max(0, G.shieldN - 1); G.shield = G.shieldN > 0; G.invuln = 1.2; s.state = "eaten"; G.run.blocks++;
         sfx("shield"); var q = toPage(s.x, s.y); fx.burst(q.x, q.y, 1); fx.float(q.x, q.y, "Blocked!", "green");
         checkGoals();
         return;
@@ -1248,7 +1289,7 @@
     G.fire = { x: x, y: y, t: 1.3 };
   }
   function afterDeath() {
-    G.lives--; G.jetT = 0; G.magT = 0; G.dblT = 0; G.shield = false; G.item = null; G.fire = null; parts.length = 0;
+    G.lives--; G.jetT = 0; G.magT = 0; G.jetN = 0; G.magN = 0; G.dblT = 0; G.dblN = 0; G.shield = false; G.shieldN = 0; G.item = null; G.fire = null; parts.length = 0;
     if (G.lives <= 0) return gameOver();
     resetActors(); hud(); readyGo("Ready!");
   }
@@ -1633,7 +1674,8 @@
     else if (G.run2023 && G.fuel > 0) list.push(["fuel", G.fuel / FUEL_MAX, 9]);
     // the row is only rebuilt when a power-up starts, ends or starts running low; the timer bars just get shorter in place
     var key = "", i;
-    for (i = 0; i < list.length; i++) key += list[i][0] + (list[i][0] === "fuel" ? G.fuel : "") + (list[i][2] < 1.5 ? "L" : "") + ",";
+    for (i = 0; i < list.length; i++) key += list[i][0] + (list[i][0] === "fuel" ? G.fuel : "") + (list[i][2] < 1.5 ? "L" : "") + "," ;
+    key += G.jetN + "" + G.magN + G.shieldN + G.dblN;
     if (G.mode === "title") key += "t";
     var box = $("sgPows");
     if (lastHud.pows !== key) {
@@ -1646,7 +1688,8 @@
         var c = mk(ic.width, ic.height); c.getContext("2d").drawImage(ic, 0, 0);
         d.appendChild(c);
         var t = document.createElement("span");
-        t.textContent = l[0] === "fuel" ? "Fuel " + G.fuel + "/" + FUEL_MAX : l[0] === "mega" ? "MEGA TURBO" : POWERS[l[0]].name; d.appendChild(t);
+        var stk = { jet: G.jetN, magnet: G.magN, shield: G.shieldN, dbl: G.dblN }[l[0]] || 0;
+        t.textContent = l[0] === "fuel" ? "Fuel " + G.fuel + "/" + FUEL_MAX : l[0] === "mega" ? "MEGA TURBO" : l[0] === "dbl" ? (2 * Math.max(1, stk)) + "x" : POWERS[l[0]].name + (stk > 1 ? " x" + stk : ""); d.appendChild(t);
         if (l[0] !== "shield" && l[0] !== "mega") { var bar = document.createElement("i"), fill = document.createElement("b"); bar.appendChild(fill); d.appendChild(bar); lastHud.bars[l[0]] = { el: fill, w: -1 }; }
         box.appendChild(d);
       });
@@ -1889,8 +1932,20 @@
       if (cell) pad.style.setProperty("--pc", Math.floor(cell) + "px");
       size = Math.max(200, Math.floor(size));
       main.style.setProperty("--sgw", size + "px");
-    } else main.style.removeProperty("--sgw");
+    } else {
+      main.style.removeProperty("--sgw");
+      // short desktop windows: shrink the maze (never below 340px) so the whole game window fits on screen at once
+      var hh = $("sgHud").offsetHeight, ph = $("sgPows").offsetHeight;
+      var avail = Math.floor(innerHeight - hh - ph - 34);
+      main.style.width = avail < 480 ? Math.max(340, avail) + "px" : "";
+    }
     render();
+  }
+  // desktop: before a flight starts, scroll so the whole maze (score bar to power-up bar) is on screen
+  function showWholeGame() {
+    if (matchMedia("(max-width: 720px), (pointer: coarse) and (max-height: 520px)").matches) return;
+    var top = $("sgHud").getBoundingClientRect().top, bot = $("sgPows").getBoundingClientRect().bottom;
+    if (bot > innerHeight - 4 || top < 0) window.scrollBy({ top: Math.min(top - 8, bot - innerHeight + 10), behavior: "instant" });
   }
   window.addEventListener("resize", fit);
   window.addEventListener("orientationchange", function () { setTimeout(fit, 200); });
@@ -1927,7 +1982,7 @@
 
   function megaStart() {
     G.mega = { t: 0, hue: 0, len: megaLen(), nextScramble: 0, nextJolt: 0 };
-    G.jetT = 0; G.item = null; G.shield = false;
+    G.jetT = 0; G.jetN = 0; G.item = null; G.shield = false; G.shieldN = 0;
     clearTimeout(callTimer); callEl.className = "sg-call";
     storms.forEach(function (s) { s.scared = false; });
     // no flash, no confetti, no words. it just starts to come on.

@@ -597,7 +597,16 @@
     }
     return r;
   }
+  // short desktop windows: bring the whole game window (title bar to bottom) on screen when play starts
+  function showWholeGame() {
+    if (innerWidth <= 720) return;
+    var t = document.querySelector(".box-title"), n = t && t.nextElementSibling;
+    if (!n) return;
+    var top = t.getBoundingClientRect().top, bot = n.getBoundingClientRect().bottom;
+    if (bot > innerHeight - 4 || top < 0) window.scrollBy({ top: Math.min(top - 8, bot - innerHeight + 10), behavior: "instant" });
+  }
   function newRound(resume) {
+    if (window.cwFlStarted) showWholeGame();   // a new board after the first one
     var sets = LEVELS[level - 1], pick5 = sets[Math.floor(Math.random() * sets.length)];
     var i;
     vals = resume ? resume.vals.slice() : makeBoard(pick5, SAFE_LINES[level - 1] || 0);
@@ -654,6 +663,7 @@
   }
 
   function flip(i) {
+    if (!window.cwFlStarted) { window.cwFlStarted = true; showWholeGame(); }   // first tile of the visit
     if (state !== "play" || open[i]) return;
     if (tut && tut.allow !== i) return;
     if (memo && !tut) { toggleMark(i, memoMark); return; }

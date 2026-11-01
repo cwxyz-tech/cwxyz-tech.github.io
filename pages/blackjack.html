@@ -815,9 +815,18 @@
   }
 
   // ---------- a round ----------
+  // short desktop windows: bring the whole game window (title bar to bottom) on screen when play starts
+  function showWholeGame() {
+    if (innerWidth <= 720) return;
+    var t = document.querySelector(".box-title"), n = t && t.nextElementSibling;
+    if (!n) return;
+    var top = t.getBoundingClientRect().top, bot = n.getBoundingClientRect().bottom;
+    if (bot > innerHeight - 4 || top < 0) window.scrollBy({ top: Math.min(top - 8, bot - innerHeight + 10), behavior: "instant" });
+  }
   async function deal() {
     if (busy) return;
     if (window.CwPlayed) CwPlayed.mark("blackjack");
+    showWholeGame();
     if (state === "done") {
       var rb = Math.min(lastBet, bank);
       clearTable();
