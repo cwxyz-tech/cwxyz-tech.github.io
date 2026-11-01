@@ -175,6 +175,40 @@
         <p class="a">The lights go out and things get bad. Every minute, they get worse. Good luck!</p>
       </div>
     </div>
+
+    <!-- only shows up for people who finished Side B and watched the 2023 site burn down -->
+    <div id="sideB" hidden>
+      <div class="section-title">Side B</div>
+      <div class="faq-body">
+        <div class="faq-item">
+          <p class="q">What is Side B?</p>
+          <p class="a">A hidden mode in Sky Glider. The only power-ups are Jets, and three in one flight takes Glider somewhere he can't come back from.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">What was the 2023 site?</p>
+          <p class="a">The first version of this website, from my first semester of college. My life was changing a lot back then.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">What is Burn It Down?</p>
+          <p class="a">The song that plays while the 2023 site burns down. It's about letting go of who I used to be, so something new can be built where he was.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">Why does it end on "i am a changed man now"?</p>
+          <p class="a">Because I am.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">Can I hear it again?</p>
+          <p class="a">It's on the <a href="/music">Music</a> page now.</p>
+        </div>
+        <div class="faq-item">
+          <p class="q">Can I go back to the 2023 site?</p>
+          <p class="a">No.</p>
+        </div>
+      </div>
+    </div>
+    <script>
+      try { if (localStorage.getItem("cw_2023_gone")) document.getElementById("sideB").hidden = false; } catch (e) {}
+    </script>
   </div>
 
   <div class="footer">
