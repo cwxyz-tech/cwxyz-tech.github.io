@@ -246,11 +246,17 @@
   var V2 = ["the voice in the walls was mine", "it's al-ways been mine, al-ways", "i wore the shades in the dark", "so you can't see the eyes",
             "the ones who held up the wings", "i let them fall, let them fall", "and blamed the sky ev-ery time", "you're the on-ly one here"];
   function verseAt(t0, lines) { return lines.map(function (l, i) { return [t0 + i * 2, i % 4 === 3 ? VN4 : VN, l]; }); }
-  function chorusAt(t0, lights) {
-    return [[t0, CA, "burn it down, let the han-gar go dark"], [t0 + 4, CB, "all _ of the lights " + (lights || "went out") + ", three three three"],
-            [t0 + 8, CA, "burn it down for the boy in the room"], [t0 + 12, CD, "some-bo-dy else was him"]];
+  // the hook. same four lines every time, so it sticks.
+  //   burn it DOWN, burn it DOWN to the GROUND   (A C E~ | A C F~ E D~ C~)
+  //   NO-bo-dy lives HERE an-y MORE, no MORE     (E E D C D~ C B | G#~ B E~)
+  //   burn it DOWN, burn it DOWN to the GROUND
+  //   I'M not him AN-y-MORE                       (E~ D C B~ G#~ | A~)
+  function chorusAt(t0) {
+    // the 4th value marks the held notes (by syllable number), which get a bigger bounce
+    return [[t0, CA, "burn it down, burn it down to the ground", [2, 5, 8]], [t0 + 4, CB, "no-bo-dy lives here an-y-more, no more", [4, 7, 9]],
+            [t0 + 8, CA, "burn it down, burn it down to the ground", [2, 5, 8]], [t0 + 12, CD, "i'm not him an-y-more", [0, 3, 5]]];
   }
-  var SUNG = [].concat(verseAt(16, V1), chorusAt(32), verseAt(48, V2), chorusAt(64), chorusAt(96), chorusAt(112, "come on"));
+  var SUNG = [].concat(verseAt(16, V1), chorusAt(32), verseAt(48, V2), chorusAt(64), chorusAt(96), chorusAt(112));
   // the bridge is written into the guestbook post along with the music box
   var BRIDGE = [[82, VN, "i found the room."], [86, VN4, "i o-pened the door."], [90, VN, "it was just a room."]];
   // "i am a changed man now", one word per note of the music box at the end, the period on its last chord
@@ -315,9 +321,11 @@
     lyr.style.cssText = "position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:9999;min-width:min(560px,88vw);box-sizing:border-box;padding:14px 20px;" +
       "background:#000;color:#ddd;border:3px solid #ddd;font:19px/1.4 'Courier New',monospace;letter-spacing:1px;text-align:center;visibility:hidden";
     root.appendChild(lyr);
-    function sing(text) {
+    function sing(text, pop) {
       if (!text) { lyr.style.visibility = "hidden"; return; }
       lyr.style.visibility = "visible"; lyr.textContent = text;
+      // the chorus bounces on every syllable, and harder on the held ones
+      if (pop && !calm && lyr.animate) lyr.animate([{ scale: pop > 1 ? "1.1" : "1.04" }, { scale: "1" }], { duration: pop > 1 ? 260 : 150, easing: "ease-out" });
     }
 
     function q(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
@@ -349,7 +357,10 @@
     var cnt = 1;
     for (var c = 4; c < 16; c += 0.5) at(c, function () { cnt += 1 + Math.floor(cnt / 6); counter.textContent = ("000000" + cnt).slice(-6); });
     SUNG.forEach(function (l) {
-      steps(l[2], l[1].length).forEach(function (txt, i) { at(l[0] + l[1][i], function () { sing(txt); }); });
+      steps(l[2], l[1].length).forEach(function (txt, i) {
+        var pop = l[3] ? (l[3].indexOf(i) >= 0 ? 2 : 1) : 0;
+        at(l[0] + l[1][i], function () { sing(txt, pop); });
+      });
     });
     at(80, function () { sing(""); });
 
