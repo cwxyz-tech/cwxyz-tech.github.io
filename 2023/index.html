@@ -13,7 +13,7 @@
   // this version of the site only loads for people who flew here. everyone else gets the normal "not found" page.
   (function () {
     var ok = false, gone = false;
-    try { ok = !!localStorage.getItem("cw_2024"); gone = !!localStorage.getItem("cw_2024_gone"); } catch (e) {}
+    try { ok = !!localStorage.getItem("cw_2023"); gone = !!localStorage.getItem("cw_2023_gone"); } catch (e) {}
     if (ok && gone) {
       window.cwGone = true;
       document.documentElement.style.display = "none";
@@ -32,7 +32,7 @@
   })();
 </script>
 <style>
-  /* the site as it was in 2024: same look as now, just faded, like an old saved copy */
+  /* the site as it was in 2023: same look as now, just faded, like an old saved copy */
   html { background: #0a0a0a; }
   body { margin: 0; min-height: 100vh; font-family: "Times New Roman", Times, serif; font-size: 16px; color: #000;
     background-color: #008080; background-image: radial-gradient(rgba(0,0,0,.18) 1px, transparent 1px); background-size: 4px 4px;
@@ -92,12 +92,13 @@
   <div class="content">
     <div class="panel" id="p-home">
       <div class="box">
-        <div class="box-title"><span>Welcome to my website!!</span><i>2024</i></div>
+        <div class="box-title"><span>Welcome to my website!!</span><i>2023</i></div>
         <div class="box-body">
           <p>hi!! welcome to my website. it's still under construction so some stuff might be broken :)</p>
-          <p>i'm making a game!! it's about a dragon plane named Glider who flies through the clouds and dodges storms. it's not done yet but you can see the first sketch on the Glider page.</p>
+          <p>i just started my first semester of college so i'm building this between classes lol. my life is changing so much right now. new people, new everything. it's kind of a lot but i think it's good?</p>
+          <p>i'm also making a game!! it's about a dragon plane named Glider who flies through the clouds and dodges storms. it's not done yet but you can see the first sketch on the Glider page.</p>
           <p>you are visitor <span class="counter" id="counter">000001</span></p>
-          <p class="dim">last updated: 11.01.2024</p>
+          <p class="dim">last updated: 11.01.2023</p>
         </div>
       </div>
     </div>
@@ -115,12 +116,12 @@
       <div class="box">
         <div class="box-title"><span>Guestbook</span><i>6 entries</i></div>
         <div class="box-body">
-          <div class="entry"><b>cole</b><small>03.14.2024</small><br>first post!! sign my guestbook :)</div>
-          <div class="entry"><b>anonymous</b><small>06.02.2024</small><br>cool site</div>
-          <div class="entry"><b>anonymous</b><small>08.19.2024</small><br>is the game coming out soon?</div>
-          <div class="entry"><b>cole</b><small>08.20.2024</small><br>soon!! glider is almost done. just have to fix the storms</div>
-          <div class="entry"><b>cole</b><small>10.31.2024</small><br>does anyone know how to make him stop speeding up</div>
-          <div class="entry blank"><b>(no name)</b><small>11.01.2024 03:33</small><br>&nbsp;</div>
+          <div class="entry"><b>cole</b><small>08.21.2023</small><br>first post!! sign my guestbook :)</div>
+          <div class="entry"><b>anonymous</b><small>09.02.2023</small><br>cool site</div>
+          <div class="entry"><b>cole</b><small>09.15.2023</small><br>first semester is crazy. everything is changing so fast. i don't even feel like the same person as in june</div>
+          <div class="entry"><b>anonymous</b><small>10.04.2023</small><br>is the game coming out soon?</div>
+          <div class="entry"><b>cole</b><small>10.31.2023</small><br>does anyone know how to make him stop speeding up</div>
+          <div class="entry blank"><b>(no name)</b><small>11.01.2023 03:33</small><br>&nbsp;</div>
           <p class="dim" style="margin-top:12px">The guestbook is closed.</p>
         </div>
       </div>
@@ -152,7 +153,7 @@
   </div>
 
   <div class="footer">
-    <span>&copy; 2024 coleswebsite.xyz &middot; <a href="/" id="back">home</a></span>
+    <span>&copy; 2023 coleswebsite.xyz &middot; <a href="/" id="back">home</a></span>
     <span class="hex">48 41 4E 47 41 52</span>
   </div>
 </div>
@@ -160,7 +161,7 @@
 <script>
 (function () {
   "use strict";
-  try { if (!localStorage.getItem("cw_2024") || window.cwGone) return; } catch (e) { return; }
+  try { if (!localStorage.getItem("cw_2023") || window.cwGone) return; } catch (e) { return; }
   var $ = function (id) { return document.getElementById(id); };
 
   // the menu
@@ -198,7 +199,7 @@
     if (!w) return;
     busy = true;
     if (h(w) === ANSWER) {
-      try { localStorage.setItem("cw_2024_word", "1"); } catch (e2) {}
+      try { localStorage.setItem("cw_2023_word", "1"); } catch (e2) {}
       burn();   // starts the song right away, while this keypress still counts as you touching the page
     } else {
       type(out, "no.", function () { busy = false; });
@@ -229,7 +230,7 @@
   document.addEventListener("pointerdown", hum, { once: true });
 
   // =====================================================================
-  // the end of the 2024 site: the song plays and the whole page comes apart, piece by piece.
+  // the end of the 2023 site: the song plays and the whole page comes apart, piece by piece.
   // times are in seconds into the song (120 bpm, a bar is 2 seconds).
   // =====================================================================
   var SONG = "/music/tracks/burn-it-down.mp3", song = null;
@@ -321,9 +322,16 @@
     lyr.style.cssText = "position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:9999;min-width:min(560px,88vw);box-sizing:border-box;padding:14px 20px;" +
       "background:#000;color:#ddd;border:3px solid #ddd;font:19px/1.4 'Courier New',monospace;letter-spacing:1px;text-align:center;visibility:hidden";
     root.appendChild(lyr);
-    function sing(text, pop) {
-      if (!text) { lyr.style.visibility = "hidden"; return; }
-      lyr.style.visibility = "visible"; lyr.textContent = text;
+    // karaoke style: the whole line is there from the start (so nothing shifts), and each syllable lights up on its note.
+    // the next line waits underneath, dimmer.
+    var lyrNow = document.createElement("div"), lyrLit = document.createElement("span"), lyrDim = document.createElement("span"), lyrNext = document.createElement("div");
+    lyrDim.style.color = "#555"; lyrNext.style.cssText = "color:#3c3c3c;font-size:15px;margin-top:6px;min-height:1.2em";
+    lyrNow.appendChild(lyrLit); lyrNow.appendChild(lyrDim); lyr.appendChild(lyrNow); lyr.appendChild(lyrNext);
+    function sing(text, pop, full, next) {
+      if (text === null) { lyr.style.visibility = "hidden"; return; }
+      full = full || text;
+      lyr.style.visibility = "visible";
+      lyrLit.textContent = text; lyrDim.textContent = full.slice(text.length); lyrNext.textContent = next || "";
       // the chorus bounces on every syllable, and harder on the held ones
       if (pop && !calm && lyr.animate) lyr.animate([{ scale: pop > 1 ? "1.1" : "1.04" }, { scale: "1" }], { duration: pop > 1 ? 260 : 150, easing: "ease-out" });
     }
@@ -356,13 +364,17 @@
     // intro (0-16): the visitor counter finally starts counting up
     var cnt = 1;
     for (var c = 4; c < 16; c += 0.5) at(c, function () { cnt += 1 + Math.floor(cnt / 6); counter.textContent = ("000000" + cnt).slice(-6); });
-    SUNG.forEach(function (l) {
-      steps(l[2], l[1].length).forEach(function (txt, i) {
+    SUNG.forEach(function (l, k) {
+      var st = steps(l[2], l[1].length), full = st[st.length - 1];
+      var nx = SUNG[k + 1] && SUNG[k + 1][0] - l[0] <= 4.1 ? steps(SUNG[k + 1][2], SUNG[k + 1][1].length).pop() : "";
+      // the line appears a moment before its first note so you can see it coming
+      at(Math.max(0, l[0] - 0.35), function () { sing("", 0, full, nx); });
+      st.forEach(function (txt, i) {
         var pop = l[3] ? (l[3].indexOf(i) >= 0 ? 2 : 1) : 0;
-        at(l[0] + l[1][i], function () { sing(txt, pop); });
+        at(l[0] + l[1][i], function () { sing(txt, pop, full, nx); });
       });
     });
-    at(80, function () { sing(""); });
+    at(80, function () { sing(null); });
 
     // verse 1 (16-32): the little things go first, one a bar
     var small = [".footer .hex", ".footer span", ".navbar .q", ".navbar [data-p=glider]", ".navbar [data-p=guestbook]", ".navbar [data-p=about]", ".navbar [data-p=home]", ".motto"];
@@ -402,7 +414,7 @@
       post = document.createElement("div");
       post.style.cssText = "position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9998;width:min(520px,86vw);box-sizing:border-box;" +
         "color:#ddd;font:19px/1.6 'Courier New',monospace;letter-spacing:1px;opacity:0;transition:opacity 1.5s";
-      post.innerHTML = '<div><b style="font-family:\'Times New Roman\',serif;font-size:20px">(no name)</b><small style="color:#777;margin-left:12px;font-size:14px">11.01.2024 03:33</small></div><div style="white-space:pre-wrap;min-height:5em;margin-top:6px"></div>';
+      post.innerHTML = '<div><b style="font-family:\'Times New Roman\',serif;font-size:20px">(no name)</b><small style="color:#777;margin-left:12px;font-size:14px">11.01.2023 03:33</small></div><div style="white-space:pre-wrap;min-height:5em;margin-top:6px"></div>';
       root.appendChild(post);
       who = post.querySelector("b"); when = post.querySelector("small"); msg = post.lastChild;
       requestAnimationFrame(function () { post.style.opacity = "1"; });
@@ -432,7 +444,7 @@
 
     // 128: everything cuts out at once
     at(128, function () {
-      try { localStorage.setItem("cw_2024_gone", String(Date.now())); } catch (e) {}
+      try { localStorage.setItem("cw_2023_gone", String(Date.now())); } catch (e) {}
       lyr.remove(); wrap.style.display = "none"; if (post) post.remove();
       document.body.style.transition = "none"; document.body.style.filter = "none"; document.body.style.background = "#000";
       root.style.background = "#000";
@@ -450,7 +462,15 @@
         end.appendChild(a); requestAnimationFrame(function () { a.style.opacity = "1"; });
       }, 9000);
     });
-    steps(OUTRO[2], OUTRO[1].length).forEach(function (txt, i) { at(OUTRO[0] + OUTRO[1][i], function () { if (endLine) endLine.textContent = txt; }); });
+    var outroSteps = steps(OUTRO[2], OUTRO[1].length), outroFull = outroSteps[outroSteps.length - 1];
+    outroSteps.forEach(function (txt, i) {
+      at(OUTRO[0] + OUTRO[1][i], function () {
+        if (!endLine) return;
+        endLine.innerHTML = ""; var a = document.createElement("span"), b = document.createElement("span");
+        a.textContent = txt; b.textContent = outroFull.slice(txt.length); b.style.color = "#000";
+        endLine.appendChild(a); endLine.appendChild(b);
+      });
+    });
 
     ev.sort(function (a, b) { return a[0] - b[0]; });
     var ei = 0;
