@@ -235,21 +235,40 @@
   var SONG = "/music/tracks/burn-it-down.mp3", song = null;
   function preload() { if (!song) { song = new Audio(SONG); song.preload = "auto"; } }
 
-  var LYRICS = [
-    [16, "i was a storm in a little room"], [20, "i broke the things that i swore i'd keep"],
-    [24, "i called it love when i made you small"], [28, "i called it tired when i couldn't sleep"],
-    [32, "burn it down, burn it down"], [36, "the boy who lived here isn't around"],
-    [40, "burn it down, burn it down"], [44, "i'm not him now. i'm not him now."],
-    [48, "the voice in the walls was only mine"], [52, "it was always mine, it was always mine"],
-    [56, "i hurt the ones who held me up"], [60, "and blamed the sky for every time"],
-    [64, "burn it down, burn it down"], [68, "the boy who lived here isn't around"],
-    [72, "burn it down, burn it down"], [76, "i'm not him now. i'm not him now."],
-    [80, ""],
-    [96, "burn it down, burn it down"], [100, "the boy who lived here isn't around"],
-    [104, "burn it down, burn it down"], [108, "i'm not him now. i'm not him now."],
-    [112, "burn it down, burn it down"], [116, "the boy who lived here isn't around"],
-    [120, "burn it down, burn it down"], [124, "i'm not him now. i'm not him now."]
-  ];
+  // Every syllable lands on a note of the lead. "-" splits a word into syllables, "_" is a held note with no new word.
+  // Note times are seconds from the start of the line (an eighth note is 0.25s).
+  var VN = [0, .25, .5, .75, 1, 1.25, 1.5], VN4 = [0, .25, .5, .75, 1, 1.5];              // verse riff, one bar per line
+  var CA = [0, .25, .5, 1.5, 1.75, 2, 2.75, 3, 3.5];                                    // chorus bars 1-2 and 5-6
+  var CB = [0, .25, .5, .75, 1, 1.5, 1.75, 2, 3, 3.5];                                  // chorus bars 3-4
+  var CD = [0, .5, .75, 1, 1.5, 2];                                                      // chorus bars 7-8
+  var V1 = ["there was a storm in the room", "no-bo-dy o-pened the door", "i kept the pie-ces i broke", "un-der the bed, lights out",
+            "count to three, then three, then three", "small e-nough to fit a hand", "i called it love, i called it", "it rained in-side for years"];
+  var V2 = ["the voice in the walls was mine", "it's al-ways been mine, al-ways", "i wore the shades in the dark", "so you can't see the eyes",
+            "the ones who held up the wings", "i let them fall, let them fall", "and blamed the sky ev-ery time", "you're the on-ly one here"];
+  function verseAt(t0, lines) { return lines.map(function (l, i) { return [t0 + i * 2, i % 4 === 3 ? VN4 : VN, l]; }); }
+  function chorusAt(t0, lights) {
+    return [[t0, CA, "burn it down, let the han-gar go dark"], [t0 + 4, CB, "all _ of the lights " + (lights || "went out") + ", three three three"],
+            [t0 + 8, CA, "burn it down for the boy in the room"], [t0 + 12, CD, "some-bo-dy else was him"]];
+  }
+  var SUNG = [].concat(verseAt(16, V1), chorusAt(32), verseAt(48, V2), chorusAt(64), chorusAt(96), chorusAt(112, "come on"));
+  // the bridge is written into the guestbook post along with the music box
+  var BRIDGE = [[82, VN, "i found the room."], [86, VN4, "i o-pened the door."], [90, VN, "it was just a room."]];
+  // "i am a changed man now", one word per note of the music box at the end, the period on its last chord
+  var OUTRO = [128.5, VN.map(function (x) { return x * 2; }).slice(0, 6).concat([3]), "i am a changed man now ."];
+
+  // turns "burn it down, let the han-gar" into what's showing after each note
+  function steps(text, n) {
+    var out = [], cur = "", words = text.split(" ");
+    words.forEach(function (w) {
+      if (w === "_") { out.push(cur); return; }
+      w.split("-").forEach(function (syl, i) {
+        cur += (i === 0 && cur && syl !== "." ? " " : "") + syl;
+        out.push(cur);
+      });
+    });
+    if (out.length !== n && window.console) console.warn("lyric/note mismatch:", text, out.length, n);
+    return out;
+  }
 
   function burn() {
     var calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -298,9 +317,7 @@
     root.appendChild(lyr);
     function sing(text) {
       if (!text) { lyr.style.visibility = "hidden"; return; }
-      lyr.style.visibility = "visible"; lyr.textContent = "";
-      var i = 0;
-      (function next() { if (i > text.length) return; lyr.textContent = text.slice(0, i); i++; setTimeout(next, 38); })();
+      lyr.style.visibility = "visible"; lyr.textContent = text;
     }
 
     function q(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
@@ -331,7 +348,10 @@
     // intro (0-16): the visitor counter finally starts counting up
     var cnt = 1;
     for (var c = 4; c < 16; c += 0.5) at(c, function () { cnt += 1 + Math.floor(cnt / 6); counter.textContent = ("000000" + cnt).slice(-6); });
-    LYRICS.forEach(function (l) { at(l[0], function () { sing(l[1]); }); });
+    SUNG.forEach(function (l) {
+      steps(l[2], l[1].length).forEach(function (txt, i) { at(l[0] + l[1][i], function () { sing(txt); }); });
+    });
+    at(80, function () { sing(""); });
 
     // verse 1 (16-32): the little things go first, one a bar
     var small = [".footer .hex", ".footer span", ".navbar .q", ".navbar [data-p=glider]", ".navbar [data-p=guestbook]", ".navbar [data-p=about]", ".navbar [data-p=home]", ".motto"];
@@ -382,11 +402,14 @@
       when.textContent = p2(d.getMonth() + 1) + "." + p2(d.getDate()) + "." + d.getFullYear() + " " + p2(d.getHours()) + ":" + p2(d.getMinutes());
     });
     var said = "";
-    [[82, "i'm sorry."], [86, "i can't take it back."], [90, "but i can stop."]].forEach(function (l) {
-      at(l[0], function () {
-        var base = said ? said + "\n" : "", i = 0;
-        said = base + l[1];
-        (function next() { if (i > l[1].length) return; msg.textContent = base + l[1].slice(0, i); i++; setTimeout(next, 70); })();
+    BRIDGE.forEach(function (l) {
+      var parts = steps(l[2], l[2].split(/[ -]/).length), base = null;
+      parts.forEach(function (txt, i) {
+        at(l[0] + l[1][i], function () {
+          if (base === null) base = said ? said + "\n" : "";
+          msg.textContent = base + txt;
+          if (i === parts.length - 1) said = base + txt;
+        });
       });
     });
 
@@ -403,20 +426,20 @@
       document.body.style.transition = "none"; document.body.style.filter = "none"; document.body.style.background = "#000";
       root.style.background = "#000";
     });
-    // and then, quietly, in a major key
-    at(129.5, function () {
+    // and then, quietly, in a major key, one word per note
+    var endLine = null;
+    at(128.2, function () {
       var end = document.createElement("div");
       end.style.cssText = "position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;" +
         "background:#000;color:#e8e8e8;font:20px 'Courier New',monospace;letter-spacing:1px;text-align:center;padding:24px;box-sizing:border-box";
-      var line = document.createElement("div"); end.appendChild(line); root.appendChild(end);
-      var txt = "i am a changed man now.", i = 0;
-      (function next() { if (i > txt.length) return; line.textContent = txt.slice(0, i); i++; setTimeout(next, 120); })();
+      endLine = document.createElement("div"); endLine.style.minHeight = "1.3em"; end.appendChild(endLine); root.appendChild(end);
       setTimeout(function () {
         var a = document.createElement("a"); a.href = "/"; a.textContent = "[ go home ]";
         a.style.cssText = "color:#777;text-decoration:none;font-size:15px;letter-spacing:2px;opacity:0;transition:opacity 2s";
         end.appendChild(a); requestAnimationFrame(function () { a.style.opacity = "1"; });
-      }, 7500);
+      }, 9000);
     });
+    steps(OUTRO[2], OUTRO[1].length).forEach(function (txt, i) { at(OUTRO[0] + OUTRO[1][i], function () { if (endLine) endLine.textContent = txt; }); });
 
     ev.sort(function (a, b) { return a[0] - b[0]; });
     var ei = 0;
