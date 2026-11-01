@@ -340,6 +340,14 @@
   .bj-mheat .bj-heat { flex: 1; }
   .bj-mheat .bj-heat i { height: 10px; }
   @media (max-width: 720px) and (max-height: 600px) { .bj-stats .k { display: none; } }
+
+  /* phone turned sideways: these boards need the phone upright, so say so instead of showing a cut-off page */
+  @media (pointer: coarse) and (orientation: landscape) and (max-height: 520px) {
+    .wrap::before { content: "\21BB\A Turn your phone upright\A to play!"; white-space: pre; position: fixed; z-index: 9999; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 280px; padding: 18px 10px; text-align: center; font: bold 22px/1.35 "BjComic", "Comic Sans MS", "Comic Sans", cursive; color: #000;
+      background: #c0c0c0; border: 3px outset #fff; box-shadow: 4px 4px 0 #000, 0 0 0 100vmax #008080; }
+    body { overflow: hidden; }
+  }
 </style>
 </head>
 <body>

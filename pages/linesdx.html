@@ -876,6 +876,10 @@ addEventListener("keydown", e => {
 addEventListener("keyup", e => { const act = KEYMAP[e.code]; if (act) release(act); });
 addEventListener("blur", () => { held.left = held.right = held.down = false; dasDir = 0; if (mode === "play") togglePause(); });
 document.addEventListener("visibilitychange", () => { if (document.hidden && mode === "play") togglePause(); });
+// phone turned sideways covers the board with a "turn upright" note, so pause instead of playing blind
+const sideways = matchMedia("(pointer: coarse) and (orientation: landscape) and (max-height: 520px)");
+const onSideways = () => { if (sideways.matches && mode === "play") togglePause(); };
+if (sideways.addEventListener) sideways.addEventListener("change", onSideways); else if (sideways.addListener) sideways.addListener(onSideways);
 
 // touch pads: fire on touch-down, and let a thumb slide between the movement pads
 const MOVE_ACTS = ["left", "right", "down"];
@@ -1463,12 +1467,18 @@ function buildTiles() {
 }
 
 // ---------- layout
+let padExtra = 0;
 function layout() {
   dpr = Math.min(window.devicePixelRatio || 1, touchy ? 1.5 : 2);
   const narrow = innerWidth <= 720;
   const h = well.clientHeight - 6;
-  // on phones the board sits between two side columns, so leave them ~75px each
-  cell = Math.max(10, Math.floor(narrow ? Math.min(h / VIS, (innerWidth - 160) / COLS) : h / VIS));
+  // on phones the board sits between two side columns, so leave them ~70px each
+  cell = Math.max(10, Math.floor(narrow ? Math.min((h + 2 * padExtra) / VIS, (innerWidth - 150) / COLS) : h / VIS));
+  if (narrow) {
+    // board is limited by the width on tall phones: hand the leftover height to the touch buttons (bigger thumbs targets)
+    const extra = Math.max(0, Math.min(34, Math.floor((h + 2 * padExtra - VIS * cell) / 2) - 6));
+    if (extra !== padExtra) { padExtra = extra; document.documentElement.style.setProperty("--padx", extra + "px"); }
+  }
   boardC.style.width = COLS * cell + "px"; boardC.style.height = VIS * cell + "px";
   boardC.width = COLS * cell * dpr; boardC.height = VIS * cell * dpr;
   if (narrow) {

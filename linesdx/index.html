@@ -250,8 +250,8 @@
     .pf-strip .pf-sp .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
     .pf-strip .pf-sp .ct { margin: 0; font-size: 10px; }
     .pf-pads { gap: 8px; }
-    .pf-dpad { grid-template-rows: 54px 42px; }
-    .pf-actions { grid-template-rows: 42px 54px; }
+    .pf-dpad { grid-template-rows: calc(54px + var(--padx, 0px)) calc(42px + var(--padx, 0px)); }
+    .pf-actions { grid-template-rows: calc(42px + var(--padx, 0px)) calc(54px + var(--padx, 0px)); }
 
     /* dialogs float over the whole screen instead of squeezing into the board */
     .pf-overlay { position: fixed; inset: 0; z-index: 40; padding: 16px; }
@@ -301,6 +301,14 @@
   .pf-hardtitle { color: #ff2020; letter-spacing: 3px; text-shadow: 2px 2px 0 #000; animation: pf-throb 1.846s steps(1) infinite; }
   @keyframes pf-throb { 0%, 25% { opacity: 1; } 26%, 30% { opacity: .55; } 31% { opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { .pf-frame.shake, .pf-frame.pf-spin { animation: none; } .pf-callout.show { animation: none; } }
+
+  /* phone turned sideways: these boards need the phone upright, so say so instead of showing a cut-off page */
+  @media (pointer: coarse) and (orientation: landscape) and (max-height: 520px) {
+    .wrap::before { content: "\21BB\A Turn your phone upright\A to play!"; white-space: pre; position: fixed; z-index: 9999; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 280px; padding: 18px 10px; text-align: center; font: bold 22px/1.35 "CwComic", "Comic Sans MS", "Comic Sans", cursive; color: #000;
+      background: #c0c0c0; border: 3px outset #fff; box-shadow: 4px 4px 0 #000, 0 0 0 100vmax #008080; }
+    body { overflow: hidden; }
+  }
 </style>
 </head>
 <body>

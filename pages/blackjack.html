@@ -724,7 +724,7 @@
     $("bjBetActs").hidden = !betting; $("bjPlayActs").hidden = betting;
     var rebet = state === "done" && bet === 0 && Math.min(lastBet, bank) >= MIN_BET ? Math.min(lastBet, bank) : 0;
     btn.deal.disabled = busy || !betting || (bet < MIN_BET && rebet < MIN_BET);
-    btn.deal.innerHTML = (bet === 0 && rebet ? "Rebet " + fmt(rebet) : "Deal") + " <kbd>(Space)</kbd>";
+    btn.deal.innerHTML = (bet === 0 && rebet ? (hands ? "Rebet " : "Deal ") + fmt(rebet) : "Deal") + " <kbd>(Space)</kbd>";
     btn.clear.disabled = busy || !betting || bet === 0;
     btn.all.disabled = busy || !betting || bank < MIN_BET;
     if (!betting) {
