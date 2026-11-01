@@ -8,6 +8,10 @@ For 64-bit Linux (Ubuntu, Fedora, Mint, Debian, Arch and others).
 3. To add it to your app menu:      ./install.sh
    (Move the folder where you want to keep it first, like your home folder.)
 
+Security: the app runs inside Chromium's security sandbox. A few distros (like Ubuntu 24.04) only allow it
+after a one-time setup that needs your password; ./install.sh offers to do it. Until then the app still starts,
+but warns you that the sandbox is off.
+
 Shortcuts: Ctrl+0 Home, Ctrl+1 Blackjack DX, Ctrl+2 Lines DX, Ctrl+3 Lucky Flip, Ctrl+4 Music,
 Ctrl+R restart the game, F11 full screen. The menu button at the right of the toolbar has the rest.
 

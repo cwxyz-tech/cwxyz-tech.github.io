@@ -22,6 +22,8 @@
   var readable = !!(script && script.hasAttribute("data-readable"));
   // Pages keep their content in a separate file (data-page) that only loads after acceptance
   var pageSrc = script ? script.getAttribute("data-page") : null;
+  // the page's content may only ever come from this site's own /pages/ folder
+  if (pageSrc && !/^\/pages\/[a-z0-9-]+\.html$/.test(pageSrc)) pageSrc = null;
   var pageLoaded = false;
 
   // Re-run the page's scripts in order (scripts added via HTML don't run on their own)
@@ -38,7 +40,12 @@
     var old = list[i], s = document.createElement("script");
     for (var a = 0; a < old.attributes.length; a++) s.setAttribute(old.attributes[a].name, old.attributes[a].value);
     if (old.src) {
-      s.onload = s.onerror = function () { runScripts(list, i + 1); };
+      s.onload = function () { runScripts(list, i + 1); };
+      s.onerror = function () {
+        // keep going so the rest of the page still works, but don't hide it
+        if (window.console) console.error("coleswebsite: couldn't load " + old.src);
+        runScripts(list, i + 1);
+      };
       old.parentNode.replaceChild(s, old);
     } else {
       s.textContent = old.textContent;
@@ -62,6 +69,10 @@
     else { url += (url.indexOf("?") < 0 ? "?" : "&") + "r=" + Date.now(); opts.cache = "reload"; }
     return fetch(url, opts).then(function (r) {
       if (!r.ok) throw new Error("bad status");
+      // only take it if it really came from this site as a web page (not a redirect somewhere else)
+      var ct = r.headers.get("Content-Type") || "";
+      if (r.url && new URL(r.url, location.href).origin !== location.origin) throw new Error("wrong origin");
+      if (ct && ct.indexOf("text/html") < 0) throw new Error("not a page");
       return r.text();
     });
   }

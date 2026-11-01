@@ -59,11 +59,32 @@ const MIME = {
 };
 const fileCache = new Map();   // files are read once, then served from memory
 
+// the games folder as it really is on disk (links followed), worked out once
+let WWW_REAL = null;
+function wwwReal() {
+  if (!WWW_REAL) { try { WWW_REAL = fs.realpathSync(WWW); } catch (e) { WWW_REAL = WWW; } }
+  return WWW_REAL;
+}
+// true only if `p` (already a real path) is the games folder or something inside it
+function inside(p) {
+  const rel = path.relative(wwwReal(), p);
+  return rel === "" || (!rel.startsWith("..") && !path.isAbsolute(rel));
+}
+
 function readBundled(rel) {
+  if (rel.indexOf("\0") >= 0) return null;
   const full = path.normalize(path.join(WWW, rel));
-  if (!full.startsWith(WWW + path.sep)) return null;            // never outside the games folder
-  let file = full;
-  try { if (fs.statSync(file).isDirectory()) file = path.join(file, "index.html"); } catch (e) { return null; }
+  if (!full.startsWith(WWW + path.sep)) return null;            // never outside the games folder (by name)...
+  let file;
+  try {
+    file = fs.realpathSync(full);                               // ...and never outside it for real (no following links out)
+    if (!inside(file)) return null;
+    if (fs.statSync(file).isDirectory()) {
+      file = fs.realpathSync(path.join(file, "index.html"));
+      if (!inside(file)) return null;
+    }
+    if (!fs.statSync(file).isFile()) return null;
+  } catch (e) { return null; }
   if (fileCache.has(file)) return { file, data: fileCache.get(file) };
   try {
     const data = fs.readFileSync(file);
@@ -150,6 +171,7 @@ function createWindow() {
   });
   toolbar.setBackgroundColor(colors.bar);
   toolbar.webContents.on("will-navigate", (e) => e.preventDefault());   // the toolbar is one fixed page
+  toolbar.webContents.on("will-attach-webview", (e) => e.preventDefault());
   toolbar.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
   game = new WebContentsView({
     webPreferences: { preload: path.join(__dirname, "preload-game.js"), sandbox: true, contextIsolation: true,
@@ -161,9 +183,12 @@ function createWindow() {
 
   const gc = game.webContents;
   gc.on("did-finish-load", () => { gc.setVisualZoomLevelLimits(1, 1).catch(() => {}); });   // no pinch zoom
-  gc.on("will-navigate", (e, url) => { if (!url.startsWith(SCHEME + ":")) { e.preventDefault(); openOutside(url); } });
+  gc.on("will-navigate", (e, url) => { if (!isInternal(url)) { e.preventDefault(); openOutside(url); } });
+  gc.on("will-redirect", (e, url) => { if (!isInternal(url)) e.preventDefault(); });
+  gc.on("will-frame-navigate", (e) => { if (!e.isMainFrame && !isInternal(e.url)) e.preventDefault(); });   // frames inside the page too
+  gc.on("will-attach-webview", (e) => e.preventDefault());
   gc.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith(SCHEME + ":")) gc.loadURL(url).catch(() => {}); else openOutside(url);
+    if (isInternal(url)) gc.loadURL(url).catch(() => {}); else openOutside(url);
     return { action: "deny" };
   });
   gc.on("did-start-navigation", (details) => {
@@ -194,8 +219,17 @@ function createWindow() {
   });
 }
 
+// only the app's own pages (colesgames://localhost) ever load inside the window
+function isInternal(url) {
+  try { const u = new URL(url); return u.protocol === SCHEME + ":" && u.host === "localhost" && !u.username && !u.password; }
+  catch (e) { return false; }
+}
+// everything else goes to the computer's own browser or mail app, but only real web and mail links
 function openOutside(url) {
-  if (/^(https?|mailto):/i.test(url)) shell.openExternal(url);
+  let u;
+  try { u = new URL(url); } catch (e) { return; }
+  if ((u.protocol === "https:" || u.protocol === "http:") && u.hostname) shell.openExternal(u.href);
+  else if (u.protocol === "mailto:") shell.openExternal(u.href);
 }
 
 function layout() {
@@ -277,19 +311,38 @@ function showAbout() {
 }
 
 // ---------- messages from the pages ----------
+// every message has to come from the right view, from its top frame, showing the page it should be showing
+function isTop(e) {
+  const f = e.senderFrame, m = e.sender.mainFrame;
+  return !!f && !!m && f.processId === m.processId && f.routingId === m.routingId;
+}
+function fromGame(e) {
+  if (!game || e.sender !== game.webContents || !isTop(e)) return false;
+  return isInternal(e.senderFrame.url);
+}
+function fromToolbar(e) {
+  if (!toolbar || e.sender !== toolbar.webContents || !isTop(e)) return false;
+  try { const u = new URL(e.senderFrame.url); return u.protocol === "file:" && path.basename(u.pathname) === "toolbar.html"; } catch (err) { return false; }
+}
 ipcMain.on("cg-fit", (e, size) => {
-  if (!game || e.sender !== game.webContents) return;
+  if (!fromGame(e)) return;
   const w = Number(size && size.w), h = Number(size && size.h);
-  if (!(w > 0 && h > 0)) return;
+  if (!(w > 0 && h > 0 && w < 20000 && h < 20000)) return;
   gameSize = { w, h };
   fit();
 });
-ipcMain.on("cg-desktop-info", (e) => { e.returnValue = { platform: process.platform, accent: accentColor() }; });
-ipcMain.on("cg-nav", (e, i) => { if (toolbar && e.sender === toolbar.webContents) show(Number(i)); });
-ipcMain.on("cg-restart", (e) => { if (toolbar && e.sender === toolbar.webContents && game) game.webContents.reload(); });
-ipcMain.on("cg-fullscreen", (e) => { if (toolbar && e.sender === toolbar.webContents && win) win.setFullScreen(!win.isFullScreen()); });
+ipcMain.on("cg-desktop-info", (e) => { e.returnValue = fromGame(e) ? { platform: process.platform, accent: accentColor() } : { platform: "", accent: "" }; });
+ipcMain.on("cg-nav", (e, i) => {
+  if (!fromToolbar(e)) return;
+  const n = Number(i);
+  if (Number.isInteger(n) && n >= 0 && n < PAGES.length) show(n);
+});
+ipcMain.on("cg-restart", (e) => { if (fromToolbar(e) && game) game.webContents.reload(); });
+ipcMain.on("cg-fullscreen", (e) => { if (fromToolbar(e) && win) win.setFullScreen(!win.isFullScreen()); });
 ipcMain.on("cg-menu", (e, at) => {
-  if (!toolbar || e.sender !== toolbar.webContents || !win) return;
+  if (!fromToolbar(e) || !win) return;
+  const px = Number(at && at.x), py = Number(at && at.y);
+  at = { x: Number.isFinite(px) ? Math.max(0, Math.min(px, 10000)) : 0, y: Number.isFinite(py) ? Math.max(0, Math.min(py, 10000)) : TOOLBAR_HEIGHT };
   Menu.buildFromTemplate([
     ...PAGES.map((p, i) => ({ label: p.title, type: "radio", checked: i === currentIndex, accelerator: "CmdOrCtrl+" + p.key, click: () => show(i) })),
     { type: "separator" },
@@ -302,7 +355,7 @@ ipcMain.on("cg-menu", (e, at) => {
     { label: "Quit", accelerator: "CmdOrCtrl+Q", click: () => app.quit() }
   ]).popup({ window: win, x: Math.round(at && at.x || 0), y: Math.round(at && at.y || TOOLBAR_HEIGHT) });
 });
-ipcMain.on("cg-toolbar-ready", (e) => { if (toolbar && e.sender === toolbar.webContents) syncChrome(); });
+ipcMain.on("cg-toolbar-ready", (e) => { if (fromToolbar(e)) syncChrome(); });
 
 nativeTheme.on("updated", () => {
   if (!win) return;
@@ -321,6 +374,27 @@ app.whenReady().then(() => {
   protocol.handle(SCHEME, serve);
   Menu.setApplicationMenu(Menu.buildFromTemplate(menuTemplate()));
   createWindow();
+  if (process.platform === "linux" && app.commandLine.hasSwitch("no-sandbox")) sandboxNotice();
 });
+
+// Started without Chromium's sandbox (start.sh only does this when the computer won't allow it otherwise).
+// Say so plainly, once, and say how to turn it on.
+function sandboxNotice() {
+  const flag = path.join(app.getPath("userData"), "sandbox-notice-shown");
+  try { if (fs.existsSync(flag)) return; fs.writeFileSync(flag, "1"); } catch (e) {}
+  const helper = path.join(path.dirname(process.execPath), "chrome-sandbox");
+  setTimeout(() => {
+    if (!win) return;
+    dialog.showMessageBox(win, {
+      type: "warning",
+      title: "Security sandbox is off",
+      message: "Cole's Games started without Chromium's security sandbox.",
+      detail: "This computer blocks the sandbox unless its helper is set up by an admin. The games are offline and only load " +
+        "their own bundled files, but the sandbox is an extra layer of protection.\n\nTo turn it on, run this once in a terminal:\n\n" +
+        "sudo chown root:root \"" + helper + "\" && sudo chmod 4755 \"" + helper + "\"\n\nor run ./install.sh again and answer yes.",
+      buttons: ["OK"]
+    });
+  }, 1200);
+}
 
 app.on("window-all-closed", () => app.quit());
