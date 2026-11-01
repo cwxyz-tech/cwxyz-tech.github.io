@@ -127,7 +127,8 @@
 
   function readCookie() {
     var m = document.cookie.match(new RegExp("(?:^|; )" + COOKIE + "=([^;]*)"));
-    return m ? decodeURIComponent(m[1]) : null;
+    if (!m) return null;
+    try { return decodeURIComponent(m[1]); } catch (e) { return null; }   // a mangled cookie just asks again instead of breaking the site
   }
 
   function hasAccepted() {

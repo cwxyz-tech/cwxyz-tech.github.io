@@ -1,4 +1,4 @@
-// Cole's Games for Windows and Linux.
+// Cole's Games for Linux.
 // The same three games as the Mac app, served from inside the app (offline, nothing from the internet),
 // in a native window with a toolbar, keyboard shortcuts, full screen, and each game fitted to the window.
 "use strict";
@@ -136,7 +136,7 @@ function accentColor() {
 function createWindow() {
   const state = loadState() || {};
   const colors = themeColors();
-  const icon = path.join(__dirname, process.platform === "win32" ? "icons/coles-games.ico" : "icons/coles-games-512.png");
+  const icon = path.join(__dirname, "icons/coles-games-512.png");
   win = new BaseWindow({
     width: state.width || 1180, height: state.height || 860, x: state.x, y: state.y,
     minWidth: 840, minHeight: 620,
@@ -149,6 +149,8 @@ function createWindow() {
     webPreferences: { preload: path.join(__dirname, "preload-toolbar.js"), sandbox: true, contextIsolation: true, spellcheck: false }
   });
   toolbar.setBackgroundColor(colors.bar);
+  toolbar.webContents.on("will-navigate", (e) => e.preventDefault());   // the toolbar is one fixed page
+  toolbar.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
   game = new WebContentsView({
     webPreferences: { preload: path.join(__dirname, "preload-game.js"), sandbox: true, contextIsolation: true,
       spellcheck: false, backgroundThrottling: true, autoplayPolicy: "no-user-gesture-required" }

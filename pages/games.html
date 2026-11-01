@@ -1,4 +1,4 @@
-<script>/* opened straight from /pages/? send it to the real page, behind the terms */ if (location.pathname.indexOf("/pages/") === 0) location.replace("/" + location.pathname.slice(7).replace(/\.html$/, "").replace(/^(home|404)$/, ""));</script>
+<script>/* opened straight from /pages/? send it to the real page, behind the terms */ if (location.pathname.indexOf("/pages/") === 0) location.replace("/" + location.pathname.slice(7).replace(/\.html$/, "").replace(/^(home|404)$/, "").replace(/^[\/\\]+/, ""));</script>
 <style>
   .gm-intro { margin: 0 0 14px; }
   .gm-card { display: flex; gap: 16px; align-items: flex-start; padding: 12px; margin: 0 0 14px; background: #c0c0c0; border: 2px outset #fff; }
@@ -100,7 +100,7 @@
       </div>
 
       <p class="gm-intro">Free games I made, right here on the site. No downloads, no sign up, and they work on your phone too. Click a game to play!</p>
-      <p class="gm-intro gm-dl">Want them on your computer, even offline? <a href="/downloads">Get the Cole's Games app for Windows, Mac and Linux</a>.</p>
+      <p class="gm-intro gm-dl">Want them on your computer, even offline? <a href="/downloads">Get the Cole's Games app for Mac and Linux</a>.</p>
 
       <div class="gm-card">
         <a class="gm-shot" href="/blackjack"><img src="/games/blackjack.gif?v=1" alt="Blackjack DX gameplay" width="480" height="398"></a>
