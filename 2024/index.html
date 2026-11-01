@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=1000">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<title>Cole's Website</title>
+<script>
+  // this version of the site only loads for people who flew here. everyone else gets the normal "not found" page.
+  (function () {
+    var ok = false;
+    try { ok = !!localStorage.getItem("cw_2024"); } catch (e) {}
+    if (ok) return;
+    document.documentElement.style.display = "none";
+    fetch("/404.html").then(function (r) { return r.text(); }).then(function (h) { document.open(); document.write(h); document.close(); })
+      .catch(function () { location.replace("/404.html"); });
+  })();
+</script>
+<!-- the storms were never chasing him. they were running from something. -->
+<style>
+  html, body { margin: 0; background: #050505; }
+  body { font-family: "Times New Roman", Times, serif; color: #9a9a9a; font-size: 16px; min-height: 100vh; }
+  ::selection { background: #3a0000; color: #ff4040; }
+  .wrap { max-width: 900px; margin: 0 auto; background: #141414; border-left: 2px solid #222; border-right: 2px solid #222; min-height: 100vh; animation: v24-in 4s ease-out both; }
+  @keyframes v24-in { 0% { opacity: 0; filter: blur(3px); } 60% { opacity: .6; } 100% { opacity: 1; filter: none; } }
+  .header { background: #1f2a2a; padding: 18px 20px 10px; border-bottom: 2px solid #000; display: flex; align-items: baseline; gap: 14px; }
+  .logo { font-size: 46px; font-weight: bold; letter-spacing: -1px; color: #3a4466; text-shadow: 2px 2px 0 #000; }
+  .logo span { color: #5a1e1e; }
+  .motto { font-style: italic; color: #6a6a6a; }
+  .motto .gone { display: inline-block; min-width: 9ch; border-bottom: 1px dotted #333; }
+  .stripe { height: 6px; background: repeating-linear-gradient(90deg, #2c2c2c 0 24px, #3a3a3a 24px 48px, #262626 48px 72px, #333 72px 96px); }
+  .navbar { display: flex; gap: 8px; padding: 10px 14px; background: #101010; border-bottom: 1px solid #222; }
+  .navbar button { font: bold 15px "Times New Roman", Times, serif; color: #8a8a8a; background: #222; border: 2px outset #333; padding: 4px 14px; cursor: pointer; }
+  .navbar button.on { color: #c8c8c8; border-style: inset; }
+  .navbar button:hover { color: #d0d0d0; }
+  .navbar .q { color: #5a1e1e; margin-left: auto; }
+  .content { padding: 22px 26px 40px; }
+  .box { border: 2px solid #2a2a2a; background: #0e0e0e; margin-bottom: 18px; }
+  .box-title { background: #1a1a33; color: #8a8aa8; font-weight: bold; padding: 4px 10px; display: flex; justify-content: space-between; }
+  .box-title i { font-style: normal; color: #444; letter-spacing: 3px; }
+  .box-body { padding: 14px 16px; line-height: 1.6; }
+  .panel[hidden] { display: none; }
+  .dim { color: #4a4a4a; }
+  .faint { color: #1c1c1c; }            /* select it */
+  .red { color: #8a2020; }
+  .counter { display: inline-block; font-family: "Courier New", monospace; background: #000; color: #3c8a3c; padding: 2px 6px; border: 1px inset #333; letter-spacing: 3px; }
+  .entry { border-bottom: 1px dashed #222; padding: 8px 0; }
+  .entry b { color: #7a7a9a; }
+  .entry small { color: #444; margin-left: 8px; font-family: "Courier New", monospace; }
+  .entry.you b { color: #8a2020; }
+  .broken { width: 260px; height: 170px; border: 2px inset #333; background: #0a0a0a; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 6px; font-size: 13px; color: #555; font-family: Arial, sans-serif; }
+  .broken .x { width: 16px; height: 16px; border: 1px solid #555; color: #8a2020; font: bold 12px/14px Arial; text-align: center; }
+  .word { font: 16px "Courier New", monospace; background: #000; color: #9a9a9a; border: 1px inset #333; padding: 4px 8px; width: 200px; }
+  .word:focus { outline: 1px solid #5a1e1e; }
+  .typed { font-family: "Courier New", monospace; white-space: pre-wrap; min-height: 1.4em; }
+  .doors { font-family: "Courier New", monospace; color: #5a1e1e; letter-spacing: 2px; }
+  .footer { border-top: 1px solid #222; padding: 14px 26px 30px; font-size: 13px; color: #3a3a3a; display: flex; justify-content: space-between; gap: 12px; }
+  .footer .hex { font-family: "Courier New", monospace; letter-spacing: 2px; color: #2e2e2e; }
+  .footer a, .footer a:visited { color: #444; }
+  .shake { animation: v24-shake .25s steps(3) 1; }
+  @keyframes v24-shake { 33% { transform: translate(2px, -1px); } 66% { transform: translate(-2px, 1px); } }
+  .flick { animation: v24-flick 7s steps(1) infinite; }
+  @keyframes v24-flick { 0%, 96% { opacity: 1; } 97% { opacity: .2; } 98% { opacity: 1; } 99% { opacity: .4; } }
+  @media (prefers-reduced-motion: reduce) { .wrap, .shake, .flick { animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="logo flick">coleswebsite<span>.xyz</span></div>
+    <div class="motto">Est. 2023... stay optimistic, the best is <span class="gone" id="gone"></span></div>
+  </div>
+  <div class="stripe"></div>
+  <div class="navbar">
+    <button data-p="home" class="on">Home</button>
+    <button data-p="about">About Me</button>
+    <button data-p="guestbook">Guestbook</button>
+    <button data-p="glider">Glider</button>
+    <button data-p="q" class="q">???</button>
+  </div>
+
+  <div class="content">
+    <div class="panel" id="p-home">
+      <div class="box">
+        <div class="box-title"><span>welcome to my website!!</span><i>2024</i></div>
+        <div class="box-body">
+          <p>hi!! welcome to my website. it's still under construction so things might be broken. :)</p>
+          <p>i'm making a game. it's about a little plane named Glider who flies through the clouds.
+            he's not finished yet. <span class="dim">he's still in the hangar.</span></p>
+          <p>you are visitor <span class="counter" id="counter">000001</span></p>
+          <p class="dim">last updated: 11.01.2024</p>
+          <p class="faint">you're the only one who has ever been here. he made sure of that.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="p-about" hidden>
+      <div class="box">
+        <div class="box-title"><span>About Me</span><i>removed</i></div>
+        <div class="box-body">
+          <p>This page was removed.</p>
+          <p class="typed red" id="aboutLate"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="p-guestbook" hidden>
+      <div class="box">
+        <div class="box-title"><span>Guestbook</span><i>7 entries</i></div>
+        <div class="box-body">
+          <div class="entry"><b>cole</b><small>03.14.2024</small><br>first post!! sign my guestbook :)</div>
+          <div class="entry"><b>anonymous</b><small>06.02.2024</small><br>cool site</div>
+          <div class="entry"><b>anonymous</b><small>08.19.2024</small><br>is the game coming out soon?</div>
+          <div class="entry"><b>glider</b><small>10.30.2024</small><br>is anyone still here</div>
+          <div class="entry"><b>glider</b><small>10.31.2024</small><br>it's so quiet without the music. the clouds keep moving when i'm not looking at them.</div>
+          <div class="entry"><b>????</b><small>11.01.2024</small><br>the storms are getting closer. they don't want him. they want out.</div>
+          <div class="entry you"><b>you</b><small>11.01.2024 03:33</small><br>i went too fast.</div>
+          <p class="dim" style="margin-top:12px">The guestbook is closed.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="p-glider" hidden>
+      <div class="box">
+        <div class="box-title"><span>Glider (early sketch)</span><i>wip</i></div>
+        <div class="box-body" style="display:flex;gap:18px;align-items:flex-start">
+          <div class="broken" title="he isn't ready to be seen"><div class="x">x</div>glider_v0.png</div>
+          <div>
+            <p>first sketch of Glider!! he doesn't have his shades yet.</p>
+            <p class="dim">he doesn't like it when you look at him without them.</p>
+            <p class="faint">the doors only open for the word on the floor.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="p-q" hidden>
+      <div class="box">
+        <div class="box-title"><span>???</span><i>&nbsp;</i></div>
+        <div class="box-body">
+          <p>what's the word?</p>
+          <p><input class="word" id="word" maxlength="24" autocomplete="off" spellcheck="false" aria-label="the word"></p>
+          <p class="typed" id="wordOut"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>&copy; 2024 coleswebsite.xyz &middot; <a href="/" id="back">go back?</a></span>
+    <span class="hex">48 41 4E 47 41 52</span>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  try { if (!localStorage.getItem("cw_2024")) return; } catch (e) { return; }
+  var $ = function (id) { return document.getElementById(id); };
+
+  // what the motto should end with, typed out and taken back, over and over
+  var gone = $("gone"), says = ["yet to come", "yet to", "yet", "gone", ""], si = 0;
+  setInterval(function () { gone.textContent = says[si % says.length]; si++; }, 2600);
+
+  // the menu
+  var btns = document.querySelectorAll(".navbar button"), aboutDone = false;
+  Array.prototype.forEach.call(btns, function (b) {
+    b.addEventListener("click", function () {
+      Array.prototype.forEach.call(btns, function (x) { x.classList.toggle("on", x === b); });
+      Array.prototype.forEach.call(document.querySelectorAll(".panel"), function (p) { p.hidden = p.id !== "p-" + b.getAttribute("data-p"); });
+      hum(); blip(140);
+      if (b.getAttribute("data-p") === "about" && !aboutDone) { aboutDone = true; setTimeout(function () { type($("aboutLate"), "he took it down. he took a lot of things down.\nbut this part he couldn't find."); }, 3200); }
+      if (b.getAttribute("data-p") === "q") setTimeout(function () { $("word").focus(); }, 30);
+    });
+  });
+
+  // the visitor counter tries to count up, and can't
+  var counter = $("counter");
+  setInterval(function () {
+    if (Math.random() < 0.25) { counter.textContent = "000002"; setTimeout(function () { counter.textContent = "000001"; }, 120); }
+  }, 3000);
+
+  // the tab's title sometimes says something else
+  setInterval(function () {
+    var t = document.title; document.title = "is anyone there";
+    setTimeout(function () { document.title = t; }, 900);
+  }, 21000);
+
+  function type(el, text, done) {
+    el.textContent = ""; var i = 0;
+    (function next() {
+      if (i >= text.length) { if (done) done(); return; }
+      el.textContent += text[i]; if (text[i] !== " " && text[i] !== "\n") blip(190 + Math.random() * 30); i++;
+      setTimeout(next, text[i - 1] === "." ? 380 : 60 + Math.random() * 50);
+    })();
+  }
+
+  // the word. the answer isn't written here in plain letters.
+  function h(str) { var x = 2166136261; for (var i = 0; i < str.length; i++) { x ^= str.charCodeAt(i); x = Math.imul(x, 16777619); } return (x >>> 0).toString(36); }
+  var ANSWER = h("hangar"), out = $("wordOut"), busy = false;
+  $("word").addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" || busy) return;
+    var w = this.value.trim().toLowerCase(); this.value = "";
+    if (!w) return;
+    busy = true;
+    if (h(w) === ANSWER) {
+      try { localStorage.setItem("cw_2024_word", "1"); } catch (e2) {}
+      document.querySelector(".wrap").classList.add("shake");
+      type(out, "...\nnot yet.\n\nthe hangar doors are still closed.\ncome back when the sky is ready.", function () {
+        var d = document.createElement("p"); d.className = "doors"; d.textContent = "▓▓░░░░░░  2/8";
+        out.parentNode.appendChild(d); busy = false;
+      });
+    } else {
+      type(out, ["no.", "that's not it.", "look down.", "he wouldn't have said that."][Math.floor(Math.random() * 4)], function () { busy = false; });
+    }
+  });
+
+  // sound only after you touch something (browsers won't allow it before)
+  var ac = null, humOn = false;
+  function A() {
+    if (!ac) { var C = window.AudioContext || window.webkitAudioContext; if (!C) return null; ac = new C(); }
+    if (ac.state === "suspended") ac.resume();
+    return ac;
+  }
+  function hum() {
+    if (humOn || !A()) return; humOn = true;
+    var t = ac.currentTime, g = ac.createGain(), a = ac.createOscillator(), c = ac.createOscillator(), lp = ac.createBiquadFilter();
+    a.type = "sine"; a.frequency.value = 43; c.type = "triangle"; c.frequency.value = 43.6; lp.type = "lowpass"; lp.frequency.value = 170;
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.06, t + 8);
+    a.connect(lp); c.connect(lp); lp.connect(g); g.connect(ac.destination); a.start(t); c.start(t);
+  }
+  function blip(f) {
+    if (!ac) return;
+    var t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+    o.type = "square"; o.frequency.value = f; g.gain.setValueAtTime(0.012, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 0.04);
+  }
+  document.addEventListener("pointerdown", hum, { once: true });
+
+  // for whoever opens the console
+  try { console.log("%cyou're looking in the right place.", "color:#8a2020;font:14px 'Courier New',monospace"); } catch (e) {}
+})();
+</script>
+</body>
+</html>

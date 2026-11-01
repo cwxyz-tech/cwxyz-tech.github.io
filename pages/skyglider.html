@@ -109,7 +109,7 @@
       <p>Every level gets a little faster, and so does every second you spend on one. Earn stars every flight to buy new paint jobs and trails in the <b>Hangar</b>, and check your <b>Flight Goals</b> for bonus stars. The <b>Daily Flight</b> is the same for everyone and you only get one life.</p>
       <p><span class="sg-kbonly">Keyboard: arrow keys or WASD to fly, Space to start, P to pause, M to mute.</span> On a phone, swipe anywhere, tap the maze where you want to go, or hold the arrow pad and slide your thumb around it to steer.</p>
       <p><b>Credits:</b> Glider made by <a href="https://www.instagram.com/_sqeakz/" target="_blank" rel="noopener noreferrer">cherrie/sqeakz</a> on Instagram. Concept and game made by Cole.</p>
-      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.7</span></summary><dl><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
+      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.8</span></summary><dl><dt>1.8</dt><dd>&bull; Jets add up now</dd><dd>&bull; Don&rsquo;t fly too fast</dd><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
       <button class="sg-btn go sg-helpx" id="sgHelpClose">Got it!</button>
     </div>
   </div>
@@ -684,7 +684,8 @@
     frightT: 0, frightMax: 1, chain: 0, freezeT: 0, jetT: 0, magT: 0, dblT: 0, shield: false,
     combo: 0, lastEat: -9, mult: 1, levelT: 0, modeT: 0, modeIdx: 0, timer: 0, hitPause: 0,
     item: null, itemSpawns: 0, eatenCount: 0, nextLife: 10000, daily: false, rand: Math.random, hitThisLevel: false, invuln: 0,
-    run: null, flash: 0, t: 0, deathT: 0, reveal: 1, pop: null, popped: false
+    run: null, flash: 0, t: 0, deathT: 0, reveal: 1, pop: null, popped: false,
+    fuel: 0, mega: null
   };
   var player = { x: 10, y: 15, dx: 0, dy: 0, want: null, face: 0, tilt: 0, anim: 0, squash: 0, blink: 2 };
   var storms = [];
@@ -779,13 +780,14 @@
   }
 
   function newGame(daily) {
+    megaStop();
     if (locked()) { G.mode = "title"; lockScreen(); return; }
     G.daily = !!daily;
     var d = today();
     G.rand = daily ? rng(seedOf("daily" + d)) : Math.random;
     G.level = daily ? 3 : 1;
     G.maze = daily ? seedOf("dm" + d) % MAZES.length : 0;
-    G.score = 0; G.lives = daily ? 1 : 3; G.nextLife = daily ? Infinity : 10000; G.shield = false; G.dblT = 0;
+    G.score = 0; G.lives = daily ? 1 : 3; G.nextLife = daily ? Infinity : 10000; G.shield = false; G.dblT = 0; G.fuel = 0; G.mega = null;
     G.run = { score: 0, level: G.level, bestChain: 0, bestMult: 1, pows: 0, blocks: 0, clean: 0, eaten: 0, froze: 0, daily: G.daily, goalsHit: [] };
     save.games++; persist();
     startLevel();
@@ -1032,7 +1034,8 @@
     if (G.t - G.lastEat > 0.6 && G.combo) { G.combo = 0; setMult(1); }
 
     // Glider
-    var pspd = 8.6 * sm * (G.jetT > 0 ? 1.35 : 1);
+    if (G.mega) { megaTick(dt); if (G.mode !== "play") return; }
+    var pspd = 8.6 * sm * (G.mega ? 1.35 + 1.4 * Math.min(1, G.mega.t / (MEGA_LEN * 0.8)) : G.jetT > 0 ? 1.35 : 1);
     var bx = player.x, by = player.y, odx = player.dx, ody = player.dy;
     moveAlong(player, pspd * dt, playerCenter);
     if ((player.dx !== odx || player.dy !== ody) && (player.dx || player.dy)) { player.squash = 0.16; if (!(G.t - G.lastTurn < 0.12)) { G.lastTurn = G.t; sfx("turn"); } }
@@ -1091,6 +1094,7 @@
     }
     var eatenSoFar = G.total - G.sparks;
     if (falling) { if (G.sparks <= 0) closeCall(); return; }
+    if (G.mega) { if (G.sparks <= 0) megaRefill(); return; }
     if ((G.itemSpawns === 0 && eatenSoFar >= 45) || (G.itemSpawns === 1 && eatenSoFar >= 105) || (G.itemSpawns === 2 && eatenSoFar >= 160 && G.level >= 3)) spawnItem();
     if (G.sparks <= 0) levelClear();
   }
@@ -1119,7 +1123,9 @@
   // power-ups bounce in from a jetstream tunnel and wander the maze, like the fruit in the arcade
   function spawnItem() {
     G.itemSpawns++;
+    if (G.mega) return;
     var pool = ["jet", "magnet", "shield", "snow", "dbl", "jet", "magnet", "dbl", "snow", "shield"];
+    if (G.fuel > 0) pool.push("jet", "jet");
     var kind = pool[Math.floor(G.rand() * pool.length)];
     if (!G.daily && G.lives < 5 && G.rand() < 0.07) kind = "heart";
     var left = G.rand() < 0.5;
@@ -1159,7 +1165,11 @@
     points(100, it.x, it.y, "green");
     sfx("power");
     var pp = toPage(it.x, it.y); fx.burst(pp.x, pp.y, 2);
-    if (it.kind === "jet") G.jetT = p.time;
+    if (it.kind === "jet") {
+      G.jetT = p.time; G.fuel = Math.min(FUEL_MAX, G.fuel + 1);
+      if (G.fuel >= FUEL_MAX) { G.run.pows++; checkGoals(); return megaStart(); }
+      showCall("Jet!<small>Fuel " + G.fuel + "/" + FUEL_MAX + "</small>", false); G.run.pows++; checkGoals(); return;
+    }
     else if (it.kind === "magnet") G.magT = p.time;
     else if (it.kind === "shield") G.shield = true;
     else if (it.kind === "snow") { G.freezeT = p.time; G.run.froze++; sfx("freeze"); }
@@ -1187,6 +1197,12 @@
         if (G.chain > G.run.bestChain) G.run.bestChain = G.chain;
         if (G.chain === 4) { fx.quake(stage, true); showCall("Storm Sweep!<small>+" + got.toLocaleString() + "</small>", false, "rainbow"); }
         checkGoals();
+        return;
+      }
+      if (G.mega) {
+        s.state = "eaten"; points(200, s.x, s.y, "x3"); sfx("eat", 2);
+        var mp = toPage(s.x, s.y); fx.burst(mp.x, mp.y, 2); G.run.eaten++;
+        for (var mr = 0; mr < 10; mr++) parts.push({ kind: "dot", x: s.x, y: s.y, vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10, life: 0.5, max: 0.5, c: RAINBOW[mr % 7], s: 3 });
         return;
       }
       if (G.freezeT > 0 || G.invuln > 0) return;
@@ -1321,7 +1337,7 @@
   // ---------------- particles (trails, puffs) ----------------
   function trailPuff() {
     var t = save.trail, jet = G.jetT > 0;
-    if (G.mult >= 5) t = "rainbow";
+    if (G.mult >= 5 || G.mega) t = "rainbow";
     if (t === "none" && !jet) return;
     var bx = player.x - (player.dx || 0) * 0.7, by = player.y - (player.dy || 0) * 0.7 + 0.15;
     if (jet) parts.push({ kind: "dot", x: bx, y: by, life: 0.35, max: 0.35, c: Math.random() < 0.5 ? "#ff8a00" : "#ffe14d", s: 2 });
@@ -1475,6 +1491,7 @@
 
     // Glider
     drawPlayer();
+    if (G.mega) megaGlitch();
     blit();
   }
 
@@ -1608,9 +1625,11 @@
     if (G.freezeT > 0) list.push(["snow", G.freezeT / POWERS.snow.time, G.freezeT]);
     if (G.dblT > 0) list.push(["dbl", G.dblT / POWERS.dbl.time, G.dblT]);
     if (G.shield) list.push(["shield", 1, 9]);
+    if (G.mega) list = [["mega", 1, 9]];
+    else if (G.fuel > 0) list.push(["fuel", G.fuel / FUEL_MAX, 9]);
     // the row is only rebuilt when a power-up starts, ends or starts running low; the timer bars just get shorter in place
     var key = "", i;
-    for (i = 0; i < list.length; i++) key += list[i][0] + (list[i][2] < 1.5 ? "L" : "") + ",";
+    for (i = 0; i < list.length; i++) key += list[i][0] + (list[i][0] === "fuel" ? G.fuel : "") + (list[i][2] < 1.5 ? "L" : "") + ",";
     if (G.mode === "title") key += "t";
     var box = $("sgPows");
     if (lastHud.pows !== key) {
@@ -1618,11 +1637,13 @@
       if (!list.length) { box.innerHTML = '<span class="none">' + (G.mode === "title" ? "Power-ups show up here" : "No power-ups") + '</span>'; return; }
       box.innerHTML = "";
       list.forEach(function (l) {
-        var d = document.createElement("div"); d.className = "sg-pow" + (l[2] < 1.5 ? " low" : "");
-        var c = mk(ICON[l[0]].width, ICON[l[0]].height); c.getContext("2d").drawImage(ICON[l[0]], 0, 0);
+        var d = document.createElement("div"); d.className = "sg-pow" + (l[2] < 1.5 ? " low" : "") + (l[0] === "mega" ? " mega" : "");
+        var ic = ICON[l[0] === "fuel" || l[0] === "mega" ? "jet" : l[0]];
+        var c = mk(ic.width, ic.height); c.getContext("2d").drawImage(ic, 0, 0);
         d.appendChild(c);
-        var t = document.createElement("span"); t.textContent = POWERS[l[0]].name; d.appendChild(t);
-        if (l[0] !== "shield") { var bar = document.createElement("i"), fill = document.createElement("b"); bar.appendChild(fill); d.appendChild(bar); lastHud.bars[l[0]] = { el: fill, w: -1 }; }
+        var t = document.createElement("span");
+        t.textContent = l[0] === "fuel" ? "Fuel " + G.fuel + "/" + FUEL_MAX : l[0] === "mega" ? "MEGA TURBO" : POWERS[l[0]].name; d.appendChild(t);
+        if (l[0] !== "shield" && l[0] !== "mega") { var bar = document.createElement("i"), fill = document.createElement("b"); bar.appendChild(fill); d.appendChild(bar); lastHud.bars[l[0]] = { el: fill, w: -1 }; }
         box.appendChild(d);
       });
     }
@@ -1685,6 +1706,7 @@
       '<a class="sg-btn go wide" href="/games" style="text-decoration:none">Back to the Games</a></div>');
   }
   function titleScreen() {
+    megaStop();
     G.mode = "title"; shopOpen = false; hangarStop();
     ambStop();
     if (locked()) { lockScreen(); hud(); return; }
@@ -1863,10 +1885,203 @@
   window.addEventListener("resize", fit);
   window.addEventListener("orientationchange", function () { setTimeout(fit, 200); });
 
+
+  // ======================================================================
+  // MEGA TURBO SKY GLIDER: three Jets in one flight. Faster and faster, the whole page goes rainbow,
+  // things start going wrong... and then everything cuts to black.
+  // ======================================================================
+  var FUEL_MAX = 3, MEGA_LEN = 24;
+  var MEGA_LINES = [
+    [0, "MEGA TURBO!", "rainbow"], [3.5, "MEGA TURBO SKY GLIDER!!", "rainbow"], [8, "FASTER!", "rainbow"],
+    [12, "faster", ""], [15.5, "keep going", ""], [18.5, "don't look back", ""], [21, "where are you going", ""]
+  ];
+  var root = document.documentElement, megaSnd = null, glitched = [];
+  function calmFx() { return !save.fx || matchMedia("(prefers-reduced-motion: reduce)").matches; }
+
+  function megaStart() {
+    G.mega = { t: 0, hue: 0, line: 0, inv: 0, nextInv: 15, nextScramble: 7 };
+    G.jetT = 0; G.item = null; G.shield = false;
+    storms.forEach(function (s) { s.scared = false; });
+    fx.quake(stage, true); fx.flash(stage, "white");
+    fx.confetti(stage.getBoundingClientRect(), 90);
+    if (save.sound && audio()) {
+      // an engine that never stops climbing: two saws that start in tune and slowly drift apart
+      var now = ac.currentTime, bus = ac.createGain(), lp = ac.createBiquadFilter(), a = osc("sawtooth"), c = osc("sawtooth");
+      lp.type = "lowpass"; lp.frequency.setValueAtTime(700, now); lp.frequency.exponentialRampToValueAtTime(5200, now + MEGA_LEN);
+      a.frequency.setValueAtTime(90, now); a.frequency.exponentialRampToValueAtTime(520, now + MEGA_LEN);
+      c.frequency.setValueAtTime(90.5, now); c.frequency.exponentialRampToValueAtTime(612, now + MEGA_LEN);
+      bus.gain.setValueAtTime(0.0001, now); bus.gain.linearRampToValueAtTime(0.022, now + 0.6); bus.gain.linearRampToValueAtTime(0.05, now + MEGA_LEN);
+      a.connect(lp); c.connect(lp); lp.connect(bus); bus.connect(master); a.start(now); c.start(now);
+      megaSnd = { bus: bus, o: [a, c] };
+      [523, 659, 784, 1047, 1319, 1568, 2093].forEach(function (f, k) { tone(f, k * 0.06, 0.12, 0.09, "square"); });
+    }
+  }
+
+  function megaTick(dt) {
+    var m = G.mega; m.t += dt;
+    var k = Math.min(1, m.t / MEGA_LEN), calm = calmFx();
+    // the whole website spins through the rainbow, faster and more saturated the longer it goes
+    m.hue = (m.hue + dt * (90 + 900 * k * k)) % 360;
+    var f = "hue-rotate(" + Math.round(m.hue) + "deg) saturate(" + (1.3 + 2.2 * k).toFixed(2) + ")";
+    if (!calm && m.t > m.nextInv) { m.inv = 0.07; m.nextInv = m.t + 1.4 - 0.9 * k + Math.random() * 0.6; }   // never faster than ~2 a second
+    if (m.inv > 0) { m.inv -= dt; f += " invert(1)"; }
+    if (k > 0.75) f += " contrast(" + (1 + (k - 0.75) * 2.4).toFixed(2) + ")";
+    root.style.filter = f;
+    // the game window starts to lean and wobble
+    if (!calm && m.t > 6) {
+      var w = (m.t - 6) / (MEGA_LEN - 6);
+      stage.style.transform = "rotate(" + (Math.sin(m.t * (2 + 5 * w)) * 3 * w).toFixed(2) + "deg) skewX(" + (Math.sin(m.t * 3.1) * 4 * w * w).toFixed(2) + "deg)";
+    }
+    // letters around the page start coming loose
+    if (m.t > m.nextScramble) { scrambleSome(1 + Math.floor(k * 5), k > 0.7); m.nextScramble = m.t + 0.5 - 0.35 * k; }
+    // things it says
+    while (m.line < MEGA_LINES.length && m.t >= MEGA_LINES[m.line][0]) { showCall(MEGA_LINES[m.line][1], false, MEGA_LINES[m.line][2]); m.line++; }
+    if (m.t >= MEGA_LEN) cutToBlack();
+  }
+
+  // leaving mid-turbo (quitting to the menu) puts everything back to normal
+  function megaStop() {
+    if (!G.mega) return;
+    G.mega = null;
+    if (megaSnd) { try { var n = ac.currentTime; megaSnd.bus.gain.cancelScheduledValues(n); megaSnd.bus.gain.setTargetAtTime(0.0001, n, 0.05); megaSnd.o.forEach(function (o) { o.stop(n + 0.3); }); } catch (e) {} megaSnd = null; }
+    root.style.filter = ""; stage.style.transform = ""; unscramble();
+  }
+
+  function megaRefill() {
+    var src = MAZES[G.maze], n = 0;
+    for (var y = 0; y < ROWS; y++) for (var x = 0; x < COLS; x++) {
+      var c = src[y][x];
+      if ((c === "." || c === "o" || c === "P") && G.grid[y][x] === " ") { G.grid[y][x] = "."; n++; }
+    }
+    G.sparks = n; G.total = n;
+    fx.flash(stage, "white");
+  }
+
+  // horizontal slices of the picture slipping sideways, worse and worse near the end
+  function megaGlitch() {
+    var k = G.mega.t / MEGA_LEN;
+    if (k < 0.55 || calmFx()) return;
+    var n = Math.floor((k - 0.55) * 14);
+    for (var i = 0; i < n; i++) {
+      if (Math.random() > 0.35) continue;
+      var y = Math.floor(Math.random() * BW), h = 4 + Math.floor(Math.random() * 26), dx = Math.round((Math.random() - 0.5) * 60 * k);
+      b.drawImage(canvas, 0, y, BW, h, dx, y, BW, h);
+    }
+  }
+
+  // swap letters in the page's titles and menu for wrong ones (put back afterwards unless it's too late)
+  var GLYPHS = "░▒▓█¿§ØÞЖЯΔ#?!01";
+  function scrambleSome(n, keep) {
+    var els = Array.prototype.slice.call(document.querySelectorAll(".navbar a, .box-title > span, .sg-hud small, #sgLegend b, .content h2, .content h3"));
+    for (var i = 0; i < n && els.length; i++) {
+      var el = els[Math.floor(Math.random() * els.length)];
+      if (!el.firstChild || el.firstChild.nodeType !== 3) continue;
+      if (!el.hasAttribute("data-sg-orig")) { el.setAttribute("data-sg-orig", el.firstChild.nodeValue); glitched.push(el); }
+      var orig = el.getAttribute("data-sg-orig"), out = "";
+      for (var j = 0; j < orig.length; j++) out += orig[j] !== " " && Math.random() < 0.45 ? GLYPHS[Math.floor(Math.random() * GLYPHS.length)] : orig[j];
+      el.firstChild.nodeValue = out;
+      if (!keep) (function (e) { setTimeout(function () { if (G.mega && e.firstChild) e.firstChild.nodeValue = e.getAttribute("data-sg-orig"); }, 260); })(el);
+    }
+  }
+  function unscramble() {
+    glitched.forEach(function (el) { if (el.firstChild) el.firstChild.nodeValue = el.getAttribute("data-sg-orig"); el.removeAttribute("data-sg-orig"); });
+    glitched = [];
+  }
+
+  // ---------------- the void ----------------
+  function cutToBlack() {
+    G.mega = null; G.mode = "void";
+    // the flight still counts
+    G.run.score = G.score; checkGoals();
+    save.stars += Math.floor(G.score / 250);
+    if (G.score > save.best) save.best = G.score;
+    if (G.daily) { if (!save.daily || save.daily.date !== today()) save.daily = { date: today(), best: 0 }; if (G.score > save.daily.best) save.daily.best = G.score; }
+    persist();
+    // everything stops. no fade.
+    if (megaSnd) { try { megaSnd.o.forEach(function (o) { o.stop(); }); megaSnd.bus.disconnect(); } catch (e) {} megaSnd = null; }
+    ambStop(); hangarStop();
+    if (ac) { master.gain.cancelScheduledValues(ac.currentTime); master.gain.setValueAtTime(0, ac.currentTime); }
+    root.style.filter = ""; stage.style.transform = ""; callEl.className = "sg-call";
+    var v = document.createElement("div");
+    v.id = "sgVoid";
+    v.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:#000;cursor:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;" +
+      "font-family:'Courier New',Courier,monospace;font-size:15px;color:#7a7a7a;text-align:center;padding:24px;box-sizing:border-box;user-select:none;-webkit-user-select:none";
+    document.body.appendChild(v);
+    root.style.overflow = "hidden";
+    setTimeout(unscramble, 50);
+    var title = document.title; document.title = "​";
+    voidScript(v, title);
+  }
+
+  function voidScript(v, oldTitle) {
+    var dr = null;
+    function drone() {
+      if (!save.sound || !ac) return;
+      // a low hum underneath everything, straight to the speakers (the game's own sound is gone)
+      var now = ac.currentTime, g = ac.createGain(), a = ac.createOscillator(), c = ac.createOscillator(), lp = ac.createBiquadFilter();
+      a.type = "sine"; a.frequency.value = 43; c.type = "triangle"; c.frequency.value = 43.6;
+      lp.type = "lowpass"; lp.frequency.value = 180;
+      g.gain.setValueAtTime(0.0001, now); g.gain.linearRampToValueAtTime(0.09, now + 6);
+      a.connect(lp); c.connect(lp); lp.connect(g); g.connect(ac.destination); a.start(now); c.start(now);
+      dr = { g: g };
+    }
+    function tick() {
+      if (!save.sound || !ac) return;
+      var t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+      o.type = "square"; o.frequency.value = 180 + Math.random() * 40;
+      g.gain.setValueAtTime(0.012, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
+      o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 0.04);
+    }
+    function type(text, cls, done) {
+      var p = document.createElement("div"); p.style.cssText = "min-height:1.3em;white-space:pre;letter-spacing:1px;" + (cls || "");
+      v.appendChild(p);
+      var i = 0;
+      (function next() {
+        if (i >= text.length) { if (done) setTimeout(done, 1700); return; }
+        p.textContent += text[i]; if (text[i] !== " ") tick(); i++;
+        setTimeout(next, text[i - 1] === "." ? 420 : 75 + Math.random() * 60);
+      })();
+      return p;
+    }
+    setTimeout(drone, 3000);
+    setTimeout(function () {
+      type("you went too fast.", "", function () {
+        type("the sky ran out of sky.", "", function () {
+          type("this was never the website you remember.", "", function () {
+            v.style.transition = "opacity 1.2s"; v.style.opacity = "0";
+            setTimeout(function () {
+              v.innerHTML = ""; v.style.opacity = "1"; v.style.cursor = "default";
+              type("CONTINUE ON COLE'S WEBSITE 2024 VERSION?", "color:#b0b0b0;font-size:17px", function () {
+                var btn = document.createElement("button");
+                btn.textContent = "[ CONTINUE ]";
+                btn.style.cssText = "margin-top:18px;background:none;border:0;color:#b0b0b0;font:inherit;font-size:17px;letter-spacing:2px;cursor:pointer;padding:8px 14px;animation:sg-void-blink 1.1s steps(2) infinite";
+                var st = document.createElement("style"); st.textContent = "@keyframes sg-void-blink{50%{opacity:0}} #sgVoid button:hover,#sgVoid button:focus{color:#fff;outline:none}";
+                v.appendChild(st); v.appendChild(btn);
+                var stamp = document.createElement("div");
+                stamp.textContent = "11.01.2024  03:33";
+                stamp.style.cssText = "position:absolute;right:16px;bottom:12px;font-size:11px;color:#2a2a2a";
+                v.appendChild(stamp);
+                btn.focus({ preventScroll: true });
+                btn.onclick = function () {
+                  btn.onclick = null;
+                  try { localStorage.setItem("cw_2024", String(Date.now())); } catch (e) {}
+                  if (dr) dr.g.gain.setTargetAtTime(0.0001, ac.currentTime, 0.05);
+                  v.innerHTML = ""; v.style.cursor = "none";
+                  setTimeout(function () { location.href = "/2024/"; }, 1400);
+                };
+              });
+            }, 1600);
+          });
+        });
+      });
+    }, 3600);
+  }
+
   // ---------------- loop ----------------
   var last = performance.now(), acc = 0, STEP = 1 / 120, lastDraw = 0;
   function loop(now) {
     var dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (G.mode === "void") return;
     if (G.mode !== "paused") {
       var wasPlay = G.mode === "play";
       acc += dt;
