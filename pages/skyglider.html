@@ -109,7 +109,7 @@
       <p>Every level gets a little faster, and so does every second you spend on one. Earn stars every flight to buy new paint jobs and trails in the <b>Hangar</b>, and check your <b>Flight Goals</b> for bonus stars. The <b>Daily Flight</b> is the same for everyone and you only get one life.</p>
       <p><span class="sg-kbonly">Keyboard: arrow keys or WASD to fly, Space to start, P to pause, M to mute.</span> On a phone, swipe anywhere, tap the maze where you want to go, or hold the arrow pad and slide your thumb around it to steer.</p>
       <p><b>Credits:</b> Glider made by <a href="https://www.instagram.com/_sqeakz/" target="_blank" rel="noopener noreferrer">cherrie/sqeakz</a> on Instagram. Concept and game made by Cole.</p>
-      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.9</span></summary><dl><dt>1.9</dt><dd>&bull; Everything is breathing</dd><dd>&bull; Tell him he can</dd><dt>1.8.1</dt><dd>&bull; Some lanes are darker than others</dd><dt>1.8</dt><dd>&bull; The hangar is listening</dd><dd>&bull; Don&rsquo;t fly too fast</dd><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
+      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.9.1</span></summary><dl><dt>1.9.1</dt><dd>&bull; Only one kind of fuel on the other side</dd><dd>&bull; The lane is closed</dd><dd>&bull; Bug fixes</dd><dt>1.9</dt><dd>&bull; Everything is breathing</dd><dd>&bull; Tell him he can</dd><dt>1.8.1</dt><dd>&bull; Some lanes are darker than others</dd><dt>1.8</dt><dd>&bull; The hangar is listening</dd><dd>&bull; Don&rsquo;t fly too fast</dd><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
       <button class="sg-btn go sg-helpx" id="sgHelpClose">Got it!</button>
     </div>
   </div>
@@ -787,7 +787,7 @@
     G.rand = daily ? rng(seedOf("daily" + d)) : Math.random;
     G.level = daily ? 3 : 1;
     G.maze = daily ? seedOf("dm" + d) % MAZES.length : 0;
-    G.score = 0; G.lives = daily ? 1 : 3; G.nextLife = daily ? Infinity : 10000; G.shield = false; G.dblT = 0; G.fuel = 0; G.mega = null; G.darklane = false; G.darklaneT = 0; G.argRun = save.arg;
+    G.score = 0; G.lives = daily ? 1 : 3; G.nextLife = daily ? Infinity : 10000; G.shield = false; G.dblT = 0; G.fuel = 0; G.mega = null; G.argRun = save.arg;
     G.run = { score: 0, level: G.level, bestChain: 0, bestMult: 1, pows: 0, blocks: 0, clean: 0, eaten: 0, froze: 0, daily: G.daily, goalsHit: [] };
     save.games++; persist();
     startLevel();
@@ -988,7 +988,7 @@
     if (G.mode === "ready") {
       if (G.reveal < 1) G.reveal = Math.min(1, G.reveal + dt * 1.8);
       G.timer -= dt;
-      if (G.timer <= 0) { G.mode = "play"; showCall("Go!", false); sfx("go"); if (G.darklane) { G.darklane = false; darklaneFill(); } }
+      if (G.timer <= 0) { G.mode = "play"; showCall("Go!", false); sfx("go"); }
       return;
     }
     if (G.mode === "dying") {
@@ -1032,9 +1032,6 @@
     if (G.invuln > 0) G.invuln -= dt;
     if (G.item) updateItem(dt);
     if (G.t - G.lastEat > 0.6 && G.combo) { G.combo = 0; setMult(1); }
-
-    // "darklane": a full tank, then Mega Turbo a beat later
-    if (G.darklaneT > 0 && !G.mega) { G.darklaneT -= dt; if (G.darklaneT <= 0) { G.darklaneT = 0; G.fuel = FUEL_MAX; megaStart(); } }
 
     // Glider
     if (G.mega) { megaTick(dt); if (G.mode !== "play") return; }
@@ -1127,10 +1124,13 @@
   function spawnItem() {
     G.itemSpawns++;
     if (G.mega) return;
-    var pool = ["jet", "magnet", "shield", "snow", "dbl", "jet", "magnet", "dbl", "snow", "shield"];
-    if (G.argRun && G.fuel > 0) pool.push("jet", "jet");
-    var kind = pool[Math.floor(G.rand() * pool.length)];
-    if (!G.daily && G.lives < 5 && G.rand() < 0.07) kind = "heart";
+    // Side B: Jets are the only thing that shows up, so the tank fills to 3/3 a lot sooner
+    var kind = "jet";
+    if (!G.argRun) {
+      var pool = ["jet", "magnet", "shield", "snow", "dbl", "jet", "magnet", "dbl", "snow", "shield"];
+      kind = pool[Math.floor(G.rand() * pool.length)];
+      if (!G.daily && G.lives < 5 && G.rand() < 0.07) kind = "heart";
+    }
     var left = G.rand() < 0.5;
     G.item = { x: left ? -1 : COLS, y: 9, dx: left ? 1 : -1, dy: 0, kind: kind, t: 15, hop: 0 };
     sfx("itemIn");
@@ -1773,7 +1773,7 @@
 
   function pause() {
     if (G.mode !== "play" && G.mode !== "ready") return;
-    G.prevMode = G.mode; G.mode = "paused"; ambStop(); sfx("pause");
+    G.prevMode = G.mode; G.mode = "paused"; ambStop(); megaPause(); sfx("pause");
     pauseMenu();
   }
   function pauseMenu() {
@@ -1786,7 +1786,7 @@
   }
   function resume() {
     if (G.mode !== "paused") return;
-    closeDialog(); G.mode = G.prevMode || "play"; sfx("resume"); ambStart(); last = performance.now();
+    closeDialog(); G.mode = G.prevMode || "play"; sfx("resume"); ambStart(); megaResume(); last = performance.now();
   }
 
   var shopOpen = false;
@@ -1842,7 +1842,9 @@
     document.body.classList.toggle("sg-nofx", !save.fx);
   }
   function toggleSound() {
+    if (G.mode === "void") return;   // nothing changes in the dark
     save.sound = !save.sound; persist(); syncButtons(); sfx("click");
+    if (G.mega && G.mode === "play") megaSound(G.mega.t);   // starts or stops the turbo's sound where it is
     if (save.sound && (G.mode === "play" || G.mode === "ready")) ambStart(); else ambStop();
     if (save.sound && shopOpen) hangarStart(); else hangarStop();
   }
@@ -1934,8 +1936,13 @@
     megaVeil.style.cssText = "position:fixed;inset:0;z-index:2147483000;pointer-events:none;opacity:0;background:#000";
     document.body.appendChild(megaVeil);
     warpOn();
+    megaSound(0);
+  }
+  // the turbo's sound, scheduled from `from` seconds into the flight (so a pause can stop it and pick it back up in the same spot)
+  function megaSound(from) {
+    megaSoundOff();
     if (save.sound && audio()) {
-      var now = ac.currentTime, L = MEGA_LEN, out = ac.createGain(), lp = ac.createBiquadFilter(), oscs = [];
+      var real = ac.currentTime, now = real - from, L = MEGA_LEN, out = ac.createGain(), lp = ac.createBiquadFilter(), oscs = [];
       lp.type = "lowpass"; lp.frequency.setValueAtTime(500, now);
       lp.frequency.linearRampToValueAtTime(2400, now + L * M_UNRAVEL); lp.frequency.linearRampToValueAtTime(300, now + L);
       out.gain.setValueAtTime(0.0001, now); out.gain.linearRampToValueAtTime(0.05, now + 4);
@@ -1959,7 +1966,9 @@
       var tb = now + L * (M_FADE - 0.04), gap = 0.62;
       while (tb < now + L * 0.94) {
         [0, 0.17].forEach(function (d, j) {
-          var o = ac.createOscillator(), g = ac.createGain(), t0 = tb + d;
+          var t0 = tb + d;
+          if (t0 < real) return;   // already went by before a pause
+          var o = ac.createOscillator(), g = ac.createGain();
           o.type = "sine"; o.frequency.setValueAtTime(j ? 52 : 60, t0); o.frequency.exponentialRampToValueAtTime(34, t0 + 0.16);
           g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(j ? 0.16 : 0.24, t0 + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.22);
           o.connect(g); g.connect(master); o.start(t0); o.stop(t0 + 0.25); oscs.push(o);
@@ -2013,15 +2022,31 @@
     return (1.3 + 1.2 * sstep(0.1, M_FADE, k)) * (1 - 0.85 * sstep(M_FADE, 0.95, k));
   }
 
+  function megaSoundOff() {
+    if (!megaSnd) return;
+    try {
+      var n = ac.currentTime;
+      megaSnd.buses.forEach(function (b) { b.gain.cancelScheduledValues(n); b.gain.setValueAtTime(0, n); });
+      megaSnd.o.forEach(function (o) { try { o.stop(n + 0.02); } catch (e) {} });
+    } catch (e) {}
+    megaSnd = null;
+  }
+  // paused mid-turbo: the sound stops where it is, and the trip lets go of the page so the pause menu can be read
+  function megaPause() {
+    if (!G.mega) return;
+    megaSoundOff();
+    root.style.filter = ""; stage.style.transform = "";
+    var wrap = document.querySelector(".wrap"); if (wrap) wrap.style.transform = "";
+    if (megaVeil) megaVeil.style.opacity = "0";
+    if (megaWarp) stage.style.filter = "";   // the pause menu sits inside the game window, so it would melt too
+  }
+  function megaResume() {
+    if (!G.mega) return;
+    if (megaWarp) stage.style.filter = "url(#sgMelt)";
+    megaSound(G.mega.t);
+  }
   function megaClean() {
-    if (megaSnd) {
-      try {
-        var n = ac.currentTime;
-        megaSnd.buses.forEach(function (b) { b.gain.cancelScheduledValues(n); b.gain.setValueAtTime(0, n); });
-        megaSnd.o.forEach(function (o) { try { o.stop(n + 0.02); } catch (e) {} });
-      } catch (e) {}
-      megaSnd = null;
-    }
+    megaSoundOff();
     if (megaVeil) { megaVeil.remove(); megaVeil = null; }
     warpOff();
     var wrap = document.querySelector(".wrap"); if (wrap) wrap.style.transform = "";
@@ -2195,6 +2220,7 @@
       if (keyH) document.removeEventListener("keydown", keyH, true);
       keyH = function (e) {
         var k = e.key;
+        if (e.repeat) { e.preventDefault(); e.stopPropagation(); return; }   // holding a key down doesn't count, every answer is a press
         if (k === "ArrowLeft" || k === "a" || k === "A") { sel = Math.max(0, sel - 1); mark(); }
         else if (k === "ArrowRight" || k === "d" || k === "D") { sel = Math.min(opts.length - 1, sel + 1); mark(); }
         else if (k === "Enter" || k === " " || k === "z" || k === "Z") fin(sel);
@@ -2226,13 +2252,13 @@
     function rush() {
       staticOn();
       var idx = 0, left = 0, limit = 1, lastT = performance.now();
-      function step() {
+      function step(again) {
         var k = idx / N;
         // the screen fills with white, and the box with it, until you can barely read anything
         var w = Math.round(255 * Math.pow(k, 1.25)), tc = Math.round(200 + 55 * k);
         v.style.background = "rgb(" + w + "," + w + "," + w + ")";
         v.style.color = "rgb(" + tc + "," + tc + "," + tc + ")";
-        limit = 2.8 - 1.6 * k; left = limit;
+        if (!again) { limit = 2.8 - 1.6 * k; left = limit; }   // saying STOP doesn't buy you more time
         txt.textContent = garble(WORDS[idx % WORDS.length], Math.max(0, (k - 0.5) * 1.2));
         if (stat) { var n = ac.currentTime; stat.bp.frequency.setTargetAtTime(700 + 6500 * k, n, 0.05); }
         // two choices. at first one of them says STOP (and does nothing). later they both say FLY.
@@ -2240,7 +2266,7 @@
         var start = Math.floor(Math.random() * 2);
         choose(opts, start, function (i, o) {
           if (done) return;
-          if (o === "STOP") { pick(false); box.classList.remove("no"); void box.offsetWidth; box.classList.add("no"); return step(); }
+          if (o === "STOP") { pick(false); box.classList.remove("no"); void box.offsetWidth; box.classList.add("no"); return step(true); }
           pick(true); idx++;
           if (idx >= N) return made();
           step();
@@ -2328,45 +2354,6 @@
     if (b && nm && nm.firstChild && nm.firstChild.nodeType === 3) nm.firstChild.nodeValue = nm.firstChild.nodeValue.replace(/\s*$/, "") + "_b";
   })();
 
-  // Type "darklane" anywhere on the page: ARG mode on, the tank fills to 3/3 and Mega Turbo starts.
-  // From the title or game over it starts a flight first and fills the tank on "Go!".
-  var dlSeq = "darklane", dlBuf = "", dlBusy = false;
-  document.addEventListener("keydown", function (e) {
-    if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
-    if (e.key.length !== 1) return;
-    dlBuf = (dlBuf + e.key.toLowerCase()).slice(-dlSeq.length);
-    if (dlBuf === dlSeq) { dlBuf = ""; darklane(); }
-  });
-  function darklaneFill() {
-    G.argRun = true; G.fuel = FUEL_MAX; G.item = null;
-    showCall("Fuel " + FUEL_MAX + "/" + FUEL_MAX + "<small>something is waiting</small>", false, "");
-    G.darklaneT = 1.1;
-  }
-  function darklane() {
-    if (locked() || dlBusy || argBusy || G.mega || G.darklaneT > 0 || G.mode === "void" || G.mode === "dying") return;
-    dlBusy = true;
-    if (!save.arg) { save.arg = true; persist(); }
-    var mid = G.mode === "play" || G.mode === "ready" || G.mode === "paused";
-    // same dark moment as the secret switch, but it doesn't wait for you
-    var v = document.createElement("div");
-    v.style.cssText = "position:absolute;inset:0;z-index:50;background:#000;display:flex;align-items:center;justify-content:center;text-align:center;" +
-      "font-family:'Courier New',Courier,monospace;font-size:15px;letter-spacing:1px;color:#8a2020;opacity:0;transition:opacity .25s";
-    v.textContent = "the dark lane is open.";
-    stage.appendChild(v);
-    requestAnimationFrame(function () { v.style.opacity = "1"; });
-    if (save.sound && audio()) { tone(55, 0, 1.6, 0.2, "triangle", 41); tone(58.3, 0.05, 1.6, 0.08, "sawtooth", 43); noiseF(0, 1.2, 0.06, "lowpass", 400, 0.7, master, 120, 0.3); }
-    setTimeout(function () {
-      v.style.opacity = "0";
-      setTimeout(function () { v.remove(); dlBusy = false; }, 300);
-      if (G.mega) return;
-      if (mid) {
-        if (G.mode === "paused") resume();
-        if (G.mode === "play") darklaneFill(); else G.darklane = true;
-      } else if (G.mode === "title" || G.mode === "over") {
-        closeDialog(); newGame(false); G.darklane = true;
-      }
-    }, 1500);
-  }
   (function () { var nm = document.querySelector(".sg > .box-title > span") || document.querySelector(".box-title > span"); if (nm) nm.addEventListener("click", nameTap); })();
 
   // ---------------- loop ----------------
