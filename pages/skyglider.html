@@ -2327,7 +2327,7 @@
   function toggle2023() {
     if (locked() || busy2023) return;
     busy2023 = true;
-    save.y2023 = !save.y2023; persist();
+    save.y2023 = !save.y2023; persist(); nameTag();
     var on = save.y2023, mid = G.mode === "play" || G.mode === "ready" || G.mode === "paused";
     // the game window goes dark for a moment
     var v = document.createElement("div");
@@ -2348,11 +2348,15 @@
     }, on ? 1900 : 900);
   }
   window.cwKonami = toggle2023;
-  (function () {
-    var b = false; try { b = !!localStorage.getItem("cw_2023"); } catch (e) {}
-    var nm = document.querySelector(".sg > .box-title > span");
-    if (b && nm && nm.firstChild && nm.firstChild.nodeType === 3) nm.firstChild.nodeValue = nm.firstChild.nodeValue.replace(/\s*$/, "") + " 2023";
-  })();
+  // "Sky Glider 2023" in the window title, only while 2023 mode is on (and only for people who've been there)
+  var nameEl = document.querySelector(".sg > .box-title > span"), nameBase = null;
+  function nameTag() {
+    if (!nameEl || !nameEl.firstChild || nameEl.firstChild.nodeType !== 3) return;
+    if (nameBase === null) nameBase = nameEl.firstChild.nodeValue.replace(/\s*$/, "");
+    var been = false; try { been = !!localStorage.getItem("cw_2023"); } catch (e) {}
+    nameEl.firstChild.nodeValue = save.y2023 && been ? nameBase + " 2023" : nameBase;
+  }
+  nameTag();
 
   (function () { var nm = document.querySelector(".sg > .box-title > span") || document.querySelector(".box-title > span"); if (nm) nm.addEventListener("click", nameTap); })();
 
