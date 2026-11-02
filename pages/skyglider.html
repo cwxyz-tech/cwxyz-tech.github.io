@@ -109,7 +109,7 @@
       <p>Every level gets a little faster, and so does every second you spend on one. Earn stars every flight to buy new paint jobs and trails in the <b>Hangar</b>, and check your <b>Flight Goals</b> for bonus stars. The <b>Daily Flight</b> is the same for everyone and you only get one life.</p>
       <p><span class="sg-kbonly">Keyboard: arrow keys or WASD to fly, Space to start, P to pause, M to mute.</span> On a phone, swipe anywhere, tap the maze where you want to go, or hold the arrow pad and slide your thumb around it to steer.</p>
       <p><b>Credits:</b> Glider made by <a href="https://www.instagram.com/_sqeakz/" target="_blank" rel="noopener noreferrer">cherrie/sqeakz</a> on Instagram. Concept and game made by Cole.</p>
-      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.10.1</span></summary><dl><dt>1.10.1</dt><dd>&bull; Quieter</dd><dt>1.10</dt><dd>&bull; Power-ups stack</dd><dd>&bull; You can steer the fall</dd><dd>&bull; Fits short screens</dd><dt>1.9.2</dt><dd>&bull; Goals are a little more honest now</dd><dt>1.9.1</dt><dd>&bull; Only one kind of fuel in 2023</dd><dd>&bull; The lane is closed</dd><dd>&bull; Bug fixes</dd><dt>1.9</dt><dd>&bull; Everything is breathing</dd><dd>&bull; Tell him he can</dd><dt>1.8.1</dt><dd>&bull; Some lanes are darker than others</dd><dt>1.8</dt><dd>&bull; The hangar is listening</dd><dd>&bull; Don&rsquo;t fly too fast</dd><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
+      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.11</span></summary><dl><dt>1.11</dt><dd>&bull; Switching is smoother</dd><dd>&bull; Quieter when it matters</dd><dd>&bull; He&rsquo;s hungry</dd><dt>1.10.1</dt><dd>&bull; Quieter</dd><dt>1.10</dt><dd>&bull; Power-ups stack</dd><dd>&bull; You can steer the fall</dd><dd>&bull; Fits short screens</dd><dt>1.9.2</dt><dd>&bull; Goals are a little more honest now</dd><dt>1.9.1</dt><dd>&bull; Only one kind of fuel in 2023</dd><dd>&bull; The lane is closed</dd><dd>&bull; Bug fixes</dd><dt>1.9</dt><dd>&bull; Everything is breathing</dd><dd>&bull; Tell him he can</dd><dt>1.8.1</dt><dd>&bull; Some lanes are darker than others</dd><dt>1.8</dt><dd>&bull; The hangar is listening</dd><dd>&bull; Don&rsquo;t fly too fast</dd><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
       <button class="sg-btn go sg-helpx" id="sgHelpClose">Got it!</button>
     </div>
   </div>
@@ -1753,6 +1753,10 @@
       }).join("") + '</div><p><b>' + st.count + ' / 3</b> played</p>' +
       '<a class="sg-btn go wide" href="/games" style="text-decoration:none">Back to the Games</a></div>');
   }
+  function taglineHtml() {
+    return save.y2023 ? 'Grab every sparkle. Dodge the storms.<br><span class="sg-2023line">' + (wrongOnce() ? "He was wrong." : "Don't fly too fast.") + '</span>'
+      : 'Grab every sparkle. Dodge the storms.<br>It gets faster every level!';
+  }
   function wrongOnce() { try { return !!localStorage.getItem("cw_glider_wrong"); } catch (e) { return false; } }
   function titleScreen() {
     megaStop();
@@ -1763,8 +1767,7 @@
     var html = '<div class="dt">Sky Glider</div><div class="db">' +
       '<div class="sg-title' + (save.y2023 ? ' y2023' : '') + '" id="sgTitleName">' + "Sky Glider".split("").map(function (ch, i) { return ch === " " ? " " : '<span class="cw-hop" style="animation-delay:' + i * 0.06 + 's">' + ch + '</span>'; }).join("") + '</div>' +
       '<div class="sg-flyby" id="sgFlyby"></div>' +
-      (save.y2023 ? '<p>Grab every sparkle. Dodge the storms.<br><span class="sg-2023line">' + (wrongOnce() ? "He was wrong." : "Don\'t fly too fast.") + '</span></p>'
-        : '<p>Grab every sparkle. Dodge the storms.<br>It gets faster every level!</p>') +
+      '<p id="sgTagline">' + taglineHtml() + '</p>' +
       '<button class="sg-btn go wide" id="sgPlay">&#9654; Fly! <kbd>(Space)</kbd></button>' +
       '<div class="sg-row2"><button class="sg-btn" id="sgDaily">&#9728; Daily Flight' + (dailyBest ? " (" + dailyBest.toLocaleString() + ")" : "") + '</button><button class="sg-btn" id="sgShop2">&#9992; Hangar</button></div>' +
       goalsHtml() +
@@ -2034,20 +2037,19 @@
           var so = ac.createOscillator(), sgn = ac.createGain(), f0 = 180 + Math.random() * 1800 * (0.4 + (cs - now) / L);
           so.type = Math.random() < 0.5 ? "square" : "sawtooth";
           so.frequency.setValueAtTime(f0, cs); so.frequency.exponentialRampToValueAtTime(f0 * (Math.random() < 0.5 ? 0.3 : 3), cs + 0.09);
-          sgn.gain.setValueAtTime(0.0001, cs); sgn.gain.linearRampToValueAtTime(0.022, cs + 0.005); sgn.gain.exponentialRampToValueAtTime(0.0001, cs + 0.1);
+          sgn.gain.setValueAtTime(0.0001, cs); sgn.gain.linearRampToValueAtTime(0.014, cs + 0.005); sgn.gain.exponentialRampToValueAtTime(0.0001, cs + 0.1);
           so.connect(sgn); sgn.connect(sq); so.start(cs); so.stop(cs + 0.11); oscs.push(so);
         }
         cs += cg * (0.5 + Math.random()); cg = Math.max(0.025, cg * 0.93);
       }
-      // and static that rises under all of it
-      var nl = ac.sampleRate * 2, nb = ac.createBuffer(1, nl, ac.sampleRate), nd = nb.getChannelData(0);
-      for (var ni = 0; ni < nl; ni++) nd[ni] = Math.random() * 2 - 1;
-      var ns = ac.createBufferSource(), nbp = ac.createBiquadFilter(), ng = ac.createGain();
-      ns.buffer = nb; ns.loop = true; nbp.type = "bandpass"; nbp.Q.value = 0.8;
-      nbp.frequency.setValueAtTime(300, now + L * C_START); nbp.frequency.exponentialRampToValueAtTime(7000, now + L);
-      ng.gain.setValueAtTime(0.0001, now + L * C_START); ng.gain.linearRampToValueAtTime(0.07, now + L);
-      ns.connect(nbp); nbp.connect(ng); ng.connect(master); ns.start(real); oscs.push(ns);
-      megaSnd = { buses: [out, sq, ng], o: oscs };
+      // and a deep swell underneath it all (no static: it was a harsh hiss right when things started going wrong)
+      var sw = ac.createOscillator(), sw2 = ac.createOscillator(), swg = ac.createGain();
+      sw.type = "sine"; sw2.type = "sine";
+      sw.frequency.setValueAtTime(41, now); sw.frequency.exponentialRampToValueAtTime(62, now + L);
+      sw2.frequency.setValueAtTime(41.6, now); sw2.frequency.exponentialRampToValueAtTime(63.5, now + L);
+      swg.gain.setValueAtTime(0.0001, now + L * C_START); swg.gain.linearRampToValueAtTime(0.11, now + L);
+      sw.connect(swg); sw2.connect(swg); swg.connect(master); sw.start(real); sw2.start(real); oscs.push(sw, sw2);
+      megaSnd = { buses: [out, sq, swg], o: oscs };
     }
   }
 
@@ -2063,6 +2065,8 @@
       f += " blur(" + (breathe * 1.4 * sstep(0.08, 0.3, k) * (1 - sstep(C_START, 0.5, k))).toFixed(2) + "px)";   // the blur gives way to the chaos (and keeps it running smooth)
       if (k > M_UNRAVEL && Math.random() < 0.06 * k) f += " invert(1)";   // a frame here and there flips inside out
       f += " contrast(" + (1 + 0.6 * sstep(M_UNRAVEL, 1, k)).toFixed(2) + ")";
+      // and brighter and brighter, until it's hard to see anything
+      f += " brightness(" + (1 + 0.25 * sstep(0.35, 0.7, k) + 1.1 * sstep(0.7, 1, k) * (0.85 + 0.15 * Math.sin(m.t * 23))).toFixed(2) + ")";
     }
     root.style.filter = f;
     // the page breathes in and out, the game window sways like it's underwater, then starts to lurch
@@ -2176,6 +2180,8 @@
   // every piece of the page starts moving on its own, copies of the page and of Glider fly everywhere,
   // more and more of them, faster and faster, right up until the cut.
   var C_START = 0.22, chaosEls = [], chaosLayer = null, chaosLive = 0, chaosSpawn = 0, chaosShot = null, chaosShotT = -9, chaosWords = [];
+  // Glider climbing out of the game to eat the page, the storms haunting it, and the glare that washes it all out
+  var eaters = [], roamers = [], glare = null, lastChomp = 0;
   function chaosStart() {
     chaosEnd();
     if (calmFx()) return;
@@ -2192,6 +2198,10 @@
     chaosLayer = document.createElement("div");
     chaosLayer.style.cssText = "position:fixed;inset:0;z-index:2147483000;pointer-events:none;overflow:hidden";
     document.body.appendChild(chaosLayer);
+    glare = document.createElement("div");
+    glare.style.cssText = "position:absolute;inset:-20%;z-index:4;opacity:0;mix-blend-mode:screen;will-change:opacity,transform;" +
+      "background:radial-gradient(circle at 50% 50%,rgba(255,255,240,.95) 0,rgba(255,255,255,.55) 32%,rgba(255,255,255,0) 68%)";
+    chaosLayer.appendChild(glare);
   }
   function chaosTick(m, k) {
     if (!chaosLayer || calmFx()) return;
@@ -2201,6 +2211,7 @@
     var wild = c * c;
     // every piece of the page wobbles, spins and flies off on its own
     chaosEls.forEach(function (o) {
+      if (o.eaten) return;
       var s2 = o.sp * (1 + 4 * c);
       var x = Math.sin(t * s2 + o.a) * 60 * wild + (Math.random() - 0.5) * 24 * wild;
       var y = Math.cos(t * s2 * 0.8 + o.b) * 40 * wild + (Math.random() - 0.5) * 24 * wild;
@@ -2221,6 +2232,134 @@
     if (t - chaosShotT > 0.4) { try { chaosShot = canvas.toDataURL(); } catch (e) { chaosShot = null; } chaosShotT = t; }
     chaosSpawn += (3 + 140 * wild) / 60;
     while (chaosSpawn >= 1) { chaosSpawn--; if (chaosLive < 120) chaosGhost(c); }
+    eatersTick(m, k);
+    roamersTick(m, k);
+    if (glare) {
+      var gl = sstep(0.6, 1, k);
+      glare.style.opacity = (gl * (0.55 + 0.35 * Math.sin(t * 17) * Math.sin(t * 5.3))).toFixed(3);
+      glare.style.transform = "translate(" + (Math.sin(t * 1.7) * 18).toFixed(1) + "%," + (Math.cos(t * 1.3) * 14).toFixed(1) + "%) scale(" + (1 + gl * 0.6).toFixed(2) + ")";
+    }
+  }
+
+  // a big chomping Glider, drawn from his own sprite
+  function eaterSprite(size) {
+    var cv = mk(20, 20);
+    cv.style.cssText = "position:absolute;left:0;top:0;z-index:3;width:" + size + "px;height:" + size + "px;image-rendering:pixelated;will-change:transform;filter:drop-shadow(0 0 12px rgba(255,255,255,.7))";
+    chaosLayer.appendChild(cv);
+    return cv;
+  }
+  function paintEater(e) {
+    var g = e.cv.getContext("2d"), l = LIVERIES.filter(function (q) { return q.id === save.liv; })[0];
+    var set = gliderSet(save.liv, l && l.rainbow ? Math.floor(performance.now() / 100) : 0);
+    g.clearRect(0, 0, 20, 20); g.drawImage(set[0][e.fr % set[0].length], 0, 0);
+  }
+  // somewhere on the page that hasn't been eaten yet
+  function pickMeal() {
+    var left = chaosEls.filter(function (o) { return !o.eaten && !o.claimed; });
+    if (!left.length) return null;
+    var o = left[Math.floor(Math.random() * left.length)];
+    var r = o.el.getBoundingClientRect();
+    if (!r.width && !r.height) { o.eaten = true; return pickMeal(); }
+    o.claimed = true;
+    return o;
+  }
+  function eatersTick(m, k) {
+    // first one climbs out of the game once things start coming apart, then more and more of him
+    var want = k < 0.32 ? 0 : Math.min(6, 1 + Math.floor(5 * sstep(0.45, 0.95, k)));
+    while (eaters.length < want) {
+      var sr = stage.getBoundingClientRect(), big = 110 + Math.random() * 90;
+      eaters.push({ cv: eaterSprite(big), size: big, grow: 0, x: sr.left + sr.width / 2, y: sr.top + sr.height / 2,
+        fr: 0, ft: 0, meal: null, aim: null, aimT: 0, ang: 0 });
+    }
+    var W = innerWidth, H = innerHeight, dt = 1 / 60;
+    eaters.forEach(function (e) {
+      e.grow = Math.min(1, e.grow + dt * 1.6);
+      var sz = e.size * (0.15 + 0.85 * sstep(0, 1, e.grow));
+      if (!e.meal || e.meal.eaten) { e.meal = pickMeal(); e.aimT = 0; }
+      e.aimT -= dt;
+      if (e.aimT <= 0) {   // the page is moving under him, so keep looking where his meal went
+        if (e.meal) { var r = e.meal.el.getBoundingClientRect(); e.aim = { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
+        else e.aim = { x: Math.random() * W, y: Math.random() * H };
+        e.aimT = 0.2;
+      }
+      var dx = e.aim.x - e.x, dy = e.aim.y - e.y, d = Math.hypot(dx, dy) || 1;
+      var sp = (320 + 1100 * k * k) * dt;
+      var want2 = Math.atan2(dy, dx), da = Math.atan2(Math.sin(want2 - e.ang), Math.cos(want2 - e.ang));
+      e.ang += da * Math.min(1, dt * 9);
+      e.x += Math.cos(e.ang) * Math.min(sp, d); e.y += Math.sin(e.ang) * Math.min(sp, d);
+      if (d < sz * 0.45) {
+        if (e.meal) gulp(e.meal, e);
+        else e.aimT = 0;
+      }
+      e.ft += dt; if (e.ft > 0.07) { e.ft = 0; e.fr++; paintEater(e); }
+      var flip = Math.cos(e.ang) < 0 ? -1 : 1;
+      e.cv.style.width = e.cv.style.height = sz.toFixed(0) + "px";
+      e.cv.style.transform = "translate(" + (e.x - sz / 2).toFixed(1) + "px," + (e.y - sz / 2).toFixed(1) + "px) rotate(" + (e.ang * 57.3).toFixed(1) + "deg) scaleY(" + flip + ")";
+    });
+  }
+  // the element gets sucked into his mouth and is gone
+  function gulp(o, e) {
+    o.eaten = true;
+    var r = o.el.getBoundingClientRect(), tx = e.x - (r.left + r.width / 2), ty = e.y - (r.top + r.height / 2);
+    o.el.style.transition = "transform .22s ease-in, opacity .22s ease-in";
+    o.el.style.transform = "translate(" + tx.toFixed(0) + "px," + ty.toFixed(0) + "px) scale(0) rotate(" + (Math.random() < 0.5 ? -200 : 200) + "deg)";
+    o.el.style.opacity = "0";
+    setTimeout(function () { if (o.eaten) o.el.style.visibility = "hidden"; }, 240);
+    e.size = Math.min(320, e.size + 6);   // and he gets a little bigger
+    var now = performance.now();
+    if (save.sound && audio() && now - lastChomp > 70) {
+      lastChomp = now;
+      tone(160 + Math.random() * 60, 0, 0.08, 0.05, "square", 70);
+    }
+  }
+
+  // the storms get out too, and haunt the page: see-through, flickering, drifting everywhere and watching Glider
+  function roamerSprite(size) {
+    var cv = mk(16, 16);
+    cv.style.cssText = "position:absolute;left:0;top:0;z-index:2;width:" + size + "px;height:" + size + "px;image-rendering:pixelated;will-change:transform,opacity";
+    chaosLayer.appendChild(cv);
+    return cv;
+  }
+  function paintRoamer(g, i, f, lx, ly) {
+    var c = g.cv.getContext("2d");
+    c.clearRect(0, 0, 16, 16); c.drawImage(STORM_ART[i][f], 0, 0);
+    // eyes that follow Glider
+    c.fillStyle = "#fff"; c.fillRect(5, 6, 2, 2); c.fillRect(9, 6, 2, 2);
+    c.fillStyle = "#1b1b2b"; c.fillRect(5 + lx, 6 + ly, 1, 1); c.fillRect(9 + lx, 6 + ly, 1, 1);
+  }
+  function roamersTick(m, k) {
+    var want = k < 0.26 ? 0 : Math.round(2 + 22 * sstep(0.3, 1, k));
+    var W = innerWidth, H = innerHeight, dt = 1 / 60;
+    while (roamers.length < want) {
+      var sz = 50 + Math.random() * 110, side = Math.random() < 0.5;
+      roamers.push({ cv: roamerSprite(sz), size: sz, i: Math.floor(Math.random() * STORM_ART.length), f: 0, ft: Math.random() * 0.3,
+        x: side ? (Math.random() < 0.5 ? -sz : W + sz) : Math.random() * W, y: side ? Math.random() * H : (Math.random() < 0.5 ? -sz : H + sz),
+        ang: Math.random() * 6.28, wob: Math.random() * 6.28, sp: 0.6 + Math.random() * 0.8 });
+    }
+    var target = eaters[0];
+    roamers.forEach(function (g) {
+      g.wob += dt * (1.5 + 3 * k);
+      g.ang += Math.sin(g.wob) * dt * 2.2;
+      // late on, some of them start chasing him
+      if (target && k > 0.7 && g.i % 2 === 0) {
+        var wa = Math.atan2(target.y - g.y, target.x - g.x);
+        g.ang += Math.atan2(Math.sin(wa - g.ang), Math.cos(wa - g.ang)) * dt * 2;
+      }
+      var sp = (60 + 380 * k) * g.sp * dt;
+      g.x += Math.cos(g.ang) * sp; g.y += Math.sin(g.ang) * sp;
+      if (g.x < -g.size * 1.5) g.x = W + g.size; if (g.x > W + g.size * 1.5) g.x = -g.size;
+      if (g.y < -g.size * 1.5) g.y = H + g.size; if (g.y > H + g.size * 1.5) g.y = -g.size;
+      g.ft += dt;
+      if (g.ft > 0.18) {
+        g.ft = 0; g.f ^= 1;
+        var lx = 0, ly = 0;
+        if (target) { lx = target.x > g.x ? 1 : 0; ly = target.y > g.y ? 1 : 0; }
+        paintRoamer(g, g.i, g.f, lx, ly);
+      }
+      var flick = Math.random() < 0.04 * k ? 0.1 : 0.45 + 0.4 * Math.sin(g.wob * 1.7) * 0.5 + 0.2;
+      g.cv.style.opacity = flick.toFixed(2);
+      g.cv.style.transform = "translate(" + (g.x - g.size / 2).toFixed(1) + "px," + (g.y - g.size / 2 + Math.sin(g.wob * 2) * 10).toFixed(1) + "px)";
+    });
   }
   function chaosGhost(c) {
     var W = innerWidth, H = innerHeight, g, roll = Math.random();
@@ -2259,7 +2398,11 @@
   }
   function chaosEnd() {
     chaosReset();
-    chaosEls.forEach(function (o) { if (o.fixd) o.el.style.display = ""; });
+    chaosEls.forEach(function (o) {
+      if (o.fixd) o.el.style.display = "";
+      o.el.style.transition = ""; o.el.style.opacity = ""; o.el.style.visibility = ""; o.eaten = o.claimed = false;
+    });
+    eaters = []; roamers = []; glare = null;
     chaosEls = [];
     if (chaosLayer) { chaosLayer.remove(); chaosLayer = null; }
     chaosLive = 0; chaosSpawn = 0; chaosShot = null; chaosShotT = -9;
@@ -2494,20 +2637,33 @@
     busy2023 = true;
     save.y2023 = !save.y2023; persist(); nameTag();
     var on = save.y2023;
-    // just a quick, quiet flicker — no words
-    var v = document.createElement("div");
-    v.style.cssText = "position:absolute;inset:0;z-index:50;pointer-events:none;background:" + (on ? "#1a0000" : "#000") + ";opacity:0";
-    stage.appendChild(v);
-    var fl = on ? [0.35, 0, 0.2, 0] : [0.18, 0];
-    fl.forEach(function (o, k) { setTimeout(function () { v.style.opacity = String(o); }, k * 70); });
-    if (save.sound && audio()) {
-      if (on) tone(55, 0, 0.5, 0.06, "triangle", 48);
-      else tone(659, 0, 0.06, 0.035, "square");
+    // a flight already in the air switches over too. Leaving 2023 takes the fuel with it (and ends Mega Turbo).
+    if (G.mode !== "title" && G.mode !== "void") {
+      G.run2023 = on;
+      if (!on) {
+        if (G.mega) { megaStop(); G.jetT = 0; G.jetN = 0; }
+        G.fuel = 0;
+      }
+      hud();
     }
-    setTimeout(function () {
-      v.remove(); busy2023 = false;
-      if (G.mode === "title") titleScreen();
-    }, fl.length * 70 + 60);
+    // no rebuild, no flicker: the title changes in place and the window dims for a breath, smoothly
+    var title = $("sgTitleName"), line = $("sgTagline");
+    if (title) title.classList.toggle("y2023", on);
+    if (line) {
+      line.style.transition = "opacity .25s";
+      line.style.opacity = "0";
+      setTimeout(function () { line.innerHTML = taglineHtml(); line.style.opacity = "1"; }, 250);
+    }
+    var v = document.createElement("div");
+    v.style.cssText = "position:absolute;inset:0;z-index:50;pointer-events:none;opacity:0;transition:opacity .3s ease;background:" + (on ? "#1a0000" : "#000");
+    stage.appendChild(v);
+    requestAnimationFrame(function () { v.style.opacity = on ? "0.22" : "0.12"; });
+    setTimeout(function () { v.style.opacity = "0"; }, 320);
+    setTimeout(function () { v.remove(); busy2023 = false; }, 680);
+    if (save.sound && audio()) {
+      if (on) tone(55, 0, 0.5, 0.05, "triangle", 48);
+      else tone(659, 0, 0.06, 0.03, "square");
+    }
   }
   window.cwKonami = toggle2023;
   // "Sky Glider 2023" in the window title, only while 2023 mode is on (and only for people who've been there)
