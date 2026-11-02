@@ -109,7 +109,7 @@
       <p>Every level gets a little faster, and so does every second you spend on one. Earn stars every flight to buy new paint jobs and trails in the <b>Hangar</b>, and check your <b>Flight Goals</b> for bonus stars. The <b>Daily Flight</b> is the same for everyone and you only get one life.</p>
       <p><span class="sg-kbonly">Keyboard: arrow keys or WASD to fly, Space to start, P to pause, M to mute.</span> On a phone, swipe anywhere, tap the maze where you want to go, or hold the arrow pad and slide your thumb around it to steer.</p>
       <p><b>Credits:</b> Glider made by <a href="https://www.instagram.com/_sqeakz/" target="_blank" rel="noopener noreferrer">cherrie/sqeakz</a> on Instagram. Concept and game made by Cole.</p>
-      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.11</span></summary><dl><dt>1.11</dt><dd>&bull; Switching is smoother</dd><dd>&bull; Quieter when it matters</dd><dd>&bull; He&rsquo;s hungry</dd><dt>1.10.1</dt><dd>&bull; Quieter</dd><dt>1.10</dt><dd>&bull; Power-ups stack</dd><dd>&bull; You can steer the fall</dd><dd>&bull; Fits short screens</dd><dt>1.9.2</dt><dd>&bull; Goals are a little more honest now</dd><dt>1.9.1</dt><dd>&bull; Only one kind of fuel in 2023</dd><dd>&bull; The lane is closed</dd><dd>&bull; Bug fixes</dd><dt>1.9</dt><dd>&bull; Everything is breathing</dd><dd>&bull; Tell him he can</dd><dt>1.8.1</dt><dd>&bull; Some lanes are darker than others</dd><dt>1.8</dt><dd>&bull; The hangar is listening</dd><dd>&bull; Don&rsquo;t fly too fast</dd><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
+      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.11</span></summary><dl><dt>1.11</dt><dd>&bull; Switching is smoother</dd><dd>&bull; Quieter when it matters</dd><dd>&bull; Don&rsquo;t look at the walls</dd><dt>1.10.1</dt><dd>&bull; Quieter</dd><dt>1.10</dt><dd>&bull; Power-ups stack</dd><dd>&bull; You can steer the fall</dd><dd>&bull; Fits short screens</dd><dt>1.9.2</dt><dd>&bull; Goals are a little more honest now</dd><dt>1.9.1</dt><dd>&bull; Only one kind of fuel in 2023</dd><dd>&bull; The lane is closed</dd><dd>&bull; Bug fixes</dd><dt>1.9</dt><dd>&bull; Everything is breathing</dd><dd>&bull; Tell him he can</dd><dt>1.8.1</dt><dd>&bull; Some lanes are darker than others</dd><dt>1.8</dt><dd>&bull; The hangar is listening</dd><dd>&bull; Don&rsquo;t fly too fast</dd><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
       <button class="sg-btn go sg-helpx" id="sgHelpClose">Got it!</button>
     </div>
   </div>
@@ -2011,7 +2011,8 @@
         var o = ac.createOscillator(), g = ac.createGain();
         o.type = i % 2 ? "triangle" : "sine";
         o.frequency.setValueAtTime(f, now); o.frequency.setValueAtTime(f, now + L * M_UNRAVEL);
-        o.frequency.exponentialRampToValueAtTime(f * (1.3 + i * 0.12), now + L);
+        // the voices pull apart, some sinking and some climbing, until the chord curdles
+        o.frequency.exponentialRampToValueAtTime(f * (i % 2 ? 0.74 - i * 0.04 : 1.22 + i * 0.08), now + L);
         o.detune.setValueAtTime((i - 1.5) * 4, now); wobAmt.connect(o.detune);
         g.gain.value = i === 0 ? 0.5 : 0.28;
         o.connect(g); g.connect(lp); o.start(now); oscs.push(o);
@@ -2057,7 +2058,8 @@
     var m = G.mega; m.t += dt;
     var k = Math.min(1, m.t / m.len), calm = calmFx();
     // colors slide around faster and faster and get louder and louder
-    m.hue = (m.hue + dt * (14 + 420 * k * k)) % 360;
+    // colors drift and lurch rather than strobe: slow, then a sudden wrong jump now and then
+    m.hue = (m.hue + dt * (14 + 120 * k * k) + (k > 0.5 && Math.random() < 0.01 ? 90 + Math.random() * 120 : 0)) % 360;
     var sat = 1 + 1.6 * sstep(0, M_UNRAVEL, k) + 2.4 * sstep(M_UNRAVEL, 1, k);
     var f = "hue-rotate(" + Math.round(m.hue) + "deg) saturate(" + sat.toFixed(2) + ")";
     if (!calm) {
@@ -2066,7 +2068,10 @@
       if (k > M_UNRAVEL && Math.random() < 0.06 * k) f += " invert(1)";   // a frame here and there flips inside out
       f += " contrast(" + (1 + 0.6 * sstep(M_UNRAVEL, 1, k)).toFixed(2) + ")";
       // and brighter and brighter, until it's hard to see anything
-      f += " brightness(" + (1 + 0.25 * sstep(0.35, 0.7, k) + 1.1 * sstep(0.7, 1, k) * (0.85 + 0.15 * Math.sin(m.t * 23))).toFixed(2) + ")";
+      // late on it turns: sickly color, light that floods in with every heartbeat, and moments where it all goes dim
+      var badk = sstep(0.5, 1, k), hb = Math.pow(Math.max(0, Math.sin(m.t * Math.PI * (0.9 + 2.6 * k * k))), 12);
+      f += " sepia(" + (0.45 * badk * (0.5 + 0.5 * Math.sin(m.t * 0.6))).toFixed(2) + ")";
+      f += " brightness(" + (1 + 0.2 * sstep(0.35, 0.7, k) + 0.9 * badk * hb - 0.4 * badk * Math.max(0, Math.sin(m.t * 0.83))).toFixed(2) + ")";
     }
     root.style.filter = f;
     // the page breathes in and out, the game window sways like it's underwater, then starts to lurch
@@ -2180,8 +2185,9 @@
   // every piece of the page starts moving on its own, copies of the page and of Glider fly everywhere,
   // more and more of them, faster and faster, right up until the cut.
   var C_START = 0.22, chaosEls = [], chaosLayer = null, chaosLive = 0, chaosSpawn = 0, chaosShot = null, chaosShotT = -9, chaosWords = [];
-  // Glider climbing out of the game to eat the page, the storms haunting it, and the glare that washes it all out
-  var eaters = [], roamers = [], glare = null, lastChomp = 0;
+  // the bad trip: patterns crawling over everything, faces in the clouds, eyes that open where they shouldn't,
+  // the edges closing in, and a light that comes and goes with your heartbeat
+  var drifters = [], watchers = [], glare = null, pattern = null, vignette = null, lastBeat = 0;
   function chaosStart() {
     chaosEnd();
     if (calmFx()) return;
@@ -2198,10 +2204,22 @@
     chaosLayer = document.createElement("div");
     chaosLayer.style.cssText = "position:fixed;inset:0;z-index:2147483000;pointer-events:none;overflow:hidden";
     document.body.appendChild(chaosLayer);
+    // geometric patterns that crawl over everything, the way they do when you close your eyes
+    pattern = document.createElement("div");
+    // a tunnel of thin rings that breathes and pulls you in, and a faint web of lines turning over it
+    pattern.style.cssText = "position:absolute;inset:-50%;z-index:1;opacity:0;mix-blend-mode:multiply;will-change:transform,opacity;filter:blur(.6px);" +
+      "background:repeating-radial-gradient(circle at 50% 50%,rgba(90,0,10,.0) 0 9px,rgba(90,0,10,.85) 9px 12px,rgba(20,40,0,.0) 12px 22px,rgba(20,40,0,.6) 22px 24px)," +
+      "repeating-conic-gradient(from 0deg at 50% 50%,rgba(0,0,0,.35) 0deg 1.2deg,rgba(0,0,0,0) 1.2deg 9deg)";
+    chaosLayer.appendChild(pattern);
+    // light that floods in and drains away
     glare = document.createElement("div");
     glare.style.cssText = "position:absolute;inset:-20%;z-index:4;opacity:0;mix-blend-mode:screen;will-change:opacity,transform;" +
       "background:radial-gradient(circle at 50% 50%,rgba(255,255,240,.95) 0,rgba(255,255,255,.55) 32%,rgba(255,255,255,0) 68%)";
     chaosLayer.appendChild(glare);
+    // and the dark creeping in from the edges, tighter and tighter
+    vignette = document.createElement("div");
+    vignette.style.cssText = "position:absolute;inset:0;z-index:5;opacity:0;will-change:opacity,background;";
+    chaosLayer.appendChild(vignette);
   }
   function chaosTick(m, k) {
     if (!chaosLayer || calmFx()) return;
@@ -2232,133 +2250,106 @@
     if (t - chaosShotT > 0.4) { try { chaosShot = canvas.toDataURL(); } catch (e) { chaosShot = null; } chaosShotT = t; }
     chaosSpawn += (3 + 140 * wild) / 60;
     while (chaosSpawn >= 1) { chaosSpawn--; if (chaosLive < 120) chaosGhost(c); }
-    eatersTick(m, k);
-    roamersTick(m, k);
+    tripTick(m, k);
+  }
+
+  function tripTick(m, k) {
+    var t = m.t, bad = sstep(0.5, 1, k);
+    // your heart, getting faster (the same rhythm the sound uses)
+    var rate = 0.9 + 2.6 * k * k, beat = Math.pow(Math.max(0, Math.sin(t * Math.PI * rate)), 12);
+    if (pattern) {
+      var pv = sstep(0.28, 0.6, k);
+      pattern.style.opacity = (pv * (0.3 + 0.15 * Math.sin(t * 0.9)) + bad * 0.35).toFixed(3);
+      // rings keep sliding inward (the scale wraps, so it never stops pulling)
+      var pull = 1 + ((t * (0.08 + 0.25 * k)) % 0.5);
+      pattern.style.transform = "rotate(" + (Math.sin(t * 0.21) * 40 + t * 6).toFixed(1) + "deg) scale(" + (pull + beat * 0.12 * bad).toFixed(3) + ")";
+    }
     if (glare) {
-      var gl = sstep(0.6, 1, k);
-      glare.style.opacity = (gl * (0.55 + 0.35 * Math.sin(t * 17) * Math.sin(t * 5.3))).toFixed(3);
+      // the light swells with each heartbeat late on, so you can barely see
+      var gl = sstep(0.55, 1, k);
+      glare.style.opacity = (gl * (0.2 + 0.7 * beat) + 0.25 * gl * Math.max(0, Math.sin(t * 2.3))).toFixed(3);
       glare.style.transform = "translate(" + (Math.sin(t * 1.7) * 18).toFixed(1) + "%," + (Math.cos(t * 1.3) * 14).toFixed(1) + "%) scale(" + (1 + gl * 0.6).toFixed(2) + ")";
     }
+    if (vignette) {
+      var close = sstep(0.35, 1, k), r = 70 - 52 * close - 10 * beat * close;
+      vignette.style.opacity = Math.min(1, close * 1.3).toFixed(3);
+      vignette.style.background = "radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0) " + Math.max(8, r).toFixed(0) + "%,rgba(40,0,0," + (0.55 + 0.3 * close).toFixed(2) + ") " + Math.min(96, r + 18).toFixed(0) + "%,#000 100%)";
+    }
+    driftersTick(m, k);
+    watchersTick(m, k);
   }
 
-  // a big chomping Glider, drawn from his own sprite
-  function eaterSprite(size) {
-    var cv = mk(20, 20);
-    cv.style.cssText = "position:absolute;left:0;top:0;z-index:3;width:" + size + "px;height:" + size + "px;image-rendering:pixelated;will-change:transform;filter:drop-shadow(0 0 12px rgba(255,255,255,.7))";
+  // faces in the clouds: huge, see-through storms drifting slowly behind everything, breathing
+  function cloudSprite(size, z) {
+    var cv = mk(16, 16);
+    cv.style.cssText = "position:absolute;left:0;top:0;z-index:" + z + ";width:" + size + "px;height:" + size + "px;image-rendering:pixelated;will-change:transform,opacity;filter:blur(1.5px)";
     chaosLayer.appendChild(cv);
     return cv;
   }
-  function paintEater(e) {
-    var g = e.cv.getContext("2d"), l = LIVERIES.filter(function (q) { return q.id === save.liv; })[0];
-    var set = gliderSet(save.liv, l && l.rainbow ? Math.floor(performance.now() / 100) : 0);
-    g.clearRect(0, 0, 20, 20); g.drawImage(set[0][e.fr % set[0].length], 0, 0);
+  function paintCloud(cv, i, f, mouth) {
+    var c = cv.getContext("2d");
+    c.clearRect(0, 0, 16, 16); c.drawImage(STORM_ART[i][f], 0, 0);
+    c.fillStyle = "#000"; c.fillRect(5, 6, 2, 2); c.fillRect(9, 6, 2, 2);   // hollow eyes
+    if (mouth) { c.fillRect(6, 10, 4, 2); c.fillRect(7, 12, 2, 1); }        // and an open mouth
   }
-  // somewhere on the page that hasn't been eaten yet
-  function pickMeal() {
-    var left = chaosEls.filter(function (o) { return !o.eaten && !o.claimed; });
-    if (!left.length) return null;
-    var o = left[Math.floor(Math.random() * left.length)];
-    var r = o.el.getBoundingClientRect();
-    if (!r.width && !r.height) { o.eaten = true; return pickMeal(); }
-    o.claimed = true;
-    return o;
-  }
-  function eatersTick(m, k) {
-    // first one climbs out of the game once things start coming apart, then more and more of him
-    var want = k < 0.32 ? 0 : Math.min(6, 1 + Math.floor(5 * sstep(0.45, 0.95, k)));
-    while (eaters.length < want) {
-      var sr = stage.getBoundingClientRect(), big = 110 + Math.random() * 90;
-      eaters.push({ cv: eaterSprite(big), size: big, grow: 0, x: sr.left + sr.width / 2, y: sr.top + sr.height / 2,
-        fr: 0, ft: 0, meal: null, aim: null, aimT: 0, ang: 0 });
-    }
+  function driftersTick(m, k) {
+    var want = k < 0.3 ? 0 : Math.round(1 + 7 * sstep(0.35, 1, k));
     var W = innerWidth, H = innerHeight, dt = 1 / 60;
-    eaters.forEach(function (e) {
-      e.grow = Math.min(1, e.grow + dt * 1.6);
-      var sz = e.size * (0.15 + 0.85 * sstep(0, 1, e.grow));
-      if (!e.meal || e.meal.eaten) { e.meal = pickMeal(); e.aimT = 0; }
-      e.aimT -= dt;
-      if (e.aimT <= 0) {   // the page is moving under him, so keep looking where his meal went
-        if (e.meal) { var r = e.meal.el.getBoundingClientRect(); e.aim = { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
-        else e.aim = { x: Math.random() * W, y: Math.random() * H };
-        e.aimT = 0.2;
-      }
-      var dx = e.aim.x - e.x, dy = e.aim.y - e.y, d = Math.hypot(dx, dy) || 1;
-      var sp = (320 + 1100 * k * k) * dt;
-      var want2 = Math.atan2(dy, dx), da = Math.atan2(Math.sin(want2 - e.ang), Math.cos(want2 - e.ang));
-      e.ang += da * Math.min(1, dt * 9);
-      e.x += Math.cos(e.ang) * Math.min(sp, d); e.y += Math.sin(e.ang) * Math.min(sp, d);
-      if (d < sz * 0.45) {
-        if (e.meal) gulp(e.meal, e);
-        else e.aimT = 0;
-      }
-      e.ft += dt; if (e.ft > 0.07) { e.ft = 0; e.fr++; paintEater(e); }
-      var flip = Math.cos(e.ang) < 0 ? -1 : 1;
-      e.cv.style.width = e.cv.style.height = sz.toFixed(0) + "px";
-      e.cv.style.transform = "translate(" + (e.x - sz / 2).toFixed(1) + "px," + (e.y - sz / 2).toFixed(1) + "px) rotate(" + (e.ang * 57.3).toFixed(1) + "deg) scaleY(" + flip + ")";
+    while (drifters.length < want) {
+      var sz = 220 + Math.random() * 380;
+      var d = { cv: cloudSprite(sz, 0), size: sz, i: Math.floor(Math.random() * STORM_ART.length), x: Math.random() * W, y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 30, vy: (Math.random() - 0.5) * 20, ph: Math.random() * 6.28, mouth: Math.random() < 0.5, f: 0 };
+      paintCloud(d.cv, d.i, 0, d.mouth);
+      drifters.push(d);
+    }
+    drifters.forEach(function (d) {
+      d.ph += dt * (0.6 + 1.6 * k);
+      d.x += d.vx * dt * (1 + 2 * k); d.y += d.vy * dt * (1 + 2 * k);
+      if (d.x < -d.size) d.x = W + d.size * 0.5; if (d.x > W + d.size) d.x = -d.size * 0.5;
+      if (d.y < -d.size) d.y = H + d.size * 0.5; if (d.y > H + d.size) d.y = -d.size * 0.5;
+      var breathe = 1 + 0.12 * Math.sin(d.ph);
+      d.cv.style.opacity = (0.08 + 0.18 * sstep(0.3, 1, k) * (0.6 + 0.4 * Math.sin(d.ph * 0.7))).toFixed(3);
+      d.cv.style.transform = "translate(" + (d.x - d.size / 2).toFixed(0) + "px," + (d.y - d.size / 2).toFixed(0) + "px) scale(" + breathe.toFixed(3) + "," + (2 - breathe).toFixed(3) + ")";
     });
   }
-  // the element gets sucked into his mouth and is gone
-  function gulp(o, e) {
-    o.eaten = true;
-    var r = o.el.getBoundingClientRect(), tx = e.x - (r.left + r.width / 2), ty = e.y - (r.top + r.height / 2);
-    o.el.style.transition = "transform .22s ease-in, opacity .22s ease-in";
-    o.el.style.transform = "translate(" + tx.toFixed(0) + "px," + ty.toFixed(0) + "px) scale(0) rotate(" + (Math.random() < 0.5 ? -200 : 200) + "deg)";
-    o.el.style.opacity = "0";
-    setTimeout(function () { if (o.eaten) o.el.style.visibility = "hidden"; }, 240);
-    e.size = Math.min(320, e.size + 6);   // and he gets a little bigger
-    var now = performance.now();
-    if (save.sound && audio() && now - lastChomp > 70) {
-      lastChomp = now;
-      tone(160 + Math.random() * 60, 0, 0.08, 0.05, "square", 70);
-    }
-  }
 
-  // the storms get out too, and haunt the page: see-through, flickering, drifting everywhere and watching Glider
-  function roamerSprite(size) {
-    var cv = mk(16, 16);
-    cv.style.cssText = "position:absolute;left:0;top:0;z-index:2;width:" + size + "px;height:" + size + "px;image-rendering:pixelated;will-change:transform,opacity";
+  // eyes that open in the walls and stare at you, then close. more of them, and they stay open longer
+  function eyesSprite(size) {
+    var cv = mk(12, 5);
+    cv.style.cssText = "position:absolute;left:0;top:0;z-index:2;width:" + size + "px;height:" + (size * 5 / 12).toFixed(0) + "px;image-rendering:pixelated;will-change:opacity;opacity:0;filter:drop-shadow(0 0 6px rgba(160,0,0,.8)) blur(.4px)";
     chaosLayer.appendChild(cv);
     return cv;
   }
-  function paintRoamer(g, i, f, lx, ly) {
-    var c = g.cv.getContext("2d");
-    c.clearRect(0, 0, 16, 16); c.drawImage(STORM_ART[i][f], 0, 0);
-    // eyes that follow Glider
-    c.fillStyle = "#fff"; c.fillRect(5, 6, 2, 2); c.fillRect(9, 6, 2, 2);
-    c.fillStyle = "#1b1b2b"; c.fillRect(5 + lx, 6 + ly, 1, 1); c.fillRect(9 + lx, 6 + ly, 1, 1);
+  function paintEyes(e, open, lx) {
+    var c = e.cv.getContext("2d");
+    c.clearRect(0, 0, 12, 5);
+    if (open <= 0) { c.fillStyle = "#000"; c.fillRect(1, 2, 3, 1); c.fillRect(8, 2, 3, 1); return; }
+    var h = open > 0.5 ? 3 : 1, y = open > 0.5 ? 1 : 2;
+    c.fillStyle = "#e8e2c8"; c.fillRect(1, y, 3, h); c.fillRect(8, y, 3, h);
+    c.fillStyle = e.red ? "#b00000" : "#000"; c.fillRect(2 + lx, 2, 1, 1); c.fillRect(9 + lx, 2, 1, 1);
   }
-  function roamersTick(m, k) {
-    var want = k < 0.26 ? 0 : Math.round(2 + 22 * sstep(0.3, 1, k));
+  function watchersTick(m, k) {
+    var want = k < 0.4 ? 0 : Math.round(2 + 26 * sstep(0.45, 1, k));
     var W = innerWidth, H = innerHeight, dt = 1 / 60;
-    while (roamers.length < want) {
-      var sz = 50 + Math.random() * 110, side = Math.random() < 0.5;
-      roamers.push({ cv: roamerSprite(sz), size: sz, i: Math.floor(Math.random() * STORM_ART.length), f: 0, ft: Math.random() * 0.3,
-        x: side ? (Math.random() < 0.5 ? -sz : W + sz) : Math.random() * W, y: side ? Math.random() * H : (Math.random() < 0.5 ? -sz : H + sz),
-        ang: Math.random() * 6.28, wob: Math.random() * 6.28, sp: 0.6 + Math.random() * 0.8 });
+    // spawn new pairs over time instead of all at once
+    if (watchers.length < want && Math.random() < 0.08 + 0.4 * k) {
+      var sz = 36 + Math.random() * 120;
+      watchers.push({ cv: eyesSprite(sz), x: Math.random() * (W - sz), y: Math.random() * (H - sz), age: 0,
+        life: 2 + Math.random() * (2 + 6 * k), blinkT: 0.5 + Math.random() * 2, red: Math.random() < 0.35 + 0.5 * k, look: 0, lookT: 0 });
     }
-    var target = eaters[0];
-    roamers.forEach(function (g) {
-      g.wob += dt * (1.5 + 3 * k);
-      g.ang += Math.sin(g.wob) * dt * 2.2;
-      // late on, some of them start chasing him
-      if (target && k > 0.7 && g.i % 2 === 0) {
-        var wa = Math.atan2(target.y - g.y, target.x - g.x);
-        g.ang += Math.atan2(Math.sin(wa - g.ang), Math.cos(wa - g.ang)) * dt * 2;
-      }
-      var sp = (60 + 380 * k) * g.sp * dt;
-      g.x += Math.cos(g.ang) * sp; g.y += Math.sin(g.ang) * sp;
-      if (g.x < -g.size * 1.5) g.x = W + g.size; if (g.x > W + g.size * 1.5) g.x = -g.size;
-      if (g.y < -g.size * 1.5) g.y = H + g.size; if (g.y > H + g.size * 1.5) g.y = -g.size;
-      g.ft += dt;
-      if (g.ft > 0.18) {
-        g.ft = 0; g.f ^= 1;
-        var lx = 0, ly = 0;
-        if (target) { lx = target.x > g.x ? 1 : 0; ly = target.y > g.y ? 1 : 0; }
-        paintRoamer(g, g.i, g.f, lx, ly);
-      }
-      var flick = Math.random() < 0.04 * k ? 0.1 : 0.45 + 0.4 * Math.sin(g.wob * 1.7) * 0.5 + 0.2;
-      g.cv.style.opacity = flick.toFixed(2);
-      g.cv.style.transform = "translate(" + (g.x - g.size / 2).toFixed(1) + "px," + (g.y - g.size / 2 + Math.sin(g.wob * 2) * 10).toFixed(1) + "px)";
+    watchers = watchers.filter(function (e) {
+      e.age += dt; e.blinkT -= dt; e.lookT -= dt;
+      if (e.lookT <= 0) { e.look = Math.floor(Math.random() * 3) - 1; e.lookT = 0.4 + Math.random() * 1.6; }
+      // eyes look at the middle of the screen (at you) most of the time
+      var lx = e.look === 0 ? (e.x + 60 < W / 2 ? 1 : 0) : Math.max(0, e.look);
+      var open = e.blinkT < 0 && e.blinkT > -0.12 ? 0 : 1;
+      if (e.blinkT < -0.12) e.blinkT = 0.8 + Math.random() * 2.5;
+      var fade = Math.min(1, e.age / 0.8) * Math.min(1, (e.life - e.age) / 0.6);
+      paintEyes(e, open, lx);
+      e.cv.style.opacity = Math.max(0, fade * (0.55 + 0.45 * k)).toFixed(2);
+      e.cv.style.transform = "translate(" + e.x.toFixed(0) + "px," + e.y.toFixed(0) + "px)";
+      if (e.age >= e.life) { e.cv.remove(); return false; }
+      return true;
     });
   }
   function chaosGhost(c) {
@@ -2402,7 +2393,7 @@
       if (o.fixd) o.el.style.display = "";
       o.el.style.transition = ""; o.el.style.opacity = ""; o.el.style.visibility = ""; o.eaten = o.claimed = false;
     });
-    eaters = []; roamers = []; glare = null;
+    drifters = []; watchers = []; glare = null; pattern = null; vignette = null;
     chaosEls = [];
     if (chaosLayer) { chaosLayer.remove(); chaosLayer = null; }
     chaosLive = 0; chaosSpawn = 0; chaosShot = null; chaosShotT = -9;
