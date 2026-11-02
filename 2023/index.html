@@ -73,7 +73,26 @@
   .footer a, .footer a:visited { color: #000080; }
   .shake { animation: v24-shake .25s steps(3) 1; }
   @keyframes v24-shake { 33% { translate: 3px -2px; } 66% { translate: -3px 2px; } }
-  @media (prefers-reduced-motion: reduce) { body, .shake { animation: none !important; } }
+  /* it's alive: the old page still moves a little */
+  .stripe { background-size: 144px 6px; animation: v24-stripe 3s linear infinite; }
+  @keyframes v24-stripe { to { background-position: 144px 0; } }
+  .logo span { animation: v24-xyz 6s steps(6) infinite; }
+  @keyframes v24-xyz { 0%,100% { color: #cc0000; } 17% { color: #cc6600; } 33% { color: #999900; } 50% { color: #008800; } 67% { color: #0000cc; } 83% { color: #880088; } }
+  .newtag { color: #cc0000; font-size: 11px; vertical-align: super; animation: v24-blink 1s steps(1) infinite; }
+  @keyframes v24-blink { 50% { visibility: hidden; } }
+  .marq { overflow: hidden; white-space: nowrap; background: #000; color: #ff0; font: 13px "Courier New", monospace; padding: 3px 0; border-bottom: 2px groove #fff; }
+  .marq span { display: inline-block; padding-left: 100%; animation: v24-marq 22s linear infinite; }
+  @keyframes v24-marq { to { transform: translateX(-100%); } }
+  .uc { display: inline-block; width: 64px; height: 9px; vertical-align: middle; border: 1px solid #000; background: repeating-linear-gradient(45deg, #fc0 0 6px, #000 6px 12px); background-size: 17px 9px; animation: v24-uc .8s linear infinite; }
+  @keyframes v24-uc { to { background-position: 17px 0; } }
+  .counter { animation: v24-glow 2.4s ease-in-out infinite; }
+  @keyframes v24-glow { 50% { color: #8f8; } }
+  .panel.pop .box { animation: v24-pop .3s steps(5) 1; }
+  @keyframes v24-pop { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+  .glitch { animation: v24-glitch .16s steps(2) 1; }
+  @keyframes v24-glitch { 0% { translate: -4px 1px; filter: hue-rotate(40deg); } 50% { translate: 3px -1px; filter: invert(.08); } 100% { translate: 0 0; } }
+  .ghostword { color: #8a2020; }
+  @media (prefers-reduced-motion: reduce) { body, .shake, .stripe, .logo span, .newtag, .marq span, .uc, .counter, .panel.pop .box, .glitch { animation: none !important; } }
 </style>
 </head>
 <body>
@@ -87,18 +106,19 @@
     <button data-p="home" class="on">Home</button>
     <button data-p="about">About Me</button>
     <button data-p="guestbook">Guestbook</button>
-    <button data-p="glider">Glider</button>
+    <button data-p="glider">Glider <span class="newtag">NEW!</span></button>
     <button data-p="q" class="q">???</button>
   </div>
+  <div class="marq"><span>&#9733; welcome to coleswebsite.xyz!! &#9733; still under construction &#9733; Glider is coming soon &#9733; sign my guestbook &#9733; thanks for stopping by &#9733;</span></div>
 
   <div class="content">
     <div class="panel" id="p-home">
       <div class="box">
         <div class="box-title"><span>Welcome to my website!!</span><i>2023</i></div>
         <div class="box-body">
-          <p>hi!! welcome to my website. it's still under construction so some stuff might be broken :)</p>
+          <p>hi!! welcome to my website. it's still under construction so some stuff might be broken :) <span class="uc"></span></p>
           <p>i just started my first semester of college so i'm building this between classes lol. my life is changing so much right now. new people, new everything. it's kind of a lot but i think it's good?</p>
-          <p>i'm also making a game!! it's about a dragon plane named Glider who flies through the clouds and dodges storms. it's not done yet but you can see the first sketch on the Glider page.</p>
+          <p>i'm also making a game!! my girlfriend came up with the idea, it's about a dragon plane named Glider who flies through the clouds and dodges storms. it's not done yet but you can see the first sketch on the Glider page.</p>
           <p>you are visitor <span class="counter" id="counter">000001</span></p>
           <p class="dim">last updated: 11.01.2023</p>
         </div>
@@ -133,9 +153,9 @@
       <div class="box">
         <div class="box-title"><span>Glider (first sketch)</span><i></i></div>
         <div class="box-body" style="display:flex;gap:18px;align-items:flex-start">
-          <div class="broken"><div class="x">x</div>glider_v0.png</div>
+          <div class="broken"><div class="x">x</div><span id="imgName">glider_v0.png</span></div>
           <div>
-            <p>first sketch of Glider!! he doesn't have his shades yet.</p>
+            <p>first sketch of Glider!! he was my girlfriend's idea. he doesn't have his shades yet.</p>
             <p class="dim">(sorry the picture isn't loading, i'll fix it)</p>
           </div>
         </div>
@@ -171,7 +191,10 @@
   Array.prototype.forEach.call(btns, function (b) {
     b.addEventListener("click", function () {
       Array.prototype.forEach.call(btns, function (x) { x.classList.toggle("on", x === b); });
-      Array.prototype.forEach.call(document.querySelectorAll(".panel"), function (p) { p.hidden = p.id !== "p-" + b.getAttribute("data-p"); });
+      Array.prototype.forEach.call(document.querySelectorAll(".panel"), function (p) {
+        p.hidden = p.id !== "p-" + b.getAttribute("data-p");
+        p.classList.remove("pop"); if (!p.hidden) { void p.offsetWidth; p.classList.add("pop"); }
+      });
       hum(); blip(140);
       if (b.getAttribute("data-p") === "q") { preload(); setTimeout(function () { $("word").focus(); }, 30); }
     });
@@ -182,6 +205,39 @@
   setInterval(function () {
     if (Math.random() < 0.08) { counter.textContent = "000002"; setTimeout(function () { counter.textContent = "000001"; }, 90); }
   }, 4000);
+
+  // little signs of life while you look around (they all stop once it starts burning)
+  var burning = false, still = matchMedia("(prefers-reduced-motion: reduce)").matches, wrapEl = document.querySelector(".wrap");
+  var motto = document.querySelector(".motto");
+  function glitch() {
+    if (burning || still) return;
+    wrapEl.classList.remove("glitch"); void wrapEl.offsetWidth; wrapEl.classList.add("glitch");
+    if (Math.random() < 0.4) {   // for a split second, the motto finishes itself
+      var g = document.createElement("span"); g.className = "ghostword"; g.textContent = " come.";
+      motto.appendChild(g); setTimeout(function () { g.remove(); }, 110);
+    }
+  }
+  (function later() { setTimeout(function () { glitch(); if (!burning) later(); }, 6000 + Math.random() * 9000); })();
+  // the broken picture keeps trying to load
+  var imgName = $("imgName");
+  setInterval(function () {
+    if (burning || !imgName || imgName.closest("[data-fell]")) return;
+    var d = 0, iv = setInterval(function () {
+      imgName.textContent = "loading" + ".".repeat(d % 4);
+      if (++d > 8) { clearInterval(iv); imgName.textContent = "glider_v0.png"; }
+    }, 220);
+  }, 7000);
+  // a faint sparkle trail behind the mouse, like every site had back then
+  var lastSpark = 0, sparks = 0;
+  document.addEventListener("pointermove", function (e) {
+    if (burning || still || e.pointerType !== "mouse") return;
+    var t = performance.now(); if (t - lastSpark < 45 || sparks > 24) return; lastSpark = t;
+    var sp = document.createElement("span"); sp.textContent = Math.random() < 0.5 ? "\u2726" : "\u00b7"; sparks++;
+    sp.style.cssText = "position:fixed;left:" + (e.clientX - 4) + "px;top:" + (e.clientY - 8) + "px;pointer-events:none;z-index:9000;font:12px monospace;color:" + (Math.random() < 0.5 ? "#d8cfa0" : "#a7c4c4");
+    document.documentElement.appendChild(sp);
+    var an = sp.animate([{ opacity: 1, transform: "translate(0,0)" }, { opacity: 0, transform: "translate(" + ((Math.random() - 0.5) * 16).toFixed(0) + "px,18px)" }], { duration: 700, easing: "ease-out" });
+    an.onfinish = function () { sp.remove(); sparks--; };
+  });
 
   function type(el, text, done) {
     el.textContent = ""; var i = 0;
@@ -244,8 +300,8 @@
   var CA = [0, .25, .5, 1.5, 1.75, 2, 2.75, 3, 3.5];                                    // chorus bars 1-2 and 5-6
   var CB = [0, .25, .5, .75, 1, 1.5, 1.75, 2, 3, 3.5];                                 // chorus bars 3-4
   var CD = [0, .5, .75, 1, 1.5, 2];                                                      // chorus bars 7-8
-  // verse 1: building this place in the fall of 2023, then outgrowing it
-  var V1 = ["i built this place in the fall", "my first se-mes-ter a-way", "i drew a dra-gon that flew", "i talked to him all day",
+  // verse 1: building this place in the fall of 2023 (Glider was her idea), then outgrowing it
+  var V1 = ["i built this place in the fall", "new clas-ses, a new rou-tine", "she dreamed up a dra-gon plane", "the best i'd ev-er seen",
             "but ev-ery-thing moved too fast", "the old me star-ted to fade", "i left the lights on for years", "in rooms that i had made"];
   // verse 2: coming back and letting it go
   var V2 = ["now ev-ery page here is dust", "the guest-book's emp-ty and cold", "i don't miss who i was then", "the sto-ry's all been told",
@@ -282,6 +338,7 @@
   }
 
   function burn() {
+    burning = true;
     var calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
     var root = document.documentElement, wrap = document.querySelector(".wrap");
     preload();
@@ -365,6 +422,55 @@
     var ev = [];
     function at(t, fn) { ev.push([t, fn]); }
 
+    // fire: embers rising from the bottom of the window, and a glow that breathes with the beat.
+    // they sit outside the faded page so they keep their color while everything else goes grey.
+    var cv = document.createElement("canvas"), cx = cv.getContext("2d"), parts = [], heat = 0, ash = false, fireOn = !calm;
+    cv.style.cssText = "position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9000";
+    var glow = document.createElement("div");
+    glow.style.cssText = "position:fixed;left:0;right:0;bottom:0;height:42vh;pointer-events:none;z-index:8999;opacity:0;transition:opacity 2s;" +
+      "background:linear-gradient(to top, rgba(255,80,0,.38), rgba(255,40,0,.12) 45%, transparent)";
+    var flash = document.createElement("div");
+    flash.style.cssText = "position:fixed;inset:0;pointer-events:none;z-index:9001;background:#fff;opacity:0";
+    if (fireOn) { root.appendChild(glow); root.appendChild(cv); root.appendChild(flash); }
+    function size() { cv.width = innerWidth; cv.height = innerHeight; }
+    size(); addEventListener("resize", size);
+    function setHeat(h, a, g) { heat = h; ash = !!a; glow.style.opacity = String(g); }
+    function beat(big) { if (fireOn && glow.animate) glow.animate([{ filter: "brightness(" + (big ? 1.9 : 1.4) + ")" }, { filter: "brightness(1)" }], { duration: 380, easing: "ease-out" }); }
+    function boom() { if (fireOn && flash.animate) flash.animate([{ opacity: 0.35 }, { opacity: 0 }], { duration: 450, easing: "ease-out" }); beat(true); }
+    var lastF = performance.now(), fireDone = false;
+    function drawFire() {
+      if (fireDone || !fireOn) return;
+      var t = performance.now(), dt = Math.min(0.05, (t - lastF) / 1000); lastF = t;
+      var n = heat * dt; while (n > 0) {
+        if (Math.random() < n) {
+          parts.push(ash
+            ? { x: Math.random() * cv.width, y: -10, vx: (Math.random() - 0.5) * 20, vy: 25 + Math.random() * 30, life: 0, max: 7, r: 1 + Math.random() * 2, ash: true }
+            : { x: Math.random() * cv.width, y: cv.height + 6, vx: (Math.random() - 0.5) * 40, vy: -(70 + Math.random() * 160), life: 0, max: 1.6 + Math.random() * 2.2, r: 1 + Math.random() * 2.4 });
+        }
+        n -= 1;
+      }
+      cx.clearRect(0, 0, cv.width, cv.height);
+      for (var i = parts.length - 1; i >= 0; i--) {
+        var p = parts[i]; p.life += dt;
+        if (p.life > p.max) { parts.splice(i, 1); continue; }
+        p.vx += (Math.random() - 0.5) * 60 * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+        var k = 1 - p.life / p.max;
+        cx.fillStyle = p.ash ? "rgba(150,150,150," + (0.5 * k).toFixed(3) + ")"
+          : "rgba(255," + Math.floor(120 + 110 * k) + "," + Math.floor(40 * k) + "," + k.toFixed(3) + ")";
+        cx.fillRect(p.x, p.y, p.r, p.r);
+      }
+      requestAnimationFrame(drawFire);
+    }
+    requestAnimationFrame(drawFire);
+    at(16, function () { setHeat(3, false, 0.15); });
+    at(32, function () { setHeat(14, false, 0.45); boom(); });
+    at(48, function () { setHeat(7, false, 0.3); });
+    at(64, function () { setHeat(30, false, 0.75); boom(); });
+    at(80, function () { setHeat(4, true, 0); });
+    at(96, function () { setHeat(40, false, 0.9); boom(); });
+    at(112, function () { setHeat(70, false, 1); boom(); });
+    at(128, function () { fireDone = true; cv.remove(); glow.remove(); flash.remove(); removeEventListener("resize", size); });
+
     // intro (0-16): the visitor counter finally starts counting up
     var cnt = 1;
     for (var c = 4; c < 16; c += 0.5) at(c, function () { cnt += 1 + Math.floor(cnt / 6); counter.textContent = ("000000" + cnt).slice(-6); });
@@ -383,20 +489,21 @@
     // verse 1 (16-32): the little things go first, one a bar
     var small = [".footer .hex", ".footer span", ".navbar .q", ".navbar [data-p=glider]", ".navbar [data-p=guestbook]", ".navbar [data-p=about]", ".navbar [data-p=home]", ".motto"];
     small.forEach(function (sel, i) { at(16 + i * 2, function () { fall(document.querySelector(sel)); }); });
+    at(17, function () { fall(document.querySelector(".marq")); });
     // chorus 1 (32-48): the page jolts on the beat and the logo falls apart
-    for (var b = 32; b < 48; b += 1) at(b, function () { shake(wrap); });
+    for (var b = 32; b < 48; b += 1) at(b, function () { shake(wrap); beat(); });
     letters.forEach(function (sp, i) { at(32 + i * (16 / letters.length), function () { fall(sp); }); });
     // verse 2 (48-64): the words go
     var words = [];
     at(48, function () {
-      words = q("#p-home p, #p-about p, #p-glider p, #p-glider .broken, #p-q p, .box-title > span, .box-title i, .stripe")
+      words = q(".uc, #p-home p, #p-about p, #p-glider p, #p-glider .broken, #p-q p, .box-title > span, .box-title i, .stripe")
         .filter(function (el) { return !el.closest("#p-guestbook"); });
     });
     for (var w2 = 0; w2 < 16; w2++) (function (k) {
       at(48 + k, function () { var n = Math.ceil(words.length / 16); words.splice(0, n).forEach(fall); });
     })(w2);
     // chorus 2 (64-80): whole pieces burn and drop
-    for (var b2 = 64; b2 < 80; b2 += 1) at(b2, function () { shake(wrap); });
+    for (var b2 = 64; b2 < 80; b2 += 1) at(b2, function () { shake(wrap); beat(); });
     ["#p-q", "#p-glider", "#p-about", "#p-home", ".navbar", ".header", ".footer"].forEach(function (sel, i) {
       at(64 + i * 2, function () { scorch(document.querySelector(sel)); });
     });
@@ -441,7 +548,7 @@
     });
 
     // final chorus (96-128): the last post shakes harder and harder, then goes too
-    for (var b3 = 96; b3 < 128; b3 += 0.5) at(b3, function () { shake(post); });
+    for (var b3 = 96; b3 < 128; b3 += 0.5) (function (whole) { at(b3, function () { shake(post); if (whole) beat(); }); })(b3 % 1 === 0);
     at(112, function () { msg.textContent = said.replace(/[a-z]/g, function (ch) { return Math.random() < 0.3 ? "█" : ch; }); });
     at(118, function () { msg.textContent = said.replace(/[a-z]/g, function (ch) { return Math.random() < 0.6 ? "▓" : ch; }); });
     at(124, function () { post.style.transition = "opacity .2s"; fall(msg); fall(who); fall(when); });
