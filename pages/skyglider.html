@@ -2184,7 +2184,7 @@
   // ---------------- the whole site losing its mind (2023 only, since that's the only place Mega Turbo exists) ----------------
   // every piece of the page starts moving on its own, copies of the page and of Glider fly everywhere,
   // more and more of them, faster and faster, right up until the cut.
-  var C_START = 0.22, chaosEls = [], chaosLayer = null, chaosLive = 0, chaosSpawn = 0, chaosShot = null, chaosShotT = -9, chaosWords = [];
+  var C_START = 0.22, chaosEls = [], chaosLayer = null, chaosLive = 0, chaosSpawn = 0, chaosShot = null, chaosShotT = -9;
   // the bad trip: patterns crawling over everything, faces in the clouds, eyes that open where they shouldn't,
   // the edges closing in, and a light that comes and goes with your heartbeat
   var drifters = [], watchers = [], glare = null, pattern = null, vignette = null, lastBeat = 0;
@@ -2197,10 +2197,6 @@
         var fixd = getComputedStyle(el).display === "inline"; if (fixd) el.style.display = "inline-block";
         return { el: el, fixd: fixd, a: Math.random() * 6.28, b: Math.random() * 6.28, sp: 0.6 + Math.random() * 2.4, dir: Math.random() < 0.5 ? -1 : 1, spin: Math.random() < 0.25 };
       });
-    chaosWords = [];
-    var tw = document.createTreeWalker(document.querySelector(".wrap") || document.body, NodeFilter.SHOW_TEXT), n;
-    while ((n = tw.nextNode()) && chaosWords.length < 200) { var t = n.nodeValue.trim(); if (t.length > 1) chaosWords.push(t.slice(0, 28)); }
-    if (!chaosWords.length) chaosWords = ["Sky Glider", "2023", "Glider"];
     chaosLayer = document.createElement("div");
     chaosLayer.style.cssText = "position:fixed;inset:0;z-index:2147483000;pointer-events:none;overflow:hidden";
     document.body.appendChild(chaosLayer);
@@ -2353,19 +2349,11 @@
     });
   }
   function chaosGhost(c) {
-    var W = innerWidth, H = innerHeight, g, roll = Math.random();
-    if (roll < 0.3 && chaosShot) {
-      g = document.createElement("img"); g.src = chaosShot; g.alt = "";
-      var sz = 40 + Math.random() * 220; g.style.width = sz + "px"; g.style.imageRendering = "pixelated";
-    } else if (roll < 0.45 && chaosEls.length) {
-      g = chaosEls[Math.floor(Math.random() * chaosEls.length)].el.cloneNode(true);
-      g.removeAttribute("id"); g.style.transform = ""; g.style.background = Math.random() < 0.5 ? "#c0c0c0" : "transparent";
-    } else {
-      g = document.createElement("div"); g.textContent = chaosWords[Math.floor(Math.random() * chaosWords.length)];
-      g.style.font = (Math.random() < 0.5 ? "bold " : "") + Math.round(14 + Math.random() * 70 * c) + "px " + (Math.random() < 0.5 ? "'Times New Roman',serif" : "'Courier New',monospace");
-      g.style.color = "hsl(" + Math.floor(Math.random() * 360) + ",100%,55%)"; g.style.whiteSpace = "nowrap";
-      g.style.textShadow = "3px 3px 0 #000";
-    }
+    // only pictures of the game fly around (no words: the trip has no text in it)
+    var W = innerWidth, H = innerHeight, g;
+    if (!chaosShot) return;
+    g = document.createElement("img"); g.src = chaosShot; g.alt = "";
+    var sz = 40 + Math.random() * 220; g.style.width = sz + "px"; g.style.imageRendering = "pixelated";
     g.style.position = "absolute"; g.style.left = "0"; g.style.top = "0"; g.style.margin = "0"; g.style.willChange = "transform";
     chaosLayer.appendChild(g); chaosLive++;
     var x0 = Math.random() * W, y0 = Math.random() * H, x1 = Math.random() * W, y1 = Math.random() * H;
