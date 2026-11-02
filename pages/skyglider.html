@@ -1959,8 +1959,11 @@
   // worse: the page breathes, melts, comes apart, faster and faster... and then, at no set moment, it cuts to black.
   // ======================================================================
   var FUEL_MAX = 3;
-  // when the light goes out is random: somewhere between 17 and 27 seconds in
-  function megaLen() { return 17 + Math.random() * 10; }
+  // the whole trip plays out: it builds to its worst by PEAK of the way through, stays there for a few seconds
+  // so you see all of it, and then the light goes out (between 23 and 29 seconds in)
+  var PEAK = 0.78;
+  function megaLen() { return 23 + Math.random() * 6; }
+  function megaK(m) { return Math.min(1, m.t / (m.len * PEAK)); }
   // the trip, then things coming apart (as fractions of the flight; it never calms down)
   var M_UNRAVEL = 0.45;
   var root = document.documentElement, megaSnd = null, glitched = [], megaVeil = null, megaWarp = null;
@@ -1998,27 +2001,27 @@
   function megaSound(from) {
     megaSoundOff();
     if (save.sound && audio()) {
-      var real = ac.currentTime, now = real - from, L = G.mega.len, out = ac.createGain(), lp = ac.createBiquadFilter(), oscs = [];
-      lp.type = "lowpass"; lp.frequency.setValueAtTime(500, now); lp.frequency.linearRampToValueAtTime(5200, now + L);
-      out.gain.setValueAtTime(0.0001, now); out.gain.linearRampToValueAtTime(0.045, now + 4); out.gain.linearRampToValueAtTime(0.085, now + L);
+      var real = ac.currentTime, now = real - from, L = G.mega.len, P = L * PEAK, out = ac.createGain(), lp = ac.createBiquadFilter(), oscs = [];
+      lp.type = "lowpass"; lp.frequency.setValueAtTime(500, now); lp.frequency.linearRampToValueAtTime(5200, now + P);
+      out.gain.setValueAtTime(0.0001, now); out.gain.linearRampToValueAtTime(0.045, now + 4); out.gain.linearRampToValueAtTime(0.085, now + P);
       lp.connect(out); out.connect(master);
       // a warm chord that breathes, then warbles harder and harder and slowly bends upward
       var wob = ac.createOscillator(), wobAmt = ac.createGain();
-      wob.frequency.setValueAtTime(0.25, now); wob.frequency.linearRampToValueAtTime(2, now + L * 0.6); wob.frequency.linearRampToValueAtTime(9, now + L);
-      wobAmt.gain.setValueAtTime(4, now); wobAmt.gain.linearRampToValueAtTime(40, now + L * 0.6); wobAmt.gain.linearRampToValueAtTime(140, now + L);
+      wob.frequency.setValueAtTime(0.25, now); wob.frequency.linearRampToValueAtTime(2, now + P * 0.6); wob.frequency.linearRampToValueAtTime(9, now + P);
+      wobAmt.gain.setValueAtTime(4, now); wobAmt.gain.linearRampToValueAtTime(40, now + P * 0.6); wobAmt.gain.linearRampToValueAtTime(140, now + P);
       wob.connect(wobAmt); wob.start(now); oscs.push(wob);
       [110, 164.8, 220, 277.2].forEach(function (f, i) {
         var o = ac.createOscillator(), g = ac.createGain();
         o.type = i % 2 ? "triangle" : "sine";
-        o.frequency.setValueAtTime(f, now); o.frequency.setValueAtTime(f, now + L * M_UNRAVEL);
+        o.frequency.setValueAtTime(f, now); o.frequency.setValueAtTime(f, now + P * M_UNRAVEL);
         // the voices pull apart, some sinking and some climbing, until the chord curdles
-        o.frequency.exponentialRampToValueAtTime(f * (i % 2 ? 0.74 - i * 0.04 : 1.22 + i * 0.08), now + L);
+        o.frequency.exponentialRampToValueAtTime(f * (i % 2 ? 0.74 - i * 0.04 : 1.22 + i * 0.08), now + P);
         o.detune.setValueAtTime((i - 1.5) * 4, now); wobAmt.connect(o.detune);
         g.gain.value = i === 0 ? 0.5 : 0.28;
         o.connect(g); g.connect(lp); o.start(now); oscs.push(o);
       });
       // a heartbeat that comes in once it starts coming apart, and keeps speeding up
-      var tb = now + L * M_UNRAVEL, gap = 0.9;
+      var tb = now + P * M_UNRAVEL, gap = 0.9;
       while (tb < now + L + 1) {
         [0, 0.15].forEach(function (d, j) {
           var t0 = tb + d;
@@ -2031,11 +2034,11 @@
         tb += gap; gap = Math.max(0.24, gap * 0.9);
       }
       // the chaos: little 8-bit squeals that come faster and faster until they're a swarm
-      var cs = now + L * C_START, cg = 0.45, sq = ac.createGain();
+      var cs = now + P * C_START, cg = 0.45, sq = ac.createGain();
       sq.gain.value = 1; sq.connect(master);
-      while (cs < now + L) {
+      while (cs < now + L) {   // the swarm keeps going through the peak, right up to the cut
         if (cs >= real) {
-          var so = ac.createOscillator(), sgn = ac.createGain(), f0 = 180 + Math.random() * 1800 * (0.4 + (cs - now) / L);
+          var so = ac.createOscillator(), sgn = ac.createGain(), f0 = 180 + Math.random() * 1800 * (0.4 + Math.min(1, (cs - now) / P));
           so.type = Math.random() < 0.5 ? "square" : "sawtooth";
           so.frequency.setValueAtTime(f0, cs); so.frequency.exponentialRampToValueAtTime(f0 * (Math.random() < 0.5 ? 0.3 : 3), cs + 0.09);
           sgn.gain.setValueAtTime(0.0001, cs); sgn.gain.linearRampToValueAtTime(0.014, cs + 0.005); sgn.gain.exponentialRampToValueAtTime(0.0001, cs + 0.1);
@@ -2046,9 +2049,9 @@
       // and a deep swell underneath it all (no static: it was a harsh hiss right when things started going wrong)
       var sw = ac.createOscillator(), sw2 = ac.createOscillator(), swg = ac.createGain();
       sw.type = "sine"; sw2.type = "sine";
-      sw.frequency.setValueAtTime(41, now); sw.frequency.exponentialRampToValueAtTime(62, now + L);
-      sw2.frequency.setValueAtTime(41.6, now); sw2.frequency.exponentialRampToValueAtTime(63.5, now + L);
-      swg.gain.setValueAtTime(0.0001, now + L * C_START); swg.gain.linearRampToValueAtTime(0.11, now + L);
+      sw.frequency.setValueAtTime(41, now); sw.frequency.exponentialRampToValueAtTime(62, now + P);
+      sw2.frequency.setValueAtTime(41.6, now); sw2.frequency.exponentialRampToValueAtTime(63.5, now + P);
+      swg.gain.setValueAtTime(0.0001, now + P * C_START); swg.gain.linearRampToValueAtTime(0.11, now + P);
       sw.connect(swg); sw2.connect(swg); swg.connect(master); sw.start(real); sw2.start(real); oscs.push(sw, sw2);
       megaSnd = { buses: [out, sq, swg], o: oscs };
     }
@@ -2056,7 +2059,7 @@
 
   function megaTick(dt) {
     var m = G.mega; m.t += dt;
-    var k = Math.min(1, m.t / m.len), calm = calmFx();
+    var k = megaK(m), calm = calmFx();
     // colors slide around faster and faster and get louder and louder
     // colors drift and lurch rather than strobe: slow, then a sudden wrong jump now and then
     m.hue = (m.hue + dt * (14 + 120 * k * k) + (k > 0.5 && Math.random() < 0.01 ? 90 + Math.random() * 120 : 0)) % 360;
@@ -2088,8 +2091,7 @@
         megaWarp.disp.setAttribute("scale", (28 * melt).toFixed(1));
       }
     }
-    // letters around the page come loose, more and more of them, and near the end they stop coming back
-    if (k > M_UNRAVEL && m.t > m.nextScramble) { scrambleSome(1 + Math.floor((k - M_UNRAVEL) * 18), k > 0.8); m.nextScramble = m.t + Math.max(0.08, 0.6 - 0.9 * (k - M_UNRAVEL)); }
+
     // and the whole site loses its mind
     chaosTick(m, k);
     // and then, mid-thought, it's just gone
@@ -2097,7 +2099,7 @@
   }
   // Glider just keeps going faster
   function megaSpeed() {
-    var k = Math.min(1, G.mega.t / G.mega.len);
+    var k = megaK(G.mega);
     return 1.3 + 1.2 * sstep(0.1, 0.6, k) + 0.9 * sstep(0.6, 1, k);
   }
 
@@ -2151,7 +2153,7 @@
 
   // horizontal slices of the picture slipping sideways, worse and worse right up to the cut
   function megaGlitch() {
-    var k = G.mega.t / G.mega.len;
+    var k = megaK(G.mega);
     if (k < M_UNRAVEL || calmFx()) return;
     var n = Math.floor((k - M_UNRAVEL) * 40);
     for (var i = 0; i < n; i++) {
@@ -2161,20 +2163,8 @@
     }
   }
 
-  // swap letters in the page's titles and menu for wrong ones (put back afterwards unless it's too late)
+  // glitch characters (used by what comes after the cut to black)
   var GLYPHS = "░▒▓█¿§ØÞЖЯΔ#?!01";
-  function scrambleSome(n, keep) {
-    var els = Array.prototype.slice.call(document.querySelectorAll(".navbar a, .box-title > span, .sg-hud small, #sgLegend b, .content h2, .content h3, .wrap p, .wrap li, .footer a, .header *, .sg-help span"));
-    for (var i = 0; i < n && els.length; i++) {
-      var el = els[Math.floor(Math.random() * els.length)];
-      if (!el.firstChild || el.firstChild.nodeType !== 3) continue;
-      if (!el.hasAttribute("data-sg-orig")) { el.setAttribute("data-sg-orig", el.firstChild.nodeValue); glitched.push(el); }
-      var orig = el.getAttribute("data-sg-orig"), out = "";
-      for (var j = 0; j < orig.length; j++) out += orig[j] !== " " && Math.random() < 0.45 ? GLYPHS[Math.floor(Math.random() * GLYPHS.length)] : orig[j];
-      el.firstChild.nodeValue = out;
-      if (!keep) (function (e) { setTimeout(function () { if (G.mega && e.firstChild) e.firstChild.nodeValue = e.getAttribute("data-sg-orig"); }, 260); })(el);
-    }
-  }
   function unscramble() {
     glitched.forEach(function (el) { if (el.firstChild) el.firstChild.nodeValue = el.getAttribute("data-sg-orig"); el.removeAttribute("data-sg-orig"); });
     glitched = [];
