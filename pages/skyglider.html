@@ -109,7 +109,7 @@
       <p>Every level gets a little faster, and so does every second you spend on one. Earn stars every flight to buy new paint jobs and trails in the <b>Hangar</b>, and check your <b>Flight Goals</b> for bonus stars. The <b>Daily Flight</b> is the same for everyone and you only get one life.</p>
       <p><span class="sg-kbonly">Keyboard: arrow keys or WASD to fly, Space to start, P to pause, M to mute.</span> On a phone, swipe anywhere, tap the maze where you want to go, or hold the arrow pad and slide your thumb around it to steer.</p>
       <p><b>Credits:</b> Glider made by <a href="https://www.instagram.com/_sqeakz/" target="_blank" rel="noopener noreferrer">cherrie/sqeakz</a> on Instagram. Concept and game made by Cole.</p>
-      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.11</span></summary><dl><dt>1.11</dt><dd>&bull; Switching is smoother</dd><dd>&bull; Quieter when it matters</dd><dd>&bull; Don&rsquo;t look at the walls</dd><dt>1.10.1</dt><dd>&bull; Quieter</dd><dt>1.10</dt><dd>&bull; Power-ups stack</dd><dd>&bull; You can steer the fall</dd><dd>&bull; Fits short screens</dd><dt>1.9.2</dt><dd>&bull; Goals are a little more honest now</dd><dt>1.9.1</dt><dd>&bull; Only one kind of fuel in 2023</dd><dd>&bull; The lane is closed</dd><dd>&bull; Bug fixes</dd><dt>1.9</dt><dd>&bull; Everything is breathing</dd><dd>&bull; Tell him he can</dd><dt>1.8.1</dt><dd>&bull; Some lanes are darker than others</dd><dt>1.8</dt><dd>&bull; The hangar is listening</dd><dd>&bull; Don&rsquo;t fly too fast</dd><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
+      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.11.1</span></summary><dl><dt>1.11.1</dt><dd>&bull; Much easier to steer on phones</dd><dt>1.11</dt><dd>&bull; Switching is smoother</dd><dd>&bull; Quieter when it matters</dd><dd>&bull; Don&rsquo;t look at the walls</dd><dt>1.10.1</dt><dd>&bull; Quieter</dd><dt>1.10</dt><dd>&bull; Power-ups stack</dd><dd>&bull; You can steer the fall</dd><dd>&bull; Fits short screens</dd><dt>1.9.2</dt><dd>&bull; Goals are a little more honest now</dd><dt>1.9.1</dt><dd>&bull; Only one kind of fuel in 2023</dd><dd>&bull; The lane is closed</dd><dd>&bull; Bug fixes</dd><dt>1.9</dt><dd>&bull; Everything is breathing</dd><dd>&bull; Tell him he can</dd><dt>1.8.1</dt><dd>&bull; Some lanes are darker than others</dd><dt>1.8</dt><dd>&bull; The hangar is listening</dd><dd>&bull; Don&rsquo;t fly too fast</dd><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
       <button class="sg-btn go sg-helpx" id="sgHelpClose">Got it!</button>
     </div>
   </div>
@@ -819,7 +819,7 @@
     if (keyHeldX) return keyHeldX;
     return nudgeT > 0 ? nudgeX : 0;
   }
-  function want(name) {
+  function want(name, touch) {
     if (G.mode === "title" || G.mode === "over") return;
     var d = DIRS[name]; if (!d) return;
     if (G.mode === "dying" && d[0]) { nudgeX = d[0]; nudgeT = 0.35; }
@@ -831,7 +831,15 @@
     if ((d[0] && player.dy) || (d[1] && player.dx) || (!player.dx && !player.dy)) {
       var cx = Math.round(player.x), cy = Math.round(player.y);
       var off = player.dx ? Math.abs(player.x - cx) : Math.abs(player.y - cy);
-      if (off < 0.42 && open(cx + d[0], cy + d[1])) { player.x = cx; player.y = cy; player.dx = d[0]; player.dy = d[1]; }
+      // thumbs are less precise than keys: on touch, any turn at the nearest corner counts
+      if (off < (touch ? 0.51 : 0.42) && open(cx + d[0], cy + d[1])) { player.x = cx; player.y = cy; player.dx = d[0]; player.dy = d[1]; return; }
+      // and a swipe that comes a little late still takes the corner Glider just flew past (instead of a later one)
+      if (touch && (player.dx || player.dy)) {
+        var bx = player.dx ? (player.dx > 0 ? Math.floor(player.x) : Math.ceil(player.x)) : Math.round(player.x);
+        var by = player.dy ? (player.dy > 0 ? Math.floor(player.y) : Math.ceil(player.y)) : Math.round(player.y);
+        var back = Math.abs(player.x - bx) + Math.abs(player.y - by);
+        if (back < 0.8 && open(bx, by) && open(bx + d[0], by + d[1])) { player.x = bx; player.y = by; player.dx = d[0]; player.dy = d[1]; }
+      }
     }
   }
   document.addEventListener("keyup", function (e) {
@@ -860,16 +868,22 @@
   // swipes anywhere in the game area (not just on the maze), and a quick tap on the maze steers Glider toward the tap
   var sw = null;
   var swipeArea = document.querySelector(".sg-body") || $("sgMain");
+  // A swipe is measured from where the thumb was when it last turned Glider, and only counts once it clearly goes one way.
+  // So a thumb that curves at the end of a swipe (they all do) doesn't send Glider off sideways, and you can still
+  // keep your thumb down and steer turn after turn.
+  var SWIPE_MIN = 18, SWIPE_CLEAR = 1.25;
   swipeArea.addEventListener("touchstart", function (e) {
     if (e.target.closest && e.target.closest("button, a, .sg-overlay, .sg-pad")) return;
-    var t = e.touches[0]; sw = { x: t.clientX, y: t.clientY, x0: t.clientX, y0: t.clientY, t0: performance.now(), moved: false }; audio();
+    var t = e.touches[0]; sw = { x: t.clientX, y: t.clientY, x0: t.clientX, y0: t.clientY, t0: performance.now(), moved: false, last: null }; audio();
   }, { passive: true });
   swipeArea.addEventListener("touchmove", function (e) {
     if (!sw) return;
     if (playing()) e.preventDefault();
-    var t = e.touches[0], dx = t.clientX - sw.x, dy = t.clientY - sw.y;
-    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
-    want(dirOf(dx, dy));
+    var t = e.touches[0], dx = t.clientX - sw.x, dy = t.clientY - sw.y, ax = Math.abs(dx), ay = Math.abs(dy);
+    if (Math.max(ax, ay) < SWIPE_MIN) return;
+    if (Math.max(ax, ay) < Math.min(ax, ay) * SWIPE_CLEAR) return;   // too diagonal to tell yet: wait for more
+    var d = dirOf(dx, dy);
+    if (d !== sw.last) { want(d, true); sw.last = d; }
     sw.x = t.clientX; sw.y = t.clientY; sw.moved = true;
   }, { passive: false });
   swipeArea.addEventListener("touchend", function (e) {
@@ -880,7 +894,7 @@
     if (t.clientX < r.left || t.clientX > r.right || t.clientY < r.top || t.clientY > r.bottom) return;
     var p = toPage(player.x, player.y), dx = t.clientX - p.x, dy = t.clientY - p.y;
     if (Math.hypot(dx, dy) < r.width / COLS * 0.6) return;   // tapped right on Glider
-    want(dirOf(dx, dy));
+    want(dirOf(dx, dy), true);
   }, { passive: true });
   swipeArea.addEventListener("touchcancel", function () { sw = null; }, { passive: true });
 
@@ -891,7 +905,7 @@
     if (padDir === d) return;
     if (padDir) padBtns[padDir].classList.remove("on");
     padDir = d;
-    if (d) { padBtns[d].classList.add("on"); want(d); if (navigator.vibrate && save.fx) try { navigator.vibrate(8); } catch (_) {} }
+    if (d) { padBtns[d].classList.add("on"); want(d, true); if (navigator.vibrate && save.fx) try { navigator.vibrate(8); } catch (_) {} }
   }
   function padAt(e) {
     var r = padEl.getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
