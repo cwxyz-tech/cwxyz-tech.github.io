@@ -251,6 +251,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, [tabindex]:focus-vis
 
 /* "Jump to" bar for pages with lots of topics (the FAQ) */
 .ux-jump {
+  position: sticky; top: 0; z-index: 20;
   display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
   background: #c0c0c0; border: 2px outset #fff; padding: 8px 10px; margin: 0 0 18px;
   font: bold 14px "Times New Roman", Times, serif;
@@ -261,6 +262,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, [tabindex]:focus-vis
 }
 .ux-jump a:hover { color: #cc0000; }
 .ux-jump a:active { border-style: inset; }
+.section-title:focus { outline: none; }
 
 /* tablet widths (an iPad standing up, a narrow window): the menu stays on one row */
 .navbar a, .navbar a:visited { white-space: nowrap; }

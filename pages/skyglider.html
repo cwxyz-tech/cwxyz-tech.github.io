@@ -108,10 +108,10 @@
       <p>Grab a <b>sun</b> and the storms get scared and puff up white. Fly into them for big points: 200, 400, 800, then 1600 for the whole set. Keep grabbing sparkles without a break to build your <b>combo</b>, all the way up to x5.</p>
       <p>Power-ups pop up in the maze: <b>Jet</b> makes you faster, <b>Magnet</b> pulls in sparkles, <b>Shield</b> blocks one storm, <b>Snow</b> freezes the storms, <b>2x</b> doubles your points, and if you're lucky a <b>heart</b> gives you an extra life. Grab the same one again while it's running and it stacks, up to 3: two Jets is way faster, two 2x is 4x points. When Glider goes down you can steer him a little on the way, so aim for a sparkle.</p>
       <p>Every level gets a little faster, and so does every second you spend on one. Earn stars every flight to buy new paint jobs and trails in the <b>Hangar</b>, and check your <b>Flight Goals</b> for bonus stars. The <b>Daily Flight</b> is the same for everyone and you only get one life.</p>
-      <p>Think you're good? Try <b>Hard Mode</b>: the sky goes dark, the storms come out sooner and faster, suns don't last long, power-ups are rare and you only get one life. Every point counts double, and it keeps its own best score.</p>
+      <p>Think you're good? Try <b>Hard Mode</b>: the sky goes dark, the storms come out sooner and faster, suns don't last long, power-ups are rare and you only get one life. Every point counts double, it keeps its own best score, and Glider always flies in his Midnight paint job (your first Hard Mode flight unlocks it for normal flights too).</p>
       <p><span class="sg-kbonly">Keyboard: arrow keys or WASD to fly, Space to start, P to pause, M to mute.</span> On a phone, swipe anywhere, tap the maze where you want to go, or hold the arrow pad and slide your thumb around it to steer.</p>
       <p><b>Credits:</b> Glider made by <a href="https://www.instagram.com/_sqeakz/" target="_blank" rel="noopener noreferrer">cherrie/sqeakz</a> on Instagram. Concept and game made by Cole.</p>
-      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.10</span></summary><dl><dt>1.10</dt><dd>&bull; Hard Mode</dd><dd>&bull; Bug fixes</dd><dt>1.9.1</dt><dd>&bull; Much easier to steer on phones</dd><dt>1.9</dt><dd>&bull; Power-ups stack</dd><dd>&bull; You can steer the fall</dd><dd>&bull; Fits short screens</dd><dt>1.8</dt><dd>&bull; Goals are a little more honest now</dd><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
+      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.10.1</span></summary><dl><dt>1.10.1</dt><dd>&bull; Midnight has to be earned now</dd><dt>1.10</dt><dd>&bull; Hard Mode</dd><dd>&bull; Bug fixes</dd><dt>1.9.1</dt><dd>&bull; Much easier to steer on phones</dd><dt>1.9</dt><dd>&bull; Power-ups stack</dd><dd>&bull; You can steer the fall</dd><dd>&bull; Fits short screens</dd><dt>1.8</dt><dd>&bull; Goals are a little more honest now</dd><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
       <button class="sg-btn go sg-helpx" id="sgHelpClose">Got it!</button>
     </div>
   </div>
@@ -268,7 +268,7 @@
     { id: "mint", name: "Mint", cost: 80, pal: { b: "#16a06a", l: "#9ae8c4" } },
     { id: "bubble", name: "Bubblegum", cost: 120, pal: { b: "#e0469c", l: "#ffaad8" } },
     { id: "gold", name: "Gold", cost: 250, pal: { b: "#c89600", l: "#ffe27a" } },
-    { id: "night", name: "Midnight", cost: 400, pal: { w: "#55557a", d: "#3e3e5c", b: "#80a8ff", l: "#8a8ab8", k: "#000000", p: "#ff90b0" } },
+    { id: "night", name: "Midnight", cost: 0, hard: true, pal: { w: "#55557a", d: "#3e3e5c", b: "#80a8ff", l: "#8a8ab8", k: "#000000", p: "#ff90b0" } },
     { id: "rainbow", name: "Rainbow", cost: 700, pal: { b: "#ff3030", l: "#ffffff" }, rainbow: true }
   ];
   var TRAILS = [
@@ -343,6 +343,8 @@
   // Glider sprites for a paint job: [facing][frame] where facing 0 = left (like the drawing), 1 = right
   var gliderCache = {};
   var livById = {};
+  // the paint job Glider flies with right now: Hard Mode always flies Midnight
+  function flyLiv() { return G.hard ? "night" : save.liv; }
   function livOf(id) { return livById[id] || (livById[id] = LIVERIES.filter(function (l) { return l.id === id; })[0] || LIVERIES[0]); }
   function gliderSet(livId, hueStep) {
     var liv = livOf(livId);
@@ -793,6 +795,8 @@
     showWholeGame();
     G.daily = !!daily;
     setHard(!!hard && !daily);
+    // flying Hard Mode is the only way to get the Midnight paint job
+    if (G.hard && save.own.liv.indexOf("night") < 0) { save.own.liv.push("night"); G.nightNote = true; }
     var d = today();
     G.rand = daily ? rng(seedOf("daily" + d)) : Math.random;
     G.level = G.startLevel = daily ? 3 : 1;
@@ -810,7 +814,8 @@
   }
   function readyGo(text) {
     G.mode = "ready"; G.timer = 1.8;
-    showCall(text + "<small>" + MAZE_NAMES[G.maze] + (G.daily ? " &middot; one life!" : "") + "</small>", true);
+    showCall(text + "<small>" + MAZE_NAMES[G.maze] + (G.daily ? " &middot; one life!" : "") + (G.nightNote ? " &middot; Midnight unlocked!" : "") + "</small>", true);
+    G.nightNote = false;
     sfx("ready"); ambStart();
   }
 
@@ -1612,8 +1617,8 @@
     if (!G.grid) return;
     if (G.pop && G.hitPause > 0) return;   // hidden while the points show, like the arcade
     if (G.mode === "over") return;
-    var liv = livOf(save.liv);
-    var set = gliderSet(save.liv, liv.rainbow ? Math.floor(G.t * 10) : 0);
+    var livId = flyLiv(), liv = livOf(livId);
+    var set = gliderSet(livId, liv.rainbow ? Math.floor(G.t * 10) : 0);
     var happy = G.frightT > 0 || G.mode === "clear" || G.hitPause > 0;
     var moving = G.mode === "play" && (player.dx || player.dy);
     var img = set[player.face][gliderFrame(moving, happy)];
@@ -1660,7 +1665,7 @@
   function hud() {
     $("sgLevel").textContent = G.level;
     var lv = $("sgLives"); lv.innerHTML = "";
-    var set = gliderSet(save.liv, 0);
+    var set = gliderSet(flyLiv(), 0);
     for (var i = 0; i < Math.min(G.lives - (G.mode === "dying" ? 0 : 0), 5); i++) {
       var c = mk(20, 20); c.getContext("2d").drawImage(set[1][0], 0, 0); lv.appendChild(c);
     }
@@ -1853,14 +1858,15 @@
     var back = G.mode === "paused" ? "pause" : "title";
     function item(kind, it) {
       var owned = save.own[kind].indexOf(it.id) >= 0, on = save[kind] === it.id;
-      return '<button class="sg-item' + (on ? " on" : "") + (owned ? "" : " locked") + (!owned && save.stars < it.cost ? " poor" : "") + '" data-k="' + kind + '" data-id="' + it.id + '">' +
+      var hardLock = !owned && it.hard;
+      return '<button class="sg-item' + (on ? " on" : "") + (owned ? "" : " locked") + (!owned && (hardLock || save.stars < it.cost) ? " poor" : "") + '" data-k="' + kind + '" data-id="' + it.id + '"' + (hardLock ? ' title="Fly Hard Mode to unlock"' : '') + '>' +
         '<canvas width="30" height="20" data-prev="' + kind + ':' + it.id + '"></canvas>' + it.name +
-        '<span class="pr">' + (on ? "Flying" : owned ? "Use" : it.cost) + '</span></button>';
+        '<span class="pr">' + (on ? "Flying" : owned ? "Use" : hardLock ? "&#9889; Hard Mode" : it.cost) + '</span></button>';
     }
     var html = '<div class="dt">Hangar</div><div class="db"><h2>&#9992; Hangar</h2><p>You have <span class="sg-feath">&#9733; ' + save.stars.toLocaleString() + '</span> stars</p>' +
       '<div class="sg-shop"><h3>Paint Jobs</h3><div class="sg-items">' + LIVERIES.map(function (l) { return item("liv", l); }).join("") + '</div>' +
       '<h3>Trails</h3><div class="sg-items">' + TRAILS.map(function (t) { return item("trail", t); }).join("") + '</div></div>' +
-      '<p style="font-size:13px">Earn stars every flight (1 for every 250 points) and from Flight Goals.</p>' +
+      '<p style="font-size:13px">Earn stars every flight (1 for every 250 points) and from Flight Goals. Midnight is earned by flying Hard Mode, and Hard Mode always flies Midnight.</p>' +
       '<button class="sg-btn go wide" id="sgShopBack">Done</button></div>';
     openDialog(html);
     Array.prototype.forEach.call(dialog.querySelectorAll("canvas[data-prev]"), function (c) {
@@ -1881,6 +1887,7 @@
         var kind = btn.getAttribute("data-k"), id = btn.getAttribute("data-id");
         var list = kind === "liv" ? LIVERIES : TRAILS, it = list.filter(function (x) { return x.id === id; })[0];
         if (save.own[kind].indexOf(id) < 0) {
+          if (it.hard) { sfx("nope"); fx.restart(btn, "cw-blink"); return; }   // earned in Hard Mode, not bought
           if (save.stars < it.cost) { sfx("nope"); fx.restart(btn, "cw-blink"); return; }
           save.stars -= it.cost; save.own[kind].push(id); sfx("buy");
           var p = fx.center ? fx.center(btn) : null; if (p) fx.burst(p.x, p.y, 2);

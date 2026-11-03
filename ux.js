@@ -68,12 +68,50 @@
     for (var i = 0; i < secs.length; i++) {
       var s = secs[i], text = (s.textContent || "").trim();
       if (!s.id) s.id = "topic-" + (text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || i);
+      s.setAttribute("tabindex", "-1");
       var a = document.createElement("a");
       a.href = "#" + s.id;
       a.textContent = text === "FAQ" ? "General" : text;
+      a.addEventListener("click", onJump);
       bar.appendChild(a);
     }
     secs[0].parentNode.insertBefore(bar, secs[0]);
+
+    // the bar sticks to the top while you scroll, so a jump has to land just below it
+    function fitMargin() {
+      var m = bar.offsetHeight + 12;
+      for (var j = 0; j < secs.length; j++) secs[j].style.scrollMarginTop = m + "px";
+    }
+    fitMargin();
+    window.addEventListener("resize", fitMargin);
+
+    // a link straight to a topic (/faq#topic-cars): the topics only get their names now, so go there now
+    if (location.hash) {
+      var t = null;
+      try { t = document.getElementById(decodeURIComponent(location.hash.slice(1))); } catch (e) {}
+      if (t && t.classList.contains("section-title")) go(t, false);
+    }
+    window.addEventListener("hashchange", function () {
+      var t = null;
+      try { t = document.getElementById(decodeURIComponent(location.hash.slice(1))); } catch (e) {}
+      if (t && t.classList.contains("section-title")) go(t, false);
+    });
+  }
+
+  function onJump(e) {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;   // let "open in new tab" work
+    var t = document.getElementById(this.getAttribute("href").slice(1));
+    if (!t) return;
+    e.preventDefault();
+    go(t, true);
+    // swap the address instead of adding to it, so Back leaves the page instead of stepping through every jump
+    try { history.replaceState(history.state, "", "#" + t.id); } catch (err) {}
+  }
+
+  function go(t, smooth) {
+    var calm = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    t.scrollIntoView({ behavior: smooth && !calm ? "smooth" : "auto", block: "start" });
+    try { t.focus({ preventScroll: true }); } catch (e) {}
   }
 
   function run() {
