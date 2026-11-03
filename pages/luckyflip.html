@@ -67,7 +67,7 @@
               <div class="k">Level</div><div class="v" id="flLevel">1</div>
               <div class="k">Coins</div><div class="v big" id="flRound">0</div>
               <div class="k">Bank</div><div class="v" id="flTotal">0</div>
-              <div class="k">Best</div><div class="v" id="flBest">0</div>
+              <div class="k" id="flBestK">Best</div><div class="v" id="flBest">0</div>
               <div class="k wl">W / L</div><div class="v wl" id="flWL">0 / 0</div>
               <div class="k">Streak</div><div class="v" id="flStreak">0</div>
             </div>
@@ -87,10 +87,25 @@
             <div class="fl-tip touch">Hold a tile to mark a bomb.</div>
           </div>
         </div>
+        <div class="fl-helpwin">
+          <div class="fl-win-title">Helpers</div>
+          <div class="fl-win-body">
+            <button class="fl-btn fl-hbtn" id="flPeek" data-help="peek"></button>
+            <button class="fl-btn fl-hbtn" id="flDet" data-help="det"></button>
+            <button class="fl-btn fl-hbtn" id="flShield" data-help="shield"></button>
+            <div class="fl-tip" id="flHelpTip">Buy helpers in the Shop.</div>
+          </div>
+        </div>
         <div class="fl-wide fl-gamewin">
           <div class="fl-win-title">Game</div>
           <div class="fl-win-body">
             <button class="fl-btn" id="flCash" disabled>Cash Out</button>
+            <div class="fl-menu">
+              <button class="fl-btn" id="flHard" aria-pressed="false">&#9889; Hard</button>
+              <button class="fl-btn" id="flShop">Shop</button>
+              <button class="fl-btn" id="flDaily">Daily</button>
+              <button class="fl-btn" id="flGoals">Goals</button>
+            </div>
             <button class="fl-btn" id="flSound">Sound: On</button>
             <button class="fl-btn" id="flMusic">Music: On</button>
             <button class="fl-btn" id="flFx">Effects: On</button>
@@ -106,8 +121,12 @@
       <p>Every tile hides a <b>1</b>, <b>2</b>, <b>3</b> or a <b>bomb</b> <span class="bomb-slot"></span>. Click a tile to flip it. The first number you flip becomes your coins, and every number after that <b>multiplies</b> them. 1s don't hurt, 2s double you, 3s triple you.</p>
       <p>The boxes on the edge are your clues: the top number is what that row or column adds up to, and the bottom is how many bombs are hiding in it. A row with 0 bombs is free money. A row that adds up to 5 with 0 bombs is all 1s, so don't bother.</p>
       <p>Find every 2 and 3 to clear the level and bank your coins. Flip a bomb and you lose this round's coins, and you might drop a level. Getting nervous? <b>Cash Out</b> keeps what you've got. Higher levels hide more bombs but pay way more. There are 8 levels.</p>
+      <p><b>Special tiles</b> show up now and then: a <b>gold 5</b> multiplies your coins by 5, a <b>dud</b> (&frac12;) cuts them in half, a <b>?</b> tile is a gamble that's either a <b>4</b> or a bomb (you don't need to flip it), and a <b>chain</b> tile flips the safe tiles next to it for free. Clues count gold as 5, a winning <b>?</b> as 4 and a dud as 0.</p>
+      <p>Flip three 2s or 3s in a row and you're on a <b>Hot Streak</b>: the next tile counts double. On the way up you'll run into <b>boss boards</b> (a bigger board, clues lost in fog, bombs that move), and clearing one pays double.</p>
+      <p>Spend your bank in the <b>Shop</b> on new card backs, bombs, table felt, flip sounds and one-use <b>helpers</b>. Play the <b>Daily</b> board (same for everyone, one try a day), knock out your 3 daily <b>Goals</b> for bonus coins, and fill up your trophy shelf.</p>
+      <p><b>Hard Mode</b>: more bombs, no Notes, no helpers, and a bomb sends you all the way back to level 1. Every payout counts double, it keeps its own best, and it has its own song.</p>
       <p>Turn on <b>Notes</b> to mark what you think a tile is without flipping it. <span class="fl-kbhelp">Keyboard works too: arrows to move, Space to flip, N for notes, and B / 1 / 2 / 3 to mark.</span><span class="fl-touchhelp">Hold down on a tile to quickly mark it as a bomb.</span></p>
-      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.4</span></summary><dl><dt>1.4</dt><dd>&bull; The board sits nicer on phones</dd><dd>&bull; Bug fixes</dd><dt>1.3</dt><dd>&bull; Under-the-hood improvements</dd><dt>1.2</dt><dd>&bull; Even more effects</dd><dd>&bull; New tutorial</dd><dt>1.1</dt><dd>&bull; New name: Lucky Flip</dd><dt>1.0</dt><dd>&bull; First release</dd></dl></details>
+      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.5</span></summary><dl><dt>1.5</dt><dd>&bull; Hard Mode (with its own song)</dd><dd>&bull; Shop and helpers</dd><dd>&bull; Daily board, daily goals and trophies</dd><dd>&bull; Special tiles, Hot Streaks and boss boards</dd><dt>1.4</dt><dd>&bull; The board sits nicer on phones</dd><dd>&bull; Bug fixes</dd><dt>1.3</dt><dd>&bull; Under-the-hood improvements</dd><dt>1.2</dt><dd>&bull; Even more effects</dd><dd>&bull; New tutorial</dd><dt>1.1</dt><dd>&bull; New name: Lucky Flip</dd><dt>1.0</dt><dd>&bull; First release</dd></dl></details>
       <div class="fl-helpbtns"><button class="fl-btn" id="flTutReplay">Replay Tutorial</button><button class="fl-btn go fl-helpx" id="flHelpClose">Got it!</button></div>
     </div>
   </div>
@@ -133,15 +152,37 @@
     [[7,2,10],[4,4,10],[1,6,13],[9,1,13],[6,3,10]],
     [[0,7,10],[8,2,10],[5,4,10],[2,6,10],[7,3,10]]
   ];
-  var MAX_LEVEL = LEVELS.length, N = 5, KEY = "cw_flip";
+  var MAX_LEVEL = LEVELS.length, N = 5, KEY = "cw_flip";   // N = board size: 5, or 6 on the Big Board boss
   var MILESTONES = [50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000];
   var RAINBOW = ["#ff0000", "#ff9900", "#ffff00", "#00cc00", "#00cccc", "#0000ff", "#cc00cc"];
-  var BOMB = '<svg class="bomb" viewBox="0 0 16 16" aria-hidden="true" shape-rendering="crispEdges">' +
+  var BOMB_CLASSIC = '<svg class="bomb" viewBox="0 0 16 16" aria-hidden="true" shape-rendering="crispEdges">' +
     '<rect x="4" y="5" width="6" height="10" fill="#000"/><rect x="2" y="7" width="10" height="6" fill="#000"/>' +
     '<rect x="3" y="6" width="8" height="8" fill="#000"/><rect x="9" y="3" width="3" height="3" fill="#000"/>' +
     '<rect x="11" y="2" width="1" height="1" fill="#000"/><rect x="12" y="1" width="2" height="1" fill="#000"/>' +
     '<rect x="14" y="0" width="1" height="1" fill="#ff9900"/><rect x="15" y="1" width="1" height="1" fill="#ffee00"/>' +
     '<rect x="14" y="2" width="1" height="1" fill="#ff3300"/><rect x="5" y="7" width="2" height="2" fill="#fff"/></svg>';
+  function px(list) { return list.map(function (r) { return '<rect x="' + r[0] + '" y="' + r[1] + '" width="' + r[2] + '" height="' + r[3] + '" fill="' + r[4] + '"/>'; }).join(""); }
+  var BOMB_SKINS = {
+    classic: BOMB_CLASSIC,
+    // a little storm cloud from Sky Glider, with a bolt
+    storm: '<svg class="bomb" viewBox="0 0 16 16" aria-hidden="true" shape-rendering="crispEdges">' + px([
+      [5, 2, 4, 1, "#3a3a4a"], [3, 3, 8, 1, "#3a3a4a"], [10, 3, 3, 1, "#3a3a4a"], [2, 4, 12, 3, "#5a5a6e"], [1, 5, 14, 2, "#5a5a6e"], [2, 7, 12, 1, "#2a2a36"],
+      [6, 3, 3, 1, "#7a7a90"], [4, 4, 2, 1, "#7a7a90"], [5, 5, 1, 1, "#fff"], [9, 5, 1, 1, "#fff"],
+      [8, 8, 2, 1, "#ffe000"], [7, 9, 2, 1, "#ffe000"], [6, 10, 4, 1, "#ffe000"], [8, 11, 2, 1, "#ffe000"], [7, 12, 2, 1, "#ffe000"], [7, 13, 1, 1, "#ff9900"]]) + '</svg>',
+    cherry: '<svg class="bomb" viewBox="0 0 16 16" aria-hidden="true" shape-rendering="crispEdges">' + px([
+      [5, 5, 6, 1, "#a00c0c"], [4, 6, 8, 1, "#d01818"], [3, 7, 10, 5, "#d01818"], [4, 12, 8, 1, "#d01818"], [5, 13, 6, 1, "#a00c0c"], [3, 11, 10, 1, "#a00c0c"],
+      [5, 7, 2, 2, "#ff9090"], [8, 3, 1, 2, "#2a7a1a"], [9, 2, 2, 1, "#2a7a1a"], [11, 1, 1, 1, "#ffee00"], [12, 0, 1, 1, "#ff9900"]]) + '</svg>'
+  };
+  var BOMB = BOMB_CLASSIC;
+  var LINK = '<svg class="lnk" viewBox="0 0 10 10" aria-hidden="true"><rect x="0.8" y="2.6" width="5" height="3.4" rx="1.6" fill="none" stroke="#7a3cc0" stroke-width="1.4"/><rect x="4.2" y="4" width="5" height="3.4" rx="1.6" fill="none" stroke="#7a3cc0" stroke-width="1.4"/></svg>';
+  var TROPHY_COL = { gold: ["#ffd700", "#b08a00", "#fff6a0"], silver: ["#e4e4ec", "#8a8a96", "#ffffff"], bronze: ["#e0904c", "#8a4a1a", "#ffc890"], locked: ["#b0b0b0", "#7a7a7a", "#c8c8c8"] };
+  function trophySvg(tier) {
+    var c = TROPHY_COL[tier] || TROPHY_COL.locked;
+    return '<svg class="tro" viewBox="0 0 16 16" aria-hidden="true" shape-rendering="crispEdges">' + px([
+      [3, 1, 10, 1, c[1]], [3, 2, 10, 4, c[0]], [4, 6, 8, 1, c[0]], [5, 7, 6, 1, c[0]], [11, 2, 2, 5, c[1]], [6, 7, 1, 1, c[1]],
+      [1, 2, 2, 1, c[1]], [1, 3, 1, 2, c[1]], [2, 5, 1, 1, c[1]], [13, 2, 2, 1, c[1]], [14, 3, 1, 2, c[1]], [13, 5, 1, 1, c[1]],
+      [5, 3, 1, 2, c[2]], [7, 8, 2, 2, c[1]], [5, 10, 6, 1, c[0]], [4, 11, 8, 2, c[1]], [5, 11, 6, 1, c[0]]]) + '</svg>';
+  }
 
   var $ = function (id) { return document.getElementById(id); };
   var gridEl = $("flGrid"), frame = $("flFrame"), overlay = $("flOverlay"), dialog = $("flDialog"), callout = $("flCallout");
@@ -162,54 +203,171 @@
   // ---------- saved stuff ----------
   var saved = {};
   try { saved = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { saved = {}; }
-  if (typeof saved !== "object") saved = {};
-  var level = clampInt(saved.level, 1, MAX_LEVEL, 1);
-  var bank = clampInt(saved.bank, 0, 1e9, 0);
-  var best = clampInt(saved.best, 0, 1e9, 0);
+  if (!saved || typeof saved !== "object" || Array.isArray(saved)) saved = {};
+  function clampInt(v, lo, hi, d) { v = parseInt(v, 10); return isNaN(v) ? d : Math.max(lo, Math.min(hi, v)); }
+  function obj(v) { return v && typeof v === "object" && !Array.isArray(v) ? v : {}; }
+  function fmt(n) { return Number(n).toLocaleString(); }
+  function today() { var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+  function seedOf(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function rngOf(seed) { var a = seed >>> 0; return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  var BIG = 1e15;
+
+  // which game you're playing: "normal", "hard", or "daily" (the Daily board)
+  var mode = saved.mode === "hard" || saved.mode === "daily" ? saved.mode : "normal";
+  var normLevel = clampInt(saved.level, 1, MAX_LEVEL, 1);
+  var hardSave = obj(saved.hard);
+  var hardLevel = clampInt(hardSave.level, 1, MAX_LEVEL, 1), hardBest = clampInt(hardSave.best, 0, BIG, 0), hardSeen = !!hardSave.seen;
+  var DAILY_LEVEL = 5;
+  var bank = clampInt(saved.bank, 0, BIG, 0);
+  var best = clampInt(saved.best, 0, BIG, 0);
   var wins = clampInt(saved.wins, 0, 1e9, 0);
   var losses = clampInt(saved.losses, 0, 1e9, 0);
   var streak = clampInt(saved.streak, 0, 1e9, 0);
   var mute = !!saved.mute, musicOff = !!saved.musicOff;
   reduce = saved.fx === false;
   var tutDone = !!saved.tut;
-  function clampInt(v, lo, hi, d) { v = parseInt(v, 10); return isNaN(v) ? d : Math.max(lo, Math.min(hi, v)); }
-  function save(over) {
+  // a boss board waiting for the next round (you get one when you climb to level 4, 6 or 8)
+  var bsave = obj(saved.boss), BOSSES = ["big", "fog", "shifty"];
+  var pendingBoss = { normal: BOSSES.indexOf(bsave.normal) >= 0 ? bsave.normal : null, hard: BOSSES.indexOf(bsave.hard) >= 0 ? bsave.hard : null };
+
+  // ---------- the shop ----------
+  var SHOP = {
+    back: [{ id: "classic", name: "Classic", cost: 0 }, { id: "wood", name: "Wood", cost: 400 }, { id: "chrome", name: "Chrome", cost: 2000 }, { id: "holo", name: "Holographic", cost: 12000 }, { id: "hard", name: "Hard", cost: 0, hard: true }],
+    bomb: [{ id: "classic", name: "Classic", cost: 0 }, { id: "storm", name: "Storm Cloud", cost: 1500 }, { id: "cherry", name: "Cherry Bomb", cost: 3000 }],
+    felt: [{ id: "teal", name: "Teal", cost: 0, c: "#008080" }, { id: "green", name: "Casino", cost: 300, c: "#0b6b2e" }, { id: "blue", name: "Royal", cost: 300, c: "#1c3c8c" }, { id: "red", name: "Velvet", cost: 800, c: "#7a1424" }, { id: "black", name: "Night", cost: 2500, c: "#1e1e26" }],
+    snd: [{ id: "classic", name: "Classic", cost: 0 }, { id: "chime", name: "Chime", cost: 600 }, { id: "chip", name: "8-Bit", cost: 900 }, { id: "wood", name: "Wood Block", cost: 900 }]
+  };
+  var HELPERS = {
+    peek: { name: "Peek", cost: 750, tip: "Shows you one safe tile" },
+    det: { name: "Bomb Detector", cost: 1500, tip: "X-rays a row or column for a second" },
+    shield: { name: "Shield", cost: 3000, tip: "Survives one bomb (one per round)" }
+  };
+  var shopSave = obj(saved.shop), own = {}, use = {};
+  Object.keys(SHOP).forEach(function (k) {
+    var had = Array.isArray(obj(shopSave.own)[k]) ? shopSave.own[k] : [];
+    own[k] = SHOP[k].filter(function (it) { return (it.cost === 0 && !it.hard) || had.indexOf(it.id) >= 0; }).map(function (it) { return it.id; });
+    var u = obj(shopSave.use)[k];
+    use[k] = own[k].indexOf(u) >= 0 ? u : SHOP[k][0].id;
+  });
+  var hsave = obj(saved.helpers);
+  var helpers = { peek: clampInt(hsave.peek, 0, 99, 0), det: clampInt(hsave.det, 0, 99, 0), shield: clampInt(hsave.shield, 0, 99, 0) };
+
+  // ---------- trophies ----------
+  var TROPHIES = [
+    { id: "first", name: "First Clear", desc: "Clear a level", tier: "bronze" },
+    { id: "lucky", name: "Lucky Start", desc: "Flip a 3 as your very first tile", tier: "bronze" },
+    { id: "exact1", name: "Penny Pincher", desc: "Cash out with exactly 1 coin", tier: "bronze" },
+    { id: "gold", name: "Golden Touch", desc: "Flip a gold tile", tier: "bronze" },
+    { id: "hot", name: "Hot Hands", desc: "Start a Hot Streak", tier: "bronze" },
+    { id: "chain", name: "Chain Reaction", desc: "Set off a chain tile", tier: "bronze" },
+    { id: "dud", name: "Duds Happen", desc: "Flip a dud", tier: "bronze" },
+    { id: "shield", name: "Saved!", desc: "Have a Shield block a bomb", tier: "bronze" },
+    { id: "shop", name: "Big Spender", desc: "Buy something in the Shop", tier: "bronze" },
+    { id: "daily", name: "Daily Flipper", desc: "Finish a Daily board", tier: "bronze" },
+    { id: "oops", name: "Big Oops", desc: "Lose 1,000+ coins to one bomb", tier: "bronze" },
+    { id: "myst", name: "Gambler", desc: "Win a ? tile gamble", tier: "silver" },
+    { id: "streak5", name: "On a Roll", desc: "Get a 5 win streak", tier: "silver" },
+    { id: "big", name: "Big Board", desc: "Beat the Big Board boss", tier: "silver" },
+    { id: "fog", name: "Fog Lifter", desc: "Beat the Fog boss", tier: "silver" },
+    { id: "roller", name: "High Roller", desc: "Win 10,000+ coins in one round", tier: "silver" },
+    { id: "goals", name: "Goal Getter", desc: "Finish all 3 daily goals in one day", tier: "silver" },
+    { id: "hard", name: "Hard Hat", desc: "Clear a level in Hard Mode", tier: "silver" },
+    { id: "streak10", name: "Unstoppable", desc: "Get a 10 win streak", tier: "gold" },
+    { id: "lv8", name: "Top of the Table", desc: "Clear level 8", tier: "gold" },
+    { id: "shifty", name: "Sharp Eyes", desc: "Beat the Shifty boss", tier: "gold" },
+    { id: "hard8", name: "No Safety Net", desc: "Clear level 8 in Hard Mode", tier: "gold" },
+    { id: "million", name: "Millionaire", desc: "Have 1,000,000 coins in the bank", tier: "gold" }
+  ];
+  var TROPHY_BY = {};
+  TROPHIES.forEach(function (t) { TROPHY_BY[t.id] = t; });
+  var tsave = obj(saved.trophies), trophies = {};
+  TROPHIES.forEach(function (t) { if (tsave[t.id]) trophies[t.id] = clampInt(tsave[t.id], 1, 9e15, 1); });
+
+  // ---------- daily board + daily goals ----------
+  var GOALS = [
+    { id: "clear4n", text: "Clear level 4 or higher without using Notes", reward: 300 },
+    { id: "three3", text: "Flip three 3s in a row", reward: 250 },
+    { id: "clear3", text: "Clear 3 levels", reward: 200, count: 3 },
+    { id: "cash200", text: "Cash out with 200+ coins", reward: 150 },
+    { id: "hot", text: "Start a Hot Streak", reward: 150 },
+    { id: "round1k", text: "Win 1,000+ coins in one round", reward: 300 },
+    { id: "gold", text: "Flip a gold tile", reward: 200 },
+    { id: "combo5", text: "Get a x5 combo", reward: 250 },
+    { id: "boss", text: "Beat a boss board", reward: 400 },
+    { id: "daily", text: "Finish today's Daily board", reward: 150 },
+    { id: "chain", text: "Set off a chain tile", reward: 150 },
+    { id: "myst", text: "Win a ? tile gamble", reward: 200 },
+    { id: "hardclear", text: "Clear a level in Hard Mode", reward: 400 }
+  ];
+  var dsave = obj(saved.daily);
+  var daily = { date: typeof dsave.date === "string" ? dsave.date : "", best: clampInt(dsave.best, 0, BIG, 0), done: !!dsave.done, round: dsave.round || null };
+  function dailyFresh() { if (daily.date !== today()) daily = { date: today(), best: 0, done: false, round: null }; }
+  var gsave = obj(saved.goals);
+  var goals = { date: typeof gsave.date === "string" ? gsave.date : "", done: Array.isArray(gsave.done) ? gsave.done.filter(function (x) { return typeof x === "string"; }).slice(0, 3) : [], prog: {} };
+  Object.keys(obj(gsave.prog)).forEach(function (k) { goals.prog[k] = clampInt(gsave.prog[k], 0, 99, 0); });
+  function goalsFresh() { if (goals.date !== today()) goals = { date: today(), done: [], prog: {} }; }
+  function todaysGoals() {
+    goalsFresh();
+    var R = rngOf(seedOf("lf-goals-" + goals.date)), pool = GOALS.slice(), out = [];
+    while (out.length < 3) out.push(pool.splice(Math.floor(R() * pool.length), 1)[0]);
+    return out;
+  }
+  dailyFresh();
+  if (mode === "daily" && (daily.done || !daily.round)) mode = "normal";
+  var level = mode === "hard" ? hardLevel : mode === "daily" ? DAILY_LEVEL : normLevel;
+
+  function save() {
     // the round in progress is saved too, so refreshing brings back the same board instead of a new one
-    var round = (state === "play" || state === "winning") && vals.length === N * N
-      ? { lv: level, vals: vals, open: open, marks: marks, coins: coins, flips: flips, combo: combo } : null;
-    var data = { level: level, bank: bank, best: best, wins: wins, losses: losses, streak: streak, mute: mute, musicOff: musicOff, fx: !reduce, tut: tutDone, round: round };
-    if (over) for (var k in over) data[k] = over[k];
+    var live = (state === "play" || state === "winning") && vals.length === N * N;
+    var round = live ? { mode: mode, lv: level, n: N, vals: vals, spec: spec, open: open, marks: marks, coins: coins, flips: flips, combo: combo, hot: hot,
+      boss: boss, fog: fog, notes: notesUsed, shield: shieldOn, defused: defused, peek: peeked } : null;
+    if (mode === "normal") normLevel = level; else if (mode === "hard") hardLevel = level;
+    if (mode === "daily") daily.round = round;
+    var data = { mode: mode, level: normLevel, bank: bank, best: best, wins: wins, losses: losses, streak: streak, mute: mute, musicOff: musicOff, fx: !reduce, tut: tutDone,
+      round: mode !== "daily" ? round : null,
+      hard: { level: hardLevel, best: hardBest, seen: hardSeen }, boss: pendingBoss,
+      shop: { own: own, use: use }, helpers: helpers, trophies: trophies, daily: daily, goals: goals };
     try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {}
   }
 
   // ---------- round state ----------
-  var vals = [], open = [], marks = [], rowSum = [], rowBombs = [], colSum = [], colBombs = [], rowDone = [], colDone = [];
+  var vals = [], spec = [], open = [], marks = [], peeked = [], defused = [], rowSum = [], rowBombs = [], colSum = [], colBombs = [], rowDone = [], colDone = [];
   var state = "play", coins = 0, flips = 0, need = 0, found = 0, combo = 0, lastLevel = level;
   var memo = false, memoMark = 1, cur = 0, boomAt = -1;
+  var hot = false, boss = null, fog = [], notesUsed = false, shieldOn = false, detecting = false, consec3 = 0, lossInfo = null;
 
-  // ---------- build the board once ----------
+  // ---------- build the board (rebuilt when the size changes: 5x5, or 6x6 on the Big Board) ----------
   var tiles = [], rowHints = [], colHints = [], corner;
-  for (var r = 0; r <= N; r++) {
-    for (var c = 0; c <= N; c++) {
-      var el;
-      if (r < N && c < N) {
-        el = document.createElement("button");
-        el.type = "button";
-        el.className = "fl-tile";
-        el.setAttribute("data-i", r * N + c);
-        tiles.push(el);
-      } else if (r < N || c < N) {
-        el = document.createElement("div");
-        el.className = "fl-hint";
-        (c === N ? rowHints : colHints).push(el);
-      } else {
-        el = document.createElement("div");
-        el.className = "fl-corner";
-        corner = el;
+  function buildGrid(n) {
+    N = n; tiles = []; rowHints = []; colHints = [];
+    gridEl.innerHTML = "";
+    gridEl.style.gridTemplateColumns = "repeat(" + (n + 1) + ", minmax(0, 1fr))";
+    gridEl.classList.toggle("n6", n === 6);
+    for (var r = 0; r <= n; r++) {
+      for (var c = 0; c <= n; c++) {
+        var el;
+        if (r < n && c < n) {
+          el = document.createElement("button");
+          el.type = "button";
+          el.className = "fl-tile";
+          el.setAttribute("data-i", r * n + c);
+          tiles.push(el);
+        } else if (r < n || c < n) {
+          el = document.createElement("div");
+          el.className = "fl-hint";
+          el.setAttribute("data-line", c === n ? "r" + r : "c" + c);
+          (c === n ? rowHints : colHints).push(el);
+        } else {
+          el = document.createElement("div");
+          el.className = "fl-corner";
+          corner = el;
+        }
+        gridEl.appendChild(el);
       }
-      gridEl.appendChild(el);
     }
+    if (cur >= n * n) cur = 0;
   }
+  buildGrid(5);
   var slot = document.querySelector("#flHelp .bomb-slot");
   if (slot) slot.outerHTML = BOMB;
   $("flMarks").querySelector('[data-mark="1"]').innerHTML = BOMB;
@@ -447,15 +605,25 @@
   // ---------- music: a looping swing tune (luckyflip/music.mp3) ----------
   // The file is one seamless 16-bar loop with half a second of padding on both ends.
   // Flipping a bomb winds it down like a tape stopping; the next round starts it fresh.
-  var MUSIC = { src: "/luckyflip/music.mp3", loop: 64 * 60 / 150, pad: 0.5, vol: 0.4 };
-  var mus = { buf: null, loading: false, src: null, gain: null, want: false };
+  // Hard Mode has its own song: the same tune as a dark bossa nova (luckyflip/music-hard.mp3, 32 bars at 160 bpm)
+  var MUSICS = {
+    normal: { src: "/luckyflip/music.mp3", loop: 64 * 60 / 150, pad: 0.5, vol: 0.4, buf: null, loading: false },
+    hard: { src: "/luckyflip/music-hard.mp3", loop: 128 * 60 / 160, pad: 0.5, vol: 0.4, buf: null, loading: false }
+  };
+  var MUSIC = MUSICS.normal;
+  var mus = { src: null, gain: null, want: false };
+  function pickMusic() {
+    var m = MUSICS[mode === "hard" ? "hard" : "normal"];
+    if (m !== MUSIC) { var was = mus.want; musicStop(); MUSIC = m; if (was) musicStart(); }
+  }
   function musicLoad(a) {
-    if (mus.buf || mus.loading) return;
-    mus.loading = true;
-    fetch(MUSIC.src).then(function (r) { return r.arrayBuffer(); })
+    var m = MUSIC;
+    if (m.buf || m.loading) return;
+    m.loading = true;
+    fetch(m.src).then(function (r) { return r.arrayBuffer(); })
       .then(function (data) { return new Promise(function (ok, bad) { var pr = a.decodeAudioData(data, ok, bad); if (pr && pr.catch) pr.catch(bad); }); })
-      .then(function (buf) { mus.buf = buf; mus.loading = false; if (mus.want && !mus.src) musicStart(); })
-      .catch(function () { mus.loading = false; });
+      .then(function (buf) { m.buf = buf; m.loading = false; if (mus.want && !mus.src && MUSIC === m) musicStart(); })
+      .catch(function () { m.loading = false; });
   }
   function musicStart() {
     if (mute || musicOff) return;
@@ -463,10 +631,10 @@
     var a = audio(); if (!a || mus.src) return;
     // browsers keep sound locked until a tap: wait for it to unlock instead of starting into a locked context
     if (!a.onstatechange) a.onstatechange = function () { if (a.state === "running" && mus.want && !mus.src) musicStart(); };
-    if (!mus.buf) { musicLoad(a); return; }   // starts by itself once it has loaded
+    if (!MUSIC.buf) { musicLoad(a); return; }   // starts by itself once it has loaded
     if (a.state !== "running") return;
     var src = a.createBufferSource(), gn = a.createGain();
-    src.buffer = mus.buf; src.loop = true;
+    src.buffer = MUSIC.buf; src.loop = true;
     src.loopStart = MUSIC.pad; src.loopEnd = MUSIC.pad + MUSIC.loop;
     gn.gain.value = MUSIC.vol;
     src.connect(gn); gn.connect(a.destination);
@@ -557,6 +725,16 @@
         .forEach(function (n) { tone(n[0], n[1], n[2], 0.07); tone(n[0] / 2, n[1], n[2], 0.04, "triangle"); });
     },
     cash: function () { tone(988, 0, 0.08); tone(1319, 0.08, 0.25); },
+    dud: function () { tone(392, 0, 0.12, 0.05, "triangle", 300); tone(262, 0.12, 0.25, 0.05, "triangle", 180); },
+    hot: function () { [523, 659, 784, 1047, 1319].forEach(function (f, i) { tone(f, i * 0.045, 0.09, 0.05); }); tone(1568, 0.24, 0.3, 0.05); },
+    gold: function () { [1047, 1319, 1568, 2093, 1568, 2093, 2637].forEach(function (f, i) { tone(f, i * 0.06, 0.1, 0.05); tone(f / 2, i * 0.06, 0.1, 0.03, "triangle"); }); },
+    shield: function () { tone(1200, 0, 0.3, 0.05, "triangle", 2400); tone(600, 0, 0.35, 0.05, "square", 900); },
+    peek: function () { [1760, 2217, 2637].forEach(function (f, i) { tone(f, i * 0.05, 0.12, 0.03, "sine"); }); },
+    shift: function () { tone(200, 0, 0.25, 0.05, "sawtooth", 90); tone(1400, 0.05, 0.15, 0.02, "sine", 700); },
+    buy: function () { [1319, 1568, 2093].forEach(function (f, i) { tone(f, i * 0.06, 0.12, 0.05); }); },
+    nope: function () { tone(140, 0, 0.18, 0.06, "square"); tone(110, 0.12, 0.2, 0.06, "square"); },
+    toast: function () { tone(1568, 0, 0.06, 0.04); tone(2093, 0.06, 0.12, 0.04); },
+    boss: function () { tone(110, 0, 0.5, 0.08, "sawtooth", 82); tone(165, 0.05, 0.45, 0.05, "square", 123); },
     boom: boomSound
   };
   function play(name) { if (!mute) sfx[name](); }
@@ -564,38 +742,93 @@
   // ---------- rounds ----------
   // early levels guarantee some rows/columns with no bombs at all, then it eases off as you level up
   var SAFE_LINES = [3, 2, 2, 1, 1, 0, 0, 0];
-  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
-  function makeBoard(pick5, safe) {
-    var bombs = pick5[2], cells = [], i;
-    for (i = 0; i < N * N; i++) cells.push(i);
-    // pick which lines (rows 0-4, columns 5-9) stay bomb-free, leaving enough room for every bomb
+  // climbing to these levels brings a boss board
+  var BOSS_AT = { 4: "big", 6: "fog", 8: "shifty" };
+  var BOSS_INFO = {
+    big: ["Big Board", "A 6 by 6 board. More tiles, more bombs, more coins."],
+    fog: ["Fog", "Some clues are lost in the fog. They clear up once you finish their row or column."],
+    shifty: ["Shifty", "Every time you flip a safe tile, a bomb sneaks somewhere else. Keep an eye on the clues!"]
+  };
+  function shuffle(a, R) { R = R || Math.random; for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(R() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function makeBoard(cfg, R) {
+    var n = cfg.n, NN = n * n, bombs = cfg.bombs, cells = [], i, k;
+    for (i = 0; i < NN; i++) cells.push(i);
+    // pick which lines (rows, then columns) stay bomb-free, leaving enough room for every bomb
     var safeRows = {}, safeCols = {}, allowed = cells;
-    for (var tries = 0; tries < 50 && safe > 0; tries++) {
-      var lines = shuffle([0,1,2,3,4,5,6,7,8,9]).slice(0, safe);
+    for (var tries = 0; tries < 50 && cfg.safe > 0; tries++) {
+      var all = []; for (i = 0; i < 2 * n; i++) all.push(i);
+      var lines = shuffle(all, R).slice(0, cfg.safe);
       safeRows = {}; safeCols = {};
-      lines.forEach(function (l) { if (l < N) safeRows[l] = true; else safeCols[l - N] = true; });
-      allowed = cells.filter(function (k) { return !safeRows[Math.floor(k / N)] && !safeCols[k % N]; });
+      lines.forEach(function (l) { if (l < n) safeRows[l] = true; else safeCols[l - n] = true; });
+      allowed = cells.filter(function (q) { return !safeRows[Math.floor(q / n)] && !safeCols[q % n]; });
       if (allowed.length >= bombs + 2) break;
       allowed = cells;
     }
-    var out = new Array(N * N), bombAt = {};
-    shuffle(allowed.slice()).slice(0, bombs).forEach(function (k) { out[k] = 0; bombAt[k] = true; });
-    var rest = shuffle(cells.filter(function (k) { return !bombAt[k]; })), n = 0;
-    for (i = 0; i < pick5[0]; i++) out[rest[n++]] = 2;
-    for (i = 0; i < pick5[1]; i++) out[rest[n++]] = 3;
-    while (n < rest.length) out[rest[n++]] = 1;
-    return out;
+    var v = new Array(NN), sp = [], bombAt = {};
+    for (i = 0; i < NN; i++) sp.push("");
+    shuffle(allowed.slice(), R).slice(0, bombs).forEach(function (q) { v[q] = 0; bombAt[q] = true; });
+    var rest = shuffle(cells.filter(function (q) { return !bombAt[q]; }), R), p = 0, ones = [];
+    for (i = 0; i < cfg.twos; i++) v[rest[p++]] = 2;
+    for (i = 0; i < cfg.threes; i++) v[rest[p++]] = 3;
+    while (p < rest.length) { v[rest[p]] = 1; ones.push(rest[p]); p++; }
+    // the rare special tiles always take the place of a 1
+    shuffle(ones, R);
+    function take() { return ones.length > 1 ? ones.pop() : -1; }
+    if (cfg.gold && (k = take()) >= 0) v[k] = 5;
+    if (cfg.dud && (k = take()) >= 0) v[k] = 0.5;
+    if (cfg.myst && (k = take()) >= 0) { sp[k] = "myst"; v[k] = R() < 0.5 ? 4 : 0; }
+    if (cfg.chain && (k = take()) >= 0) sp[k] = "chain";
+    return { vals: v, spec: sp };
   }
-  // a saved round from before a refresh, if it's still good
-  function savedRound() {
-    var r = saved.round; saved.round = null;
-    if (!r || r.lv !== level || !Array.isArray(r.vals) || !Array.isArray(r.open) || !Array.isArray(r.marks)) return null;
-    if (r.vals.length !== N * N || r.open.length !== N * N || r.marks.length !== N * N) return null;
-    for (var k = 0; k < N * N; k++) {
-      if ([0, 1, 2, 3].indexOf(r.vals[k]) < 0 || typeof r.open[k] !== "boolean") return null;
-      if (r.open[k] && r.vals[k] === 0) return null;   // a bomb was flipped: that round is over
+  function roundCfg(R) {
+    var sets = LEVELS[level - 1], p = sets[Math.floor(R() * sets.length)], hard = mode === "hard";
+    var cfg = { n: 5, twos: p[0], threes: p[1], bombs: p[2], safe: SAFE_LINES[level - 1] || 0 };
+    if (boss === "big") { cfg.n = 6; cfg.twos = Math.round(p[0] * 1.3) + 1; cfg.threes = Math.round(p[1] * 1.3); cfg.bombs = Math.round(p[2] * 1.45); cfg.safe = 1; }
+    if (hard) { cfg.bombs += 2; cfg.safe = Math.max(0, cfg.safe - 2); }
+    if (mode === "daily") { cfg.gold = true; cfg.myst = true; cfg.chain = true; cfg.dud = R() < 0.5; }
+    else if (level > 1 || hard) {
+      cfg.gold = R() < (hard ? 0.3 : 0.18);
+      cfg.dud = level >= 3 && R() < (hard ? 0.35 : 0.15);
+      cfg.myst = R() < (hard ? 0.4 : 0.2);
+      cfg.chain = R() < (hard ? 0.25 : 0.2);
     }
+    return cfg;
+  }
+  // clue numbers: gold counts as 5, a winning ? as 4, a dud as 0
+  function clueVal(v) { return v === 0.5 ? 0 : v; }
+  function needed(i) { return vals[i] > 1 && spec[i] !== "myst"; }
+  function computeClues() {
+    rowSum = []; rowBombs = []; colSum = []; colBombs = [];
+    for (var k = 0; k < N; k++) { rowSum.push(0); rowBombs.push(0); colSum.push(0); colBombs.push(0); }
+    for (var i = 0; i < N * N; i++) {
+      var rr = Math.floor(i / N), cc = i % N;
+      if (vals[i] === 0) { rowBombs[rr]++; colBombs[cc]++; } else { rowSum[rr] += clueVal(vals[i]); colSum[cc] += clueVal(vals[i]); }
+    }
+  }
+  // a saved round from before a refresh (or the Daily board you left earlier today), if it's still good
+  function checkRound(r, m) {
+    if (!r || typeof r !== "object" || (r.mode || "normal") !== m) return null;
+    var n = r.n === 6 ? 6 : 5, NN = n * n, k;
+    if (m !== "daily" && r.lv !== level) return null;
+    if (!Array.isArray(r.vals) || !Array.isArray(r.open) || !Array.isArray(r.marks)) return null;
+    if (r.vals.length !== NN || r.open.length !== NN || r.marks.length !== NN) return null;
+    var sp = [];
+    for (k = 0; k < NN; k++) sp.push(Array.isArray(r.spec) && (r.spec[k] === "myst" || r.spec[k] === "chain") ? r.spec[k] : "");
+    var df = Array.isArray(r.defused) ? r.defused.filter(function (q) { return q === Math.floor(q) && q >= 0 && q < NN; }) : [];
+    for (k = 0; k < NN; k++) {
+      if ([0, 0.5, 1, 2, 3, 4, 5].indexOf(r.vals[k]) < 0 || typeof r.open[k] !== "boolean") return null;
+      if (r.open[k] && r.vals[k] === 0 && df.indexOf(k) < 0) return null;   // a bomb was flipped: that round is over
+    }
+    var b = BOSSES.indexOf(r.boss) >= 0 ? r.boss : null;
+    if ((b === "big") !== (n === 6)) return null;
+    r.n = n; r.spec = sp; r.defused = df; r.boss = b;
+    r.fog = Array.isArray(r.fog) ? r.fog.filter(function (q) { return q === Math.floor(q) && q >= 0 && q < 2 * n; }) : [];
     return r;
+  }
+  function savedRound() {
+    var r = mode === "daily" ? daily.round : saved.round;
+    saved.round = null;
+    return checkRound(r, mode);
   }
   // short desktop windows: bring the whole game window (title bar to bottom) on screen when play starts
   function showWholeGame() {
@@ -607,37 +840,43 @@
   }
   function newRound(resume) {
     if (window.cwFlStarted) showWholeGame();   // a new board after the first one
-    var sets = LEVELS[level - 1], pick5 = sets[Math.floor(Math.random() * sets.length)];
-    var i;
-    vals = resume ? resume.vals.slice() : makeBoard(pick5, SAFE_LINES[level - 1] || 0);
-    open = []; marks = [];
-    for (i = 0; i < N * N; i++) { open.push(resume ? resume.open[i] : false); marks.push(resume ? clampInt(resume.marks[i], 0, 15, 0) : 0); }
-    rowSum = [0,0,0,0,0]; rowBombs = [0,0,0,0,0]; colSum = [0,0,0,0,0]; colBombs = [0,0,0,0,0];
-    rowDone = [false,false,false,false,false]; colDone = [false,false,false,false,false];
+    var i, R = Math.random;
+    if (mode === "daily") { dailyFresh(); R = rngOf(seedOf("lf-daily-" + daily.date)); level = DAILY_LEVEL; }
+    if (resume) boss = resume.boss;
+    else { boss = mode === "daily" ? null : pendingBoss[mode] || null; if (mode !== "daily") pendingBoss[mode] = null; }
+    var n = resume ? resume.n : boss === "big" ? 6 : 5;
+    if (n !== N || !tiles.length) buildGrid(n);
+    var board = resume ? { vals: resume.vals.slice(), spec: resume.spec.slice() } : makeBoard(roundCfg(R), R);
+    vals = board.vals; spec = board.spec;
+    open = []; marks = []; peeked = [];
     for (i = 0; i < N * N; i++) {
-      var rr = Math.floor(i / N), cc = i % N;
-      if (vals[i] === 0) { rowBombs[rr]++; colBombs[cc]++; } else { rowSum[rr] += vals[i]; colSum[cc] += vals[i]; }
+      open.push(resume ? resume.open[i] : false);
+      marks.push(resume ? clampInt(resume.marks[i], 0, 15, 0) : 0);
+      peeked.push(resume ? !!(Array.isArray(resume.peek) && resume.peek[i]) : false);
     }
-    need = pick5[0] + pick5[1]; found = 0; flips = 0; coins = 0; combo = 0; boomAt = -1;
-    if (resume) {
-      need = 0;
-      for (i = 0; i < N * N; i++) { if (vals[i] > 1) { need++; if (open[i]) found++; } }
-      flips = clampInt(resume.flips, 0, N * N, 0); coins = clampInt(resume.coins, 0, 1e9, 0); combo = clampInt(resume.combo, 0, N * N, 0);
-    }
+    defused = resume ? resume.defused.slice() : [];
+    shieldOn = resume ? !!resume.shield : false;
+    notesUsed = resume ? !!resume.notes : false;
+    hot = resume ? !!resume.hot : false;
+    consec3 = 0; detecting = false; gridEl.classList.remove("detecting");
+    if (resume) fog = resume.fog.slice();
+    else { fog = []; if (boss === "fog") { var lines = []; for (i = 0; i < 2 * N; i++) lines.push(i); fog = shuffle(lines).slice(0, 4); } }
+    computeClues();
+    rowDone = []; colDone = [];
+    for (i = 0; i < N; i++) { rowDone.push(false); colDone.push(false); }
+    need = 0; found = 0; flips = 0; coins = 0; combo = 0; boomAt = -1;
+    for (i = 0; i < N * N; i++) if (needed(i)) { need++; if (open[i]) found++; }
+    if (resume) { flips = clampInt(resume.flips, 0, N * N, 0); coins = clampInt(resume.coins, 0, BIG, 0); combo = clampInt(resume.combo, 0, N * N, 0); }
     state = "play";
     closeDialog();
     renderHints();
-    if (resume) for (i = 0; i < N; i++) {   // rows and columns already finished before the refresh
-      var rowOk = true, colOk = true;
-      for (var k = 0; k < N; k++) { if (vals[i * N + k] !== 0 && !open[i * N + k]) rowOk = false; if (vals[k * N + i] !== 0 && !open[k * N + i]) colOk = false; }
-      if (rowOk) { rowDone[i] = true; rowHints[i].classList.add("done"); }
-      if (colOk) { colDone[i] = true; colHints[i].classList.add("done"); }
-    }
+    if (resume) refreshDone(false);   // rows and columns already finished before the refresh
     renderAll();
     roll("r", roundEl, coins, 1);
     renderStats();
     pipsEl.innerHTML = new Array(need + 1).join("<i></i>");
     updateMeter();
+    syncModeUI();
     save();
     // deal the tiles in
     if (!reduce) {
@@ -645,84 +884,181 @@
         t.style.animationDelay = ((Math.floor(k / N) + k % N) * 35) + "ms";
         t.classList.add("deal");
       });
-      setTimeout(function () { tiles.forEach(function (t) { t.classList.remove("deal"); t.style.animationDelay = ""; }); }, 700);
+      setTimeout(function () { tiles.forEach(function (t) { t.classList.remove("deal"); t.style.animationDelay = ""; }); }, 750);
     }
     play("deal");
+    pickMusic();
     musicStart();
     if (level !== lastLevel) {
       if (level > lastLevel) { restart(corner, "lvup"); pop("Level " + level, "gold"); }
       lastLevel = level;
     }
+    if (boss && !resume) {
+      play("boss");
+      setTimeout(function () {
+        if (state !== "play" || flips || !overlay.hidden || tut) return;
+        showDialog("Boss Board", '<h2 class="fl-bosshead">' + BOSS_INFO[boss][0] + "</h2><p>" + BOSS_INFO[boss][1] + '</p><p class="fl-hot">Clear it for double coins!</p>', "Bring It On", function () {});
+      }, reduce ? 60 : 700);
+    }
   }
 
+  // the flip sound follows the Flip Sounds you picked in the shop
+  function flipSnd(kind) {
+    var k = kind || use.snd;
+    if (k === "chime") { tone(1568, 0, 0.12, 0.025, "sine"); tone(2349, 0.03, 0.18, 0.018, "sine"); }
+    else if (k === "chip") { tone(988, 0, 0.03, 0.03); tone(1319, 0.03, 0.05, 0.03); }
+    else if (k === "wood") { tone(820, 0, 0.04, 0.07, "triangle", 560); }
+    else tone(220, 0, 0.05, 0.02, "triangle", 440);
+  }
   function flipFx(i, after) {
     if (reduce) { after(); return; }
     tiles[i].classList.add("squash");
-    tone(220, 0, 0.05, 0.02, "triangle", 440);
+    flipSnd();
     setTimeout(after, 140);
   }
 
-  function flip(i) {
+  function flip(i, chained) {
     if (!window.cwFlStarted) { window.cwFlStarted = true; showWholeGame(); }   // first tile of the visit
     if (state !== "play" || open[i]) return;
-    if (tut && tut.allow !== i) return;
-    if (memo && !tut) { toggleMark(i, memoMark); return; }
+    if (!chained) {
+      if (tut && tut.allow !== i) return;
+      if (detecting) return;   // picking a row or column for the Bomb Detector
+      if (memo && !tut) { toggleMark(i, memoMark); return; }
+    }
     if (window.CwPlayed) CwPlayed.mark("luckyflip");
+    var v = vals[i], first = flips === 0 && coins === 0;
     open[i] = true;
-    var v = vals[i];
     if (v === 0) {
-      state = "dying";
+      if (shieldOn) { shieldBlock(i); return; }
       // the penalty counts right away, not after the explosion, so refreshing can't dodge it
-      save({ level: dropTo(), streak: 0, losses: losses + 1, round: null });
+      applyLoss();
       renderStats();
       flipFx(i, function () { lose(i); });
       return;
     }
     flips++;
-    var prev = coins;
-    coins = coins === 0 ? v : coins * v;
-    if (v > 1) { found++; combo++; } else combo = 0;
+    var prev = coins, wasHot = hot, mult = v * (wasHot ? 2 : 1);
+    coins = coins === 0 ? Math.max(1, Math.floor(mult)) : Math.max(1, Math.floor(coins * mult));
+    if (needed(i)) found++;
+    if (v > 1) combo++; else combo = 0;
+    hot = false;
+    // three 2s or 3s in a row (then six, nine...) and the next tile counts double
+    var startHot = v > 1 && combo > 0 && combo % 3 === 0;
+    if (startHot) hot = true;
+    consec3 = v === 3 ? consec3 + 1 : 0;
     var cleared = found === need;
     if (cleared) state = "winning";
+    if (first && v === 3) trophy("lucky");
+    if (v === 5) { trophy("gold"); goal("gold"); }
+    if (v === 0.5) trophy("dud");
+    if (spec[i] === "myst") { trophy("myst"); goal("myst"); }
+    if (spec[i] === "chain") { trophy("chain"); goal("chain"); }
+    if (consec3 >= 3) goal("three3");
+    if (combo >= 5) goal("combo5");
+    if (startHot) { trophy("hot"); goal("hot"); }
     save();
     renderStats();
     flipFx(i, function () {
       renderTile(i);
       var el = tiles[i], c = center(el);
-      el.classList.add(v === 3 ? "shine3" : v === 2 ? "shine2" : "pop");
-      burst(el, v);
-      play(v === 3 ? "three" : v === 2 ? "two" : "one");
-      if (v > 1) {
-        floatText(c.x, c.y - c.h * 0.3, "x" + v + (v === 3 ? "!!" : "!") + (combo > 1 ? "<small>Combo x" + combo + "</small>" : ""), "x" + v);
-        var n = many(v === 3 ? 9 : 5);
-        for (var k = 0; k < n; k++) coin(c.x, c.y, roundEl, 0.22 + k * 0.035, function () { tickSnd(); restart(roundEl, "bump"); });
-        if (v === 3) restart(frame, "bump");
+      el.classList.add(v === 0.5 ? "pop" : mult >= 3 ? "shine3" : mult >= 2 ? "shine2" : "pop");
+      if (chained) restart(el, "chainfx");
+      burst(el, v === 0.5 ? 1 : Math.min(3, Math.floor(mult)));
+      if (v === 5) { play("gold"); pop("Gold!", "gold big"); confetti(20); ring(c.x, c.y, many(20), 380, ["#ffd700", "#fff6a0", "#ffffff"], 6); }
+      else if (spec[i] === "myst") { play("three"); pop("Lucky!", "gold"); ring(c.x, c.y, many(16), 340, ["#b060ff", "#ffffff"], 5); }
+      else play(v === 0.5 ? "dud" : mult >= 3 ? "three" : mult >= 2 ? "two" : "one");
+      var sub = wasHot ? "<small>Hot Streak x2!</small>" : combo > 1 ? "<small>Combo x" + combo + "</small>" : "";
+      if (v === 0.5) {
+        floatText(c.x, c.y - c.h * 0.3, "x&frac12;<small>Dud!</small>", "x1");
+        roundEl.classList.add("lose"); setTimeout(function () { roundEl.classList.remove("lose"); }, 500);
+        roll("r", roundEl, coins, 300);
+      } else if (mult > 1) {
+        floatText(c.x, c.y - c.h * 0.3, "x" + mult + (mult >= 3 ? "!!" : "!") + sub, mult >= 3 ? "x3" : "x2");
+        var nc = many(mult >= 5 ? 14 : mult >= 3 ? 9 : 5);
+        for (var k = 0; k < nc; k++) coin(c.x, c.y, roundEl, 0.22 + k * 0.035, function () { tickSnd(); restart(roundEl, "bump"); });
+        if (mult >= 3) restart(frame, "bump");
         roll("r", roundEl, coins, 900);
       } else {
         floatText(c.x, c.y - c.h * 0.3, prev === 0 ? "+1" : "x1", "x1");
         roll("r", roundEl, coins, 200);
       }
       updateMeter();
-      checkLines(i);
+      refreshDone(true);
       if (cleared) { win(i); return; }
+      if (startHot) setTimeout(function () { if (state === "play") { pop("Hot Streak!", "red"); play("hot"); var q = center(frame); ring(q.x, q.y, many(22), 420, ["#ff3300", "#ff9900", "#ffee00"], 6); } }, 320);
+      if (spec[i] === "chain") chainFrom(i);
+      if (boss === "shifty") setTimeout(shiftBomb, 480);
       var hit = 0;
       MILESTONES.forEach(function (m) { if (prev < m && coins >= m) hit = m; });
-      if (hit) setTimeout(function () { if (state === "play") { pop(hit + " Coins!!", "gold"); play("milestone"); confetti(14); } }, 380);
-      else if (v > 1 && need - found === 1) setTimeout(function () { if (state === "play") { pop("One Left!", "red"); play("heart"); } }, 300);
+      if (hit && !startHot && v !== 5) setTimeout(function () { if (state === "play") { pop(fmt(hit) + " Coins!!", "gold"); play("milestone"); confetti(14); } }, 380);
+      else if (!hit && !startHot && v > 1 && need - found === 1) setTimeout(function () { if (state === "play") { pop("One Left!", "red"); play("heart"); } }, 300);
     });
   }
 
-  function checkLines(i) {
-    var r0 = Math.floor(i / N), c0 = i % N, rowOk = true, colOk = true, k;
-    for (k = 0; k < N; k++) {
-      if (vals[r0 * N + k] !== 0 && !open[r0 * N + k]) rowOk = false;
-      if (vals[k * N + c0] !== 0 && !open[k * N + c0]) colOk = false;
+  // a chain tile flips the safe tiles next to it, one after another
+  function chainFrom(i) {
+    var r0 = Math.floor(i / N), c0 = i % N, list = [];
+    [[-1, 0], [1, 0], [0, -1], [0, 1]].forEach(function (d) {
+      var r = r0 + d[0], c = c0 + d[1];
+      if (r < 0 || c < 0 || r >= N || c >= N) return;
+      var j = r * N + c;
+      if (!open[j] && vals[j] >= 1 && spec[j] !== "myst") list.push(j);
+    });
+    if (!list.length) return;
+    setTimeout(function () { if (state === "play") pop("Chain!", "gold"); }, 120);
+    list.forEach(function (j, k) {
+      setTimeout(function () { if (state === "play" && !open[j] && vals[j] >= 1 && spec[j] !== "myst") flip(j, true); }, 300 + k * 230);
+    });
+  }
+
+  // Shifty boss: after each safe flip one hidden bomb trades places with a hidden number
+  function shiftBomb() {
+    if (state !== "play" || boss !== "shifty") return;
+    var bombs = [], spots = [];
+    for (var i = 0; i < N * N; i++) {
+      if (open[i] || peeked[i] || spec[i] === "myst") continue;
+      if (vals[i] === 0) bombs.push(i); else if (vals[i] >= 1 && vals[i] <= 3) spots.push(i);
     }
+    if (!bombs.length || !spots.length) return;
+    var a = pick(bombs), b = pick(spots);
+    vals[a] = vals[b]; vals[b] = 0;
+    computeClues();
+    renderHints(true);
+    [rowHints[Math.floor(a / N)], colHints[a % N], rowHints[Math.floor(b / N)], colHints[b % N]].forEach(function (h) { restart(h, "shift"); });
+    refreshDone(false);
+    play("shift");
+    save();
+  }
+
+  // finished rows and columns go green (and a foggy clue clears up)
+  function lineOk(isRow, k) {
+    for (var j = 0; j < N; j++) { var i = isRow ? k * N + j : j * N + k; if (vals[i] !== 0 && !open[i]) return false; }
+    return true;
+  }
+  function refreshDone(animate) {
     var any = false;
-    if (rowOk && !rowDone[r0]) { rowDone[r0] = true; lineDone(rowHints[r0], "Row!"); any = true; }
-    if (colOk && !colDone[c0]) { colDone[c0] = true; lineDone(colHints[c0], "Column!"); any = true; }
+    for (var k = 0; k < N; k++) {
+      [[true, rowDone, rowHints, "Row!", k], [false, colDone, colHints, "Column!", N + k]].forEach(function (L) {
+        var ok = lineOk(L[0], k), hint = L[2][k];
+        if (ok && !L[1][k]) {
+          L[1][k] = true;
+          var fi = fog.indexOf(L[4]);
+          if (fi >= 0) { fog.splice(fi, 1); hint._built = false; setHint(hint, L[0] ? rowSum[k] : colSum[k], L[0] ? rowBombs[k] : colBombs[k], (L[0] ? "Row " : "Column ") + (k + 1), true); }
+          if (animate) { lineDone(hint, L[3]); any = true; } else hint.classList.add("done");
+        } else if (!ok && L[1][k]) { L[1][k] = false; hint.classList.remove("done"); }
+      });
+    }
     if (any) setTimeout(function () { play("line"); }, 120);
   }
+  function toggleMark(i, m) {
+    if (state !== "play" || open[i] || tut || mode === "hard" || detecting) return;
+    marks[i] ^= m;
+    notesUsed = true;
+    save();
+    renderTile(i);
+    play("mark");
+  }
+
   function lineDone(hint, word) {
     hint.classList.add("done");
     restart(hint, "ding");
@@ -731,15 +1067,36 @@
     floatText(c.x, c.y - 10, word, "line");
   }
 
-  function toggleMark(i, m) {
-    if (state !== "play" || open[i] || tut) return;
-    marks[i] ^= m;
+  function dropTo() { return Math.max(1, Math.min(level, flips)); }
+
+  // the bomb's penalty: normal drops you a level or two, Hard Mode sends you back to 1, the Daily board is over for the day
+  function applyLoss() {
+    lossInfo = { lost: coins, from: level, streak: streak };
+    if (coins >= 1000) trophy("oops");
+    if (mode === "daily") { dailyFresh(); daily.done = true; }
+    else if (mode === "hard") level = 1;
+    else { level = dropTo(); streak = 0; losses++; }
+    combo = 0; hot = false;
+    state = "dying";
     save();
-    renderTile(i);
-    play("mark");
   }
 
-  function dropTo() { return Math.max(1, Math.min(level, flips)); }
+  // a Shield eats the bomb and the round keeps going
+  function shieldBlock(i) {
+    shieldOn = false; defused.push(i);
+    trophy("shield");
+    save(); renderHelpers();
+    flipFx(i, function () {
+      renderTile(i);
+      var el = tiles[i], c = center(el);
+      el.classList.add("pop");
+      ring(c.x, c.y, many(18), 300, ["#40d0ff", "#ffffff", "#1a78c0"], 6);
+      pop("Shield!", "gold");
+      play("shield");
+      updateMeter();
+      refreshDone(true);
+    });
+  }
 
   function waveReveal(origin, quick) {
     var or = Math.floor(origin / N), oc = origin % N, longest = 0;
@@ -778,10 +1135,7 @@
   function blowUp(i) {
     state = "lost";
     boomAt = i;
-    losses++;
-    var lost = coins, from = level, hadStreak = streak;
-    streak = 0; combo = 0;
-    level = dropTo();
+    var info = lossInfo || { lost: coins, from: level, streak: 0 };
     coins = 0;
     save();
     renderTile(i);
@@ -807,9 +1161,15 @@
     setTimeout(function () {
       var wait = waveReveal(i, true);
       setTimeout(function () {
-        var msg = lost > 0 ? "That bomb just ate <b>" + lost + "</b> coin" + (lost === 1 ? "" : "s") + "." : "Boom. Didn't even get started.";
-        var lv = level < from ? "You dropped to level <b>" + level + "</b>." : "You're still on level <b>" + level + "</b>.";
-        var st = hadStreak >= 2 ? "<p>Your x" + hadStreak + " streak is gone.</p>" : "";
+        var lost = info.lost;
+        var msg = lost > 0 ? "That bomb just ate <b>" + fmt(lost) + "</b> coin" + (lost === 1 ? "" : "s") + "." : "Boom. Didn't even get started.";
+        if (mode === "daily") {
+          showDialog("Kaboom!", '<h2 class="oops">oops...</h2><p>' + msg + "</p><p>That's it for today's Daily board. A new one shows up tomorrow!</p>", "Back to Normal", function () { setMode("normal", true); });
+          return;
+        }
+        var lv = mode === "hard" ? (info.from > 1 ? "Hard Mode: back to level <b>1</b>." : "Still on level <b>1</b>.") :
+          level < info.from ? "You dropped to level <b>" + level + "</b>." : "You're still on level <b>" + level + "</b>.";
+        var st = mode === "normal" && info.streak >= 2 ? "<p>Your x" + info.streak + " streak is gone.</p>" : "";
         showDialog("Kaboom!", '<h2 class="oops">oops...</h2><p>' + msg + "</p><p>" + lv + "</p>" + st, "Try Again");
       }, wait);
     }, 800);
@@ -817,21 +1177,47 @@
 
   function win(i) {
     state = "won";
-    wins++;
-    streak++;
-    var bonusPct = Math.min(50, (streak - 1) * 10), bonus = Math.floor(coins * bonusPct / 100), payout = coins + bonus;
-    bank += payout;
-    var newBest = payout > best;
-    if (newBest) best = payout;
-    var from = level;
-    if (level < MAX_LEVEL) level++;
+    var from = level, payout = coins, extras = [], bonus = 0;
+    if (mode === "normal") {
+      wins++; streak++;
+      bonus = Math.floor(coins * Math.min(50, (streak - 1) * 10) / 100);
+      payout += bonus;
+      if (bonus > 0) extras.push("+" + fmt(bonus) + " streak bonus");
+    }
+    if (boss) { payout *= 2; extras.push("x2 boss bonus"); }
+    if (mode === "hard") { payout *= 2; extras.push("x2 Hard Mode"); }
+    payout = Math.min(BIG, payout);
+    bank = Math.min(BIG, bank + payout);
+    var newBest;
+    if (mode === "hard") { newBest = payout > hardBest; if (newBest) hardBest = payout; }
+    else if (mode === "daily") { dailyFresh(); newBest = payout > daily.best; daily.best = Math.max(daily.best, payout); daily.done = true; }
+    else { newBest = payout > best; if (newBest) best = payout; }
+    var nextBoss = null;
+    if (mode !== "daily") {
+      if (level < MAX_LEVEL) level++;
+      if (level > from && BOSS_AT[level]) { nextBoss = BOSS_AT[level]; pendingBoss[mode] = nextBoss; }
+    }
+    trophy("first");
+    if (mode !== "daily" && from === MAX_LEVEL) trophy("lv8");
+    if (mode === "hard") { trophy("hard"); if (from === MAX_LEVEL) trophy("hard8"); goal("hardclear"); }
+    if (mode === "normal" && streak >= 5) trophy("streak5");
+    if (mode === "normal" && streak >= 10) trophy("streak10");
+    if (boss) { trophy(boss); goal("boss"); }
+    if (payout >= 10000) trophy("roller");
+    if (bank >= 1e6) trophy("million");
+    if (mode === "daily") { trophy("daily"); goal("daily"); }
+    goal("clear3", 1);
+    if (from >= 4 && !notesUsed && mode !== "daily") goal("clear4n");
+    if (payout >= 1000) goal("round1k");
+    hot = false;
     save();
     renderStats();
+    updateMeter();
     setTimeout(function () {
       flash("white");
       play("win");
-      pop("Cleared!", "gold big");
-      confetti();
+      pop(boss ? "Boss Down!" : "Cleared!", "gold big");
+      confetti(boss ? 110 : 70);
       quake();
       setTimeout(function () { waveReveal(i); }, reduce ? 0 : 400);
     }, 260);
@@ -839,80 +1225,105 @@
       var c = center(roundEl), n = many(Math.min(40, 10 + Math.round(Math.log(payout + 1) * 3)));
       for (var k = 0; k < n; k++) coin(c.x, c.y, bankEl, 0.12 + k * 0.03, function () { tickSnd(); restart(bankEl, "bump"); });
       roll("b", bankEl, bank, 1300);
-      if (bonus > 0) floatText(c.x, c.y - 24, "Streak Bonus<small>+" + bonus + "</small>", "x3");
+      if (extras.length) floatText(c.x, c.y - 24, "Bonus!<small>" + extras.join(" &middot; ") + "</small>", "x3");
       if (newBest) setTimeout(function () { var b = center(bestEl); floatText(b.x, b.y, "New Best!!", "x2"); restart(bestEl, "bump"); play("milestone"); }, 700);
     }, 1000);
     setTimeout(function () {
+      var bn = extras.length ? '<p class="muted">includes ' + extras.join(", ") + "</p>" : "";
+      if (mode === "daily") {
+        showDialog("Daily Board", '<h2>Cleared!</h2><div class="big" data-count="' + payout + '">0</div><p>coins banked</p>' + bn + "<p>That's today's Daily board done. New one tomorrow!</p>", "Back to Normal", function () { setMode("normal", true); });
+        return;
+      }
       var lv = from < MAX_LEVEL ? '<p class="fl-lvup">Level Up! &rarr; ' + level + "</p>" : "<p>Max level. You're a legend.</p>";
-      var st = streak >= 2 ? '<p class="fl-hot">&#9733; x' + streak + " Win Streak &#9733;</p>" : "";
-      var bn = bonus > 0 ? '<p class="muted">includes +' + bonus + " streak bonus</p>" : "";
-      showDialog("Level Cleared", '<h2>Cleared!</h2><div class="big" data-count="' + payout + '">0</div><p>coins banked</p>' + bn + st + lv, "Next Level");
+      var st = mode === "normal" && streak >= 2 ? '<p class="fl-hot">&#9733; x' + streak + " Win Streak &#9733;</p>" : "";
+      var bs = nextBoss ? '<p class="fl-hot">Boss board up next: ' + BOSS_INFO[nextBoss][0] + "!</p>" : "";
+      showDialog(boss ? "Boss Beaten" : "Level Cleared", '<h2>Cleared!</h2><div class="big" data-count="' + payout + '">0</div><p>coins banked</p>' + bn + st + lv + bs, "Next Level");
     }, 2300);
   }
 
   function askCashOut() {
     if (state !== "play" || coins <= 0) return;
     var to = dropTo();
-    var lv = to < level ? "You'll drop to level <b>" + to + "</b>." : "You'll stay on level <b>" + level + "</b>.";
-    var st = streak >= 2 ? "<p>This ends your x" + streak + " streak.</p>" : "";
-    showDialog("Cash Out?", '<p>Walk away with</p><div class="big">' + coins + "</div><p>" + lv + "</p>" + st, "Cash Out", cashOut, "Keep Going");
+    var lv = mode === "daily" ? "<p>That ends today's Daily board.</p>" : "<p>" + (to < level ? "You'll drop to level <b>" + to + "</b>." : "You'll stay on level <b>" + level + "</b>.") + "</p>";
+    var st = mode === "normal" && streak >= 2 ? "<p>This ends your x" + streak + " streak.</p>" : "";
+    showDialog("Cash Out?", '<p>Walk away with</p><div class="big">' + fmt(coins) + "</div>" + lv + st, "Cash Out", cashOut, "Keep Going");
   }
   function cashOut() {
+    if (state !== "play") return;
     state = "cashed";
     var got = coins;
-    bank += got;
-    if (got > best) best = got;
-    level = dropTo();
-    streak = 0;
+    bank = Math.min(BIG, bank + got);
+    if (mode === "daily") { dailyFresh(); daily.best = Math.max(daily.best, got); daily.done = true; trophy("daily"); goal("daily"); }
+    else {
+      if (mode === "hard") { if (got > hardBest) hardBest = got; }
+      else { if (got > best) best = got; streak = 0; }
+      level = dropTo();
+    }
+    if (got === 1) trophy("exact1");
+    if (got >= 200) goal("cash200");
+    if (bank >= 1e6) trophy("million");
+    hot = false;
     save();
     renderStats();
+    updateMeter();
     play("cash");
     var c = center(roundEl);
     for (var k = 0; k < many(Math.min(30, 8 + Math.round(Math.log(got + 1) * 3))); k++) coin(c.x, c.y, bankEl, 0.1 + k * 0.03, function () { tickSnd(); restart(bankEl, "bump"); });
     roll("b", bankEl, bank, 1100);
     var wait = waveReveal(cur);
     setTimeout(function () {
-      showDialog("Cashed Out", '<h2>Cha-Ching!</h2><div class="big" data-count="' + got + '">0</div><p>coins banked</p><p class="muted">Here\'s where everything was.</p>', "Next Round");
+      if (mode === "daily") showDialog("Daily Board", '<h2>Cha-Ching!</h2><div class="big" data-count="' + got + '">0</div><p>coins banked</p><p>That\'s today\'s Daily board done. New one tomorrow!</p>', "Back to Normal", function () { setMode("normal", true); });
+      else showDialog("Cashed Out", '<h2>Cha-Ching!</h2><div class="big" data-count="' + got + '">0</div><p>coins banked</p><p class="muted">Here\'s where everything was.</p>', "Next Round");
     }, Math.max(1100, wait));
   }
 
   // ---------- drawing ----------
-  function renderHints() {
+  function renderHints(instant) {
     for (var k = 0; k < N; k++) {
-      setHint(rowHints[k], rowSum[k], rowBombs[k], "Row " + (k + 1));
-      setHint(colHints[k], colSum[k], colBombs[k], "Column " + (k + 1));
+      setHint(rowHints[k], rowSum[k], rowBombs[k], "Row " + (k + 1), instant, fog.indexOf(k) >= 0);
+      setHint(colHints[k], colSum[k], colBombs[k], "Column " + (k + 1), instant, fog.indexOf(N + k) >= 0);
     }
-    corner.innerHTML = "<small>Lv</small><b>" + level + "</b>";
+    corner.innerHTML = mode === "daily" ? "<small>Daily</small><b>&#9733;</b>" : "<small>Lv</small><b>" + level + "</b>";
   }
-  function setHint(el, sum, bombs, name) {
-    el.classList.remove("done", "ding");
+  function setHint(el, sum, bombs, name, instant, foggy) {
+    if (!instant) el.classList.remove("done", "ding");
     if (!el._built) { el.innerHTML = "<b>0</b><i></i><span>" + BOMB + "<em>0</em></span>"; el._built = true; }
-    el.setAttribute("aria-label", name + ": adds up to " + sum + ", " + bombs + " bombs");
-    countUp(el.querySelector("b"), sum, 450);
-    countUp(el.querySelector("em"), bombs, 450);
+    el.classList.toggle("fog", !!foggy);
+    el.setAttribute("aria-label", name + ": " + (foggy ? "the total is hidden" : "adds up to " + sum) + ", " + bombs + " bombs");
+    var b = el.querySelector("b"), em = el.querySelector("em");
+    if (foggy) b.textContent = "?";
+    else if (instant) b.textContent = sum;
+    else countUp(b, sum, 450);
+    if (instant) em.textContent = bombs; else countUp(em, bombs, 450);
   }
 
+  function faceLabel(v) { return v === 0.5 ? "&frac12;" : String(v); }
   function renderTile(i) {
     var el = tiles[i], v = vals[i], over = state !== "play" && state !== "winning" && state !== "dying";
     var shown = open[i] || over;
     var cls = "fl-tile";
     var rr = Math.floor(i / N) + 1, cc = (i % N) + 1, label, h = "";
     if (shown) {
-      cls += " open v" + v;
+      cls += " open v" + (v === 0.5 ? "d" : v);
+      if (spec[i]) cls += " s-" + spec[i];
       if (!open[i]) cls += " ghost";
       if (i === boomAt) cls += " boom";
-      h = v === 0 ? BOMB : "<span>" + v + "</span>";
-      if (el._html !== h) { el.innerHTML = h; }
-      label = v === 0 ? "bomb" : String(v);
+      var df = open[i] && v === 0 && defused.indexOf(i) >= 0;
+      if (df) cls += " defused";
+      h = v === 0 ? BOMB : "<span>" + faceLabel(v) + "</span>" + (spec[i] === "chain" ? LINK : "");
+      label = v === 0 ? (df ? "bomb, blocked by your shield" : "bomb") : v === 0.5 ? "dud, halves your coins" : v === 5 ? "gold 5" : String(v);
+      if (spec[i] === "chain") label += ", chain tile";
     } else {
       var m = marks[i];
+      if (spec[i] === "myst") { cls += " myst"; h += '<span class="mq">?</span>'; }
+      if (peeked[i]) { cls += " peeked"; h += '<span class="pk">' + faceLabel(v) + "</span>"; }
       if (m & 1) h += '<span class="mk b">' + BOMB + "</span>";
       if (m & 2) h += '<span class="mk n1">1</span>';
       if (m & 4) h += '<span class="mk n2">2</span>';
       if (m & 8) h += '<span class="mk n3">3</span>';
-      if (el._html !== h) { el.innerHTML = h; }
-      label = "face down" + (m ? ", noted" : "");
+      label = (spec[i] === "myst" ? "mystery tile, 4 or a bomb, face down" : "face down") + (peeked[i] ? ", peeked: safe " + (v === 0.5 ? "dud" : v) : "") + (m ? ", noted" : "");
     }
+    if (el._html !== h) el.innerHTML = h;
     el._html = h;
     if (i === cur) cls += " cur";
     el.className = cls;
@@ -923,19 +1334,26 @@
   function renderAll() { for (var i = 0; i < N * N; i++) renderTile(i); }
 
   function renderStats() {
-    $("flLevel").textContent = level;
-    bestEl.textContent = best;
+    $("flLevel").textContent = mode === "daily" ? "Daily" : level;
+    $("flBestK").textContent = mode === "hard" ? "Hard Best" : mode === "daily" ? "Today" : "Best";
+    bestEl.textContent = fmt(mode === "hard" ? hardBest : mode === "daily" ? daily.best : best);
     $("flWL").textContent = wins + " / " + losses;
     $("flStreak").textContent = streak;
     $("flCash").disabled = !(state === "play" && coins > 0);
   }
 
   function updateMeter() {
+    var lbl = $("flMeter").querySelector(".fl-mlbl");
+    lbl.textContent = boss ? BOSS_INFO[boss][0] + " Boss" : "Found";
+    lbl.classList.toggle("boss", !!boss);
     var kids = pipsEl.children;
     for (var k = 0; k < kids.length; k++) kids[k].classList.toggle("on", k < found);
     pipsEl.classList.toggle("last", state === "play" && need - found === 1);
-    if (combo >= 2 && state !== "lost") { comboEl.textContent = "Combo x" + combo; restart(comboEl, "bump"); }
+    if (hot && state === "play") { comboEl.textContent = "Hot Streak! Next x2"; restart(comboEl, "bump"); }
+    else if (combo >= 2 && state !== "lost") { comboEl.textContent = "Combo x" + combo; restart(comboEl, "bump"); }
     else comboEl.textContent = "";
+    frame.classList.toggle("hot", hot && state === "play");
+    frame.classList.toggle("shielded", shieldOn && state === "play");
   }
 
   function pop(text, cls) {
@@ -951,8 +1369,10 @@
   }
 
   // ---------- dialog ----------
-  var dialogMain = null;
+  var dialogMain = null, lastDlg = null, under = null;
   function showDialog(title, body, mainLabel, mainFn, altLabel) {
+    lastDlg = [title, body, mainLabel, mainFn, altLabel];
+    dialog.classList.remove("wide");
     dialog.innerHTML = '<div class="dt">' + title + '</div><div class="db">' + body +
       '<div class="fl-row"><button class="fl-btn go" id="flDlgMain">' + mainLabel + "</button>" +
       (altLabel ? '<button class="fl-btn" id="flDlgAlt">' + altLabel + "</button>" : "") + "</div></div>";
@@ -965,11 +1385,266 @@
     if (cnt) countUp(cnt, +cnt.getAttribute("data-count"), 700, true);
     try { $("flDlgMain").focus({ preventScroll: true }); } catch (e) {}
   }
-  function closeDialog() { overlay.hidden = true; dialog.innerHTML = ""; dialogMain = null; }
+  function closeDialog() { overlay.hidden = true; dialog.innerHTML = ""; dialog.classList.remove("wide"); dialogMain = null; lastDlg = null; }
+  // menu panels (Shop, Goals & Trophies) open over the board; closing one brings back whatever game dialog was up
+  function showPanel(title, html, wire) {
+    if (!dialog.classList.contains("wide")) under = overlay.hidden ? null : lastDlg;
+    var keep = dialog.classList.contains("wide") ? (dialog.querySelector(".db") || {}).scrollTop || 0 : 0;
+    dialog.classList.add("wide");
+    dialog.innerHTML = '<div class="dt"><span>' + title + '</span><button class="fl-x" id="flPanelX" aria-label="Close">&times;</button></div><div class="db">' + html +
+      '<div class="fl-row"><button class="fl-btn go" id="flPanelDone">Done</button></div></div>';
+    overlay.hidden = false;
+    if (!keep) restart(dialog, "in");
+    dialog.querySelector(".db").scrollTop = keep;
+    dialogMain = closePanel;
+    $("flPanelDone").addEventListener("click", closePanel);
+    $("flPanelX").addEventListener("click", closePanel);
+    if (wire) wire();
+    if (!keep) try { $("flPanelDone").focus({ preventScroll: true }); } catch (e) {}
+  }
+  function closePanel() {
+    var u = under; under = null;
+    closeDialog();
+    if (u) showDialog.apply(null, u);
+  }
+
+  // ---------- toasts: little notes for trophies and goals ----------
+  var toastBox = document.createElement("div");
+  toastBox.className = "fl-toasts"; toastBox.setAttribute("aria-live", "polite");
+  boardwrap.appendChild(toastBox);
+  function toast(html, cls) {
+    var d = document.createElement("div");
+    d.className = "fl-toast " + (cls || "");
+    d.innerHTML = html;
+    toastBox.appendChild(d);
+    while (toastBox.children.length > 3) toastBox.removeChild(toastBox.firstChild);
+    setTimeout(function () { d.classList.add("out"); }, 2800);
+    setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 3200);
+  }
+  function trophy(id) {
+    if (trophies[id] || !TROPHY_BY[id]) return;
+    trophies[id] = Date.now();
+    var t = TROPHY_BY[id];
+    setTimeout(function () { toast(trophySvg(t.tier) + "<span><small>Trophy!</small>" + t.name + "</span>", "trophy"); play("toast"); }, 500);
+    save();
+  }
+  function goal(id, add) {
+    var g = todaysGoals().filter(function (x) { return x.id === id; })[0];
+    if (!g || goals.done.indexOf(id) >= 0) return;
+    if (g.count) { goals.prog[id] = (goals.prog[id] || 0) + (add || 1); if (goals.prog[id] < g.count) { save(); return; } }
+    goals.done.push(id);
+    bank = Math.min(BIG, bank + g.reward);
+    setTimeout(function () { toast('<b class="ck">&#10003;</b><span><small>Goal done! +' + g.reward + " coins</small>" + g.text + "</span>", "goal"); play("milestone"); roll("b", bankEl, bank, 900); }, 900);
+    if (goals.done.length >= 3) trophy("goals");
+    save();
+  }
+
+  // ---------- helpers (bought in the shop, one use each; normal mode only) ----------
+  function helpersOk() { return mode === "normal" && state === "play" && !tut && overlay.hidden; }
+  function renderHelpers() {
+    var ok = mode === "normal", names = { peek: "Peek", det: "Detector", shield: "Shield" };
+    ["peek", "det", "shield"].forEach(function (k) {
+      var b = $(k === "peek" ? "flPeek" : k === "det" ? "flDet" : "flShield");
+      b.innerHTML = names[k] + ' <span class="ct">' + helpers[k] + "</span>";
+      b.disabled = !ok || helpers[k] < 1 || state !== "play" || (k === "shield" && shieldOn);
+      b.classList.toggle("on", (k === "det" && detecting) || (k === "shield" && shieldOn));
+    });
+    var have = helpers.peek + helpers.det + helpers.shield;
+    $("flHelpTip").textContent = !ok ? "No helpers in " + (mode === "hard" ? "Hard Mode." : "the Daily board.") : have ? (shieldOn ? "Shield is up!" : "One use each.") : "Buy helpers in the Shop.";
+    document.body.classList.toggle("fl-hashelp", ok && have > 0);
+  }
+  function usePeek() {
+    if (!helpersOk() || helpers.peek < 1) { play("nope"); return; }
+    var safe = [], good = [];
+    for (var i = 0; i < N * N; i++) if (!open[i] && !peeked[i] && vals[i] >= 1 && spec[i] !== "myst") { safe.push(i); if (vals[i] > 1) good.push(i); }
+    if (!safe.length) { play("nope"); return; }
+    var t = pick(good.length ? good : safe);
+    helpers.peek--; peeked[t] = true;
+    renderTile(t); restart(tiles[t], "peekfx");
+    var c = center(tiles[t]); ring(c.x, c.y, many(14), 240, ["#ffffff", "#80e0ff"], 4);
+    play("peek"); save(); renderHelpers();
+  }
+  function useDetector() {
+    if (detecting) { detecting = false; gridEl.classList.remove("detecting"); renderHelpers(); return; }
+    if (!helpersOk() || helpers.det < 1) { play("nope"); return; }
+    detecting = true; gridEl.classList.add("detecting");
+    setMemo(false);
+    toast("<span><small>Bomb Detector</small>" + (touchy ? "Tap" : "Click") + " a clue to X-ray its row or column</span>", "goal");
+    play("mark"); renderHelpers();
+  }
+  function xray(isRow, k) {
+    detecting = false; gridEl.classList.remove("detecting");
+    helpers.det--;
+    play("peek");
+    for (var j = 0; j < N; j++) {
+      var i = isRow ? k * N + j : j * N + k, t = tiles[i];
+      restart(t, "scan");
+      if (vals[i] === 0 && !open[i]) {
+        var x = document.createElement("span");
+        x.className = "fl-xr"; x.innerHTML = BOMB;
+        t.appendChild(x);
+        (function (x) { setTimeout(function () { if (x.parentNode) x.parentNode.removeChild(x); }, 1100); })(x);
+      }
+    }
+    save(); renderHelpers();
+  }
+  function useShield() {
+    if (!helpersOk() || helpers.shield < 1 || shieldOn) { play("nope"); return; }
+    helpers.shield--; shieldOn = true;
+    var c = center(frame); ring(c.x, c.y, many(20), 360, ["#40d0ff", "#ffffff"], 5);
+    play("shield"); save(); renderHelpers(); updateMeter();
+  }
+  $("flPeek").addEventListener("click", usePeek);
+  $("flDet").addEventListener("click", useDetector);
+  $("flShield").addEventListener("click", useShield);
+
+  // ---------- looks (card back, bomb, felt) ----------
+  function applyLook() {
+    var back = mode === "hard" ? "hard" : use.back;
+    gridEl.className = (gridEl.className.replace(/\s*\bback-\S+/g, "") + " back-" + back).trim();
+    var felt = SHOP.felt.filter(function (f) { return f.id === use.felt; })[0] || SHOP.felt[0];
+    frame.style.background = felt.c;
+    var want = BOMB_SKINS[use.bomb] || BOMB_CLASSIC;
+    if (want !== BOMB) {
+      BOMB = want;
+      $("flMarks").querySelector('[data-mark="1"]').innerHTML = BOMB;
+      rowHints.concat(colHints).forEach(function (h) { h._built = false; });
+      if (vals.length === N * N) { renderHints(true); refreshDone(false); renderAll(); }
+    }
+  }
+
+  // ---------- the shop ----------
+  function shopPreview(kind, it) {
+    if (kind === "back") return '<span class="pv tile back-' + it.id + '"></span>';
+    if (kind === "bomb") return '<span class="pv bombpv">' + BOMB_SKINS[it.id] + "</span>";
+    if (kind === "felt") return '<span class="pv felt" style="background:' + it.c + '"></span>';
+    return '<span class="pv snd">&#9834;</span>';
+  }
+  var HELPER_ICON = { peek: "&#128065;", det: "&#9673;", shield: "&#9960;" };
+  function openShop() {
+    if (tut) return;
+    var h = '<p class="fl-wallet">Bank: <b>' + fmt(bank) + "</b> coins</p>";
+    [["back", "Card Backs"], ["bomb", "Bombs"], ["felt", "Table Felt"], ["snd", "Flip Sounds"]].forEach(function (sec) {
+      var kind = sec[0];
+      h += "<h3>" + sec[1] + '</h3><div class="fl-items">';
+      SHOP[kind].forEach(function (it) {
+        var owned = own[kind].indexOf(it.id) >= 0, on = use[kind] === it.id, lock = !owned && it.hard;
+        h += '<button class="fl-item' + (on ? " on" : "") + (!owned && (lock || bank < it.cost) ? " poor" : "") + '" data-k="' + kind + '" data-id="' + it.id + '"' + (lock ? ' title="Play Hard Mode to unlock"' : "") + ">" +
+          shopPreview(kind, it) + '<span class="nm">' + it.name + '</span><span class="pr">' + (on ? "Using" : owned ? "Use" : lock ? "&#9889; Hard Mode" : fmt(it.cost)) + "</span></button>";
+      });
+      h += "</div>";
+    });
+    if (mode === "hard") h += '<p class="muted">Hard Mode always uses the Hard card back.</p>';
+    h += '<h3>Helpers</h3><p class="muted">One use each. Not allowed in Hard Mode or the Daily board.</p><div class="fl-items help">';
+    Object.keys(HELPERS).forEach(function (k) {
+      var it = HELPERS[k];
+      h += '<button class="fl-item helper' + (bank < it.cost || helpers[k] >= 99 ? " poor" : "") + '" data-help="' + k + '"><span class="pv hico">' + HELPER_ICON[k] + '</span><span class="nm">' + it.name +
+        '</span><span class="tp">' + it.tip + '</span><span class="pr">' + fmt(it.cost) + "</span><span class=\"have\">You have " + helpers[k] + "</span></button>";
+    });
+    h += "</div>";
+    showPanel("Shop", h, function () {
+      Array.prototype.forEach.call(dialog.querySelectorAll(".fl-item[data-k]"), function (b) {
+        b.addEventListener("click", function () {
+          var kind = b.getAttribute("data-k"), id = b.getAttribute("data-id"), it = SHOP[kind].filter(function (x) { return x.id === id; })[0];
+          if (own[kind].indexOf(id) < 0) {
+            if (it.hard || bank < it.cost) { play("nope"); restart(b, "nopefx"); return; }
+            bank -= it.cost; own[kind].push(id); trophy("shop"); play("buy");
+            var c = center(b); ring(c.x, c.y, many(14), 220, ["#ffd700", "#ffffff"], 4);
+            roll("b", bankEl, bank, 400);
+          } else play("mark");
+          use[kind] = id;
+          if (kind === "snd") setTimeout(function () { flipSnd(id); }, 120);
+          applyLook(); save(); openShop();
+        });
+      });
+      Array.prototype.forEach.call(dialog.querySelectorAll(".fl-item[data-help]"), function (b) {
+        b.addEventListener("click", function () {
+          var k = b.getAttribute("data-help"), it = HELPERS[k];
+          if (bank < it.cost || helpers[k] >= 99) { play("nope"); restart(b, "nopefx"); return; }
+          bank -= it.cost; helpers[k]++; trophy("shop"); play("buy");
+          roll("b", bankEl, bank, 400);
+          save(); renderHelpers(); openShop();
+        });
+      });
+    });
+  }
+
+  // ---------- goals + trophy shelf ----------
+  function openGoals() {
+    if (tut) return;
+    var gs = todaysGoals(), got = 0, h = "<h3>Today's Goals</h3><div class=\"fl-goals\">";
+    gs.forEach(function (g) {
+      var done = goals.done.indexOf(g.id) >= 0, pr = g.count && !done ? " (" + Math.min(g.count, goals.prog[g.id] || 0) + "/" + g.count + ")" : "";
+      h += '<div class="fl-goal' + (done ? " done" : "") + '"><span class="ck">' + (done ? "&#10003;" : "") + '</span><span class="tx">' + g.text + pr + '</span><span class="rw">+' + g.reward + "</span></div>";
+    });
+    TROPHIES.forEach(function (t) { if (trophies[t.id]) got++; });
+    h += '</div><p class="muted">3 new goals every day. Finish one and its coins go straight to your bank.</p>';
+    h += "<h3>Trophy Shelf <small>" + got + " / " + TROPHIES.length + '</small></h3><div class="fl-shelf">';
+    TROPHIES.forEach(function (t) {
+      var have = !!trophies[t.id];
+      h += '<div class="fl-trophy' + (have ? " got" : "") + '">' + trophySvg(have ? t.tier : "locked") + '<span class="nm">' + t.name + '</span><span class="ds">' + t.desc + "</span></div>";
+    });
+    h += "</div>";
+    showPanel("Goals &amp; Trophies", h);
+  }
+
+  // ---------- modes: normal, Hard Mode, Daily board ----------
+  function setTitle() {
+    var t = $("flTitle");
+    t.textContent = "Lucky Flip" + (mode === "hard" ? " Hard Mode" : mode === "daily" ? " Daily" : "");
+  }
+  function syncModeUI() {
+    var hard = mode === "hard";
+    dailyFresh();
+    $("flHard").classList.toggle("on", hard);
+    $("flHard").setAttribute("aria-pressed", hard ? "true" : "false");
+    $("flDaily").classList.toggle("on", mode === "daily");
+    $("flDaily").innerHTML = daily.done && mode !== "daily" ? "Daily &#10003;" : "Daily";
+    $("flMemo").disabled = hard;
+    Array.prototype.forEach.call($("flMarks").querySelectorAll("button"), function (b) { b.disabled = hard; });
+    document.body.classList.toggle("fl-hardmode", hard);
+    document.body.classList.toggle("fl-dailymode", mode === "daily");
+    setTitle(); applyLook(); renderHelpers(); renderStats();
+  }
+  function setMode(m, force) {
+    if (m === mode || tut || state === "dying" || state === "winning") return;
+    if (!force && mode !== "daily" && state === "play" && flips > 0) {
+      showDialog("Not Yet!", "<p>Finish this board or cash out first.</p>", "OK", function () {});
+      return;
+    }
+    if (m === "daily") {
+      dailyFresh();
+      if (daily.done) { showDialog("Daily Board", "<h2>Done for today!</h2><p>Today's score: <b>" + fmt(daily.best) + '</b></p><p class="muted">A new board shows up at midnight.</p>', "OK", function () {}); return; }
+    }
+    var firstHard = m === "hard" && !hardSeen;
+    if (mode === "normal") normLevel = level; else if (mode === "hard") hardLevel = level;
+    mode = m;
+    level = m === "hard" ? hardLevel : m === "daily" ? DAILY_LEVEL : normLevel;
+    lastLevel = level;
+    if (m === "hard" && !hardSeen) { hardSeen = true; if (own.back.indexOf("hard") < 0) own.back.push("hard"); }
+    setMemo(false);
+    pickMusic();
+    newRound(m === "daily" ? checkRound(daily.round, "daily") : null);
+    if (firstHard) {
+      setTimeout(function () {
+        showDialog("Hard Mode", '<h2 class="oops">good luck...</h2><p>More bombs, no Notes, no helpers, and a bomb sends you back to level 1.</p><p class="fl-hot">Every payout counts double!</p><p class="muted">You unlocked the Hard card back.</p>', "Let's Go", function () {});
+      }, reduce ? 60 : 650);
+    }
+  }
+  $("flHard").addEventListener("click", function () { setMode(mode === "hard" ? "normal" : "hard"); });
+  $("flDaily").addEventListener("click", function () { setMode(mode === "daily" ? "normal" : "daily"); });
+  $("flShop").addEventListener("click", openShop);
+  $("flGoals").addEventListener("click", openGoals);
 
   // ---------- input ----------
   var held = null, heldFired = false;
   gridEl.addEventListener("click", function (e) {
+    var hint = e.target.closest(".fl-hint");
+    if (hint && detecting) {
+      var line = hint.getAttribute("data-line") || "";
+      xray(line.charAt(0) === "r", +line.slice(1));
+      return;
+    }
     var t = e.target.closest(".fl-tile");
     if (!t) return;
     if (heldFired) { heldFired = false; return; }
@@ -1018,6 +1693,7 @@
   }
 
   function setMemo(on) {
+    if (on && (mode === "hard" || detecting)) on = false;
     memo = on;
     var b = $("flMemo");
     b.textContent = "Notes: " + (on ? "On" : "Off");
@@ -1077,6 +1753,7 @@
       return;
     }
     if (!overlay.hidden) {
+      if (dialog.classList.contains("wide")) { if (k === "Escape") { e.preventDefault(); closePanel(); } return; }
       if (k === "Enter" || k === " ") { e.preventDefault(); var b = $("flDlgMain"); if (b) b.click(); }
       else if (k === "Escape" && $("flDlgAlt")) closeDialog();
       return;
@@ -1100,6 +1777,7 @@
       e.preventDefault(); gridEl.classList.add("kb"); flip(cur);
     }
     else if (lk === "n") setMemo(!memo);
+    else if (lk === "h" && overlay.hidden) setMode(mode === "hard" ? "normal" : "hard");
     else if (lk === "b" || k === "0") { var was = marks[cur]; toggleMark(cur, 1); if (marks[cur] !== was) lastB = { i: cur, t: Date.now() }; }
     else if (k === "1") toggleMark(cur, 2);
     else if (k === "2") toggleMark(cur, 4);
@@ -1148,6 +1826,7 @@
 
   function startTut() {
     if (tut) return;
+    if (mode !== "normal") return;
     // mid-explosion or mid-win: the round still has to finish (and count) first
     if (state !== "play" && overlay.hidden) return;
     if (!(state === "play" && flips === 0 && overlay.hidden)) {
@@ -1238,9 +1917,9 @@
   }
   // the tutorial flip: wait for the coins to land, then keep going
   var origFlip = flip;
-  flip = function (i) {
+  flip = function (i, chained) {
     var wasTut = tut && tut.allow === i;
-    origFlip(i);
+    origFlip(i, chained);
     if (wasTut && open[i]) {
       tut.allow = null;
       tutSpot.hidden = true; tutBox.hidden = true;
@@ -1252,44 +1931,15 @@
     startTut();
   });
 
-  // ---------- the Konami code: there is no hard mode ----------
-  var lastB = null, nopeBusy = false;
+  // ---------- the Konami code switches Hard Mode on and off (same as the Hard button) ----------
+  var lastB = null;
   window.cwKonami = function () {
-    if (nopeBusy) return;
-    nopeBusy = true;
     // the B in the code marked a bomb on the board; quietly undo that
     if (lastB && Date.now() - lastB.t < 4000 && state === "play" && !open[lastB.i]) { marks[lastB.i] ^= 1; renderTile(lastB.i); }
     lastB = null;
-    // fake-out: start the same spooky fade Lines DX does...
-    var dark = document.createElement("div");
-    dark.className = "fl-fakeout";
-    document.body.appendChild(dark);
-    tone(110, 0, 0.6, 0.06, "sawtooth", 55);
-    musicSpooky(0.9);
-    setTimeout(function () {
-      // ...then snap out of it
-      dark.parentNode && dark.parentNode.removeChild(dark);
-      musicUnspooky();
-      var box = document.createElement("div");
-      box.className = "fl-nope";
-      box.setAttribute("role", "alertdialog");
-      box.innerHTML = '<div class="fl-nopewin"><div class="dt"><span>Hard Mode</span><span>&times;</span></div>' +
-        '<div class="db"><p class="fl-nopetxt">&hellip; you really thought this had a hard mode?</p>' +
-        '<button class="fl-btn go" id="flNopeOk">Yeah, my bad</button></div></div>';
-      document.body.appendChild(box);
-      // sad trombone
-      [[392, 0, 0.32], [370, 0.34, 0.32], [349, 0.68, 0.32], [330, 1.02, 0.9]].forEach(function (n) { tone(n[0], n[1], n[2], 0.07, "sawtooth", n[2] > 0.5 ? n[0] * 0.94 : 0); });
-      var close = function () {
-        if (!box.parentNode) return;
-        box.parentNode.removeChild(box);
-        nopeBusy = false;
-        document.removeEventListener("keydown", onKey, true);
-      };
-      var onKey = function (e) { if (e.key === "Enter" || e.key === "Escape" || e.key === " ") { e.preventDefault(); e.stopPropagation(); close(); } };
-      document.addEventListener("keydown", onKey, true);
-      box.addEventListener("click", function (e) { if (e.target === box || e.target.id === "flNopeOk") close(); });
-      try { $("flNopeOk").focus({ preventScroll: true }); } catch (e) {}
-    }, 950);
+    if (!overlay.hidden && !dialog.classList.contains("wide")) return;
+    if (dialog.classList.contains("wide")) closePanel();
+    setMode(mode === "hard" ? "normal" : "hard");
   };
 
   // phones have no keyboard for the Konami code: tapping the title 5 times quickly does the same joke
@@ -1305,6 +1955,7 @@
   setSound();
   setMusic();
   bankEl.textContent = bank;
+  disp.b = bank;
   var resume = savedRound();
   newRound(resume);
   // refreshed right after finding the last 2 or 3: finish the win
