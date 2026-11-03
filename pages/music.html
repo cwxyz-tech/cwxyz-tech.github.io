@@ -125,13 +125,11 @@
     { game: "Lucky Flip",   title: "Lucky Flip",   src: "/music/tracks/lucky-flip.mp3",       loop: 64 * 60 / 150,     color: [0, 96, 200] },
     { game: "Sky Glider",   title: "Hangar Lounge", src: "/music/tracks/hangar-lounge.mp3",   loop: 384 * 15 / 100,    color: [230, 140, 30], locked: true }
   ];
-  // only shows up for people who saw the 2023 site burn down (no padding on this one; the fade lands on its last chord)
   // when a song can't play, say why in the console instead of failing silently (blocked autoplay is normal, not an error)
   function playFail(err) {
     if (!window.console || (err && err.name === "NotAllowedError") || (err && err.name === "AbortError")) return;
     console.warn("music: couldn't play " + (TRACKS[cur] ? TRACKS[cur].src : "") + (err ? " (" + (err.name || err) + ")" : ""));
   }
-  try { if (localStorage.getItem("cw_2023_gone")) TRACKS.push({ game: "???", title: "Burn It Down", src: "/music/tracks/burn-it-down.mp3", loop: 137 - 0.5 - 7, color: [90, 90, 90] }); } catch (e) {}
   // Sky Glider's song stays locked until Sky Glider itself is unlocked (play Blackjack DX, Lines DX and Lucky Flip)
   function unlocked(t) { return !t.locked || !window.CwPlayed || CwPlayed.status().unlocked; }
   // These are the jukebox cuts of the game songs: the loop, then the top of the song again fading out over a

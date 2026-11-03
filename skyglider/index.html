@@ -55,6 +55,9 @@
   .sg-lockl .ok { color: #006400; font-weight: bold; }
   .sg-lockl a { color: #000080; font-weight: bold; }
   .sg-lock { font-size: 40px; line-height: 1; }
+  .sg-stage.hard { background: #1c1230; border-color: #c42838 #5a1018 #5a1018 #c42838; }
+  .sg-btn.sg-hardbtn { background: #3a1830; color: #fff; border-color: #a04060 #200810 #200810 #a04060; }
+  .sg-btn.sg-hardbtn:active { border-color: #200810 #a04060 #a04060 #200810; }
   .sg-stage canvas#sgCanvas { display: block; width: 100%; aspect-ratio: 1 / 1; image-rendering: pixelated; image-rendering: crisp-edges; }
 
   /* active power-up timers under the sky */
@@ -65,7 +68,6 @@
   .sg-pow i { display: block; width: 34px; height: 6px; border: 1px solid #000; background: #fff; position: relative; }
   .sg-pow i b { position: absolute; left: 0; top: 0; bottom: 0; background: #000080; }
   .sg-pow.low { animation: sg-low .3s steps(1) infinite; }
-  .sg-pow.mega span { animation: sg-rbw .6s steps(1) infinite; letter-spacing: 1px; }
   @keyframes sg-low { 50% { background: #ffff99; } }
 
   /* big text over the sky */
@@ -93,11 +95,6 @@
   .sg-title { font-size: 46px; font-weight: bold; line-height: 1; margin: 2px 0 0; color: #fff; text-shadow: 3px 3px 0 #000080, -1px -1px 0 #000; letter-spacing: 1px; }
   .sg-title .cw-hop { animation: cw-hop .4s steps(4) backwards, sg-rbw 1s steps(1) infinite; }
   .sg-title { cursor: default; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
-  .sg-title { transition: color .5s ease, text-shadow .5s ease; }
-  .sg-title.y2023 { color: #b8b8b8; text-shadow: 3px 3px 0 #3a0000, -1px -1px 0 #000; }
-  .sg-title.y2023 .cw-hop { animation: cw-hop .4s steps(4) backwards, sg-2023flick 5s steps(1) infinite; }
-  @keyframes sg-2023flick { 0%, 93% { opacity: 1; } 94% { opacity: .25; } 95% { opacity: 1; } 97% { opacity: .5; } }
-  .sg-2023line { color: #8a2020; font-weight: bold; }
   .sg-flyby { width: 100%; height: 52px; position: relative; overflow: hidden; background: #7ea2f0; border: 2px inset #808080; }
   /* Glider and all four storms fly across in one evenly spaced line */
   .sg-train { position: absolute; top: 4px; left: 100%; display: flex; gap: 16px; padding-left: 8px; animation: sg-train 6.5s linear infinite; }

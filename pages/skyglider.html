@@ -72,6 +72,7 @@
           <div class="sg-win-body">
             <div class="sg-stats">
               <div class="k">Best</div><div class="v" id="sgBest">0</div>
+              <div class="k">Hard Best</div><div class="v" id="sgHardBest">-</div>
               <div class="k">Top Level</div><div class="v" id="sgTopLv">1</div>
               <div class="k">Stars</div><div class="v" id="sgStars">&#9733; 0</div>
               <div class="k">Today</div><div class="v" id="sgDailyBest">-</div>
@@ -107,9 +108,10 @@
       <p>Grab a <b>sun</b> and the storms get scared and puff up white. Fly into them for big points: 200, 400, 800, then 1600 for the whole set. Keep grabbing sparkles without a break to build your <b>combo</b>, all the way up to x5.</p>
       <p>Power-ups pop up in the maze: <b>Jet</b> makes you faster, <b>Magnet</b> pulls in sparkles, <b>Shield</b> blocks one storm, <b>Snow</b> freezes the storms, <b>2x</b> doubles your points, and if you're lucky a <b>heart</b> gives you an extra life. Grab the same one again while it's running and it stacks, up to 3: two Jets is way faster, two 2x is 4x points. When Glider goes down you can steer him a little on the way, so aim for a sparkle.</p>
       <p>Every level gets a little faster, and so does every second you spend on one. Earn stars every flight to buy new paint jobs and trails in the <b>Hangar</b>, and check your <b>Flight Goals</b> for bonus stars. The <b>Daily Flight</b> is the same for everyone and you only get one life.</p>
+      <p>Think you're good? Try <b>Hard Mode</b>: the sky goes dark, the storms come out sooner and faster, suns don't last long, power-ups are rare and you only get one life. Every point counts double, and it keeps its own best score.</p>
       <p><span class="sg-kbonly">Keyboard: arrow keys or WASD to fly, Space to start, P to pause, M to mute.</span> On a phone, swipe anywhere, tap the maze where you want to go, or hold the arrow pad and slide your thumb around it to steer.</p>
       <p><b>Credits:</b> Glider made by <a href="https://www.instagram.com/_sqeakz/" target="_blank" rel="noopener noreferrer">cherrie/sqeakz</a> on Instagram. Concept and game made by Cole.</p>
-      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.11.1</span></summary><dl><dt>1.11.1</dt><dd>&bull; Much easier to steer on phones</dd><dt>1.11</dt><dd>&bull; Switching is smoother</dd><dd>&bull; Quieter when it matters</dd><dd>&bull; Don&rsquo;t look at the walls</dd><dt>1.10.1</dt><dd>&bull; Quieter</dd><dt>1.10</dt><dd>&bull; Power-ups stack</dd><dd>&bull; You can steer the fall</dd><dd>&bull; Fits short screens</dd><dt>1.9.2</dt><dd>&bull; Goals are a little more honest now</dd><dt>1.9.1</dt><dd>&bull; Only one kind of fuel in 2023</dd><dd>&bull; The lane is closed</dd><dd>&bull; Bug fixes</dd><dt>1.9</dt><dd>&bull; Everything is breathing</dd><dd>&bull; Tell him he can</dd><dt>1.8.1</dt><dd>&bull; Some lanes are darker than others</dd><dt>1.8</dt><dd>&bull; The hangar is listening</dd><dd>&bull; Don&rsquo;t fly too fast</dd><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
+      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.10</span></summary><dl><dt>1.10</dt><dd>&bull; Hard Mode</dd><dd>&bull; Bug fixes</dd><dt>1.9.1</dt><dd>&bull; Much easier to steer on phones</dd><dt>1.9</dt><dd>&bull; Power-ups stack</dd><dd>&bull; You can steer the fall</dd><dd>&bull; Fits short screens</dd><dt>1.8</dt><dd>&bull; Goals are a little more honest now</dd><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
       <button class="sg-btn go sg-helpx" id="sgHelpClose">Got it!</button>
     </div>
   </div>
@@ -396,12 +398,12 @@
     if (out.indexOf(base) < 0) out.unshift(base);
     return out;
   }
-  save.best = num(save.best, 0, 1e9, 0); save.stars = num(save.stars, 0, 1e9, 0); save.topLv = num(save.topLv, 1, 999, 1);
+  save.best = num(save.best, 0, 1e9, 0); save.hardBest = num(save.hardBest, 0, 1e9, 0); save.stars = num(save.stars, 0, 1e9, 0); save.topLv = num(save.topLv, 1, 999, 1);
   var own = save.own && typeof save.own === "object" ? save.own : {};
   save.own = { liv: ids(own.liv, LIVERIES, "sky"), trail: ids(own.trail, TRAILS, "none") };
   if (save.own.liv.indexOf(save.liv) < 0) save.liv = "sky";
   if (save.own.trail.indexOf(save.trail) < 0) save.trail = "none";
-  save.sound = save.sound !== false; save.music = save.music !== false; save.fx = save.fx !== false; save.y2023 = save.y2023 === true;
+  save.sound = save.sound !== false; save.music = save.music !== false; save.fx = save.fx !== false; delete save.y2023;
   save.games = num(save.games, 0, 1e9, 0);
   if (!save.goals || typeof save.goals !== "object" || typeof save.goals.date !== "string" || !Array.isArray(save.goals.done)) delete save.goals;
   else save.goals.done = save.goals.done.filter(function (id) { return typeof id === "string"; }).slice(0, 3);
@@ -688,8 +690,7 @@
     frightT: 0, frightMax: 1, chain: 0, freezeT: 0, jetT: 0, magT: 0, dblT: 0, shield: false, jetN: 0, magN: 0, dblN: 0, shieldN: 0,
     combo: 0, lastEat: -9, mult: 1, levelT: 0, modeT: 0, modeIdx: 0, timer: 0, hitPause: 0,
     item: null, itemSpawns: 0, eatenCount: 0, nextLife: 10000, daily: false, rand: Math.random, hitThisLevel: false, invuln: 0,
-    run: null, flash: 0, t: 0, deathT: 0, reveal: 1, pop: null, popped: false,
-    fuel: 0, mega: null, run2023: false
+    run: null, flash: 0, t: 0, deathT: 0, reveal: 1, pop: null, popped: false, hard: false, bolt: 0, boltT: 5
   };
   var player = { x: 10, y: 15, dx: 0, dy: 0, want: null, face: 0, tilt: 0, anim: 0, squash: 0, blink: 2 };
   var storms = [];
@@ -748,7 +749,11 @@
       }
     }
     var EDGE = flash ? [255, 255, 255] : [59, 92, 196], SH = flash ? [126, 162, 240] : [184, 205, 248], WH = flash ? [59, 92, 196] : [255, 255, 255];
-    var SKY = [126, 162, 240], SKY2 = [138, 172, 244], HOUSE = [104, 140, 226];
+    var HOUSE = [104, 140, 226];
+    if (G.hard) {   // Hard Mode: dark storm clouds with a red edge
+      EDGE = flash ? [255, 255, 255] : [196, 40, 56]; SH = flash ? [40, 26, 64] : [58, 52, 82]; WH = flash ? [196, 40, 56] : [92, 86, 118];
+      HOUSE = [44, 24, 58];
+    }
     for (py = 0; py < W; py++) for (px = 0; px < W; px++) {
       var i = (py * W + px) * 4, col, ty = (py / TS) | 0, tx = (px / TS) | 0;
       if (mask[py * W + px]) {
@@ -766,7 +771,7 @@
     g.putImageData(img, 0, 0);
     // the gate the storms come out of
     for (y = 0; y < ROWS; y++) for (x = 0; x < COLS; x++) if (G.grid[y][x] === "-") {
-      g.fillStyle = flash ? "#fff" : "#ffd0e8"; g.fillRect(x * TS - 4, y * TS + 5, TS + 8, 2);
+      g.fillStyle = flash ? "#fff" : G.hard ? "#ff6070" : "#ffd0e8"; g.fillRect(x * TS - 4, y * TS + 5, TS + 8, 2);
     }
     return c;
   }
@@ -775,7 +780,7 @@
     player.x = START.x; player.y = START.y; player.dx = -1; player.dy = 0; player.want = null; player.face = 0; player.tilt = 0; player.squash = 0; G.pop = null; G.hitPause = 0;
     var homes = [[GATE.x, GATE.y], [10, 9], [9, 9], [11, 9]];
     var waits = [0, 1.5, 4.5, 8];
-    var sc = Math.max(0.3, 1 - (G.level - 1) * 0.12);
+    var sc = Math.max(0.3, 1 - (effLv() - 1) * 0.12) * (G.hard ? 0.5 : 1);
     storms = STORMS.map(function (s, i) {
       return { i: i, x: homes[i][0], y: homes[i][1], dx: i === 0 ? -1 : 0, dy: 0, state: i === 0 ? "out" : "home", wait: waits[i] * sc, scared: false, anim: Math.random() * 6 };
     });
@@ -783,16 +788,16 @@
     G.combo = 0; G.mult = 1;
   }
 
-  function newGame(daily) {
-    megaStop();
+  function newGame(daily, hard) {
     if (locked()) { G.mode = "title"; lockScreen(); return; }
     showWholeGame();
     G.daily = !!daily;
+    setHard(!!hard && !daily);
     var d = today();
     G.rand = daily ? rng(seedOf("daily" + d)) : Math.random;
     G.level = G.startLevel = daily ? 3 : 1;
     G.maze = daily ? seedOf("dm" + d) % MAZES.length : 0;
-    G.score = 0; G.lives = daily ? 1 : 3; G.nextLife = daily ? Infinity : 10000; G.shield = false; G.shieldN = 0; G.dblT = 0; G.dblN = 0; G.fuel = 0; G.mega = null; G.run2023 = save.y2023;
+    G.score = 0; G.lives = daily || G.hard ? 1 : 3; G.nextLife = daily || G.hard ? Infinity : 10000; G.shield = false; G.shieldN = 0; G.dblT = 0; G.dblN = 0;
     G.run = { score: 0, level: 1, bestChain: 0, bestMult: 1, pows: 0, blocks: 0, clean: 0, eaten: 0, froze: 0, daily: G.daily, goalsHit: [] };
     save.games++; persist();
     startLevel();
@@ -801,7 +806,7 @@
     buildLevel(); resetActors();
     G.levelT = 0; G.item = null; G.itemSpawns = 0; G.hitThisLevel = false; G.dblT = 0; G.dblN = 0; G.reveal = 0;
     parts.length = 0;
-    hud(); readyGo(G.level > 1 || G.daily ? (G.daily ? "Daily Flight" : "Level " + G.level) : "Ready!");
+    hud(); readyGo(G.level > 1 || G.daily || G.hard ? (G.daily ? "Daily Flight" : G.level > 1 ? "Level " + G.level : "Hard Mode") : "Ready!");
   }
   function readyGo(text) {
     G.mode = "ready"; G.timer = 1.8;
@@ -855,7 +860,7 @@
     var k = e.key, map = { ArrowLeft: "left", a: "left", A: "left", ArrowRight: "right", d: "right", D: "right", ArrowUp: "up", w: "up", W: "up", ArrowDown: "down", s: "down", S: "down" };
     if (map[k]) { if (G.mode === "play" || G.mode === "ready") { e.preventDefault(); want(map[k]); } else if (/^Arrow/.test(k) && !overlay.hidden) e.preventDefault(); return; }
     if (k === " " || k === "Enter") {
-      if (G.mode === "title" || G.mode === "over") { if (!overlay.hidden && document.activeElement && document.activeElement.tagName === "BUTTON" && overlay.contains(document.activeElement)) return; e.preventDefault(); if (!shopOpen) { closeDialog(); newGame(false); } }
+      if (G.mode === "title" || G.mode === "over") { if (!overlay.hidden && document.activeElement && document.activeElement.tagName === "BUTTON" && overlay.contains(document.activeElement)) return; e.preventDefault(); if (!shopOpen) { closeDialog(); newGame(false, G.mode === "over" && G.hard); } }
       else if (G.mode === "paused") { e.preventDefault(); resume(); }
       else e.preventDefault();
       return;
@@ -946,9 +951,11 @@
     else if (!open(x + e.dx, y + e.dy)) { e.dx = 0; e.dy = 0; }
   }
 
+  // Hard Mode: everything flies like it's already level 6, keeps climbing past the normal speed limit and creeps up twice as fast
+  function effLv() { return G.level + (G.hard ? 5 : 0); }
   function speedMult() {
-    var m = Math.min(1 + 0.045 * (G.level - 1), 1.5);
-    var creep = 1 + Math.min(G.levelT / 100, 1) * 0.07;
+    var m = Math.min(1 + 0.045 * (effLv() - 1), G.hard ? 1.75 : 1.5);
+    var creep = 1 + Math.min(G.levelT / (G.hard ? 60 : 100), 1) * (G.hard ? 0.14 : 0.07);
     return m * creep;
   }
 
@@ -986,7 +993,7 @@
   }
 
   function updateStorms(dt, sm) {
-    var base = 7.7 * sm * Math.min(1 + 0.02 * (G.level - 1), 1.12);
+    var base = 7.7 * sm * Math.min(1 + 0.02 * (effLv() - 1), G.hard ? 1.2 : 1.12);
     storms.forEach(function (s) {
       s.anim += dt * 6;
       if (G.freezeT > 0 && s.state === "out") return;
@@ -1069,7 +1076,7 @@
     // scatter / chase rhythm (paused while the storms are scared or frozen)
     if (G.frightT <= 0 && G.freezeT <= 0) {
       G.modeT += dt;
-      var limit = MODE_TIMES[G.modeIdx] * (G.modeIdx % 2 === 0 ? Math.max(0.5, 1 - (G.level - 1) * 0.08) : 1);
+      var limit = MODE_TIMES[G.modeIdx] * (G.modeIdx % 2 === 0 ? Math.max(G.hard ? 0.3 : 0.5, 1 - (effLv() - 1) * 0.08) : 1);
       if (G.modeT >= limit) { G.modeT = 0; G.modeIdx = Math.min(G.modeIdx + 1, MODE_TIMES.length - 1); reverseStorms(); sfx("chase"); }
     }
     if (G.frightT > 0) { G.frightT -= dt; if (G.frightT <= 0) { storms.forEach(function (s) { s.scared = false; }); G.chain = 0; sfx("frightEnd"); } }
@@ -1082,8 +1089,7 @@
     if (G.t - G.lastEat > 0.6 && G.combo) { G.combo = 0; setMult(1); }
 
     // Glider
-    if (G.mega) { megaTick(dt); if (G.mode !== "play") return; }
-    var pspd = 8.6 * sm * (G.mega ? megaSpeed() : G.jetT > 0 ? jetBoost() : 1);
+    var pspd = 8.6 * sm * (G.jetT > 0 ? jetBoost() : 1);
     var bx = player.x, by = player.y, odx = player.dx, ody = player.dy;
     moveAlong(player, pspd * dt, playerCenter);
     if ((player.dx !== odx || player.dy !== ody) && (player.dx || player.dy)) { player.squash = 0.16; if (!(G.t - G.lastTurn < 0.12)) { G.lastTurn = G.t; sfx("turn"); } }
@@ -1107,7 +1113,7 @@
   function reverseStorms() { storms.forEach(function (s) { if (s.state === "out") { s.dx = -s.dx; s.dy = -s.dy; } }); }
 
   function points(n, x, y, cls) {
-    var mult = G.dblT > 0 ? 2 * Math.max(1, G.dblN) : 1;   // 2x, then 4x, 6x...
+    var mult = (G.dblT > 0 ? 2 * Math.max(1, G.dblN) : 1) * (G.hard ? 2 : 1);   // 2x, then 4x, 6x... (and everything counts double in Hard Mode)
     n *= mult;
     G.score += n;
     if (x !== undefined) floatAt(x, y, "+" + n.toLocaleString(), cls);
@@ -1142,8 +1148,8 @@
     }
     var eatenSoFar = G.total - G.sparks;
     if (falling) { if (G.sparks <= 0) closeCall(); return; }
-    if (G.mega) { if (G.sparks <= 0) megaRefill(); return; }
-    if ((G.itemSpawns === 0 && eatenSoFar >= 45) || (G.itemSpawns === 1 && eatenSoFar >= 105) || (G.itemSpawns === 2 && eatenSoFar >= 160 && G.level >= 3)) spawnItem();
+    if (G.hard) { if (G.itemSpawns === 0 && eatenSoFar >= 105) spawnItem(); }
+    else if ((G.itemSpawns === 0 && eatenSoFar >= 45) || (G.itemSpawns === 1 && eatenSoFar >= 105) || (G.itemSpawns === 2 && eatenSoFar >= 160 && G.level >= 3)) spawnItem();
     if (G.sparks <= 0) levelClear();
   }
 
@@ -1162,7 +1168,7 @@
 
   function sunPower() {
     sfx("sun");
-    var dur = Math.max(1.8, 7 - 0.5 * (G.level - 1));
+    var dur = G.hard ? Math.max(1.2, 3.5 - 0.3 * (G.level - 1)) : Math.max(1.8, 7 - 0.5 * (G.level - 1));
     G.frightT = dur; G.frightMax = dur; G.chain = 0;
     storms.forEach(function (s) { if (s.state === "out") { s.scared = true; s.dx = -s.dx; s.dy = -s.dy; } });
     fx.flash(stage, "gold");
@@ -1171,14 +1177,9 @@
   // power-ups bounce in from a jetstream tunnel and wander the maze, like the fruit in the arcade
   function spawnItem() {
     G.itemSpawns++;
-    if (G.mega) return;
-    // 2023 mode: Jets are the only thing that shows up, so the tank fills to 3/3 a lot sooner
-    var kind = "jet";
-    if (!G.run2023) {
-      var pool = ["jet", "magnet", "shield", "snow", "dbl", "jet", "magnet", "dbl", "snow", "shield"];
-      kind = pool[Math.floor(G.rand() * pool.length)];
-      if (!G.daily && G.lives < 5 && G.rand() < 0.07) kind = "heart";
-    }
+    var pool = ["jet", "magnet", "shield", "snow", "dbl", "jet", "magnet", "dbl", "snow", "shield"];
+    var kind = pool[Math.floor(G.rand() * pool.length)];
+    if (!G.daily && !G.hard && G.lives < 5 && G.rand() < 0.07) kind = "heart";
     var left = G.rand() < 0.5;
     G.item = { x: left ? -1 : COLS, y: 9, dx: left ? 1 : -1, dy: 0, kind: kind, t: 15, hop: 0 };
     sfx("itemIn");
@@ -1217,13 +1218,7 @@
     sfx("power");
     var pp = toPage(it.x, it.y); fx.burst(pp.x, pp.y, 2);
     var n = 1;
-    if (it.kind === "jet" && !G.run2023) { n = G.jetN = G.jetT > 0 ? Math.min(STACK_MAX, G.jetN + 1) : 1; G.jetT = p.time; }
-    else if (it.kind === "jet") {
-      G.jetN = G.jetT > 0 ? Math.min(STACK_MAX, G.jetN + 1) : 1;
-      G.jetT = p.time; G.fuel = Math.min(FUEL_MAX, G.fuel + 1);
-      if (G.fuel >= FUEL_MAX) { G.run.pows++; checkGoals(); return megaStart(); }
-      showCall("Jet!<small>Fuel " + G.fuel + "/" + FUEL_MAX + "</small>", false); G.run.pows++; checkGoals(); return;
-    }
+    if (it.kind === "jet") { n = G.jetN = G.jetT > 0 ? Math.min(STACK_MAX, G.jetN + 1) : 1; G.jetT = p.time; }
     else if (it.kind === "magnet") { n = G.magN = G.magT > 0 ? Math.min(STACK_MAX, G.magN + 1) : 1; G.magT = p.time; }
     else if (it.kind === "shield") { n = G.shieldN = G.shield ? Math.min(STACK_MAX, G.shieldN + 1) : 1; G.shield = true; }
     else if (it.kind === "snow") { n = G.freezeT > 0 ? 2 : 1; G.freezeT = G.freezeT > 0 ? Math.min(G.freezeT + p.time, p.time * 2.5) : p.time; G.run.froze++; sfx("freeze"); }
@@ -1256,12 +1251,6 @@
         if (G.chain > G.run.bestChain) G.run.bestChain = G.chain;
         if (G.chain === 4) { fx.quake(stage, true); showCall("Storm Sweep!<small>+" + got.toLocaleString() + "</small>", false, "rainbow"); }
         checkGoals();
-        return;
-      }
-      if (G.mega) {
-        s.state = "eaten"; points(200, s.x, s.y, "x3"); sfx("eat", 2);
-        var mp = toPage(s.x, s.y); fx.burst(mp.x, mp.y, 2); G.run.eaten++;
-        for (var mr = 0; mr < 10; mr++) parts.push({ kind: "dot", x: s.x, y: s.y, vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10, life: 0.5, max: 0.5, c: RAINBOW[mr % 7], s: 3 });
         return;
       }
       if (G.freezeT > 0 || G.invuln > 0) return;
@@ -1321,6 +1310,7 @@
     ambStop(); if (!close) sfx("clear");
     var bonus = 500 * G.level;
     if (!G.hitThisLevel) { bonus += 2000; G.run.clean++; }
+    if (G.hard) bonus *= 2;
     G.score += bonus;
     G.run.level = G.level + 1 - (G.startLevel || 1) + 1;
     showCall((close ? "Close Call!" : G.hitThisLevel ? "Level Clear!" : "Perfect!") + "<small>+" + bonus.toLocaleString() + " bonus</small>", false, "rainbow");
@@ -1338,8 +1328,8 @@
     checkGoals();
     var earned = Math.floor(G.score / 250);
     save.stars += earned;
-    var newBest = G.score > save.best;
-    if (newBest) save.best = G.score;
+    var bestKey = G.hard ? "hardBest" : "best", newBest = G.score > save[bestKey];
+    if (newBest) save[bestKey] = G.score;
     var dailyNew = false;
     if (G.daily) {
       if (!save.daily || save.daily.date !== today()) save.daily = { date: today(), best: 0 };
@@ -1349,10 +1339,10 @@
     persist(); sideStats();
     setTimeout(function () {
       if (G.mode !== "over") return;
-      var html = '<div class="dt">' + (G.daily ? "Daily Flight" : "Game Over") + '</div><div class="db">' +
+      var html = '<div class="dt">' + (G.daily ? "Daily Flight" : G.hard ? "Hard Mode" : "Game Over") + '</div><div class="db">' +
         '<h2 class="oops">' + (G.daily ? "Flight over!" : "Oops! Game over") + '</h2>' +
         '<div class="big" id="sgEndScore">0</div>' +
-        (newBest ? '<div class="newbest">NEW BEST!</div>' : '<p>Best: <b>' + save.best.toLocaleString() + '</b></p>') +
+        (newBest ? '<div class="newbest">' + (G.hard ? "NEW HARD BEST!" : "NEW BEST!") + '</div>' : '<p>' + (G.hard ? "Hard best" : "Best") + ': <b>' + save[bestKey].toLocaleString() + '</b></p>') +
         '<div class="sg-kv"><div>Level reached</div><div class="v">' + G.level + '</div>' +
         '<div>Storms eaten</div><div class="v">' + G.run.eaten + '</div>' +
         (G.daily ? '<div>Today\'s best</div><div class="v">' + save.daily.best.toLocaleString() + (dailyNew ? " &#9733;" : "") + '</div>' : '') +
@@ -1361,7 +1351,7 @@
         '<button class="sg-btn go wide" id="sgAgain">&#9654; Fly Again <kbd>(Space)</kbd></button>' +
         '<div class="sg-row2"><button class="sg-btn" id="sgToShop">&#9992; Hangar</button><button class="sg-btn" id="sgToMenu">Menu</button></div></div>';
       openDialog(html);
-      $("sgAgain").onclick = function () { sfx("click"); closeDialog(); newGame(false); };
+      $("sgAgain").onclick = function () { sfx("click"); closeDialog(); newGame(false, G.hard); };
       $("sgToShop").onclick = function () { sfx("click"); openShop(); };
       $("sgToMenu").onclick = function () { sfx("click"); titleScreen(); };
       if (window.CwJuice) fx.roll($("sgEndScore"), 0, G.score, 900, function (v) { return Math.round(v).toLocaleString(); });
@@ -1396,7 +1386,7 @@
   // ---------------- particles (trails, puffs) ----------------
   function trailPuff() {
     var t = save.trail, jet = G.jetT > 0;
-    if (G.mult >= 5 || G.mega) t = "rainbow";
+    if (G.mult >= 5) t = "rainbow";
     if (t === "none" && !jet) return;
     var bx = player.x - (player.dx || 0) * 0.7, by = player.y - (player.dy || 0) * 0.7 + 0.15;
     if (jet) parts.push({ kind: "dot", x: bx, y: by, life: 0.35, max: 0.35, c: Math.random() < 0.5 ? "#ff8a00" : "#ffe14d", s: 2 });
@@ -1429,16 +1419,17 @@
   // the sky behind the clouds: soft wind streaks drifting by
   var STREAKS = []; for (var si = 0; si < 14; si++) STREAKS.push({ y: Math.random() * BW, x: Math.random() * BW, l: 14 + Math.random() * 40, v: 14 + Math.random() * 30 });
   // the dotted sky is drawn once into a slightly wider picture, then slid along each frame (one copy instead of ~1,000 dots)
-  var SKY = (function () {
+  function skyTile(base, dot) {
     var c = mk(BW + 32, BW), g = c.getContext("2d");
-    g.fillStyle = "#7ea2f0"; g.fillRect(0, 0, c.width, BW);
-    g.fillStyle = "#8aaef4";
+    g.fillStyle = base; g.fillRect(0, 0, c.width, BW);
+    g.fillStyle = dot;
     for (var y = 0; y < BW; y += 16) for (var x = 0; x < BW + 32; x += 16) g.fillRect(x + (y % 32 ? 8 : 0), y, 2, 2);
     return c;
-  })();
+  }
+  var SKY = skyTile("#7ea2f0", "#8aaef4"), SKY_HARD = skyTile("#1c1230", "#2c1f46");
   function drawSky() {
-    b.drawImage(SKY, Math.round((G.t * 6) % 16) - 16, 0);
-    b.fillStyle = "#a4c0f8";
+    b.drawImage(G.hard ? SKY_HARD : SKY, Math.round((G.t * (G.hard ? 10 : 6)) % 16) - 16, 0);
+    b.fillStyle = G.hard ? "#3a2a58" : "#a4c0f8";
     STREAKS.forEach(function (st) {
       var x = ((st.x + G.t * st.v) % (BW + 80)) - 60;
       b.fillRect(Math.round(x), Math.round(st.y), Math.round(st.l), 2);
@@ -1550,7 +1541,16 @@
 
     // Glider
     drawPlayer();
-    if (G.mega) megaGlitch();
+    // Hard Mode: lightning every so often (a quick double flicker; not with Effects off)
+    if (G.hard && G.mode === "play" && save.fx && !reduceMotion.matches) {
+      G.boltT -= fdt;
+      if (G.boltT <= 0) { G.bolt = 0.32; G.boltT = 7 + Math.random() * 9; }
+      if (G.bolt > 0) {
+        G.bolt -= fdt;
+        var on = G.bolt > 0.24 || (G.bolt > 0.06 && G.bolt < 0.14);
+        if (on) { b.fillStyle = "rgba(235,230,255,0.28)"; b.fillRect(0, 0, BW, BW); }
+      }
+    }
     blit();
   }
 
@@ -1684,11 +1684,9 @@
     if (G.freezeT > 0) list.push(["snow", G.freezeT / POWERS.snow.time, G.freezeT]);
     if (G.dblT > 0) list.push(["dbl", G.dblT / POWERS.dbl.time, G.dblT]);
     if (G.shield) list.push(["shield", 1, 9]);
-    if (G.mega) list = [["mega", 1, 9]];
-    else if (G.run2023 && G.fuel > 0) list.push(["fuel", G.fuel / FUEL_MAX, 9]);
     // the row is only rebuilt when a power-up starts, ends or starts running low; the timer bars just get shorter in place
     var key = "", i;
-    for (i = 0; i < list.length; i++) key += list[i][0] + (list[i][0] === "fuel" ? G.fuel : "") + (list[i][2] < 1.5 ? "L" : "") + "," ;
+    for (i = 0; i < list.length; i++) key += list[i][0] + (list[i][2] < 1.5 ? "L" : "") + ",";
     key += G.jetN + "" + G.magN + G.shieldN + G.dblN;
     if (G.mode === "title") key += "t";
     var box = $("sgPows");
@@ -1697,14 +1695,14 @@
       if (!list.length) { box.innerHTML = '<span class="none">' + (G.mode === "title" ? "Power-ups show up here" : "No power-ups") + '</span>'; return; }
       box.innerHTML = "";
       list.forEach(function (l) {
-        var d = document.createElement("div"); d.className = "sg-pow" + (l[2] < 1.5 ? " low" : "") + (l[0] === "mega" ? " mega" : "");
-        var ic = ICON[l[0] === "fuel" || l[0] === "mega" ? "jet" : l[0]];
+        var d = document.createElement("div"); d.className = "sg-pow" + (l[2] < 1.5 ? " low" : "");
+        var ic = ICON[l[0]];
         var c = mk(ic.width, ic.height); c.getContext("2d").drawImage(ic, 0, 0);
         d.appendChild(c);
         var t = document.createElement("span");
         var stk = { jet: G.jetN, magnet: G.magN, shield: G.shieldN, dbl: G.dblN }[l[0]] || 0;
-        t.textContent = l[0] === "fuel" ? "Fuel " + G.fuel + "/" + FUEL_MAX : l[0] === "mega" ? "MEGA TURBO" : l[0] === "dbl" ? (2 * Math.max(1, stk)) + "x" : POWERS[l[0]].name + (stk > 1 ? " x" + stk : ""); d.appendChild(t);
-        if (l[0] !== "shield" && l[0] !== "mega") { var bar = document.createElement("i"), fill = document.createElement("b"); bar.appendChild(fill); d.appendChild(bar); lastHud.bars[l[0]] = { el: fill, w: -1 }; }
+        t.textContent = l[0] === "dbl" ? (2 * Math.max(1, stk)) + "x" : POWERS[l[0]].name + (stk > 1 ? " x" + stk : ""); d.appendChild(t);
+        if (l[0] !== "shield") { var bar = document.createElement("i"), fill = document.createElement("b"); bar.appendChild(fill); d.appendChild(bar); lastHud.bars[l[0]] = { el: fill, w: -1 }; }
         box.appendChild(d);
       });
     }
@@ -1717,6 +1715,7 @@
   }
   function sideStats() {
     $("sgBest").textContent = save.best.toLocaleString();
+    $("sgHardBest").textContent = save.hardBest ? save.hardBest.toLocaleString() : "-";
     $("sgTopLv").textContent = save.topLv;
     $("sgStars").innerHTML = "&#9733; " + save.stars.toLocaleString();
     $("sgDailyBest").textContent = save.daily && save.daily.date === today() ? save.daily.best.toLocaleString() : "-";
@@ -1743,7 +1742,6 @@
   // ---------------- callouts / dialogs ----------------
   var callTimer = null;
   function showCall(html, stay, cls) {
-    if (G.mega) return;   // no words during Mega Turbo
     clearTimeout(callTimer);
     callEl.className = "sg-call";
     var hopped = html.replace(/^([^<]*)/, function (m) { return m.split("").map(function (ch, i) { return ch === " " ? " " : '<span class="cw-hop" style="animation-delay:' + (i * 0.035) + 's">' + ch + '</span>'; }).join(""); });
@@ -1768,22 +1766,20 @@
       '<a class="sg-btn go wide" href="/games" style="text-decoration:none">Back to the Games</a></div>');
   }
   function taglineHtml() {
-    return save.y2023 ? 'Grab every sparkle. Dodge the storms.<br><span class="sg-2023line">' + (wrongOnce() ? "He was wrong." : "Don't fly too fast.") + '</span>'
-      : 'Grab every sparkle. Dodge the storms.<br>It gets faster every level!';
+    return 'Grab every sparkle. Dodge the storms.<br>It gets faster every level!';
   }
-  function wrongOnce() { try { return !!localStorage.getItem("cw_glider_wrong"); } catch (e) { return false; } }
   function titleScreen() {
-    megaStop();
+    setHard(false);
     G.mode = "title"; shopOpen = false; hangarStop();
     ambStop();
     if (locked()) { lockScreen(); hud(); return; }
     var dailyBest = save.daily && save.daily.date === today() ? save.daily.best : 0;
     var html = '<div class="dt">Sky Glider</div><div class="db">' +
-      '<div class="sg-title' + (save.y2023 ? ' y2023' : '') + '" id="sgTitleName">' + "Sky Glider".split("").map(function (ch, i) { return ch === " " ? " " : '<span class="cw-hop" style="animation-delay:' + i * 0.06 + 's">' + ch + '</span>'; }).join("") + '</div>' +
+      '<div class="sg-title" id="sgTitleName">' + "Sky Glider".split("").map(function (ch, i) { return ch === " " ? " " : '<span class="cw-hop" style="animation-delay:' + i * 0.06 + 's">' + ch + '</span>'; }).join("") + '</div>' +
       '<div class="sg-flyby" id="sgFlyby"></div>' +
       '<p id="sgTagline">' + taglineHtml() + '</p>' +
       '<button class="sg-btn go wide" id="sgPlay">&#9654; Fly! <kbd>(Space)</kbd></button>' +
-      '<div class="sg-row2"><button class="sg-btn" id="sgDaily">&#9728; Daily Flight' + (dailyBest ? " (" + dailyBest.toLocaleString() + ")" : "") + '</button><button class="sg-btn" id="sgShop2">&#9992; Hangar</button></div>' +
+      '<div class="sg-row2"><button class="sg-btn" id="sgDaily">&#9728; Daily Flight' + (dailyBest ? " (" + dailyBest.toLocaleString() + ")" : "") + '</button><button class="sg-btn sg-hardbtn" id="sgHard">&#9889; Hard Mode' + (save.hardBest ? " (" + save.hardBest.toLocaleString() + ")" : "") + '</button><button class="sg-btn" id="sgShop2">&#9992; Hangar</button></div>' +
       goalsHtml() +
       '<p>Best: <b>' + save.best.toLocaleString() + '</b> &nbsp;&middot;&nbsp; <span class="sg-feath">&#9733; ' + save.stars.toLocaleString() + '</span></p>' +
       '<button class="sg-btn" id="sgCredits">&#9733; Credits</button></div>';
@@ -1807,6 +1803,7 @@
     }, 140);
     $("sgPlay").onclick = function () { sfx("click"); closeDialog(); newGame(false); };
     $("sgDaily").onclick = function () { sfx("click"); closeDialog(); newGame(true); };
+    $("sgHard").onclick = function () { sfx("click"); closeDialog(); newGame(false, true); };
     $("sgShop2").onclick = function () { sfx("click"); openShop(); };
     $("sgCredits").onclick = function () { sfx("click"); creditsScreen(); };
     hud();
@@ -1834,7 +1831,7 @@
 
   function pause() {
     if (G.mode !== "play" && G.mode !== "ready") return;
-    G.prevMode = G.mode; G.mode = "paused"; ambStop(); megaPause(); sfx("pause");
+    G.prevMode = G.mode; G.mode = "paused"; ambStop(); sfx("pause");
     pauseMenu();
   }
   function pauseMenu() {
@@ -1847,7 +1844,7 @@
   }
   function resume() {
     if (G.mode !== "paused") return;
-    closeDialog(); G.mode = G.prevMode || "play"; sfx("resume"); ambStart(); megaResume(); last = performance.now();
+    closeDialog(); G.mode = G.prevMode || "play"; sfx("resume"); ambStart(); last = performance.now();
   }
 
   var shopOpen = false;
@@ -1903,9 +1900,7 @@
     document.body.classList.toggle("sg-nofx", !save.fx);
   }
   function toggleSound() {
-    if (G.mode === "void") return;   // nothing changes in the dark
     save.sound = !save.sound; persist(); syncButtons(); sfx("click");
-    if (G.mega && G.mode === "play") megaSound(G.mega.t);   // starts or stops the turbo's sound where it is
     if (save.sound && (G.mode === "play" || G.mode === "ready")) ambStart(); else ambStop();
     if (save.sound && shopOpen) hangarStart(); else hangarStop();
   }
@@ -1968,635 +1963,45 @@
   window.addEventListener("orientationchange", function () { setTimeout(fit, 200); });
 
 
-  // ======================================================================
-  // MEGA TURBO: three Jets in one flight. No words. It comes on slowly like a trip and just keeps getting
-  // worse: the page breathes, melts, comes apart, faster and faster... and then, at no set moment, it cuts to black.
-  // ======================================================================
-  var FUEL_MAX = 3;
-  // the whole trip plays out and hits its worst just before the end, then the light goes out
-  // (somewhere between 17 and 27 seconds in)
-  var PEAK = 0.9;
-  function megaLen() { return 17 + Math.random() * 10; }
-  function megaK(m) { return Math.min(1, m.t / (m.len * PEAK)); }
-  // the trip, then things coming apart (as fractions of the flight; it never calms down)
-  var M_UNRAVEL = 0.45;
-  var root = document.documentElement, megaSnd = null, glitched = [], megaVeil = null;
-  function calmFx() { return !save.fx || matchMedia("(prefers-reduced-motion: reduce)").matches; }
-  function sstep(a, b, x) { var t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
-
-  // (the melt used to be an svg filter on the game window; it's drawn in the canvas now, see meltPass)
-  function warpOn() {}
-  function warpOff() {}
-
-  function megaStart() {
-    G.mega = { t: 0, hue: 0, len: megaLen(), nextJolt: 0 };
-    lastFrameT = 0; wrapEl = null;
-    G.jetT = 0; G.jetN = 0; G.item = null; G.shield = false; G.shieldN = 0;
-    clearTimeout(callTimer); callEl.className = "sg-call";
-    storms.forEach(function (s) { s.scared = false; });
-    // no flash, no confetti, no words. it just starts to come on.
-    warpOn();
-    chaosStart();
-    megaSound(0);
-  }
-  // the turbo's sound, scheduled from `from` seconds into the flight (so a pause can stop it and pick it back up in the same spot).
-  // it only ever climbs; the cut to black is what stops it.
-  function megaSound(from) {
-    megaSoundOff();
-    if (save.sound && audio()) {
-      var real = ac.currentTime, now = real - from, L = G.mega.len, P = L * PEAK, out = ac.createGain(), lp = ac.createBiquadFilter(), oscs = [];
-      lp.type = "lowpass"; lp.frequency.setValueAtTime(500, now); lp.frequency.linearRampToValueAtTime(5200, now + P);
-      out.gain.setValueAtTime(0.0001, now); out.gain.linearRampToValueAtTime(0.045, now + 4); out.gain.linearRampToValueAtTime(0.085, now + P);
-      lp.connect(out); out.connect(master);
-      // a warm chord that breathes, then warbles harder and harder and slowly bends upward
-      var wob = ac.createOscillator(), wobAmt = ac.createGain();
-      wob.frequency.setValueAtTime(0.25, now); wob.frequency.linearRampToValueAtTime(2, now + P * 0.6); wob.frequency.linearRampToValueAtTime(9, now + P);
-      wobAmt.gain.setValueAtTime(4, now); wobAmt.gain.linearRampToValueAtTime(40, now + P * 0.6); wobAmt.gain.linearRampToValueAtTime(140, now + P);
-      wob.connect(wobAmt); wob.start(now); oscs.push(wob);
-      [110, 164.8, 220, 277.2].forEach(function (f, i) {
-        var o = ac.createOscillator(), g = ac.createGain();
-        o.type = i % 2 ? "triangle" : "sine";
-        o.frequency.setValueAtTime(f, now); o.frequency.setValueAtTime(f, now + P * M_UNRAVEL);
-        // the voices pull apart, some sinking and some climbing, until the chord curdles
-        o.frequency.exponentialRampToValueAtTime(f * (i % 2 ? 0.74 - i * 0.04 : 1.22 + i * 0.08), now + P);
-        o.detune.setValueAtTime((i - 1.5) * 4, now); wobAmt.connect(o.detune);
-        g.gain.value = i === 0 ? 0.5 : 0.28;
-        o.connect(g); g.connect(lp); o.start(now); oscs.push(o);
-      });
-      // a heartbeat that comes in once it starts coming apart, and keeps speeding up
-      var tb = now + P * M_UNRAVEL, gap = 0.9;
-      while (tb < now + L + 1) {
-        [0, 0.15].forEach(function (d, j) {
-          var t0 = tb + d;
-          if (t0 < real) return;   // already went by before a pause
-          var o = ac.createOscillator(), g = ac.createGain();
-          o.type = "sine"; o.frequency.setValueAtTime(j ? 52 : 60, t0); o.frequency.exponentialRampToValueAtTime(34, t0 + 0.14);
-          g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(j ? 0.16 : 0.24, t0 + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.2);
-          o.connect(g); g.connect(master); o.start(t0); o.stop(t0 + 0.22); oscs.push(o);
-        });
-        tb += gap; gap = Math.max(0.24, gap * 0.9);
-      }
-      // the chaos: little 8-bit squeals that come faster and faster until they're a swarm
-      var cs = now + P * C_START, cg = 0.45, sq = ac.createGain();
-      sq.gain.value = 1; sq.connect(master);
-      while (cs < now + L) {   // the swarm keeps going through the peak, right up to the cut
-        if (cs >= real) {
-          var so = ac.createOscillator(), sgn = ac.createGain(), f0 = 180 + Math.random() * 1800 * (0.4 + Math.min(1, (cs - now) / P));
-          so.type = Math.random() < 0.5 ? "square" : "sawtooth";
-          so.frequency.setValueAtTime(f0, cs); so.frequency.exponentialRampToValueAtTime(f0 * (Math.random() < 0.5 ? 0.3 : 3), cs + 0.09);
-          sgn.gain.setValueAtTime(0.0001, cs); sgn.gain.linearRampToValueAtTime(0.014, cs + 0.005); sgn.gain.exponentialRampToValueAtTime(0.0001, cs + 0.1);
-          so.connect(sgn); sgn.connect(sq); so.start(cs); so.stop(cs + 0.11); oscs.push(so);
-        }
-        cs += cg * (0.5 + Math.random()); cg = Math.max(0.025, cg * 0.93);
-      }
-      // and a deep swell underneath it all (no static: it was a harsh hiss right when things started going wrong)
-      var sw = ac.createOscillator(), sw2 = ac.createOscillator(), swg = ac.createGain();
-      sw.type = "sine"; sw2.type = "sine";
-      sw.frequency.setValueAtTime(41, now); sw.frequency.exponentialRampToValueAtTime(62, now + P);
-      sw2.frequency.setValueAtTime(41.6, now); sw2.frequency.exponentialRampToValueAtTime(63.5, now + P);
-      swg.gain.setValueAtTime(0.0001, now + P * C_START); swg.gain.linearRampToValueAtTime(0.11, now + P);
-      sw.connect(swg); sw2.connect(swg); swg.connect(master); sw.start(real); sw2.start(real); oscs.push(sw, sw2);
-      megaSnd = { buses: [out, sq, swg], o: oscs };
+  // ---------------- Hard Mode ----------------
+  // One life, no extra lives, the storms come out sooner and faster, suns don't last, one power-up per level,
+  // and it starts at level-6 speed. Every point counts double, and it keeps its own best score.
+  // Start it from the Hard Mode button, the Konami code, or by tapping the name "Sky Glider" 5 times.
+  var reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  var nameEl = document.querySelector(".sg > .box-title > span"), nameBase = null;
+  function setHard(on) {
+    if (G.hard === on) return;
+    G.hard = on; G.bolt = 0; G.boltT = 4 + Math.random() * 4;
+    stage.classList.toggle("hard", on);
+    if (G.grid) { mazeArt = drawMaze(false); mazeFlash = drawMaze(true); }
+    // "Sky Glider Hard Mode" in the window title during a hard flight
+    if (nameEl && nameEl.firstChild && nameEl.firstChild.nodeType === 3) {
+      if (nameBase === null) nameBase = nameEl.firstChild.nodeValue.replace(/\s*$/, "");
+      nameEl.firstChild.nodeValue = on ? nameBase + " Hard Mode" : nameBase;
     }
   }
-
-  // the game's clock runs 120 times a second, but the page only needs restyling once per frame on screen,
-  // so the clock just keeps time and megaFrame() does the drawing (half the work, and no wasted style changes)
-  var wrapEl = null, lastFrameT = 0, frameN = 0;
-  function megaTick(dt) {
-    var m = G.mega; m.t += dt;
-    // and then, mid-thought, it's just gone
-    if (m.t >= m.len) cutToBlack();
+  function hardShortcut() {
+    if (locked() || G.mode === "play" || G.mode === "ready" || G.mode === "dying" || G.mode === "clear" || G.mode === "paused") return;
+    sfx("click"); closeDialog(); newGame(false, true);
   }
-  function megaFrame(now) {
-    var m = G.mega; if (!m) return;
-    var dt = lastFrameT ? Math.min(0.1, (now - lastFrameT) / 1000) : 1 / 60; lastFrameT = now; frameN++;
-    var k = megaK(m), calm = calmFx(), chance = function (perSecond) { return Math.random() < Math.min(0.12, perSecond * dt); };   // capped, so a slow device doesn't flash every frame
-    if (!wrapEl) wrapEl = document.querySelector(".wrap");
-    // colors drift and lurch rather than strobe: slow, then a sudden wrong jump now and then
-    m.hue = (m.hue + dt * (14 + 120 * k * k) + (k > 0.5 && chance(1.2) ? 90 + Math.random() * 120 : 0)) % 360;
-    var sat = 1 + 1.6 * sstep(0, M_UNRAVEL, k) + 2.4 * sstep(M_UNRAVEL, 1, k);
-    var f = "hue-rotate(" + Math.round(m.hue) + "deg) saturate(" + sat.toFixed(2) + ")";
-    if (!calm) {
-      var blurPx = (Math.sin(m.t * (1.1 + 5 * k * k)) * 0.5 + 0.5) * 1.4 * sstep(0.08, 0.3, k) * (1 - sstep(C_START, 0.5, k));
-      if (blurPx > 0.05) f += " blur(" + blurPx.toFixed(2) + "px)";   // only while it's actually visible (blur is the costliest filter)
-      if (k > M_UNRAVEL && chance(7 * k)) f += " invert(1)";   // a frame here and there flips inside out
-      f += " contrast(" + (1 + 0.6 * sstep(M_UNRAVEL, 1, k)).toFixed(2) + ")";
-      // late on it turns: sickly color, light that floods in with every heartbeat, and moments where it all goes dim
-      var badk = sstep(0.5, 1, k), hb = Math.pow(Math.max(0, Math.sin(m.t * Math.PI * (0.9 + 2.6 * k * k))), 12);
-      if (badk > 0.01) f += " sepia(" + (0.45 * badk * (0.5 + 0.5 * Math.sin(m.t * 0.6))).toFixed(2) + ")";
-      f += " brightness(" + (1 + 0.2 * sstep(0.35, 0.7, k) + 0.9 * badk * hb - 0.4 * badk * Math.max(0, Math.sin(m.t * 0.83))).toFixed(2) + ")";
-    }
-    root.style.filter = f;
-    if (!calm) {
-      // the page breathes in and out, the game window sways like it's underwater, then starts to lurch
-      var amp = sstep(0.05, 0.35, k) + 2.5 * sstep(M_UNRAVEL, 1, k), sp = 1 + 3 * k * k;
-      var jx = 0, jy = 0;
-      if (k > 0.6 && m.t > m.nextJolt) { jx = (Math.random() - 0.5) * 30 * k; jy = (Math.random() - 0.5) * 20 * k; m.nextJolt = m.t + 0.5 - 0.42 * k; }
-      if (wrapEl && k < C_START) wrapEl.style.transform = "scale(" + (1 + Math.sin(m.t * 1.1 * sp) * 0.012 * amp).toFixed(4) + ")";   // after that, the chaos moves it
-      stage.style.transform = "translate(" + jx.toFixed(1) + "px," + jy.toFixed(1) + "px) rotate(" + (Math.sin(m.t * 0.7 * sp) * 2.2 * amp).toFixed(2) + "deg) skewX(" + (Math.sin(m.t * 0.53 * sp) * 3 * amp).toFixed(2) + "deg)";
-      // the maze melts: gently at first, then it pours and ripples and lurches like it's alive (drawn in megaGlitch)
-      var wave = 1 + 0.35 * Math.sin(m.t * (1.2 + 4 * k)) + 0.2 * Math.sin(m.t * (3.1 + 7 * k));
-      m.melt = (10 * sstep(0.1, M_UNRAVEL, k) + 36 * sstep(M_UNRAVEL, 1, k)) * wave;
-      m.flow = (m.flow || 0) + dt * (0.8 + 3.5 * k);
-      if (k > M_UNRAVEL && chance(2.4 + 7 * k)) m.lurch = (m.lurch || 0) + 1 + Math.random() * 3;   // a sudden lurch
-    } else {
-      m.melt = 0;
-    }
-    // and the whole site loses its mind
-    chaosTick(m, k);
-  }
-  // Glider just keeps going faster
-  function megaSpeed() {
-    var k = megaK(G.mega);
-    return 1.3 + 1.2 * sstep(0.1, 0.6, k) + 0.9 * sstep(0.6, 1, k);
-  }
-
-  function megaSoundOff() {
-    if (!megaSnd) return;
-    try {
-      var n = ac.currentTime;
-      megaSnd.buses.forEach(function (b) { b.gain.cancelScheduledValues(n); b.gain.setValueAtTime(0, n); });
-      megaSnd.o.forEach(function (o) { try { o.stop(n + 0.02); } catch (e) {} });
-    } catch (e) {}
-    megaSnd = null;
-  }
-  // paused mid-turbo: the sound stops where it is, and the trip lets go of the page so the pause menu can be read
-  function megaPause() {
-    if (!G.mega) return;
-    megaSoundOff();
-    root.style.filter = ""; stage.style.transform = "";
-    var wrap = document.querySelector(".wrap"); if (wrap) wrap.style.transform = "";
-    if (megaVeil) megaVeil.style.opacity = "0";
-    chaosReset();
-  }
-  function megaResume() {
-    if (!G.mega) return;
-    lastFrameT = 0;
-    megaSound(G.mega.t);
-  }
-  function megaClean() {
-    megaSoundOff();
-    if (megaVeil) { megaVeil.remove(); megaVeil = null; }
-    warpOff(); chaosEnd();
-    var wrap = document.querySelector(".wrap"); if (wrap) wrap.style.transform = "";
-    root.style.filter = ""; stage.style.transform = "";
-  }
-  // leaving mid-turbo (quitting to the menu) puts everything back to normal
-  function megaStop() {
-    if (!G.mega) return;
-    G.mega = null;
-    megaClean(); unscramble();
-  }
-
-  function megaRefill() {
-    var src = MAZES[G.maze], n = 0;
-    for (var y = 0; y < ROWS; y++) for (var x = 0; x < COLS; x++) {
-      var c = src[y][x];
-      if ((c === "." || c === "o" || c === "P") && G.grid[y][x] === " ") { G.grid[y][x] = "."; n++; }
-    }
-    G.sparks = n; G.total = n;
-    fx.flash(stage, "white");
-  }
-
-  // horizontal slices of the picture slipping sideways, worse and worse right up to the cut
-  // the melt: the picture is redrawn in thin strips, each pushed along a slowly flowing wave, first across and then down.
-  // It looks like the old svg melt filter but costs a few hundred tiny copies instead of a full-screen noise filter.
-  var meltBuf = null, meltCtx = null;
-  function meltPass(horizontal, amp, flow, lurch) {
-    if (!meltBuf) { meltBuf = mk(BW, BW); meltCtx = meltBuf.getContext("2d"); meltCtx.imageSmoothingEnabled = false; }
-    meltCtx.drawImage(canvas, 0, 0);
-    var S = 4;
-    for (var p = 0; p < BW; p += S) {
-      var d = Math.round(amp * (Math.sin(p * 0.021 + flow * 1.7 + lurch) * 0.65 + Math.sin(p * 0.057 - flow * 2.9 + lurch * 1.9) * 0.35));
-      if (horizontal) {
-        b.drawImage(meltBuf, 0, p, BW, S, d, p, BW, S);
-        if (d > 0) b.drawImage(meltBuf, 0, p, BW, S, d - BW, p, BW, S); else if (d < 0) b.drawImage(meltBuf, 0, p, BW, S, d + BW, p, BW, S);
-      } else {
-        b.drawImage(meltBuf, p, 0, S, BW, p, d, S, BW);
-        if (d > 0) b.drawImage(meltBuf, p, 0, S, BW, p, d - BW, S, BW); else if (d < 0) b.drawImage(meltBuf, p, 0, S, BW, p, d + BW, S, BW);
-      }
-    }
-  }
-  function megaGlitch() {
-    var m = G.mega, k = megaK(m);
-    if (calmFx()) return;
-    if (m.melt > 0.5) {
-      meltPass(true, m.melt, m.flow || 0, m.lurch || 0);
-      meltPass(false, m.melt * 0.8, (m.flow || 0) * 0.83 + 2, (m.lurch || 0) * 1.3);
-    }
-    if (k < M_UNRAVEL) return;
-    var n = Math.floor((k - M_UNRAVEL) * 40);
-    for (var i = 0; i < n; i++) {
-      if (Math.random() > 0.35) continue;
-      var y = Math.floor(Math.random() * BW), h = 4 + Math.floor(Math.random() * 26), dx = Math.round((Math.random() - 0.5) * 60 * k);
-      b.drawImage(canvas, 0, y, BW, h, dx, y, BW, h);
-    }
-  }
-
-  // glitch characters (used by what comes after the cut to black)
-  var GLYPHS = "░▒▓█¿§ØÞЖЯΔ#?!01";
-  function unscramble() {
-    glitched.forEach(function (el) { if (el.firstChild) el.firstChild.nodeValue = el.getAttribute("data-sg-orig"); el.removeAttribute("data-sg-orig"); });
-    glitched = [];
-  }
-
-
-  // ---------------- the whole site losing its mind (2023 only, since that's the only place Mega Turbo exists) ----------------
-  // every piece of the page starts moving on its own, copies of the page and of Glider fly everywhere,
-  // more and more of them, faster and faster, right up until the cut.
-  var C_START = 0.22, chaosEls = [], chaosLayer = null;
-  // the bad trip: patterns crawling over everything, faces in the clouds, eyes that open where they shouldn't,
-  // the edges closing in, and a light that comes and goes with your heartbeat
-  var glare = null, pattern = null, vignette = null;
-  function chaosStart() {
-    chaosEnd();
-    if (calmFx()) return;
-    chaosEls = Array.prototype.slice.call(document.querySelectorAll(".wrap .header > *, .wrap .navbar a, .wrap .box-title, .wrap p, .wrap li, .wrap h2, .wrap h3, .wrap img, .wrap .footer, .sg-hud > *, #sgLegend canvas, #sgLegend span"))
-      .filter(function (el) { return el !== stage && !stage.contains(el) && !el.contains(stage); })
-      .slice(0, matchMedia("(pointer: coarse)").matches ? 60 : 100).map(function (el) {
-        var fixd = getComputedStyle(el).display === "inline"; if (fixd) el.style.display = "inline-block";
-        return { el: el, fixd: fixd, slot: Math.floor(Math.random() * 8), a: Math.random() * 6.28, b: Math.random() * 6.28, sp: 0.6 + Math.random() * 2.4, dir: Math.random() < 0.5 ? -1 : 1, spin: Math.random() < 0.25 };
-      });
-    var w = document.querySelector(".wrap"); if (w) w.style.willChange = "transform";
-    stage.style.willChange = "transform";
-    chaosLayer = document.createElement("div");
-    chaosLayer.style.cssText = "position:fixed;inset:0;z-index:2147483000;pointer-events:none;overflow:hidden";
-    document.body.appendChild(chaosLayer);
-    // geometric patterns that crawl over everything, the way they do when you close your eyes
-    pattern = document.createElement("div");
-    // a tunnel of thin rings that breathes and pulls you in, and a faint web of lines turning over it
-    pattern.style.cssText = "position:absolute;inset:-40%;z-index:1;opacity:0;will-change:transform,opacity;" +
-      "background:repeating-radial-gradient(circle at 50% 50%,rgba(90,0,10,.0) 0 9px,rgba(90,0,10,.85) 9px 12px,rgba(20,40,0,.0) 12px 22px,rgba(20,40,0,.6) 22px 24px)," +
-      "repeating-conic-gradient(from 0deg at 50% 50%,rgba(0,0,0,.35) 0deg 1.2deg,rgba(0,0,0,0) 1.2deg 9deg)";
-    chaosLayer.appendChild(pattern);
-    // light that floods in and drains away
-    glare = document.createElement("div");
-    glare.style.cssText = "position:absolute;inset:-20%;z-index:4;opacity:0;will-change:opacity,transform;" +
-      "background:radial-gradient(circle at 50% 50%,rgba(255,255,240,.95) 0,rgba(255,255,255,.55) 32%,rgba(255,255,255,0) 68%)";
-    chaosLayer.appendChild(glare);
-    // and the dark creeping in from the edges, tighter and tighter
-    vignette = document.createElement("div");
-    vignette.style.cssText = "position:absolute;left:-100%;top:-100%;width:300%;height:300%;z-index:5;opacity:0;will-change:opacity,transform;" +
-      "background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0) 12%,rgba(40,0,0,.85) 19%,#000 26%)";
-    chaosLayer.appendChild(vignette);
-  }
-  function chaosTick(m, k) {
-    if (!chaosLayer || calmFx()) return;
-    var c = sstep(C_START, 0.9, k), t = m.t;
-    if (c <= 0) return;
-    chaosLayer.style.visibility = "";
-    var wild = c * c;
-    // every piece of the page wobbles, spins and flies off on its own
-    chaosEls.forEach(function (o) {
-      if (o.eaten) return;
-      var s2 = o.sp * (1 + 4 * c);
-      var x = Math.sin(t * s2 + o.a) * 60 * wild + (Math.random() - 0.5) * 24 * wild;
-      var y = Math.cos(t * s2 * 0.8 + o.b) * 40 * wild + (Math.random() - 0.5) * 24 * wild;
-      var r = o.spin ? o.dir * t * 400 * wild : Math.sin(t * s2 * 1.3 + o.a) * 50 * c;
-      var sc = 1 + Math.sin(t * s2 * 2 + o.b) * 0.5 * wild;
-      o.el.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px) rotate(" + r.toFixed(1) + "deg) scale(" + sc.toFixed(3) + ")";
-      if (wild > 0.3 && (frameN + o.slot) % 8 === 0) o.el.style.color = "hsl(" + Math.floor(Math.random() * 360) + ",100%,50%)";   // recolor a quarter of them each frame
-    });
-    // the whole page lurches around underneath
-    var wrap = wrapEl;
-    if (wrap) {
-      var wx = (Math.random() - 0.5) * 70 * wild, wy = (Math.random() - 0.5) * 50 * wild;
-      wrap.style.transform = "translate(" + wx.toFixed(1) + "px," + wy.toFixed(1) + "px) rotate(" + (Math.sin(t * 3.1) * 9 * wild).toFixed(2) + "deg) scale(" + (1 + Math.sin(t * 5.3) * 0.12 * wild).toFixed(3) + ")";
-    }
-    if (frameN % 3 === 0) {
-      document.body.style.backgroundColor = "hsl(" + Math.floor((t * 300 * c) % 360) + ",90%," + (30 + 25 * Math.random() * c).toFixed(0) + "%)";
-      document.body.style.backgroundPosition = Math.round(t * 400 * c) + "px " + Math.round(t * 250 * c) + "px";
-    }
-    tripTick(m, k);
-  }
-
-  function tripTick(m, k) {
-    var t = m.t, bad = sstep(0.5, 1, k);
-    // your heart, getting faster (the same rhythm the sound uses)
-    var rate = 0.9 + 2.6 * k * k, beat = Math.pow(Math.max(0, Math.sin(t * Math.PI * rate)), 12);
-    if (pattern) {
-      var pv = sstep(0.28, 0.6, k);
-      pattern.style.opacity = (pv * (0.3 + 0.15 * Math.sin(t * 0.9)) + bad * 0.35).toFixed(3);
-      // rings keep sliding inward (the scale wraps, so it never stops pulling)
-      var pull = 1 + ((t * (0.08 + 0.25 * k)) % 0.5);
-      pattern.style.transform = "rotate(" + (Math.sin(t * 0.21) * 40 + t * 6).toFixed(1) + "deg) scale(" + (pull + beat * 0.12 * bad).toFixed(3) + ")";
-    }
-    if (glare) {
-      // the light swells with each heartbeat late on, so you can barely see
-      var gl = sstep(0.55, 1, k);
-      glare.style.opacity = (gl * (0.2 + 0.7 * beat) + 0.25 * gl * Math.max(0, Math.sin(t * 2.3))).toFixed(3);
-      glare.style.transform = "translate(" + (Math.sin(t * 1.7) * 18).toFixed(1) + "%," + (Math.cos(t * 1.3) * 14).toFixed(1) + "%) scale(" + (1 + gl * 0.6).toFixed(2) + ")";
-    }
-    if (vignette) {
-      // the hole in the middle shrinks as the layer scales down (it's 3x the screen, so the edges stay covered)
-      var close = sstep(0.35, 1, k);
-      vignette.style.opacity = Math.min(1, close * 1.3).toFixed(3);
-      vignette.style.transform = "scale(" + (1.7 - 1.05 * close - 0.08 * beat * close).toFixed(3) + ")";
-    }
-  }
-
-  // paused: everything snaps back into place so the pause menu can be read, and the flying copies hide until it starts again
-  function chaosReset() {
-    if (chaosLayer) chaosLayer.style.visibility = "hidden";
-    chaosEls.forEach(function (o) { o.el.style.transform = ""; o.el.style.color = ""; });
-    var wrap = document.querySelector(".wrap"); if (wrap) wrap.style.transform = "";
-    document.body.style.backgroundColor = ""; document.body.style.backgroundPosition = "";
-  }
-  function chaosEnd() {
-    chaosReset();
-    var w = document.querySelector(".wrap"); if (w) w.style.willChange = "";
-    stage.style.willChange = "";
-    chaosEls.forEach(function (o) {
-      if (o.fixd) o.el.style.display = "";
-      o.el.style.transition = ""; o.el.style.opacity = ""; o.el.style.visibility = ""; o.eaten = o.claimed = false;
-    });
-    glare = null; pattern = null; vignette = null;
-    chaosEls = [];
-    if (chaosLayer) { chaosLayer.remove(); chaosLayer = null; }
-  }
-
-  // ---------------- the void ----------------
-  function cutToBlack() {
-    G.mega = null; G.mode = "void";
-    // the flight still counts
-    G.run.score = G.score; checkGoals();
-    save.stars += Math.floor(G.score / 250);
-    if (G.score > save.best) save.best = G.score;
-    if (G.daily) { if (!save.daily || save.daily.date !== today()) save.daily = { date: today(), best: 0 }; if (G.score > save.daily.best) save.daily.best = G.score; }
-    persist();
-    // everything stops. no fade.
-    megaClean();
-    ambStop(); hangarStop();
-    if (ac) { master.gain.cancelScheduledValues(ac.currentTime); master.gain.setValueAtTime(0, ac.currentTime); }
-    callEl.className = "sg-call";
-    var v = document.createElement("div");
-    v.id = "sgVoid";
-    v.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:#000;cursor:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;" +
-      "font-family:'Courier New',Courier,monospace;font-size:15px;color:#7a7a7a;text-align:center;padding:24px;box-sizing:border-box;user-select:none;-webkit-user-select:none";
-    document.body.appendChild(v);
-    root.style.overflow = "hidden";
-    setTimeout(unscramble, 50);
-    var title = document.title; document.title = "​";
-    voidScript(v, title);
-  }
-
-  // In the dark, Glider asks you for something he can't do. Saying no doesn't stop it.
-  // Then a long run of fast prompts: each one you answer makes the screen whiter and the static louder.
-  // Keep up and it cuts to black and drops you on the 2023 version of the site. Fall behind and he gives up.
-  function voidScript(v, oldTitle) {
-    var dr = null, stat = null, done = false;
-    var css = document.createElement("style");
-    css.textContent = "@keyframes sg-void-blink{50%{opacity:0}}" +
-      "@keyframes sg-shake{25%{transform:translate(3px,0)}75%{transform:translate(-3px,0)}}" +
-      "@keyframes sg-crt-on{0%{transform:scale(1,.004);filter:brightness(4)}45%{transform:scale(1,.004);filter:brightness(4)}70%{transform:scale(1,1);filter:brightness(2)}100%{transform:scale(1,1);filter:none}}" +
-      "@keyframes sg-crt-flick{0%,100%{opacity:1}50%{opacity:.94}52%{opacity:.86}54%{opacity:.97}}" +
-      "@keyframes sg-crt-roll{0%{transform:translateY(-100%)}100%{transform:translateY(500%)}}" +
-      "#sgVoid .bx{width:min(560px,88vw);min-height:110px;box-sizing:border-box;border:3px solid currentColor;padding:18px 22px;text-align:left;font-size:18px;line-height:1.5;white-space:pre-wrap}" +
-      "#sgVoid .ch{display:flex;justify-content:space-around;margin-top:16px}" +
-      "#sgVoid .ch button{background:none;border:0;color:inherit;font:inherit;font-size:18px;letter-spacing:2px;padding:6px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent}" +
-      "#sgVoid .ch button:before{content:'\\00a0\\00a0'}#sgVoid .ch button.sel:before{content:'> '}#sgVoid .ch button:focus{outline:none}" +
-      "#sgVoid .no{animation:sg-shake .2s steps(2) 1}";
-    v.appendChild(css);
-    v.style.color = "#c8c8c8";
-
-    function out() { return ac && save.sound ? ac.destination : null; }
-    function drone() {
-      var d = out(); if (!d) return;
-      var now = ac.currentTime, g = ac.createGain(), a = ac.createOscillator(), c = ac.createOscillator(), lp = ac.createBiquadFilter();
-      a.type = "sine"; a.frequency.value = 43; c.type = "triangle"; c.frequency.value = 43.6;
-      lp.type = "lowpass"; lp.frequency.value = 180;
-      g.gain.setValueAtTime(0.0001, now); g.gain.linearRampToValueAtTime(0.08, now + 6);
-      a.connect(lp); c.connect(lp); lp.connect(g); g.connect(d); a.start(now); c.start(now);
-      dr = { g: g, o: [a, c] };
-    }
-    // white noise that gets higher and louder as you go
-    function staticOn() {
-      var d = out(); if (!d || stat) return;
-      var len = ac.sampleRate * 2, buf = ac.createBuffer(1, len, ac.sampleRate), ch = buf.getChannelData(0);
-      for (var i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1;
-      var src = ac.createBufferSource(), bp = ac.createBiquadFilter(), g = ac.createGain();
-      src.buffer = buf; src.loop = true; bp.type = "bandpass"; bp.Q.value = 0.7; bp.frequency.value = 700; g.gain.value = 0.0001;
-      src.connect(bp); bp.connect(g); g.connect(d); src.start();
-      stat = { src: src, bp: bp, g: g };
-    }
-    function silence() {
-      if (!ac) return;
-      var n = ac.currentTime;
-      if (dr) { try { dr.g.gain.cancelScheduledValues(n); dr.g.gain.setValueAtTime(0, n); dr.o.forEach(function (o) { o.stop(n + 0.02); }); } catch (e) {} dr = null; }
-      if (stat) { try { stat.g.gain.cancelScheduledValues(n); stat.g.gain.setValueAtTime(0, n); stat.src.stop(n + 0.02); } catch (e) {} stat = null; }
-    }
-    // his voice: a soft low blip per letter
-    function voice() {
-      var d = out(); if (!d) return;
-      var t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
-      o.type = "square"; o.frequency.value = 150 + Math.random() * 18;
-      g.gain.setValueAtTime(0.014, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.045);
-      o.connect(g); g.connect(d); o.start(t); o.stop(t + 0.05);
-    }
-    function pick(ok) {
-      var d = out(); if (!d) return;
-      var t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
-      o.type = ok ? "square" : "sawtooth"; o.frequency.value = ok ? 520 : 90;
-      g.gain.setValueAtTime(0.02, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
-      o.connect(g); g.connect(d); o.start(t); o.stop(t + 0.07);
-    }
-
-    var box = document.createElement("div"); box.className = "bx"; box.style.visibility = "hidden";
-    var txt = document.createElement("div"), ch = document.createElement("div"); ch.className = "ch";
-    box.appendChild(txt); box.appendChild(ch); v.appendChild(box);
-
-    function type(text, cb) {
-      txt.textContent = ""; var i = 0;
-      (function next() {
-        if (done) return;
-        if (i >= text.length) { if (cb) cb(); return; }
-        txt.textContent += text[i]; if (/\w/.test(text[i])) voice(); i++;
-        setTimeout(next, /[.,?]/.test(text[i - 1]) ? 420 : 55 + Math.random() * 35);
-      })();
-    }
-    function say(lines, cb) {
-      var i = 0;
-      (function next() {
-        if (i >= lines.length) { if (cb) cb(); return; }
-        type(lines[i++], function () { setTimeout(next, 1300); });
-      })();
-    }
-    // a choice: arrows / A-D to move, Enter / Space / Z to pick, or just tap one
-    var keyH = null;
-    function choose(opts, sel, cb) {
-      ch.innerHTML = "";
-      var bs = opts.map(function (o, i) {
-        var b = document.createElement("button"); b.type = "button"; b.textContent = o;
-        b.onclick = function (e) { e.stopPropagation(); fin(i); };
-        ch.appendChild(b); return b;
-      });
-      function mark() { bs.forEach(function (b, i) { b.classList.toggle("sel", i === sel); }); }
-      function fin(i) { document.removeEventListener("keydown", keyH, true); keyH = null; ch.innerHTML = ""; cb(i, opts[i]); }
-      if (keyH) document.removeEventListener("keydown", keyH, true);
-      keyH = function (e) {
-        var k = e.key;
-        if (e.repeat) { e.preventDefault(); e.stopPropagation(); return; }   // holding a key down doesn't count, every answer is a press
-        if (k === "ArrowLeft" || k === "a" || k === "A") { sel = Math.max(0, sel - 1); mark(); }
-        else if (k === "ArrowRight" || k === "d" || k === "D") { sel = Math.min(opts.length - 1, sel + 1); mark(); }
-        else if (k === "Enter" || k === " " || k === "z" || k === "Z") fin(sel);
-        else return;
-        e.preventDefault(); e.stopPropagation();
-      };
-      document.addEventListener("keydown", keyH, true);
-      mark();
-    }
-
-    // ---- 1. the dark ----
-    setTimeout(function () {
-      drone(); box.style.visibility = "visible";
-      say(["hey.", "are you still there?", "i can't feel the wind anymore.", "it's so dark down here.",
-           "can i ask you something?", "tell me to fly higher than the sky.", "even if i can't."], function () {
-        choose(["FLY", "STOP"], 1, function (i) {
-          if (i === 0) return say(["okay."], rush);
-          say(["...", "i didn't hear you."], function () {
-            choose(["FLY", "FLY"], 1, function () { say(["okay."], rush); });
-          });
-        });
-      });
-    }, 2600);
-
-    // ---- 2. higher ----
-    var N = 44, WORDS = ["higher", "higher", "you're doing it", "don't stop", "i can see it", "keep going", "higher",
-      "it's so bright", "don't let go", "higher", "almost", "is this the sky", "higher", "i can't see you", "higher"];
-    function garble(t, amt) { var o = ""; for (var i = 0; i < t.length; i++) o += t[i] !== " " && Math.random() < amt ? GLYPHS[Math.floor(Math.random() * GLYPHS.length)] : t[i]; return o; }
-    function rush() {
-      staticOn();
-      var idx = 0, left = 0, limit = 1, lastT = performance.now();
-      function step(again) {
-        var k = idx / N;
-        // the screen fills with white, and the box with it, until you can barely read anything
-        var w = Math.round(255 * Math.pow(k, 1.25)), tc = Math.round(200 + 55 * k);
-        v.style.background = "rgb(" + w + "," + w + "," + w + ")";
-        v.style.color = "rgb(" + tc + "," + tc + "," + tc + ")";
-        if (!again) { limit = 2.8 - 1.6 * k; left = limit; }   // saying STOP doesn't buy you more time
-        txt.textContent = garble(WORDS[idx % WORDS.length], Math.max(0, (k - 0.5) * 1.2));
-        if (stat) { var n = ac.currentTime; stat.bp.frequency.setTargetAtTime(700 + 6500 * k, n, 0.05); }
-        // two choices. at first one of them says STOP (and does nothing). later they both say FLY.
-        var opts = k < 0.45 ? (Math.random() < 0.5 ? ["FLY", "STOP"] : ["STOP", "FLY"]) : ["FLY", "FLY"];
-        var start = Math.floor(Math.random() * 2);
-        choose(opts, start, function (i, o) {
-          if (done) return;
-          if (o === "STOP") { pick(false); box.classList.remove("no"); void box.offsetWidth; box.classList.add("no"); return step(true); }
-          pick(true); idx++;
-          if (idx >= N) return made();
-          step();
-        });
-      }
-      step();
-      // the hidden timer: it runs out if you stop answering
-      (function tick(now) {
-        if (done) return;
-        var dt = Math.min(0.1, (now - lastT) / 1000); lastT = now; left -= dt;
-        if (stat) stat.g.gain.setTargetAtTime((0.004 + 0.07 * idx / N) * (1 + 1.6 * (1 - Math.max(0, left) / limit)), ac.currentTime, 0.03);
-        if (left <= 0) return fell();
-        requestAnimationFrame(tick);
-      })(lastT);
-    }
-
-    // ---- 3a. you kept up: cut out, then the 2023 site ----
-    function made() {
-      done = true;
-      if (keyH) { document.removeEventListener("keydown", keyH, true); keyH = null; }
-      silence();
-      v.innerHTML = ""; v.appendChild(css); v.style.background = "#000"; v.style.cursor = "none";
-      try { localStorage.setItem("cw_2023", String(Date.now())); } catch (e) {}
-      // a few seconds of nothing, then you're just... there
-      setTimeout(function () { location.href = "/2023/"; }, 2800);
-    }
-    // ---- 3b. you fell behind: he gives up, and you're back where you started ----
-    function fell() {
-      done = true;
-      if (keyH) { document.removeEventListener("keydown", keyH, true); keyH = null; }
-      silence();
-      v.style.background = "#000"; v.style.color = "#8a8a8a"; ch.innerHTML = ""; txt.textContent = "";
-      try { localStorage.setItem("cw_glider_wrong", "1"); } catch (e) {}
-      setTimeout(function () {
-        done = false;
-        say(["...", "i was wrong.", "i can't fly that high.", "sorry."], function () {
-          done = true;
-          v.style.transition = "opacity 1.6s"; v.style.opacity = "0";
-          setTimeout(function () {
-            v.remove(); root.style.overflow = ""; document.title = oldTitle;
-            if (ac) { master.gain.cancelScheduledValues(ac.currentTime); master.gain.setValueAtTime(0.7, ac.currentTime); }
-            G.fuel = 0; G.mega = null; G.mode = "title"; titleScreen(); sideStats(); hud(); hudTick();
-            last = performance.now(); requestAnimationFrame(loop);
-          }, 1700);
-        });
-      }, 1800);
-    }
-  }
-
-  // ---------------- 2023 mode ----------------
-  // Konami code, or tap the name "Sky Glider" 5 times. Only in 2023 mode do Jets fill the fuel tank (and lead to Mega Turbo).
-  var taps = 0, lastTap = 0, busy2023 = false;
+  var taps = 0, lastTap = 0;
   function nameTap() {
     var now = Date.now();
     taps = now - lastTap < 1200 ? taps + 1 : 1; lastTap = now;
-    if (taps >= 5) { taps = 0; toggle2023(); }
+    if (taps >= 5) { taps = 0; hardShortcut(); }
   }
-  function toggle2023() {
-    if (locked() || busy2023) return;
-    busy2023 = true;
-    save.y2023 = !save.y2023; persist(); nameTag();
-    var on = save.y2023;
-    // a flight already in the air switches over too. Leaving 2023 takes the fuel with it (and ends Mega Turbo).
-    if (G.mode !== "title" && G.mode !== "void") {
-      G.run2023 = on;
-      if (!on) {
-        if (G.mega) { megaStop(); G.jetT = 0; G.jetN = 0; }
-        G.fuel = 0;
-      }
-      hud();
-    }
-    // no rebuild, no flicker: the title changes in place and the window dims for a breath, smoothly
-    var title = $("sgTitleName"), line = $("sgTagline");
-    if (title) title.classList.toggle("y2023", on);
-    if (line) {
-      line.style.transition = "opacity .25s";
-      line.style.opacity = "0";
-      setTimeout(function () { line.innerHTML = taglineHtml(); line.style.opacity = "1"; }, 250);
-    }
-    var v = document.createElement("div");
-    v.style.cssText = "position:absolute;inset:0;z-index:50;pointer-events:none;opacity:0;transition:opacity .3s ease;background:" + (on ? "#1a0000" : "#000");
-    stage.appendChild(v);
-    requestAnimationFrame(function () { v.style.opacity = on ? "0.22" : "0.12"; });
-    setTimeout(function () { v.style.opacity = "0"; }, 320);
-    setTimeout(function () { v.remove(); busy2023 = false; }, 680);
-    if (save.sound && audio()) {
-      if (on) tone(55, 0, 0.5, 0.05, "triangle", 48);
-      else tone(659, 0, 0.06, 0.03, "square");
-    }
-  }
-  window.cwKonami = toggle2023;
-  // "Sky Glider 2023" in the window title, only while 2023 mode is on (and only for people who've been there)
-  var nameEl = document.querySelector(".sg > .box-title > span"), nameBase = null;
-  function nameTag() {
-    if (!nameEl || !nameEl.firstChild || nameEl.firstChild.nodeType !== 3) return;
-    if (nameBase === null) nameBase = nameEl.firstChild.nodeValue.replace(/\s*$/, "");
-    var been = false; try { been = !!localStorage.getItem("cw_2023"); } catch (e) {}
-    nameEl.firstChild.nodeValue = save.y2023 && been ? nameBase + " 2023" : nameBase;
-  }
-  nameTag();
-
-  (function () { var nm = document.querySelector(".sg > .box-title > span") || document.querySelector(".box-title > span"); if (nm) nm.addEventListener("click", nameTap); })();
+  window.cwKonami = hardShortcut;
+  if (nameEl) nameEl.addEventListener("click", nameTap);
 
   // ---------------- loop ----------------
   var last = performance.now(), acc = 0, STEP = 1 / 120, lastDraw = 0;
   function loop(now) {
     var dt = Math.min(0.05, (now - last) / 1000); last = now;
-    if (G.mode === "void") return;
     if (G.mode !== "paused") {
       var wasPlay = G.mode === "play";
       acc += dt;
       while (acc >= STEP) { update(STEP); acc -= STEP; }
       if (wasPlay || G.mode === "play") hudTick();   // once a frame (it used to run 120 times a second)
-      if (G.mega && G.mode === "play") megaFrame(now);
       render(dt); lastDraw = now;
     } else if (now - lastDraw > 250) { render(0); lastDraw = now; }   // paused: nothing moves, so just a few redraws a second to save battery
     requestAnimationFrame(loop);

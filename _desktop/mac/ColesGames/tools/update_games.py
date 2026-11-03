@@ -97,8 +97,6 @@ for rel in ["site.css", "juice.js", "konami.js", "played.js", "logo.png", "fonts
     copy(rel)
 for f in ["lucky-lounge", "on-fire", "all-in", "lines-main-theme", "lines-hard-mode", "lines-the-shop", "lucky-flip"]:
     copy("music/tracks/" + f + ".mp3")
-# where the dark at the end of Sky Glider's 2023 mode drops you (it only opens for people who flew there)
-copy("2023/index.html"); copy("music/tracks/burn-it-down.mp3")
 
 # the launcher, in the Mac's own style (system font, light and dark mode)
 INFO = {
