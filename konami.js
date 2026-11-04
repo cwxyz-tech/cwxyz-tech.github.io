@@ -14,7 +14,7 @@
     if (running) return;
     // already on the game: let it handle the switch
     if (window.cwLines && typeof window.cwLines.hard === "function") { window.cwLines.hard(); return; }
-    // a page can take over the code entirely (Lucky Flip and Sky Glider use it for their Hard Modes)
+    // a page can take over the code entirely (Lucky Flip uses it for a joke, Sky Glider for Hard Mode)
     if (typeof window.cwKonami === "function") { window.cwKonami(); return; }
 
     running = true;

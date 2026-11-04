@@ -284,51 +284,25 @@
   .fl-helpbtns .fl-btn { padding: 6px 12px; }
 
 
-  /* ===== 1.5: special tiles ===== */
-  .fl-tile.open.v5 { background: #ffd700; color: #7a4a00; border-color: #b08a00; }
-  .fl-tile.open.v5 span { text-shadow: 1px 1px 0 #fff6a0; }
-  .fl-tile.open.v4 { color: #7a20c0; }
-  .fl-tile.open.vd { background: #d8d8d8; color: #606060; }
-  .fl-tile.open.s-myst { background: #f0e0ff; }
-  .fl-tile.open.s-myst.v0 { background: #ffffff; }
-  .fl-tile .lnk { position: absolute; right: 2px; bottom: 2px; width: 34%; height: 34%; }
-  .fl-tile.myst:not(.open) { background: #c8a8f0; }
-  .fl-tile .mq { font-size: 1em; color: #5a1a9a; text-shadow: 1px 1px 0 #fff; }
+  /* ===== 1.5: helpers ===== */
   .fl-tile.peeked .pk { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #0060a0; opacity: .55; font-size: .9em; }
   .fl-tile.peeked { outline: 2px dashed #40a0ff; outline-offset: -5px; }
   .fl-tile.defused { background: #c8f0ff !important; }
   .fl-tile.defused .bomb { opacity: .35; }
   .fl-tile.peekfx { animation: fl-peek .5s steps(4) 1; }
   @keyframes fl-peek { 0%, 50% { background: #80e0ff; } 25%, 75% { background: #ffffff; } }
-  .fl-tile.chainfx { animation: fl-land .34s cubic-bezier(0, .6, .4, 1) 1, fl-chain .4s steps(1) 1; }
-  @keyframes fl-chain { 0%, 50% { background: #e0c8ff; } 25%, 75% { background: #ffffff; } }
   .fl-tile.scan { animation: fl-scan .8s steps(1) 1; }
   @keyframes fl-scan { 0%, 50% { box-shadow: inset 0 0 0 3px #00ff00; } 25%, 75% { box-shadow: none; } }
   .fl-xr { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(255, 0, 0, .35); pointer-events: none; animation: fl-xr 1.1s steps(1) forwards; }
   .fl-xr .bomb { width: 62%; height: 62%; }
   @keyframes fl-xr { 0%, 20%, 40%, 60% { opacity: 1; } 10%, 30%, 50% { opacity: .4; } 90% { opacity: 1; } 100% { opacity: 0; } }
 
-  /* bigger board on the Big Board boss */
-  .fl-grid.n6 { gap: 5px; }
-  .fl-grid.n6 .fl-tile { font-size: 25px; }
-  .fl-grid.n6 .fl-hint b { font-size: 18px; }
-  .fl-grid.n6 .fl-hint span { font-size: 14px; }
-  .fl-grid.n6 .fl-hint span .bomb { width: 12px; height: 12px; }
-  .fl-grid.n6 .fl-corner b { font-size: 22px; }
 
-  /* clues: fog, a bomb moving, picking a line for the Bomb Detector */
-  .fl-hint.fog { background: #d8d8e0; }
-  .fl-hint.fog b { color: #808090; }
-  .fl-hint.shift { animation: fl-shift .5s steps(1) 1; }
-  @keyframes fl-shift { 0%, 50% { background: #ffb0b0; } 25%, 75% { background: #ffffff; } }
+  /* picking a line for the Bomb Detector */
   .fl-grid.detecting .fl-hint { cursor: pointer; animation: fl-pick .6s steps(1) infinite; }
   @keyframes fl-pick { 50% { background: #b0ffb0; } }
   .fl-grid.detecting .fl-tile { cursor: default; }
 
-  /* Hot Streak: the felt flashes like it's on fire. Shield: a blue border. */
-  .fl-frame.hot { animation: fl-hot .5s steps(1) infinite; }
-  @keyframes fl-hot { 0% { border-color: #ff3300; } 50% { border-color: #ffee00; } }
-  .fl-frame.hot { border: 3px solid #ff3300; }
   .fl-frame.shielded { outline: 3px dashed #40d0ff; outline-offset: 2px; }
 
   /* card backs (the face-down side of the tiles), also used for the shop previews */
@@ -340,16 +314,10 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' shape-rendering='crispEdges'%3E%3Crect width='2' height='14' x='0' fill='%23ffb0d8'/%3E%3Crect width='2' height='14' x='2' fill='%23ffe0a0'/%3E%3Crect width='2' height='14' x='4' fill='%23fff8a0'/%3E%3Crect width='2' height='14' x='6' fill='%23b0ffc0'/%3E%3Crect width='2' height='14' x='8' fill='%23a0e8ff'/%3E%3Crect width='2' height='14' x='10' fill='%23b0b8ff'/%3E%3Crect width='2' height='14' x='12' fill='%23e0b0ff'/%3E%3C/svg%3E");
     background-size: 28px 28px; animation: fl-holo 2.4s steps(14) infinite; border-color: #ffffff #8070b0 #8070b0 #ffffff; }
   @keyframes fl-holo { 0% { background-position: 0 0; } 100% { background-position: 28px 0; } }
-  .back-hard .fl-tile:not(.open), .pv.back-hard { background-color: #2a0a0a; color: #ffd0d0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' shape-rendering='crispEdges'%3E%3Crect x='8' y='2' width='3' height='2' fill='%23ff3020'/%3E%3Crect x='7' y='4' width='3' height='2' fill='%23ff3020'/%3E%3Crect x='5' y='6' width='6' height='2' fill='%23ffcc00'/%3E%3Crect x='7' y='8' width='3' height='2' fill='%23ff3020'/%3E%3Crect x='6' y='10' width='3' height='2' fill='%23ff3020'/%3E%3Crect x='6' y='12' width='2' height='2' fill='%23ff3020'/%3E%3C/svg%3E");
-    background-size: 70% 70%; background-repeat: no-repeat; background-position: center; border-color: #802020 #100000 #100000 #802020; }
   @media (hover: hover) {
     .back-wood .fl-tile:not(.open):hover { background-color: #c08448; }
     .back-chrome .fl-tile:not(.open):hover { background-color: #c8d0dc; }
-    .back-hard .fl-tile:not(.open):hover { background-color: #401010; }
   }
-  .back-hard .fl-tile .mk.n1 { color: #fff; }
-  .fl-tile.myst:not(.open) { background-image: none !important; animation: none !important; }
 
   /* toasts for trophies and goals */
   .fl-toasts { position: absolute; left: 6px; right: 6px; bottom: 40px; z-index: 6; display: grid; gap: 4px; justify-items: center; pointer-events: none; }
@@ -405,23 +373,19 @@
   .fl-trophy .nm { font-size: 12px; font-weight: bold; line-height: 1.1; }
   .fl-trophy .ds { font-size: 10px; line-height: 1.15; color: #f0d8b0; }
   .fl-trophy:not(.got) { opacity: .55; }
-  .fl-dialog h2.fl-bosshead { color: #cc0000; font-size: 28px; }
-  .fl-mlbl.boss { color: #cc0000; white-space: nowrap; }
 
   /* helpers + game menu */
   .fl-hbtn .ct { display: inline-block; min-width: 18px; padding: 1px 4px; background: #000080; color: #fff; font-size: 12px; border-radius: 0; }
   .fl-hbtn[disabled] .ct { background: #808080; }
-  .fl-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .fl-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
   .fl-menu .fl-btn { padding: 5px 4px; }
-  #flHard.on { background: #ff9090; }
-  body.fl-hardmode .fl > .box-title { background: #700000 !important; }
   body.fl-dailymode .fl > .box-title { background: #806000 !important; }
   /* phones with Reduce Motion / battery saver still get the game animations, just no page shake or screen flashes */
   @media (prefers-reduced-motion: reduce) {
     .wrap.fl-quake, .fl-frame.quake, .fl-flash { animation: none !important; }
   }
   /* Effects: OFF turns everything off */
-  body.fl-nofx .fl-frame.shake, body.fl-nofx .fl-tile.flipping, body.fl-nofx .fl-callout.show, body.fl-nofx .fl-stats .v.flash, body.fl-nofx .fl-tile.squash, body.fl-nofx .fl-tile.pop, body.fl-nofx .fl-tile.shine2, body.fl-nofx .fl-tile.shine3, body.fl-nofx .fl-tile.deal, body.fl-nofx .fl-tile.boomfx, body.fl-nofx .fl-tile.fuse, body.fl-nofx .fl-tile.fuse .bomb, body.fl-nofx .fl-blast, body.fl-nofx .fl-frame.bump, body.fl-nofx .wrap.fl-quake, body.fl-nofx .fl-flash, body.fl-nofx .fl-hint.ding, body.fl-nofx .fl-corner.lvup, body.fl-nofx .fl-pips i.on, body.fl-nofx .fl-combo.bump, body.fl-nofx .fl-stats .v.bump, body.fl-nofx .fl-callout span, body.fl-nofx .fl-float, body.fl-nofx .fl-dialog.in, body.fl-nofx .fl-dialog .fl-lvup, body.fl-nofx .fl-tutbox.in, body.fl-nofx .fl-tutspot::after, body.fl-nofx .fl-tile::after, body.fl-nofx .fl-frame.quake, body.fl-nofx .fl-tile.reveal, body.fl-nofx .fl-tile.reveal2d, body.fl-nofx .fl-tile.peekfx, body.fl-nofx .fl-tile.chainfx, body.fl-nofx .fl-tile.scan, body.fl-nofx .fl-hint.shift, body.fl-nofx .fl-toast, body.fl-nofx .back-holo .fl-tile:not(.open), body.fl-nofx .pv.back-holo, body.fl-nofx .fl-item.nopefx { animation: none !important; }
+  body.fl-nofx .fl-frame.shake, body.fl-nofx .fl-tile.flipping, body.fl-nofx .fl-callout.show, body.fl-nofx .fl-stats .v.flash, body.fl-nofx .fl-tile.squash, body.fl-nofx .fl-tile.pop, body.fl-nofx .fl-tile.shine2, body.fl-nofx .fl-tile.shine3, body.fl-nofx .fl-tile.deal, body.fl-nofx .fl-tile.boomfx, body.fl-nofx .fl-tile.fuse, body.fl-nofx .fl-tile.fuse .bomb, body.fl-nofx .fl-blast, body.fl-nofx .fl-frame.bump, body.fl-nofx .wrap.fl-quake, body.fl-nofx .fl-flash, body.fl-nofx .fl-hint.ding, body.fl-nofx .fl-corner.lvup, body.fl-nofx .fl-pips i.on, body.fl-nofx .fl-combo.bump, body.fl-nofx .fl-stats .v.bump, body.fl-nofx .fl-callout span, body.fl-nofx .fl-float, body.fl-nofx .fl-dialog.in, body.fl-nofx .fl-dialog .fl-lvup, body.fl-nofx .fl-tutbox.in, body.fl-nofx .fl-tutspot::after, body.fl-nofx .fl-tile::after, body.fl-nofx .fl-frame.quake, body.fl-nofx .fl-tile.reveal, body.fl-nofx .fl-tile.reveal2d, body.fl-nofx .fl-tile.peekfx, body.fl-nofx .fl-tile.scan, body.fl-nofx .fl-toast, body.fl-nofx .back-holo .fl-tile:not(.open), body.fl-nofx .pv.back-holo, body.fl-nofx .fl-item.nopefx { animation: none !important; }
   body.fl-nofx .fl-callout.show { opacity: 0; }
   body.fl-nofx .fl-tile:not(.open):hover { transform: none; box-shadow: none; }
 </style>
@@ -496,14 +460,11 @@
     .fl-gamewin .fl-win-body { order: 4; width: 100%; max-width: 520px; margin: 0 auto; }
     #flCash { height: 46px; font-size: 17px; width: 100%; }
     .fl-gamewin .fl-win-body { display: grid; gap: 6px; }
-    .fl-menu { grid-template-columns: repeat(4, 1fr); gap: 5px; }
+    .fl-menu { grid-template-columns: repeat(3, 1fr); gap: 5px; }
     .fl-menu .fl-btn { height: 36px; font-size: 14px; }
     .fl-helpwin .fl-win-body { order: 3; display: none; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 0; border: 0; background: transparent; width: 100%; max-width: 520px; margin: 0 auto; }
     body.fl-hashelp .fl-helpwin .fl-win-body { display: grid; }
     .fl-helpwin .fl-btn { height: 36px; font-size: 14px; padding: 0 4px; }
-    .fl-grid.n6 .fl-tile { font-size: clamp(15px, 5.6vw, 26px); }
-    .fl-grid.n6 .fl-hint b { font-size: clamp(12px, 4vw, 18px); }
-    .fl-grid.n6 .fl-hint span { font-size: clamp(9px, 3.2vw, 14px); }
     .fl-items { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .fl-shelf { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     /* tall phones: board centered in the spare room, buttons sit down by the thumbs and get a bit bigger */
