@@ -108,10 +108,10 @@
       <p>Grab a <b>sun</b> and the storms get scared and puff up white. Fly into them for big points: 200, 400, 800, then 1600 for the whole set. Keep grabbing sparkles without a break to build your <b>combo</b>, all the way up to x5.</p>
       <p>Power-ups pop up in the maze: <b>Jet</b> makes you faster, <b>Magnet</b> pulls in sparkles, <b>Shield</b> blocks one storm, <b>Snow</b> freezes the storms, <b>2x</b> doubles your points, and if you're lucky a <b>heart</b> gives you an extra life. Grab the same one again while it's running and it stacks, up to 3: two Jets is way faster, two 2x is 4x points. When Glider goes down you can steer him a little on the way, so aim for a sparkle.</p>
       <p>Every level gets a little faster, and so does every second you spend on one. Earn stars every flight to buy new paint jobs and trails in the <b>Hangar</b>, and check your <b>Flight Goals</b> for bonus stars. The <b>Daily Flight</b> is the same for everyone and you only get one life.</p>
-      <p>Think you're good? Try <b>Hard Mode</b>: the sky goes dark, the storms come out sooner and faster, suns don't last long, power-ups show up less often and you only get one life. Every point counts double, it keeps its own best score, and Glider always flies in his Midnight paint job (your first Hard Mode flight unlocks it for normal flights too).</p>
+      <p>Think you're good? Try <b>Hard Mode</b>: the sky goes dark, the storms come out sooner and faster, suns don't last long, power-ups show up less often and you only get one life. Grab a power-up and the storms get <b>furious</b>: they turn red and all four come straight for you for a few seconds, a little faster than Glider. Scare and catch them while they're furious and they're worth double. Hard Mode pays double stars, it keeps its own best score, and Glider always flies in his Midnight paint job (your first Hard Mode flight unlocks it for normal flights too).</p>
       <p><span class="sg-kbonly">Keyboard: arrow keys or WASD to fly, Space to start, P to pause, M to mute.</span> On a phone, swipe anywhere, tap the maze where you want to go, or hold the arrow pad and slide your thumb around it to steer.</p>
       <p><b>Credits:</b> Glider made by <a href="https://www.instagram.com/_sqeakz/" target="_blank" rel="noopener noreferrer">cherrie/sqeakz</a> on Instagram. Concept and game made by Cole.</p>
-      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.10.2</span></summary><dl><dt>1.10.2</dt><dd>&bull; More power-ups in Hard Mode</dd><dt>1.10.1</dt><dd>&bull; Midnight has to be earned now</dd><dt>1.10</dt><dd>&bull; Hard Mode</dd><dd>&bull; Bug fixes</dd><dt>1.9.1</dt><dd>&bull; Much easier to steer on phones</dd><dt>1.9</dt><dd>&bull; Power-ups stack</dd><dd>&bull; You can steer the fall</dd><dd>&bull; Fits short screens</dd><dt>1.8</dt><dd>&bull; Goals are a little more honest now</dd><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
+      <details class="cw-notes"><summary>Patch Notes <span class="ver">Version 1.11</span></summary><dl><dt>1.11</dt><dd>&bull; Hard Mode: power-ups make the storms furious</dd><dd>&bull; Hard Mode rebalanced</dd><dt>1.10.2</dt><dd>&bull; More power-ups in Hard Mode</dd><dt>1.10.1</dt><dd>&bull; Midnight has to be earned now</dd><dt>1.10</dt><dd>&bull; Hard Mode</dd><dd>&bull; Bug fixes</dd><dt>1.9.1</dt><dd>&bull; Much easier to steer on phones</dd><dt>1.9</dt><dd>&bull; Power-ups stack</dd><dd>&bull; You can steer the fall</dd><dd>&bull; Fits short screens</dd><dt>1.8</dt><dd>&bull; Goals are a little more honest now</dd><dt>1.7</dt><dd>&bull; Close calls</dd><dt>1.6.1</dt><dd>&bull; Runs much smoother on phones</dd><dt>1.6</dt><dd>&bull; 3 new mazes: Cirrus, Mammatus and Lenticular</dd><dd>&bull; All four storms now join Glider on the title screen</dd><dt>1.5</dt><dd>&bull; New look for Glider</dd><dt>1.4</dt><dd>&bull; Credits screen</dd><dd>&bull; Easier phone controls</dd><dd>&bull; Effects switch in the pause menu</dd><dt>1.3</dt><dd>&bull; New sound effects</dd><dd>&bull; Hangar music</dd><dt>1.2</dt><dd>&bull; Glider got a makeover</dd><dd>&bull; He crashes for real now</dd><dd>&bull; Faster, more arcade-y</dd><dt>1.1</dt><dd>&bull; Bug fixes</dd><dd>&bull; Better on phones</dd><dt>1.0</dt><dd>&bull; Takeoff!</dd></dl></details>
       <button class="sg-btn go sg-helpx" id="sgHelpClose">Got it!</button>
     </div>
   </div>
@@ -388,6 +388,14 @@
   var SCARED_ART = cloudBody("#f4f7ff", "#c8d6ff", "#ffffff", "#3050c0");
   var SCARED_FLASH = cloudBody("#ffd0e4", "#ffaacc", "#ffffff", "#c03070");
   var FROZEN_ART = cloudBody("#c8f4ff", "#90dcf0", null, "#1a6a90");
+  // Hard Mode: furious storms go red (each keeps a bit of its own colour so you can still tell them apart)
+  function mixHex(a, c, t) {
+    var x = parseInt(a.slice(1), 16), y = parseInt(c.slice(1), 16), o = "#";
+    [16, 8, 0].forEach(function (sh) { var v = Math.round(((x >> sh) & 255) * (1 - t) + ((y >> sh) & 255) * t); o += ("0" + v.toString(16)).slice(-2); });
+    return o;
+  }
+  var FURY_ART = STORMS.map(function (s) { return cloudBody(mixHex(s.body, "#e01818", 0.62), mixHex(s.shade, "#8a0810", 0.62), "#ff6a30", "#1b1b2b"); });
+  var FURY_TIME = 6;
 
   // ---------------- save data ----------------
   var save = {};
@@ -400,7 +408,8 @@
     if (out.indexOf(base) < 0) out.unshift(base);
     return out;
   }
-  save.best = num(save.best, 0, 1e9, 0); save.hardBest = num(save.hardBest, 0, 1e9, 0); save.stars = num(save.stars, 0, 1e9, 0); save.topLv = num(save.topLv, 1, 999, 1);
+  save.best = num(save.best, 0, 1e9, 0); save.hardBest = num(save.hardBest, 0, 1e9, 0);
+  if (save.hardV !== 2) { save.hardBest = Math.floor(save.hardBest / 2); save.hardV = 2; } save.stars = num(save.stars, 0, 1e9, 0); save.topLv = num(save.topLv, 1, 999, 1);
   var own = save.own && typeof save.own === "object" ? save.own : {};
   save.own = { liv: ids(own.liv, LIVERIES, "sky"), trail: ids(own.trail, TRAILS, "none") };
   if (save.own.liv.indexOf(save.liv) < 0) save.liv = "sky";
@@ -581,6 +590,9 @@
       case "powerEnd": tone(988, 0, 0.32, 0.09, 0.25, 247); tone(494, 0, 0.32, 0.05, "triangle", 123); break;
       case "itemGone": noiseF(0, 0.22, 0.16, "highpass", 1500); tone(1400, 0, 0.2, 0.05, "triangle", 350); break;
       case "chase": noiseF(0, 1.1, 0.1, "lowpass", 240, 0.8, master, 55, 0.12); break;
+      case "fury": noiseF(0, 0.9, 0.24, "lowpass", 500, 1.2, master, 90, 0.04); tone(147, 0, 0.5, 0.11, "sawtooth", 73); tone(156, 0.04, 0.5, 0.07, "sawtooth", 78);
+        [0, 0.16, 0.32].forEach(function (t) { noiseF(t + 0.18, 0.12, 0.1, "bandpass", 2400, 1.5, master, 900); }); break;
+      case "furyEnd": tone(392, 0, 0.14, 0.06, 0.25, 330); tone(330, 0.12, 0.2, 0.05, 0.25, 262); break;
       case "pause": tone(988, 0, 0.06, 0.08, 0.25); tone(659, 0.07, 0.09, 0.08, 0.25); break;
       case "resume": tone(659, 0, 0.06, 0.08, 0.25); tone(988, 0.07, 0.09, 0.08, 0.25); break;
       case "gameover": [523, 494, 466, 440].forEach(function (f, k) { tone(f, k * 0.22, 0.2, 0.09, 0.25); tone(f / 2, k * 0.22, 0.2, 0.08, "triangle"); });
@@ -689,7 +701,7 @@
   // ---------------- game state ----------------
   var G = {
     mode: "title", level: 1, score: 0, lives: 3, maze: 0, grid: null, sparks: 0, total: 0,
-    frightT: 0, frightMax: 1, chain: 0, freezeT: 0, jetT: 0, magT: 0, dblT: 0, shield: false, jetN: 0, magN: 0, dblN: 0, shieldN: 0,
+    frightT: 0, frightMax: 1, chain: 0, freezeT: 0, furyT: 0, jetT: 0, magT: 0, dblT: 0, shield: false, jetN: 0, magN: 0, dblN: 0, shieldN: 0,
     combo: 0, lastEat: -9, mult: 1, levelT: 0, modeT: 0, modeIdx: 0, timer: 0, hitPause: 0,
     item: null, itemSpawns: 0, eatenCount: 0, nextLife: 10000, daily: false, rand: Math.random, hitThisLevel: false, invuln: 0,
     run: null, flash: 0, t: 0, deathT: 0, reveal: 1, pop: null, popped: false, hard: false, bolt: 0, boltT: 5
@@ -786,7 +798,7 @@
     storms = STORMS.map(function (s, i) {
       return { i: i, x: homes[i][0], y: homes[i][1], dx: i === 0 ? -1 : 0, dy: 0, state: i === 0 ? "out" : "home", wait: waits[i] * sc, scared: false, anim: Math.random() * 6 };
     });
-    G.frightT = 0; G.freezeT = 0; G.modeT = 0; G.modeIdx = 0; G.chain = 0; G.invuln = 0; G.jetT = 0; G.magT = 0; G.jetN = 0; G.magN = 0;
+    G.frightT = 0; G.freezeT = 0; G.furyT = 0; G.modeT = 0; G.modeIdx = 0; G.chain = 0; G.invuln = 0; G.jetT = 0; G.magT = 0; G.jetN = 0; G.magN = 0;
     G.combo = 0; G.mult = 1;
   }
 
@@ -967,6 +979,7 @@
   var MODE_TIMES = [7, 20, 7, 20, 5, 25, 5, 1e9];
   function stormTarget(s) {
     var px = Math.round(player.x), py = Math.round(player.y), pdx = player.dx || (player.face ? 1 : -1) * (player.dy ? 0 : 1), pdy = player.dy;
+    if (G.furyT > 0) return { x: px, y: py };   // furious: every storm comes straight for you
     var chase = G.modeIdx % 2 === 1;
     if (!chase) return STORMS[s.i].corner;
     if (s.i === 0) return { x: px, y: py };
@@ -998,7 +1011,7 @@
   }
 
   function updateStorms(dt, sm) {
-    var base = 7.7 * sm * Math.min(1 + 0.02 * (effLv() - 1), G.hard ? 1.2 : 1.12);
+    var base = 7.7 * sm * Math.min(1 + 0.02 * (effLv() - 1), 1.12);
     storms.forEach(function (s) {
       s.anim += dt * 6;
       if (G.freezeT > 0 && s.state === "out") return;
@@ -1022,7 +1035,7 @@
       var spd;
       if (s.state === "eaten") spd = 17;
       else if (s.scared) spd = base * 0.58;
-      else spd = base * (s.i === 0 && G.sparks < 25 ? 1.1 : 1);
+      else spd = base * (G.furyT > 0 ? 1.1 : s.i === 0 && G.sparks < 25 ? 1.1 : 1);
       var tx = Math.round(s.x), ty = Math.round(s.y);
       if (s.state !== "eaten" && ty === 9 && (tx < 4 || tx > COLS - 5)) spd *= 0.55;   // slow in the jetstream tunnel
       moveAlong(s, spd * dt, stormCenter);
@@ -1086,6 +1099,7 @@
     }
     if (G.frightT > 0) { G.frightT -= dt; if (G.frightT <= 0) { storms.forEach(function (s) { s.scared = false; }); G.chain = 0; sfx("frightEnd"); } }
     if (G.freezeT > 0) { G.freezeT -= dt; if (G.freezeT <= 0) sfx("powerEnd"); }
+    else if (G.furyT > 0) { G.furyT -= dt; if (G.furyT <= 0) { G.furyT = 0; sfx("furyEnd"); } }
     if (G.jetT > 0) { G.jetT -= dt; if (G.jetT <= 0) { G.jetN = 0; sfx("powerEnd"); } }
     if (G.magT > 0) { G.magT -= dt; if (G.magT <= 0) { G.magN = 0; sfx("powerEnd"); } }
     if (G.dblT > 0) { G.dblT -= dt; if (G.dblT <= 0) { G.dblN = 0; sfx("powerEnd"); } }
@@ -1118,7 +1132,7 @@
   function reverseStorms() { storms.forEach(function (s) { if (s.state === "out") { s.dx = -s.dx; s.dy = -s.dy; } }); }
 
   function points(n, x, y, cls) {
-    var mult = (G.dblT > 0 ? 2 * Math.max(1, G.dblN) : 1) * (G.hard ? 2 : 1);   // 2x, then 4x, 6x... (and everything counts double in Hard Mode)
+    var mult = G.dblT > 0 ? 2 * Math.max(1, G.dblN) : 1;   // 2x, then 4x, 6x...
     n *= mult;
     G.score += n;
     if (x !== undefined) floatAt(x, y, "+" + n.toLocaleString(), cls);
@@ -1173,7 +1187,7 @@
 
   function sunPower() {
     sfx("sun");
-    var dur = G.hard ? Math.max(1.2, 3.5 - 0.3 * (G.level - 1)) : Math.max(1.8, 7 - 0.5 * (G.level - 1));
+    var dur = G.hard ? Math.max(2, 4.5 - 0.3 * (G.level - 1)) : Math.max(1.8, 7 - 0.5 * (G.level - 1));
     G.frightT = dur; G.frightMax = dur; G.chain = 0;
     storms.forEach(function (s) { if (s.state === "out") { s.scared = true; s.dx = -s.dx; s.dy = -s.dy; } });
     fx.flash(stage, "gold");
@@ -1229,14 +1243,29 @@
     else if (it.kind === "snow") { n = G.freezeT > 0 ? 2 : 1; G.freezeT = G.freezeT > 0 ? Math.min(G.freezeT + p.time, p.time * 2.5) : p.time; G.run.froze++; sfx("freeze"); }
     else if (it.kind === "dbl") { n = G.dblN = G.dblT > 0 ? Math.min(STACK_MAX, G.dblN + 1) : 1; G.dblT = p.time; }
     else if (it.kind === "heart") { G.lives = Math.min(5, G.lives + 1); sfx("life"); }
+    var angry = G.hard ? "<small>The storms are furious!</small>" : "";
     if (n > 1) {
       // stacked: a bigger call-out and a little extra kick
       var stackTip = { jet: "Way, way faster", magnet: "Pulls from further away", shield: "Blocks " + n + " storms", snow: "Frozen even longer", dbl: (2 * n) + "x points" }[it.kind];
-      showCall(p.name + " x" + n + "!<small>" + stackTip + "</small>", false, "rainbow");
+      showCall(p.name + " x" + n + "!<small>" + stackTip + "</small>" + angry, false, "rainbow");
       fx.quake(stage, false);
-    } else showCall(p.name + "!<small>" + p.tip + "</small>", false);
+    } else showCall(p.name + "!<small>" + p.tip + "</small>" + angry, false);
+    if (G.hard) enrage();
     G.run.pows++;
     checkGoals();
+  }
+
+  // Hard Mode: every power-up makes the storms furious. They all turn around and swarm straight at Glider,
+  // the ones still waiting at home come out early, and they fly a little faster than him for a few seconds.
+  function enrage() {
+    G.furyT = FURY_TIME;
+    storms.forEach(function (s, i) {
+      if (s.state === "home") s.wait = Math.min(s.wait, 0.25 + i * 0.35);
+      else if (s.state === "out" && !s.scared) { s.dx = -s.dx; s.dy = -s.dy; }
+    });
+    sfx("fury");
+    fx.flash(stage, "red");
+    setTimeout(function () { fx.quake(stage, false); }, 90);
   }
 
   function collide() {
@@ -1247,7 +1276,7 @@
       if (dx > 0.62 || dy > 0.62) return;
       if (s.scared) {
         s.scared = false; s.state = "eaten";
-        var v = 200 * Math.pow(2, G.chain); G.chain++;
+        var v = 200 * Math.pow(2, G.chain) * (G.furyT > 0 ? 2 : 1); G.chain++;   // furious storms are worth double
         var got = points(v, s.x, s.y, G.chain >= 4 ? "x3" : G.chain >= 3 ? "x2" : "gold");
         sfx("eat", G.chain);
         var p = toPage(s.x, s.y); fx.burst(p.x, p.y, G.chain >= 4 ? 3 : 2);
@@ -1315,7 +1344,6 @@
     ambStop(); if (!close) sfx("clear");
     var bonus = 500 * G.level;
     if (!G.hitThisLevel) { bonus += 2000; G.run.clean++; }
-    if (G.hard) bonus *= 2;
     G.score += bonus;
     G.run.level = G.level + 1 - (G.startLevel || 1) + 1;
     showCall((close ? "Close Call!" : G.hitThisLevel ? "Level Clear!" : "Perfect!") + "<small>+" + bonus.toLocaleString() + " bonus</small>", false, "rainbow");
@@ -1331,7 +1359,7 @@
     G.run.score = G.score;
     hud();
     checkGoals();
-    var earned = Math.floor(G.score / 250);
+    var earned = Math.floor(G.score / (G.hard ? 125 : 250));   // Hard Mode pays double stars
     save.stars += earned;
     var bestKey = G.hard ? "hardBest" : "best", newBest = G.score > save[bestKey];
     if (newBest) save[bestKey] = G.score;
@@ -1568,9 +1596,11 @@
     var flashing = s.scared && G.frightT < 2 && Math.floor(G.t * 6) % 2;
     if (s.scared) img = (flashing ? SCARED_FLASH : SCARED_ART)[fr];
     else if (frozen) img = FROZEN_ART[0];
-    else img = STORM_ART[s.i][fr];
-    // Thunder lets off a lightning bolt every couple of seconds
-    if (s.i === 0 && !s.scared && !frozen && ((G.t + s.anim * 0.01) % 2.3) < 0.16) {
+    else img = (G.furyT > 0 && (G.furyT > 1.2 || Math.floor(G.t * 8) % 2) ? FURY_ART : STORM_ART)[s.i][fr];   // furious: red, flickering back as it wears off
+    var fury = G.furyT > 0 && !s.scared && !frozen;
+    if (fury && G.mode === "play" && G.t % 0.09 < 0.0085) parts.push({ kind: "puff", x: s.x + (Math.random() - 0.5) * 0.6, y: vy - 0.55, vx: (Math.random() - 0.5) * 1.2, vy: -2.2, life: 0.45, max: 0.45, c: Math.random() < 0.5 ? "#ff5030" : "#ffd0c0" });
+    // Thunder lets off a lightning bolt every couple of seconds (when they're furious, they all do, and often)
+    if ((s.i === 0 || fury) && !s.scared && !frozen && ((G.t * (fury ? 2.2 : 1) + s.anim * 0.01 + (fury ? s.i * 0.37 : 0)) % 2.3) < 0.16) {
       var lx = Math.round((s.x * TS + 6) * PX), ly = Math.round((vy * TS + 6) * PX) + 10;
       b.fillStyle = "#1b1b2b"; [[0, 0], [-4, 6], [2, 8], [-3, 16]].forEach(function (q, k, arr) { if (k) b.fillRect(lx + Math.min(q[0], arr[k - 1][0]) - 3, ly + arr[k - 1][1] - 1, Math.abs(q[0] - arr[k - 1][0]) + 6, q[1] - arr[k - 1][1] + 2); });
       b.fillStyle = "#ffee00"; [[0, 0], [-4, 6], [2, 8], [-3, 16]].forEach(function (q, k, arr) { if (k) b.fillRect(lx + Math.min(q[0], arr[k - 1][0]) - 1, ly + arr[k - 1][1], Math.abs(q[0] - arr[k - 1][0]) + 2, q[1] - arr[k - 1][1]); });
@@ -1593,6 +1623,7 @@
     if (!frozen) {
       px(4, 4, "#1b1b2b"); px(5, 4, "#1b1b2b"); px(6, 5, "#1b1b2b");
       px(11, 4, "#1b1b2b"); px(10, 4, "#1b1b2b"); px(9, 5, "#1b1b2b");
+      if (G.furyT > 0) { px(3, 3, "#1b1b2b"); px(7, 5, "#1b1b2b"); px(12, 3, "#1b1b2b"); px(8, 5, "#1b1b2b"); }   // furious brows
     }
   }
   function drawEyes(s, x, y, alone) {
@@ -1689,6 +1720,7 @@
     if (G.freezeT > 0) list.push(["snow", G.freezeT / POWERS.snow.time, G.freezeT]);
     if (G.dblT > 0) list.push(["dbl", G.dblT / POWERS.dbl.time, G.dblT]);
     if (G.shield) list.push(["shield", 1, 9]);
+    if (G.furyT > 0) list.push(["fury", G.furyT / FURY_TIME, G.furyT]);
     // the row is only rebuilt when a power-up starts, ends or starts running low; the timer bars just get shorter in place
     var key = "", i;
     for (i = 0; i < list.length; i++) key += list[i][0] + (list[i][2] < 1.5 ? "L" : "") + ",";
@@ -1700,13 +1732,13 @@
       if (!list.length) { box.innerHTML = '<span class="none">' + (G.mode === "title" ? "Power-ups show up here" : "No power-ups") + '</span>'; return; }
       box.innerHTML = "";
       list.forEach(function (l) {
-        var d = document.createElement("div"); d.className = "sg-pow" + (l[2] < 1.5 ? " low" : "");
+        var d = document.createElement("div"); d.className = "sg-pow" + (l[2] < 1.5 ? " low" : "") + (l[0] === "fury" ? " fury" : "");
         var ic = ICON[l[0]];
         var c = mk(ic.width, ic.height); c.getContext("2d").drawImage(ic, 0, 0);
         d.appendChild(c);
         var t = document.createElement("span");
         var stk = { jet: G.jetN, magnet: G.magN, shield: G.shieldN, dbl: G.dblN }[l[0]] || 0;
-        t.textContent = l[0] === "dbl" ? (2 * Math.max(1, stk)) + "x" : POWERS[l[0]].name + (stk > 1 ? " x" + stk : ""); d.appendChild(t);
+        t.textContent = l[0] === "fury" ? "Furious!" : l[0] === "dbl" ? (2 * Math.max(1, stk)) + "x" : POWERS[l[0]].name + (stk > 1 ? " x" + stk : ""); d.appendChild(t);
         if (l[0] !== "shield") { var bar = document.createElement("i"), fill = document.createElement("b"); bar.appendChild(fill); d.appendChild(bar); lastHud.bars[l[0]] = { el: fill, w: -1 }; }
         box.appendChild(d);
       });
@@ -1971,9 +2003,10 @@
 
 
   // ---------------- Hard Mode ----------------
-  // One life, no extra lives, the storms come out sooner and faster, suns don't last, two power-ups per level,
-  // and it starts at level-6 speed. Every point counts double, and it keeps its own best score.
+  // One life, no extra lives, the storms come out sooner, suns are short, two power-ups per level (and each one makes
+  // the storms furious), and it starts at level-6 speed. It pays double stars and keeps its own best score.
   // Start it from the Hard Mode button, the Konami code, or by tapping the name "Sky Glider" 5 times.
+  ICON.fury = FURY_ART[0][0];
   var reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
   var nameEl = document.querySelector(".sg > .box-title > span"), nameBase = null;
   function setHard(on) {
