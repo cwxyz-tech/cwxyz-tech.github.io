@@ -72,6 +72,7 @@ export class Shellshock {
     this.bombs = []; this.waves = []; this.warns = [];
     this.inv = 0;
     this.speedK = 1;
+    this.clawI = 0;
   }
 
   start() {
@@ -89,7 +90,7 @@ export class Shellshock {
   next() {
     const a = this.seq[this.seqI % this.seq.length]; this.seqI++;
     const p = this.game.player;
-    if (a === "slam" || a === "slam!") { this.state = "slamWind"; this.stuckAfter = a === "slam!"; this.clawI = (this.clawI ?? 0) ^ 1; this.target = V(p.pos.x, this.center.y, p.pos.z); this.warn(this.target, 2.4); }
+    if (a === "slam" || a === "slam!") { this.state = "slamWind"; this.stuckAfter = a === "slam!"; this.clawI ^= 1; this.target = V(p.pos.x, this.center.y, p.pos.z); this.warn(this.target, 2.4); }
     else if (a === "charge") { this.state = "chargeWind"; }
     else if (a === "bombs") { this.state = "bombs"; this.dropBombs(3 + (4 - this.hp)); }
     else if (a === "spin") { this.state = "spin"; this.game.audio.sfx("roar"); }

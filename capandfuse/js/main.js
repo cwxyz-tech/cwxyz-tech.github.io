@@ -442,6 +442,16 @@ class Game {
     this.saveNow(false);
   }
 
+  // remember a checkpoint without needing to touch its flag (used for the boss fight)
+  setCheckpoint(id) {
+    const sv = this.save;
+    if (!sv.checkpoints.includes(id)) sv.checkpoints.push(id);
+    sv.checkpoint = id;
+    const flag = (this.checkpointObjs || []).find((c) => c.id === id);
+    if (flag && !flag.on) { flag.on = true; flag.flagMat.color.set(PAL.pink); }
+    this.saveNow(false);
+  }
+
   wear(cap, body, silent) {
     const sv = this.save;
     if (cap && (sv.cosmetics.includes(cap) || cap === "classic")) { sv.wearing = cap; this.player.model.setCap(cap); this.player.cap.setStyle(cap); }
@@ -592,6 +602,7 @@ class Game {
       this.saveNow(false);
     } else if (name === "bossIntro") {
       sv.story.bossIntro = true;
+      this.setCheckpoint("gate");
       this.boss.start(); this.bossActive = true; this.ui.bossBar(1);
       this.audio.play("boss", 0.5);
       this.ui.showHud(true);
@@ -835,7 +846,7 @@ class Game {
       // the boss fight starts when you step into Shell Cove
       if (!this.save.story.boss && !this.bossActive && p.pos.x < -52.5 && p.grounded && !this.boss.dead) {
         if (!this.save.story.bossIntro) this.cut.run("bossIntro");
-        else { this.boss.start(); this.bossActive = true; this.ui.bossBar(1); this.audio.play("boss", 0.6); this.ui.toast("Round two, Shellshock!", 2); }
+        else { this.setCheckpoint("gate"); this.boss.start(); this.bossActive = true; this.ui.bossBar(1); this.audio.play("boss", 0.6); this.ui.toast("Round two, Shellshock!", 2); }
       }
       // music follows where you are
       if (!this.race) { const want = this.world.musicAt(p.pos, this); if (this.audio.trackName !== want) this.audio.play(want, 2); }

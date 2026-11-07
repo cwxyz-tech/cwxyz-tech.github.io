@@ -19,7 +19,10 @@ export class Bits {
     this.m = new THREE.Matrix4(); this.q = new THREE.Quaternion(); this.s = new THREE.Vector3(1, 1, 1); this.pv = new THREE.Vector3(); this.e = new THREE.Euler();
     this.combo = 0; this.comboT = 0;
   }
-  add(x, y, z, loose = null) { if (this.list.length < 400) this.list.push({ x, y, z, alive: true, ph: Math.random() * 6, loose, t: 0 }); }
+  add(x, y, z, loose = null) {
+    if (this.list.length >= 400) this.list = this.list.filter((b) => b.alive); // forget collected bits
+    if (this.list.length < 400) this.list.push({ x, y, z, alive: true, ph: Math.random() * 6, loose, t: 0 });
+  }
   line(a, b, n) { for (let i = 0; i < n; i++) { const k = n === 1 ? 0 : i / (n - 1); this.add(a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k); } }
   circle(c, r, n, y) { for (let i = 0; i < n; i++) { const a = (i / n) * Math.PI * 2; this.add(c[0] + Math.cos(a) * r, y ?? c[1], c[2] + Math.sin(a) * r); } }
   arc(a, b, h, n) { for (let i = 0; i < n; i++) { const k = i / (n - 1); this.add(a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k + Math.sin(k * Math.PI) * h, a[2] + (b[2] - a[2]) * k); } }
