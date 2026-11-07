@@ -14,4 +14,30 @@
     <div id="cfLoadText">Loading...</div>
   </div>
 </div>
-<script type="module" src="/capandfuse/js/main.js?v=9"></script>
+<script>
+(function () {
+  var errs = [];
+  function show(msg) {
+    var t = document.getElementById("cfLoadText"), L = document.getElementById("cfLoader");
+    if (!t || !L || L.classList.contains("done")) return;
+    var safe = /[?&]safe=1/.test(location.search);
+    t.innerHTML = "";
+    var box = document.createElement("div"); box.className = "cf-loaderr";
+    var p = document.createElement("p"); p.textContent = msg || "Cap & Fuse is taking too long to start."; box.appendChild(p);
+    if (errs.length) { var d = document.createElement("code"); d.textContent = errs.slice(-3).join("\n"); box.appendChild(d); }
+    var b1 = document.createElement("button"); b1.textContent = "Reload"; b1.onclick = function () { location.reload(); }; box.appendChild(b1);
+    if (!safe) { var b2 = document.createElement("button"); b2.textContent = "Try low graphics"; b2.onclick = function () { location.href = location.pathname + "?safe=1"; }; box.appendChild(b2); }
+    t.appendChild(box);
+  }
+  window.cfShowError = function (m) { errs.push(String(m)); show("Cap & Fuse couldn't start."); };
+  window.addEventListener("error", function (e) {
+    var el = e.target;
+    if (el && el.tagName === "SCRIPT") { errs.push("couldn't load " + (el.src || "a game file").split("/").pop()); show("Cap & Fuse couldn't load one of its files."); return; }
+    errs.push((e.message || "error") + (e.filename ? " (" + e.filename.split("/").pop() + ":" + e.lineno + ")" : ""));
+    if (!window.cfGame) show("Cap & Fuse hit an error while loading.");
+  }, true);
+  window.addEventListener("unhandledrejection", function (e) { errs.push("promise: " + (e.reason && (e.reason.message || e.reason))); });
+  setTimeout(function () { if (!window.cfGame) show(errs.length ? "Cap & Fuse hit an error while loading." : "Cap & Fuse is taking too long to start."); }, 20000);
+})();
+</script>
+<script type="module" src="/capandfuse/js/main.js?v=10"></script>

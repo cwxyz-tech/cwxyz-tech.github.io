@@ -5,6 +5,7 @@ import { CAPS, BODIES } from "./fuse.js";
 import { TRACKS, TRACK_ORDER } from "./audio.js";
 
 const $ = (sel, root = document) => root.querySelector(sel);
+const cloneJSON = (o) => JSON.parse(JSON.stringify(o));
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const fmtTime = (s) => { s = Math.floor(s); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60); return h ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m ${String(s % 60).padStart(2, "0")}s`; };
 const fmtDate = (t) => { try { return new Date(t).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return ""; } };
@@ -245,7 +246,7 @@ export class UI {
       </div>
       <div class="cf-tabpane" data-pane="video" hidden>
         <label class="cf-sel">Graphics quality <select id="stQuality"><option value="low">Low (fastest)</option><option value="medium">Medium</option><option value="high">High (prettiest)</option></select></label>
-        <label class="cf-check"><input type="checkbox" id="stFull" ${document.fullscreenElement ? "checked" : ""}> Fullscreen</label>
+        <label class="cf-check"><input type="checkbox" id="stFull" ${document.fullscreenElement || document.webkitFullscreenElement ? "checked" : ""}> Fullscreen</label>
         <label class="cf-check"><input type="checkbox" id="stFps" ${st.showFps ? "checked" : ""}> Show frame rate</label>
       </div>
       <div class="cf-tabpane" data-pane="controls" hidden>
@@ -284,7 +285,7 @@ export class UI {
           const a = b.dataset.key;
           for (const k in g.input.keys) if (k !== a) g.input.keys[k] = g.input.keys[k].filter((c) => c !== code); // no duplicates
           g.input.keys[a] = [code, ...(g.input.keys[a] || []).filter((c) => c !== code)].slice(0, 2);
-          st.keys = structuredClone(g.input.keys); g.applySettings();
+          st.keys = cloneJSON(g.input.keys); g.applySettings();
         }
         this.settings(back, inGame); this.screen.querySelector('[data-tab="controls"]').click();
       };

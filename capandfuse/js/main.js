@@ -52,8 +52,14 @@ class Game {
   }
 
   async boot() {
-    await this.progress(0.15, "Loading...");
-    const r = (this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, powerPreference: "high-performance" }));
+    await this.progress(0.15, "Starting graphics...");
+    // phones and tablets (and ?safe=1) start on low graphics: Safari on iPhone/iPad
+    // reloads a page that uses too much graphics memory, which looks like endless loading
+    const touch = navigator.maxTouchPoints > 0 && (/iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1));
+    this.safeMode = /[?&]safe=1/.test(location.search) || touch;
+    let r;
+    try { r = this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: !this.safeMode, powerPreference: "high-performance" }); }
+    catch (e) { throw new Error("WebGL couldn't start (" + (e && e.message) + ")"); }
     r.outputColorSpace = THREE.SRGBColorSpace;
     r.toneMapping = THREE.NeutralToneMapping; r.toneMappingExposure = 1.0;
     r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -78,23 +84,25 @@ class Game {
 
     const stored = await Save.readSettings();
     if (stored) Object.assign(this.settings, stored);
+    if (this.safeMode && !this.settings.qualityChosen) this.settings.quality = "low";
     if (this.settings.keysVersion !== KEYS_VERSION) { this.settings.keys = null; this.settings.keysVersion = KEYS_VERSION; } // new control scheme
     // closing the tab by accident (Cmd+W while throwing your cap) asks first
     addEventListener("beforeunload", (e) => { if (this.mode === "play" || this.mode === "paused") { e.preventDefault(); e.returnValue = ""; } });
     this.input.setKeys(this.settings.keys);
     this.applySettings();
 
-    await this.progress(0.35, "Loading...");
+    await this.progress(0.35, "Building Blossom Bay...");
     this.world = buildBlossomBay(this.scene);
     this.level = this.world.level;
-    await this.progress(0.7, "Loading...");
+    await this.progress(0.7, "Loading characters...");
     this.player = new Player(this);
     this.player.root.visible = false; this.player.shadow.visible = false;
     this.bits = new Bits(this);
     this.buildMenuFuse();
-    await this.progress(0.9, "Loading...");
+    await this.progress(0.9, "Almost ready...");
     this.resize(); addEventListener("resize", () => this.resize());
     document.addEventListener("fullscreenchange", () => this.resize());
+    document.addEventListener("webkitfullscreenchange", () => this.resize());
     this.canvas.addEventListener("click", () => { if (this.mode === "play" && !this.cut.active && !this.dialog.open) this.input.requestLock(); });
     document.addEventListener("pointerlockchange", () => {
       if (!document.pointerLockElement && this.mode === "play" && !this.cut.active && !this.dialog.open && !this.ui.isOpen && !this._unlocking) this.pause();
@@ -106,7 +114,7 @@ class Game {
     // render one frame so shaders compile behind the loader
     this.cam.shot([-1, 5, 11.5], [-1, 5, 11.5], [-1.8, 4.4, 6], [-1.8, 4.4, 6], 1);
     this.cam.update(0.016);
-    this.renderer.compile(this.scene, this.camera);
+    this.renderer.render(this.scene, this.camera);
     await this.progress(1, "Starting...");
     document.getElementById("cfLoader").classList.add("done");
     setTimeout(() => document.getElementById("cfLoader").remove(), 700);
@@ -148,8 +156,9 @@ class Game {
   saveSettings() { Save.writeSettings(this.settings); }
   setFullscreen(on) {
     try {
-      if (on && !document.fullscreenElement) document.documentElement.requestFullscreen({ navigationUI: "hide" }).catch(() => this.ui.toast("Fullscreen isn't available here.", 2));
-      else if (!on && document.fullscreenElement) document.exitFullscreen();
+      const el = document.documentElement, fs = document.fullscreenElement || document.webkitFullscreenElement;
+      if (on && !fs) { const req = el.requestFullscreen || el.webkitRequestFullscreen; const p = req && req.call(el); if (!req) this.ui.toast("Fullscreen isn't available here.", 2); else if (p && p.catch) p.catch(() => this.ui.toast("Fullscreen isn't available here.", 2)); }
+      else if (!on && fs) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
     } catch (e) { this.ui.toast("Fullscreen isn't available here.", 2); }
   }
 
@@ -879,6 +888,5 @@ class Game {
 const game = new Game();
 game.boot().catch((e) => {
   console.error(e);
-  const t = document.getElementById("cfLoadText");
-  if (t) t.innerHTML = "Oops! Cap &amp; Fuse couldn't start. Your browser may not support WebGL. Try updating it or using Chrome, Firefox or Safari.";
+  if (window.cfShowError) window.cfShowError(e && (e.message || String(e)));
 });

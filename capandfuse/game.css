@@ -303,3 +303,7 @@
 .cf-ct span.lost { color: #ffaaa5; }
 .cf-combo.end .cf-cn { filter: saturate(.4); }
 @keyframes cf-tag { from { opacity: 0; transform: translateX(-8px); } }
+
+.cf-loaderr { max-width: 420px; text-align: center; color: #c9d4e8; font-size: 13px; }
+.cf-loaderr code { display: block; text-align: left; white-space: pre-wrap; font: 11px Menlo, monospace; color: #ffaaa5; background: #111; border: 1px solid #333; padding: 6px; margin: 8px 0; max-height: 120px; overflow: auto; }
+.cf-loaderr button { font: 13px Tahoma, sans-serif; margin: 4px; padding: 5px 14px; border: 1px solid #003c74; border-radius: 3px; background: linear-gradient(#fff, #ecebe6 86%, #d6d0c5); cursor: pointer; }

@@ -1,4 +1,5 @@
 // Keyboard, mouse and gamepad input with remappable keys.
+const cloneJSON = (o) => JSON.parse(JSON.stringify(o));
 // Game code asks for actions ("jump", "throw"...) instead of raw keys.
 
 export const ACTIONS = {
@@ -30,7 +31,7 @@ export function keyLabel(code) {
 export class Input {
   constructor(canvas) {
     this.canvas = canvas;
-    this.keys = structuredClone(DEFAULT_KEYS);
+    this.keys = cloneJSON(DEFAULT_KEYS);
     this.down = new Set();
     this.pressedFrame = new Set();
     this.mouseDX = 0; this.mouseDY = 0;
@@ -79,7 +80,7 @@ export class Input {
   }
 
   setKeys(k) {
-    const merged = structuredClone(DEFAULT_KEYS);
+    const merged = cloneJSON(DEFAULT_KEYS);
     if (k) for (const a in merged) if (Array.isArray(k[a]) && k[a].length) merged[a] = k[a].slice(0, 3);
     this.keys = merged;
   }
