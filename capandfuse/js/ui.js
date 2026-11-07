@@ -391,7 +391,7 @@ export class UI {
       <p><small>Starring</small>Fuse, a little bomb with a big cap</p>
       <p><small>Featuring</small>Grandma Wick &middot; Mayor Pip &middot; Coco &middot; Nell &middot; Dot &middot; Sailor Bo &middot; Old Sal</p>
       <p><small>And introducing</small>Shellshock, who found a home after all<br>Grizzle the Gloomcloud, who still has the Great Sparkheart</p>
-      <p><small>Original Soundtrack</small>12 original themes, played live in your browser</p>
+      <p><small>Original 8-bit Soundtrack</small>12 original chiptunes, played live on a little NES-style sound chip</p>
       <p><small>Built with</small>three.js (MIT License) &middot; Web Audio</p>
       <p><small>Playtesters</small>Everyone who jumps into their cap for the first time</p>
       <p><small>Special Thanks</small>You, for playing!</p>
