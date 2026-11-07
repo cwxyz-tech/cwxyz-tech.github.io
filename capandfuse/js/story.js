@@ -20,8 +20,9 @@ export const SPEAKERS = {
   sign: { name: "Sign", color: "#b07a5a", voice: 0 },
 };
 
-// Grizzle, keeper of Nimbus Hollow: a quiet storm cloud carrying an impossible choice
-export function buildGrizzle() {
+// Grizzle: looks like a cold-hearted storm cloud at first ("stern"), until you learn why ("sad")
+export function buildGrizzle(mood = "stern") {
+  const sad = mood === "sad";
   const g = new THREE.Group();
   const cm = toon(0x8c7fb8), cm2 = toon(0x6f6399);
   for (let i = 0; i < 7; i++) {
@@ -32,9 +33,10 @@ export function buildGrizzle() {
   for (const sx of [-1, 1]) {
     const e = mesh(SPH, basic(0xfff1a8), sx * 0.32, 0.25, 0.9, false); e.scale.set(0.18, 0.12, 0.06); g.add(e);
     const p = mesh(SPH, basic(0x1d1f33), sx * 0.32, 0.23, 0.95, false); p.scale.set(0.07, 0.08, 0.03); g.add(p);
-    const brow = mesh(new THREE.BoxGeometry(0.34, 0.07, 0.06), basic(0x2a2440), sx * 0.3, 0.42, 0.94, false); brow.rotation.z = -sx * 0.35; g.add(brow);
+    const brow = mesh(new THREE.BoxGeometry(0.34, 0.07, 0.06), basic(0x2a2440), sx * 0.3, 0.42, 0.94, false); brow.rotation.z = sad ? -sx * 0.35 : sx * 0.45; g.add(brow); // stern V or worried slant
   }
-  const grin = mesh(new THREE.TorusGeometry(0.14, 0.035, 6, 14, Math.PI), basic(0x2a2440), 0, -0.12, 0.95, false); g.add(grin); // a small, tired frown
+  if (sad) { const frown = mesh(new THREE.TorusGeometry(0.14, 0.035, 6, 14, Math.PI), basic(0x2a2440), 0, -0.12, 0.95, false); g.add(frown); } // a small, tired frown
+  else { const line = mesh(new THREE.BoxGeometry(0.34, 0.06, 0.05), basic(0x2a2440), 0, -0.08, 0.96, false); line.rotation.z = 0.12; g.add(line); } // a hard, unreadable line
   // tiny crown
   const crown = mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.2, 5, 1, true), toon(PAL.gold, { params: { side: THREE.DoubleSide } }), 0.1, 1.05, 0); g.add(crown);
   for (let i = 0; i < 5; i++) { const a = (i / 5) * Math.PI * 2, s = mesh(new THREE.ConeGeometry(0.06, 0.18, 4), toon(PAL.gold), 0.1 + Math.cos(a) * 0.28, 1.22, Math.sin(a) * 0.28); g.add(s); }
@@ -132,13 +134,9 @@ export class Cutscenes {
     await this.wait(2.6);
     g.audio.play("finalboss", 1);
     await this.say([
-      { who: "grizzle", text: "There it is. The Great Sparkheart. It's even warmer than the old stories said." },
-    ]);
-    g.audio.play("emotional", 1.5);
-    await this.say([
-      { who: "grizzle", text: "I'm sorry, little bay. Truly. I waited a long time, hoping I'd find another way." },
-      { who: "grizzle", text: "Up in Nimbus Hollow, my people are fading to gray, one by one. The youngest can't even remember what color looks like." },
-      { who: "grizzle", text: "Someone has to carry this choice. Better me than them." },
+      { who: "grizzle", text: "So this is the Great Sparkheart. Bright enough to light an entire sky." },
+      { who: "grizzle", text: "You've kept it to yourselves long enough, Blossom Bay." },
+      { who: "grizzle", text: "Don't come looking for it. You won't like what you find up there." },
     ]);
     // he swallows the Great Sparkheart
     const hp = heart.position.clone(); k = 0;
@@ -152,7 +150,7 @@ export class Cutscenes {
     g.setSaturation(g.targetSaturation(), false, 3);
     this.shot([10, 30, 20], [0, 40, 50], [20, 15, -5], [0, 5, 0], 3);
     await this.wait(2.5);
-    await this.say([{ who: "grizzle", text: "Your colors will fade slower than ours did. I'll make it mean something. I promise." }]);
+    await this.say([{ who: "grizzle", text: "Let the colors go. It's only fair." }]);
     k = 0; const gp2 = griz.position.clone();
     this.ticks.push((dt) => { k = Math.min(1, k + dt / 2); griz.position.lerpVectors(gp2, V(-40, 70, -140), ease.inOut(k)); });
     await this.wait(1.5);
@@ -173,7 +171,7 @@ export class Cutscenes {
     this.shot([0, 3.5, 36], [-1, 3, 35], [1.5, 1.6, 30], [0, 1.6, 29], 2);
     g.audio.play("emotional", 1);
     await this.say([
-      { who: "grandma", text: "Fuse! Oh, thank goodness you're all right. A storm cloud took the Great Sparkheart. He didn't look angry, dear. He looked... heartbroken." },
+      { who: "grandma", text: "Fuse! Oh, thank goodness you're all right. That wicked storm cloud stole the Great Sparkheart! The old sailors called him Grizzle the Gloomcloud." },
       { who: "grandma", text: "Without it, the Bay's little Sparkhearts flew off every which way. That's why the colors are fading." },
       { who: "fuse", text: "Then I'll go get them back! ...How do I get them back?", face: "determined" },
       { who: "grandma", text: "Your cap, dear. Look, it's glowing." },
@@ -206,8 +204,8 @@ export class Cutscenes {
       { who: "shell", text: "WHO DARES WAKE THE MIGHTY SHELLSHOCK?!" },
       { who: "shell", text: "...Oh. It's a tiny bomb. Shoo, tiny bomb." },
       { who: "fuse", text: "Hey! You've got our Sparkheart stuck on your shell!", face: "determined" },
-      { who: "grizzle", text: "(a soft voice from the clouds) Shellshock... please keep it safe a little longer. I promised you a home, and I keep my promises." },
-      { who: "shell", text: "He's the only one who ever asked me nicely. Sorry, tiny bomb. A promise is a promise." },
+      { who: "grizzle", text: "(a cold voice from the clouds) Shellshock. Keep it safe. Remember what I promised you." },
+      { who: "shell", text: "A promise is a promise. Sorry, tiny bomb." },
     ]);
     g.ui.title("Shellshock", "The Grumpy Hermit Crab");
     this.shot([c.x + 14, c.y + 6, c.z + 10], [c.x + 16, c.y + 7, c.z], [c.x, c.y + 3, c.z], [c.x + 4, c.y + 2, c.z], 2);
@@ -227,6 +225,9 @@ export class Cutscenes {
       { who: "shell", text: "I just wanted a shell big enough to feel like home. Mine's so... cramped." },
       { who: "fuse", text: "You could live by the lighthouse! Nell says the cove there is HUGE.", face: "happy" },
       { who: "shell", text: "...You'd let me stay? After all that? *sniff* Nobody's ever been nice to Shellshock." },
+      { who: "shell", text: "Except him. Grizzle. He asked me so politely, tiny bomb. Said please and everything." },
+      { who: "shell", text: "He's not what everybody says he is. Ask him why he did it." },
+      { who: "fuse", text: "...Why WOULD a bad guy say please?", face: "worried" },
     ]);
   }
 
@@ -251,18 +252,27 @@ export class Cutscenes {
     await this.wait(2);
     await this.say([
       { who: "grandma", text: "The cap is pointing the way. Up past the clouds... the Candy Cloud Kingdom." },
-      { who: "grandma", text: "The Capwrights made Sparkhearts to share light with anyone who had none. Maybe that storm cloud remembers that better than we do." },
-      { who: "fuse", text: "Then I'll bring the Great Sparkheart home. And maybe... bring Grizzle some color too.", face: "determined" },
+      { who: "grandma", text: "The Capwrights made Sparkhearts to share light with anyone who had none." },
+      { who: "fuse", text: "Then I'm going up there to get it back!", face: "determined" },
     ]);
-    // Grizzle comes to explain himself
-    const griz = this.add(buildGrizzle()); griz.position.set(-10, 34, -60); griz.scale.setScalar(2.4);
+    // Grizzle comes back, and this time he tells the truth
+    const griz = this.add(buildGrizzle("sad")); griz.position.set(-10, 34, -60); griz.scale.setScalar(2.4);
     this.ticks.push(() => { griz.userData.tick(tt); griz.lookAt(26, 9, -4); });
     this.shot([20, 12, 0], [18, 13, -2], [-10, 34, -60], [-10, 34, -60], 2);
+    g.audio.play("finalboss", 0.6);
+    await this.say([
+      { who: "fuse", text: "Grizzle! Give back the Great Sparkheart!", face: "determined" },
+      { who: "grizzle", text: "..." },
+    ]);
+    g.audio.play("emotional", 1.5);
     await this.say([
       { who: "grizzle", text: "You found every piece of your light. Your people are lucky to have you, Fuse." },
-      { who: "fuse", text: "Why'd you take it? Everyone here was so scared!", face: "determined" },
+      { who: "fuse", text: "Shellshock said you're not what everyone thinks. So why'd you take it? Everyone here was so scared!", face: "worried" },
       { who: "grizzle", text: "Because mine have been scared for a hundred years. Nimbus Hollow's Sparkheart went dark long before you were born, and nobody down here ever looked up." },
+      { who: "grizzle", text: "In Nimbus Hollow, my people are fading to gray, one by one. The youngest can't even remember what color looks like." },
       { who: "grizzle", text: "I know what this costs your bay. I feel every bit of it. But if I give it back, my people disappear." },
+      { who: "fuse", text: "Then why act like a villain?!", face: "surprised" },
+      { who: "grizzle", text: "Because it was easier to be hated than to ask for help nobody would give. If you all hate me, none of this falls on you." },
       { who: "fuse", text: "There has to be a way where nobody fades.", face: "sad" },
       { who: "grizzle", text: "Maybe. I've spent years looking for one. If you find it first... I'll be waiting above the clouds." },
     ]);

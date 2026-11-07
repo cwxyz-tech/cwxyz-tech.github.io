@@ -623,7 +623,8 @@ class Game {
         else L("grandma", ["The Bay already looks brighter, dear!", "Remember: if you fall in the sea, you'll just pop back. Bombs float... briefly.", "Coco sells wonderful cap upgrades. Spend those Sparkbits!"][sv.hearts.length % 3]);
         break;
       case "mayor": {
-        if (first) { L("mayor", "Ahem! Mayor Pip, at your service. This is a crisis! A CRISIS! I've written seventeen speeches about it."); L("fuse", "Have you tried looking for the Sparkhearts?", "worried"); L("mayor", "...I have not. That's what YOU'RE for! Splendid!"); }
+        if (first) { L("mayor", "Ahem! Mayor Pip, at your service. This is a crisis! A CRISIS! That villain Grizzle has robbed us blind! I've written seventeen speeches about it."); L("fuse", "Have you tried looking for the Sparkhearts?", "worried"); L("mayor", "...I have not. That's what YOU'RE for! Splendid!"); }
+        else if (sv.story.boss) L("mayor", "Grizzle was trying to save his own people? Goodness. I may need to rewrite all seventeen speeches.");
         const miss = HEARTS.filter((h) => !H(h.id));
         if (miss.length) L("mayor", `The rumor around town: "${miss[(Math.floor(this.time / 10)) % miss.length].hint}"`);
         else L("mayor", "Every Sparkheart home! I shall declare a holiday. Possibly two.");
@@ -636,7 +637,7 @@ class Game {
         this.mode = "shop"; this.ui.showHud(false); this.ui.shop(); return;
       case "nell":
         if (!H("lighthouse")) { L("nell", "Hoo! The Great Sparkheart sat right up top in my lantern for a hundred years. Now it's gone!"); L("nell", "One little Sparkheart got stuck on the balcony. The steps wind around the tower. Some of them move, so time your jumps!"); }
-        else if (!sv.story.boss) L("nell", "Thank you, Fuse! From up there you can see the whole Bay. Even that grumpy crab in Shell Cove, snoring away.");
+        else if (!sv.story.boss) { L("nell", "Thank you, Fuse! From up there you can see the whole Bay. Even that grumpy crab in Shell Cove, snoring away."); L("nell", "Funny thing... I saw that storm cloud up close when he took the heart. Everyone calls him a monster, but his eyes weren't angry. Just tired. Hoo, maybe I imagined it."); }
         else L("nell", "Shellshock moved into the cove below my tower. He snores like a foghorn. I love it.");
         break;
       case "dot":
@@ -647,7 +648,7 @@ class Game {
           this.carryingKite = false; q.kite = "done"; this.kite.visible = false; n.happy = 2;
           this.revealHeart("kite", n.pos.clone().add(V(0, 1, 0)));
           n.talking = false; this.player.frozen = false; return;
-        } else { L("dot", "Waaah! The storm blew my kite away! It's stuck on top of that tall rock, way out on the Sky Steps."); L("dot", "You'd have to jump really, really high... like, cap-bounce high!"); }
+        } else { L("dot", "Is the scary storm cloud gonna come back? Mom says he eats colors!"); L("dot", "Waaah! And the storm blew my kite away! It's stuck on top of that tall rock, way out on the Sky Steps."); L("dot", "You'd have to jump really, really high... like, cap-bounce high!"); }
         break;
       case "bo":
         if (H("rings")) L("bo", "Ribbit! Fastest bomb on the beach! Want to race again just for fun? Talk to me twice!");
