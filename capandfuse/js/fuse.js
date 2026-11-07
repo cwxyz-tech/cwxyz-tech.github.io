@@ -70,8 +70,8 @@ export class FuseModel {
     const eyeW = basic(0x0d0e1a), pupilM = basic(0x0d0e1a);
     this.eyes = [];
     for (const sx of [-1, 1]) {
-      const eye = new THREE.Group(); eye.position.set(0.16 * sx, 0.1, 0.41); eye.rotation.y = 0.32 * sx;
-      const white = mesh(SPH, eyeW, 0, 0, 0, false, false); white.scale.set(0.12, 0.16, 0.06);
+      const eye = new THREE.Group(); eye.position.set(0.15 * sx, 0.12, 0.41); eye.rotation.y = 0.32 * sx;
+      const white = mesh(SPH, eyeW, 0, 0, 0, false, false); white.scale.set(0.11, 0.21, 0.06);
       const pupil = mesh(SPH, pupilM, 0, -0.01, 0.045, false, false); pupil.scale.set(0.075, 0.105, 0.03);
       const glint = mesh(SPH, eyeW, 0.025 * sx, 0.04, 0.07, false, false); glint.scale.set(0.028, 0.034, 0.01);
       pupil.visible = false; glint.visible = false; // solid black eyes
