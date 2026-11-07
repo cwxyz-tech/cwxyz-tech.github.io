@@ -1,7 +1,7 @@
 // Blossom Bay: the first world. Builds the scenery (sky, sea, island, village,
 // lighthouse, waterfall cave, floating Sky Steps, boss cove) and its collision.
 import * as THREE from "../vendor/three.module.min.js";
-import { PAL, toon, basic, mesh, textSprite } from "./fx.js";
+import { PAL, toon, basic, mesh, textSprite, SAT_GLSL, mergeStatic } from "./fx.js";
 import { Level } from "./physics.js";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
@@ -16,7 +16,7 @@ function skyDome() {
       void main(){ float h = vP.y; vec3 c = mix(hor, mid, smoothstep(-0.02, 0.18, h)); c = mix(c, top, smoothstep(0.18, 0.7, h));
         float s = max(0.0, dot(vP, sun)); c += vec3(1.0,0.95,0.85) * (pow(s, 400.0) * 1.2 + pow(s, 12.0) * 0.18);
         if (h < 0.0) c = mix(hor, vec3(0.99,0.72,0.70), smoothstep(0.0, -0.3, h));
-        gl_FragColor = vec4(c, 1.0); }`,
+        gl_FragColor = vec4(c, 1.0); ${SAT_GLSL} }`,
   });
   const m = new THREE.Mesh(new THREE.SphereGeometry(900, 32, 16), mat);
   m.renderOrder = -10;
@@ -47,6 +47,7 @@ function seaMaterial() {
         c += vH * 0.25;
         gl_FragColor = vec4(c, 0.93);
         #include <fog_fragment>
+        ${SAT_GLSL}
       }`,
   });
 }
@@ -77,6 +78,7 @@ function palm(h = 6, lean = 0.2) {
   }
   for (let i = 0; i < 3; i++) { const c = mesh(new THREE.SphereGeometry(0.22, 8, 6), cocoM, top.x + Math.cos(i * 2.1) * 0.3, top.y - 0.25, top.z + Math.sin(i * 2.1) * 0.3); g.add(c); }
   g.userData.sway = Math.random() * 6;
+  g.userData.dynamic = true;
   return g;
 }
 
@@ -106,7 +108,7 @@ function rock(s = 1, color = PAL.stone) {
 }
 
 function cloud(s = 1) {
-  const g = new THREE.Group(), m = toon(0xffffff, { params: { transparent: true, opacity: 0.96 } });
+  const g = new THREE.Group(), m = toon(0xffffff);
   const n = 5 + ((Math.random() * 3) | 0);
   for (let i = 0; i < n; i++) {
     const r = (1.2 + Math.random() * 1.4) * s;
@@ -229,7 +231,7 @@ export function buildBlossomBay(scene) {
 
   // bouncy flower near the plaza (big coral bloom)
   const bloom = (x, y, z, power = 22) => {
-    const g = new THREE.Group(); g.position.set(x, y, z); root.add(g);
+    const g = new THREE.Group(); g.position.set(x, y, z); g.userData.dynamic = true; root.add(g);
     for (let i = 0; i < 6; i++) { const p = mesh(new THREE.SphereGeometry(0.75, 10, 6), toon(PAL.coral), Math.cos(i) * 0.75, 0.25, Math.sin(i) * 0.75); p.scale.y = 0.35; g.add(p); }
     g.add(mesh(new THREE.SphereGeometry(0.55, 12, 8), toon(PAL.gold), 0, 0.42, 0));
     g.add(mesh(new THREE.CylinderGeometry(0.12, 0.18, 0.3, 6), toon(PAL.leafDark), 0, 0.05, 0));
@@ -270,6 +272,7 @@ export function buildBlossomBay(scene) {
     const x = 31 + Math.cos(a) * r, z = -9 + Math.sin(a) * r, y = 8.2 + i * 1.3;
     const moving = i === 4 || i === 7;
     const s = solidBox(x, y, z, 1.9, 0.45, 1.9, i % 2 ? PAL.mint : PAL.peach, moving ? { path: { a: [x, y, z], b: [x, y + 1.6, z], period: 3, phase: i } } : {});
+    if (moving) s.mesh.userData.keep = true;
     W.spiral.push(s);
   }
   // little door + keeper's porch
@@ -287,7 +290,7 @@ export function buildBlossomBay(scene) {
   W.crystals = [];
   for (let i = 0; i < 7; i++) {
     const c = mesh(new THREE.OctahedronGeometry(0.35 + Math.random() * 0.3), new THREE.MeshToonMaterial({ color: [PAL.mint, PAL.pink, PAL.lime][i % 3], emissive: [PAL.mint, PAL.pink, PAL.lime][i % 3], emissiveIntensity: 0.6, gradientMap: null }), -30.6 + (i % 2) * 3.2, 1.4 + Math.random() * 2, -6 - i * 1.3, false);
-    c.scale.y = 1.8; root.add(c); W.crystals.push(c);
+    c.scale.y = 1.8; c.userData.keep = true; root.add(c); W.crystals.push(c);
   }
   const caveLight = new THREE.PointLight(0xffb3d1, 3, 10, 1.5); caveLight.position.set(-29, 3, -12); root.add(caveLight);
   // waterfall curtain + pool
@@ -323,6 +326,7 @@ export function buildBlossomBay(scene) {
   // warp ring back home on the last step
   W.warpRing = V(29, 11.8, -86);
   const warp = mesh(new THREE.TorusGeometry(1.2, 0.18, 10, 32), new THREE.MeshToonMaterial({ color: PAL.mint, emissive: PAL.mint, emissiveIntensity: 0.6, gradientMap: null }), 29, 12.3, -86, false); root.add(warp);
+  warp.userData.keep = true;
   anim.push((t) => { warp.rotation.y = t * 1.5; warp.position.y = 12.3 + Math.sin(t * 2) * 0.12; });
 
   // ---- boss cove (west, past the gate) ----
@@ -394,7 +398,7 @@ export function buildBlossomBay(scene) {
 
   // boats bobbing in the bay
   for (const [x, z, c] of [[-20, 52, PAL.coral], [30, 50, PAL.mint], [52, -10, PAL.peach]]) {
-    const b = new THREE.Group(); b.position.set(x, 0, z); root.add(b);
+    const b = new THREE.Group(); b.position.set(x, 0, z); b.userData.dynamic = true; root.add(b);
     const hull = mesh(new THREE.CylinderGeometry(1, 0.6, 3.6, 10, 1, false, 0, Math.PI), toon(c), 0, 0.2, 0); hull.rotation.set(Math.PI / 2, 0, Math.PI); b.add(hull);
     b.add(mesh(new THREE.CylinderGeometry(0.06, 0.06, 3, 6), toon(PAL.white), 0, 1.5, 0));
     const sail = mesh(new THREE.ConeGeometry(1, 2.4, 3), toon(PAL.white), 0.5, 1.8, 0); sail.scale.z = 0.08; b.add(sail);
@@ -411,7 +415,7 @@ export function buildBlossomBay(scene) {
   // clouds
   W.clouds = [];
   for (let i = 0; i < 18; i++) {
-    const c = cloud(1 + Math.random() * 1.5);
+    const c = cloud(1 + Math.random() * 1.5); c.userData.dynamic = true;
     const a = Math.random() * Math.PI * 2, d = 40 + Math.random() * 160;
     c.position.set(Math.cos(a) * d, 26 + Math.random() * 30, Math.sin(a) * d);
     root.add(c); W.clouds.push(c);
@@ -443,6 +447,7 @@ export function buildBlossomBay(scene) {
     return "blossom";
   };
   W.update = (t, dt) => { for (const f of anim) f(t, dt); };
+  W.merged = mergeStatic(root);
   return W;
 }
 

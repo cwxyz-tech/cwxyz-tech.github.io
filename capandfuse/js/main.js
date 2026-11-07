@@ -1,9 +1,9 @@
 // CAP & FUSE: game boot, main loop and all the glue between systems.
 import * as THREE from "../vendor/three.module.min.js";
-import { Input, keyLabel } from "./input.js";
+import { Input, keyLabel, KEYS_VERSION } from "./input.js";
 import { AudioSys } from "./audio.js";
 import * as Save from "./save.js";
-import { PAL, Particles, Rings, toon, basic, mesh, textSprite, damp, ease } from "./fx.js";
+import { PAL, Particles, Rings, toon, basic, mesh, textSprite, damp, ease, SAT, mergeStatic } from "./fx.js";
 import { FuseModel, CAPS, BODIES } from "./fuse.js";
 import { Player } from "./player.js";
 import { CamRig } from "./camera.js";
@@ -52,7 +52,7 @@ class Game {
   }
 
   async boot() {
-    await this.progress(0.15, "Waking up Fuse...");
+    await this.progress(0.15, "Loading...");
     const r = (this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, powerPreference: "high-performance" }));
     r.outputColorSpace = THREE.SRGBColorSpace;
     r.toneMapping = THREE.NeutralToneMapping; r.toneMappingExposure = 1.0;
@@ -78,18 +78,21 @@ class Game {
 
     const stored = await Save.readSettings();
     if (stored) Object.assign(this.settings, stored);
+    if (this.settings.keysVersion !== KEYS_VERSION) { this.settings.keys = null; this.settings.keysVersion = KEYS_VERSION; } // new control scheme
+    // closing the tab by accident (Cmd+W while throwing your cap) asks first
+    addEventListener("beforeunload", (e) => { if (this.mode === "play" || this.mode === "paused") { e.preventDefault(); e.returnValue = ""; } });
     this.input.setKeys(this.settings.keys);
     this.applySettings();
 
-    await this.progress(0.35, "Painting Blossom Bay...");
+    await this.progress(0.35, "Loading...");
     this.world = buildBlossomBay(this.scene);
     this.level = this.world.level;
-    await this.progress(0.7, "Tuning the marimbas...");
+    await this.progress(0.7, "Loading...");
     this.player = new Player(this);
     this.player.root.visible = false; this.player.shadow.visible = false;
     this.bits = new Bits(this);
     this.buildMenuFuse();
-    await this.progress(0.9, "Polishing the Sparkhearts...");
+    await this.progress(0.9, "Loading...");
     this.resize(); addEventListener("resize", () => this.resize());
     document.addEventListener("fullscreenchange", () => this.resize());
     this.canvas.addEventListener("click", () => { if (this.mode === "play" && !this.cut.active && !this.dialog.open) this.input.requestLock(); });
@@ -104,7 +107,7 @@ class Game {
     this.cam.shot([-1, 5, 11.5], [-1, 5, 11.5], [-1.8, 4.4, 6], [-1.8, 4.4, 6], 1);
     this.cam.update(0.016);
     this.renderer.compile(this.scene, this.camera);
-    await this.progress(1, "Ready!");
+    await this.progress(1, "Starting...");
     document.getElementById("cfLoader").classList.add("done");
     setTimeout(() => document.getElementById("cfLoader").remove(), 700);
     this.mode = "landing";
@@ -340,13 +343,14 @@ class Game {
     // tutorial zones
     this.tutZones = [
       { id: "move", pos: V(2, 1, 23), r: 7, html: () => `<b>Move</b> ${this.k("forward")}${this.k("left")}${this.k("back")}${this.k("right")} &middot; <b>Camera</b> mouse (click the game first) or ${this.k("camLeft")}${this.k("camRight")}` },
-      { id: "jump", pos: V(6, 1, 19), r: 4, html: () => `<b>Jump</b> ${this.k("jump")} &middot; press again in the air to <b>double jump</b>` },
+      { id: "jump", pos: V(6, 1, 19), r: 4, html: () => `<b>Jump</b> ${this.k("jump")} &middot; press again in the air to <b>double jump</b> &middot; jump 3 times in a row while running for a <b>triple jump</b>` },
       { id: "capbounce", pos: V(9.6, 5, 15), r: 3, html: () => `<b>Throw your cap</b> ${this.k("throw")}, then jump into it in midair to <b>bounce</b>! Hold ${this.k("throw")} to make it hover longer.` },
       { id: "walljump", pos: V(-14.3, 1, 18), r: 4, html: () => `<b>Wall jump</b>: jump into a wall, then press ${this.k("jump")} again while sliding down it.` },
-      { id: "dive", pos: V(0, 0.5, -46), r: 6, html: () => `<b>Dive</b> ${this.k("dive")} (or ${this.k("pound")} then ${this.k("throw")} in the air). Dive into your cap to bounce again!` },
+      { id: "dive", pos: V(0, 0.5, -46), r: 6, html: () => `<b>Dive</b>: press ${this.k("crouch")} in the air. Dive into your cap to bounce again.` },
       { id: "pound", pos: W.xSpot, r: 5, html: () => `<b>Ground pound</b>: press ${this.k("pound")} in the air. Jump right as you land for a super jump!` },
       { id: "flip", pos: V(34, 0.45, 17), r: 9, html: () => `Shellbacks are too hard to stomp. <b>Hit them with your cap</b> to flip them first!` },
-      { id: "sprint", pos: V(1, 1, 12), r: 3.5, html: () => `<b>Sprint</b>: hold ${this.k("sprint")} &middot; <b>Roll</b>: ${this.k("pound")} while running` },
+      { id: "longjump", pos: V(1, 1, 12), r: 3.5, html: () => `<b>Long jump</b>: hold ${this.k("crouch")} while moving, then ${this.k("jump")} &middot; <b>Backflip</b>: hold ${this.k("crouch")} standing still, then ${this.k("jump")}` },
+      { id: "sidejump", pos: V(-4, 1, 3), r: 4, html: () => `<b>Side jump</b>: while running, turn around and press ${this.k("jump")} &middot; <b>Roll</b>: ${this.k("crouch")} + ${this.k("throw")}` },
     ];
     this.objectiveCache = null;
     this.gameOverPending = false;
@@ -405,7 +409,7 @@ class Game {
     this.input.rumble(0.7, 300);
     // little celebration: Fuse freezes in a victory pose
     p.frozen = true; p.vel.set(0, Math.max(p.vel.y, 0), 0); this.celebrate = 1.8;
-    this.ui.banner("SPARKHEART GET!", h.name);
+    this.ui.banner("Sparkheart found", h.name);
     this.setSaturation(this.targetSaturation(), false, 2.5);
     this.updateGate();
     if (sv.hearts.length === 4 && !sv.story.boss) setTimeout(() => { this.ui.toast("The gate to Shell Cove is open!", 3); this.audio.sfx("door", { caption: "[A gate rumbles open in the west]" }); }, 2200);
@@ -424,7 +428,7 @@ class Game {
     if (!sv.relics.includes(r.id)) sv.relics.push(r.id);
     const info = RELICS.find((x) => x.id === r.id);
     this.audio.sfx("relic");
-    this.ui.banner("CAPWRIGHT RELIC!", info.name, "#e0a93a");
+    this.ui.banner("Capwright Relic found", info.name, "#e0a93a");
     this.fx.emit({ x: r.g.position.x, y: r.g.position.y, z: r.g.position.z, count: 30, color: [PAL.gold, PAL.mint, 0xffffff], speed: 6, life: 0.8, size: 0.5 });
     setTimeout(() => this.ui.toast(info.lore, 4), 1600);
     if (sv.relics.length === 3 && !sv.cosmetics.includes("relic")) { sv.cosmetics.push("relic"); setTimeout(() => { this.ui.toast("All 3 relics! The Capwright Crown is now in your Wardrobe (pause menu).", 5); this.audio.sfx("notify"); }, 4500); }
@@ -750,7 +754,7 @@ class Game {
     this.level.update(dt, this.time);
     // saturation fade (the world's color comes back as you find Sparkhearts)
     this.saturation += Math.sign(this.satTarget - this.saturation) * Math.min(Math.abs(this.satTarget - this.saturation), dt * this.satRate);
-    this.canvas.style.filter = this.saturation < 0.995 ? `saturate(${this.saturation.toFixed(3)})` : "";
+    SAT.value = this.saturation;
 
     // menu / title scene
     if (this.mode === "landing" || this.mode === "title" || this.mode === "credits" && !this.player.root.visible) {
@@ -819,7 +823,7 @@ class Game {
 
       // kite pickup & carry
       if (this.kite.visible && !this.carryingKite && !this.save.hearts.includes("kite") && p.center.distanceTo(this.kite.position) < 1.6) {
-        this.carryingKite = true; this.save.story.quests.kite = "carry"; this.audio.sfx("relic"); this.ui.banner("GOT IT!", "Dot's Kite", "#7fd6a8");
+        this.carryingKite = true; this.save.story.quests.kite = "carry"; this.audio.sfx("relic"); this.ui.banner("Item found", "Dot's Kite", "#7fd6a8");
       }
       if (this.carryingKite) {
         const tgt = p.pos.clone().add(V(-Math.sin(p.facing) * 1.2, 2.4 + Math.sin(this.time * 3) * 0.2, -Math.cos(p.facing) * 1.2));
@@ -841,7 +845,6 @@ class Game {
       if (p.state === "jump2") this.tutorialDone("jump");
       if (p.state === "wall" && p.stateT > 0.1 && p.vel.y > 0) this.tutorialDone("walljump");
       if (p.state === "jump" && p.airControlLock > 0) this.tutorialDone("walljump");
-      if (inp.held("sprint") && Math.hypot(p.vel.x, p.vel.z) > 11) this.tutorialDone("sprint");
 
       // the boss fight starts when you step into Shell Cove
       if (!this.save.story.boss && !this.bossActive && p.pos.x < -52.5 && p.grounded && !this.boss.dead) {

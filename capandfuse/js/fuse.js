@@ -18,6 +18,7 @@ export const BODIES = {
 };
 
 const SPH = new THREE.SphereGeometry(1, 28, 20);
+const ease3 = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
 
 export function buildCap(style = "classic") {
   const c = CAPS[style] || CAPS.classic;
@@ -163,69 +164,94 @@ export class FuseModel {
     this.faceTimer = Math.max(0, this.faceTimer - dt);
     const phase = (s.phase ?? t * 10);
 
+    let sflip = 0, capUp = 0, capSpin = 0;
+    const flipK = (dur) => clamp(tm / dur, 0, 1);
     switch (st) {
       case "idle": {
         bob = Math.sin(t * 2.4) * 0.025; sq = 1 + Math.sin(t * 2.4) * 0.025;
         aL = Math.sin(t * 2.4) * 0.1; aR = -aL;
-        if (s.idleTime > 6) { // looks around
-          this.lookX = Math.sin(t * 0.7) * 0.9; roll = Math.sin(t * 0.7) * 0.08;
+        const it = s.idleTime || 0;
+        if (it > 20) { face = "sleep"; bob = Math.sin(t * 1.2) * 0.04; sq = 1 + Math.sin(t * 1.2) * 0.05; tiltX = 0.2; aL = aR = 0.3; break; }
+        if (it > 3) {
+          // little idle bits so he never just stands there
+          const v = Math.floor((it - 3) / 4.5) % 4, k = ((it - 3) % 4.5) / 4.5;
+          if (v === 0) { this.lookX = Math.sin(k * Math.PI * 2) * 0.9; roll = Math.sin(k * Math.PI * 2) * 0.1; }
+          else if (v === 1) { const e = Math.sin(clamp(k * 1.6, 0, 1) * Math.PI); aL = aR = -2.9 * e; aLz = 0.4 * e; sq = 1 + 0.14 * e; tiltX = -0.15 * e; if (e > 0.6) face = "sleep"; } // big stretch
+          else if (v === 2) { lR = Math.max(0, Math.sin(t * 14)) * -0.5; bob = Math.max(0, Math.sin(t * 14)) * 0.02; aL = 0.4; aR = 0.4; aLz = 0.9; } // foot tap, hands on hips
+          else { const e = clamp(k * 1.4, 0, 1), up = Math.sin(((e * 3) % 1) * Math.PI); capUp = up * 0.9; capSpin = e * Math.PI * 6; aR = -2.4 * (0.5 + up * 0.5); this.lookY = up * 0.8; } // juggles his cap
         }
-        if (s.idleTime > 14) { face = "sleep"; bob = Math.sin(t * 1.2) * 0.04; sq = 1 + Math.sin(t * 1.2) * 0.05; tiltX = 0.2; aL = aR = 0.3; }
+        break;
+      }
+      case "walk": {
+        const k = clamp(sp * 1.6, 0, 1), sw = Math.sin(phase);
+        lL = sw * 0.7 * k; lR = -lL; aL = -sw * 0.5 * k; aR = -aL;
+        bob = Math.abs(Math.cos(phase)) * 0.05 * k; sq = 1 + (Math.abs(Math.cos(phase)) - 0.5) * 0.05 * k;
+        tiltX = 0.06 * k; roll = sw * 0.08 * k; lean = s.turn || 0;
         break;
       }
       case "run": {
-        const k = clamp(sp, 0, 1.4);
-        const sw = Math.sin(phase);
-        lL = sw * 1.0 * k; lR = -lL; aL = -sw * 0.9 * k; aR = -aL;
-        bob = Math.abs(Math.cos(phase)) * 0.09 * k; sq = 1 + (Math.abs(Math.cos(phase)) - 0.5) * 0.08 * k;
-        tiltX = 0.15 * k + (s.sprint ? 0.12 : 0); roll = sw * 0.06 * k; lean = s.turn || 0;
+        const k = clamp(sp, 0, 1.4), sw = Math.sin(phase);
+        lL = sw * 1.15 * k; lR = -lL; aL = -sw * 1.3 * k; aR = -aL; aLz = 0.25;
+        bob = Math.abs(Math.cos(phase)) * 0.11 * k; sq = 1 + (Math.abs(Math.cos(phase)) - 0.5) * 0.1 * k;
+        tiltX = 0.2 * k + (s.sprint ? 0.12 : 0); roll = sw * 0.05 * k; lean = (s.turn || 0) * 1.3;
         if (s.sprint) face = "open";
         break;
       }
-      case "skid": tiltX = -0.35; sq = 0.92; aL = aR = -1.2; face = "surprised"; break;
-      case "jump": sq = 1.18 - Math.min(tm * 2, 0.18); tiltX = -0.1; aL = aR = -2.4; aLz = 0.3; lL = 0.6; lR = -0.4; face = "open"; break;
-      case "jump2": flip = clamp(tm / 0.42, 0, 1) * Math.PI * 2; aL = aR = -1.5; aLz = 0.8; lL = lR = 0.9; face = "happy"; break;
-      case "jump3": sq = 1.1; aL = -2.8; aR = -2.8; lL = 0.8; lR = -0.8; roll = Math.sin(tm * 10) * 0.2; face = "happy"; break;
-      case "fall": sq = 1 + clamp(-(s.vy || 0) * 0.008, 0, 0.12); aL = aR = -2.0 + Math.sin(t * 16) * 0.2; aLz = 0.7; lL = 0.3; lR = -0.2; face = (s.vy || 0) < -14 ? "surprised" : "open"; break;
+      case "skid": tiltX = -0.5; sq = 0.88; aL = -2.2 + Math.sin(t * 30) * 0.3; aR = -2.2 - Math.sin(t * 30) * 0.3; aLz = 1; lL = lR = -0.9; roll = Math.sin(t * 40) * 0.05; face = "surprised"; break;
+      case "jump": sq = 1.2 - Math.min(tm * 2, 0.2); tiltX = -0.1; aL = aR = -2.5; aLz = 0.3; lL = 0.7; lR = -0.5; face = "open"; break;
+      case "jump2": { const k = flipK(0.45); sq = 1.15 - k * 0.15; aL = -2.9; aR = -0.8; aRz = 0.9; lL = 1.1 * Math.sin(k * 9); lR = -lL; this.j.spin += dt * 12 * Math.max(0, 1 - k); face = "happy"; break; } // scissor kick + twirl
+      case "jump3": { const k = flipK(0.55); flip = ease3(k) * Math.PI * 2; sq = k < 0.85 ? 0.82 : 1.1; aL = aR = k < 0.85 ? 0.6 : -2.8; aLz = 1.1; lL = lR = k < 0.85 ? 1.5 : 0.4; face = "happy"; break; } // tucked front flip
+      case "djump": { const k = flipK(0.42); flip = k * Math.PI * 2; aL = aR = -1.5; aLz = 0.8; lL = lR = 0.9; face = "happy"; break; }
+      case "backflip": { const k = flipK(0.6); flip = -ease3(k) * Math.PI * 2; sq = k < 0.85 ? 0.85 : 1.05; aL = aR = -2.6; aLz = 0.5; lL = lR = 1.2; face = "happy"; break; }
+      case "sidejump": { const k = flipK(0.6); sflip = ease3(k) * Math.PI * 2; aL = aR = -1.6; aLz = 1.4; lL = 0.5; lR = -0.5; sq = 1.05; face = "happy"; break; } // cartwheel
+      case "longjump": tiltX = 1.0; sq = 1.12; aL = aR = 1.3; aLz = 0.3; lL = lR = -1.1; by = 0.62; face = "open"; break; // superman stretch
+      case "walljump": sq = 1.15; tiltX = -0.2; aL = aR = -2.6; lL = 1.2; lR = -0.3; face = "determined"; break;
+      case "fall": { const fast = (s.vy || 0) < -14; sq = 1 + clamp(-(s.vy || 0) * 0.008, 0, 0.12); aL = -2.0 + Math.sin(t * (fast ? 24 : 16)) * (fast ? 0.6 : 0.2); aR = -2.0 - Math.sin(t * (fast ? 24 : 16)) * (fast ? 0.6 : 0.2); aLz = 0.7; lL = 0.3 + (fast ? Math.sin(t * 20) * 0.4 : 0); lR = -0.2; face = fast ? "surprised" : "open"; break; }
       case "land": sq = 1 - 0.28 * Math.max(0, 1 - tm / 0.14); aL = aR = 0.6; break;
+      case "landheavy": { const k = clamp(tm / 0.22, 0, 1); sq = 0.6 + k * 0.4; by = 0.5 + k * 0.08; aL = aR = -0.4; aLz = 1.4 * (1 - k); lL = lR = -0.4 * (1 - k); break; }
       case "throw": { const k = clamp(tm / 0.25, 0, 1); aR = lerp(-2.6, 1.4, k); aRz = -0.3; tiltX = 0.15; roll = -0.15; face = "determined"; if (!s.grounded) { lL = 0.4; lR = -0.3; } break; }
-      case "capbounce": flip = 0; roll = 0; sq = 1.2 - clamp(tm, 0, 0.2); aL = aR = -2.9; lL = lR = 0.4; face = "happy"; this.j.spin += dt * 22 * Math.max(0, 1 - tm * 1.5); break;
-      case "poundspin": flip = clamp(tm / 0.24, 0, 1) * Math.PI * 2; sq = 0.85; aL = aR = -0.5; aLz = 1.2; lL = lR = 1.4; face = "determined"; break;
-      case "poundfall": sq = 1.12; tiltX = 0; aL = aR = 0.8; aLz = 1.4; lL = lR = 0.4; face = "determined"; break;
+      case "spinthrow": { const k = flipK(0.32); this.j.spin += dt * 20 * Math.max(0, 1 - k); aR = -1.6; aRz = 1.4; aL = -1.0; aLz = 1.4; lL = 0.4; lR = -0.4; face = "determined"; break; }
+      case "capbounce": sq = 1.2 - clamp(tm, 0, 0.2); aL = aR = -2.9; lL = lR = 0.4; face = "happy"; this.j.spin += dt * 22 * Math.max(0, 1 - tm * 1.5); break;
+      case "poundspin": flip = flipK(0.24) * Math.PI * 2; sq = 0.85; aL = aR = -0.5; aLz = 1.2; lL = lR = 1.4; face = "determined"; break;
+      case "poundfall": sq = 1.12; aL = aR = 0.8; aLz = 1.4; lL = lR = 0.4; face = "determined"; break;
       case "poundland": sq = 0.62 + clamp(tm / 0.3, 0, 1) * 0.38; aL = aR = -0.8; aLz = 1.4; face = "determined"; break;
       case "dive": tiltX = Math.PI / 2 * 0.95; aL = aR = -3.0; aLz = 0.25; lL = lR = 0.2; sq = 1.05; face = "open"; break;
-      case "slide": tiltX = Math.PI / 2; by = 0.42; aL = aR = -3.0; lL = lR = 0.2; face = "happy"; sq = 0.95; break;
-      case "roll": tiltX = 0; flip = (s.rollAngle || 0); by = 0.5; aL = aR = 0.8; aLz = 1.3; lL = lR = 1.6; sq = 1; face = "happy"; break;
-      case "crouch": sq = 0.78; by = 0.48; aL = aR = 0.3; break;
+      case "slide": tiltX = Math.PI / 2; by = 0.42; aL = aR = -3.0; lL = lR = 0.2; face = "happy"; sq = 0.95; roll = Math.sin(t * 18) * 0.06; break;
+      case "getup": { const k = clamp(tm / 0.25, 0, 1); tiltX = (1 - ease3(k)) * Math.PI / 2; by = 0.42 + k * 0.16; aL = aR = -1.5 * (1 - k); sq = 0.9 + k * 0.1; break; }
+      case "bonk": tiltX = -0.6; roll = Math.sin(t * 25) * 0.25; aL = aR = -1.8; aLz = 1.2; face = "ouch"; break;
+      case "roll": flip = (s.rollAngle || 0); by = 0.5; aL = aR = 0.8; aLz = 1.3; lL = lR = 1.6; face = "happy"; break;
+      case "crouch": sq = 0.74 + Math.sin(t * 3) * 0.01; by = 0.47; aL = aR = 0.5; aLz = 0.4; lL = lR = -0.5; break;
+      case "crouchwalk": { const sw = Math.sin(phase); sq = 0.76; by = 0.47; roll = sw * 0.15; aL = aR = 0.5; aLz = 0.5; lL = sw * 0.5 - 0.4; lR = -sw * 0.5 - 0.4; tiltX = 0.1; break; } // waddle
       case "wall": tiltX = -0.25; aL = -2.6; aR = -0.4; lL = 0.5; lR = -0.2; sq = 1.05; face = "determined"; break;
-      case "hurt": tiltX = -0.5; roll = Math.sin(t * 30) * 0.3; aL = aR = -2.2; aLz = 1.0; face = "ouch"; break;
-      case "celebrate": case "win": { const k = Math.sin(tm * 9); by = 0.58 + Math.max(0, k) * 0.35; aL = aR = -2.9 + Math.sin(tm * 16) * 0.2; sq = 1 + k * 0.1; face = "happy"; break; }
+      case "hurt": tiltX = -0.5; roll = Math.sin(t * 30) * 0.3; aL = aR = -2.2; aLz = 1.0; flip = -flipK(0.5) * Math.PI * 2 * 0.5; face = "ouch"; break;
+      case "celebrate": case "win": { const k = Math.sin(tm * 9); by = 0.58 + Math.max(0, k) * 0.35; aL = aR = -2.9 + Math.sin(tm * 16) * 0.2; sq = 1 + k * 0.1; this.j.spin += dt * 6; face = "happy"; break; }
       case "laugh": bob = Math.abs(Math.sin(t * 14)) * 0.06; roll = Math.sin(t * 7) * 0.1; aL = aR = 0.5; aLz = 0.9; face = "laugh"; break;
       case "surprised": sq = 1.12; aL = aR = -2.4; aLz = 0.9; face = "surprised"; break;
-      case "talk": bob = Math.sin(t * 3) * 0.02; aL = Math.sin(t * 4) * 0.4 - 0.3; aR = Math.sin(t * 3.3) * 0.3; face = this.faceTimer > 0 ? this.faceName : "smile"; break;
+      case "talk": bob = Math.sin(t * 3) * 0.02; aL = Math.sin(t * 4) * 0.4 - 0.3; aR = Math.sin(t * 3.3) * 0.3; roll = Math.sin(t * 2) * 0.04; face = this.faceTimer > 0 ? this.faceName : "smile"; break;
       case "lose": { const k = clamp(tm / 1, 0, 1); sq = 1 - k * 0.3; tiltX = -k * 0.6; roll = Math.sin(t * 20) * 0.1 * (1 - k); aL = aR = 0.8 * k; aLz = 1.2; by = 0.58 - k * 0.12; face = "ouch"; break; }
-      case "swim": bob = Math.sin(t * 5) * 0.06; aL = Math.sin(t * 8) * 1.2 - 1.2; aR = -Math.sin(t * 8) * 1.2 - 1.2; lL = Math.sin(t * 8); lR = -lL; face = "determined"; break;
       case "sleep": face = "sleep"; bob = Math.sin(t * 1.2) * 0.04; sq = 1 + Math.sin(t * 1.2) * 0.05; tiltX = 0.25; break;
     }
+    this.capHolder.position.y = damp(this.capHolder.position.y, 0.38 + capUp, 30, dt);
+    this.capHolder.rotation.y = capSpin;
     if (this.faceTimer > 0) face = this.faceName;
 
     // springy smoothing
     const L = (k, v, r = 16) => (j[k] = damp(j[k], v, r, dt));
     L("lean", lean, 8); L("tiltX", tiltX, 14); L("roll", roll, 12); L("sq", sq, 22);
     L("armL", aL, 18); L("armR", aR, 18); L("armLz", aLz, 14); L("armRz", aRz, 14); L("legL", lL, 20); L("legR", lR, 20); L("bob", bob, 18); L("bodyY", by, 14);
-    j.flip = flip;
-    if (st !== "capbounce") j.spin = damp(j.spin, Math.round(j.spin / (Math.PI * 2)) * Math.PI * 2, 10, dt);
+    j.flip = flip; j.sflip = sflip;
+    if (!["capbounce", "jump2", "spinthrow", "celebrate", "win"].includes(st)) j.spin = damp(j.spin, Math.round(j.spin / (Math.PI * 2)) * Math.PI * 2, 10, dt);
 
     const b = this.body;
     b.position.y = j.bodyY + j.bob;
     b.scale.set(1 / Math.sqrt(j.sq), j.sq, 1 / Math.sqrt(j.sq));
-    b.rotation.set(j.tiltX + j.flip, j.spin, j.roll + j.lean, "YXZ");
+    b.rotation.set(j.tiltX + j.flip, j.spin, j.roll + j.lean + (j.sflip || 0), "YXZ");
     if (st === "roll") b.rotation.x = j.flip;
     this.arms[0].rotation.set(j.armL, 0, -j.armLz); this.arms[1].rotation.set(j.armR, 0, j.armLz + j.armRz);
     this.legs[0].rotation.x = j.legL; this.legs[1].rotation.x = j.legR;
     const hideLegs = st === "roll";
     this.legs[0].visible = this.legs[1].visible = !hideLegs;
-    if (st === "slide" || st === "dive") { this.legs[0].position.set(-0.18, 0.4, -0.45); this.legs[1].position.set(0.18, 0.4, -0.45); this.legs[0].rotation.x = this.legs[1].rotation.x = 1.6; }
+    if (st === "slide" || st === "dive" || st === "longjump") { this.legs[0].position.set(-0.18, 0.4, -0.45); this.legs[1].position.set(0.18, 0.4, -0.45); this.legs[0].rotation.x = this.legs[1].rotation.x = 1.6; }
     else { this.legs[0].position.set(-0.18, 0.16, 0); this.legs[1].position.set(0.18, 0.16, 0); }
 
     // blink + look
@@ -233,7 +259,7 @@ export class FuseModel {
     if (this.blinkT < 0) { this.blink = 1; this.blinkT = 2 + Math.random() * 3; }
     this.blink = Math.max(0, this.blink - dt * 9);
     this.lookT -= dt;
-    if (this.lookT < 0 && st !== "idle") { this.lookX = damp(this.lookX, 0, 6, dt); }
+    if (this.lookT < 0 && st !== "idle") { this.lookX = damp(this.lookX, 0, 6, dt); this.lookY = damp(this.lookY, 0, 6, dt); }
     if (s.lookAt !== undefined) this.lookX = damp(this.lookX, s.lookAt, 6, dt);
     this._applyFace(face, s.talking);
 

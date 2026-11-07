@@ -1,15 +1,21 @@
-// Fuse's controls: run, sprint, jump, double jump, wall jump, ground pound,
-// roll, DIVE and the signature cap throw + cap bounce. Plus the camera.
+// Fuse's controls, Odyssey style: run, crouch, long jump, backflip, side
+// jump, a real triple jump, midair double jump, wall jump, roll, ground pound,
+// DIVE and the signature cap throw + cap bounce.
 import * as THREE from "../vendor/three.module.min.js";
 import { FuseModel, buildCap } from "./fuse.js";
 import { PAL, blobShadow, damp, clamp, angDiff, lerp } from "./fx.js";
 
-const G = 38, TERMINAL = -30;
+// lower gravity + bigger launch speeds = faster and floatier than before
+const G = 30, TERMINAL = -24;
 const T = {
-  walk: 7, run: 9.5, sprint: 13, accel: 55, decel: 42, airAccel: 24, turnRate: 14,
-  jump: 13.6, jump2: 12.8, poundJump: 17, capBounce: 15.2, wallJumpUp: 12.6, wallJumpOut: 8.5,
-  diveSpeed: 15.5, diveUp: 5.2, rollSpeed: 14.5, coyote: 0.12, buffer: 0.14,
+  walk: 8, run: 12.5, crouchWalk: 4.5, accel: 70, decel: 52, airAccel: 34, turnRate: 16,
+  jump: 13, jump2: 15.8, jump3: 19.5, dbl: 12.2, chainWindow: 0.24,
+  longJumpUp: 10, longJumpSpeed: 19, sideJump: 18.5, sideJumpSpeed: 5, backflip: 19.5,
+  poundJump: 19, capBounce: 15.5, wallJumpUp: 13.5, wallJumpOut: 9.5,
+  diveSpeed: 17.5, diveUp: 6, rollSpeed: 17, coyote: 0.12, buffer: 0.14,
 };
+// airborne states that keep their animation until they start falling
+const AIR = { jump: 0.4, jump2: 0.45, jump3: 0.6, djump: 0.45, longjump: 0.7, sidejump: 0.6, backflip: 0.6, throw: 0.3, spinthrow: 0.35, capbounce: 0.45 };
 
 export class Player {
   constructor(game) {
@@ -18,7 +24,6 @@ export class Player {
     this.root = new THREE.Group(); this.root.add(this.model.root);
     game.scene.add(this.root);
     this.shadow = blobShadow(1.2); game.scene.add(this.shadow);
-
     this.cap = new Cap(game, this);
     this.body = { pos: new THREE.Vector3(), vel: new THREE.Vector3(), r: 0.42, h: 1.15, grounded: false, ground: null, wasGrounded: false };
     this.facing = 0; this.state = "idle"; this.stateT = 0;
@@ -27,9 +32,33 @@ export class Player {
     this.lastSafe = new THREE.Vector3(); this.safeT = 0;
     this.frozen = false;
     this.resetAir();
-    this.coyote = 0; this.jumpBuf = 0; this.poundJumpT = 0;
-    this.stepT = 0;
+    this.coyote = 0; this.jumpBuf = 0; this.chain = 0; this.chainT = 0;
+    this.combo = { n: 0, last: null, groundT: 0, tricks: [] };
+    this.flow = 0; // momentum: builds with your combo and makes Fuse faster
   }
+
+  // ---------- combos ----------
+  // every trick in a row raises the combo (repeating the same trick doesn't),
+  // and touching the ground for too long cashes it in for Sparkbits
+  trick(id, label) {
+    const c = this.combo;
+    if (c.last === id && id !== "capbounce" && id !== "stomp") { this.game.ui.combo(c.n, label, true); return; }
+    c.n++; c.last = id; c.groundT = 0; c.tricks.push(label);
+    this.game.ui.combo(c.n, label);
+    if (c.n >= 2) this.game.audio.sfx("bit", { combo: Math.min(12, c.n) });
+  }
+  endCombo() {
+    const c = this.combo, g = this.game;
+    if (c.n >= 3) {
+      const bonus = Math.min(60, Math.round(c.n * c.n * 0.5));
+      g.addBits(bonus); g.audio.sfx("buy");
+      g.fx.emit({ x: this.pos.x, y: this.pos.y + 1.2, z: this.pos.z, count: 20, color: [PAL.gold, 0xffffff, PAL.peach], speed: 4, up: 3, life: 0.6, size: 0.35 });
+      g.ui.comboEnd(c.n, bonus);
+      g.stats.bestCombo = Math.max(g.stats.bestCombo || 0, c.n);
+    } else g.ui.comboEnd(c.n, 0);
+    c.n = 0; c.last = null; c.tricks = []; c.groundT = 0;
+  }
+  get speedMul() { return 1 + this.flow * 0.32; }
 
   resetAir() { this.usedDouble = false; this.usedDive = false; this.capBounces = 0; }
   get pos() { return this.body.pos; }
@@ -40,18 +69,18 @@ export class Player {
   spawn(x, y, z, facing = 0) {
     this.pos.set(x, y, z); this.vel.set(0, 0, 0); this.facing = facing;
     this.lastSafe.set(x, y, z);
-    this.setState("idle"); this.resetAir(); this.cap.reset();
+    this.setState("idle"); this.resetAir(); this.cap.reset(); this.chain = 0;
     this.body.grounded = false; this.body.ground = null;
   }
 
-  setState(s) { if (this.state !== s) { this.state = s; this.stateT = 0; } }
-
+  setState(s) { if (this.state !== s) { this.prevState = this.state; this.state = s; this.stateT = 0; } }
   maxBounces() { return this.game.hasUpgrade("twin") ? 2 : 1; }
 
   hurt(fromX, fromZ, dmg = 1) {
     if (this.invuln > 0 || this.state === "lose") return false;
     this.hp -= dmg;
     const g = this.game;
+    if (this.combo.n > 0) { this.combo.n = 0; this.combo.last = null; g.ui.comboEnd(0, 0, true); } // getting hit drops the combo
     g.audio.sfx("hurt"); g.shake(0.35); g.input.rumble(0.8, 200);
     this.invuln = 1.6; this.model.flash = 1.6;
     const dx = this.pos.x - fromX, dz = this.pos.z - fromZ, d = Math.hypot(dx, dz) || 1;
@@ -64,12 +93,7 @@ export class Player {
     return true;
   }
 
-  lose() {
-    this.setState("lose");
-    this.vel.set(0, 0, 0);
-    this.game.audio.sfx("fizzle");
-    this.game.onPlayerLost();
-  }
+  lose() { this.setState("lose"); this.vel.set(0, 0, 0); this.game.audio.sfx("fizzle"); this.game.onPlayerLost(); }
 
   // fell in the sea or off the world: fizzle and pop back to safe ground
   fellOut(splash) {
@@ -79,7 +103,7 @@ export class Player {
     g.ui.hud();
     if (this.hp <= 0) { this.hp = 0; this.lose(); return; }
     g.audio.sfx("hurt");
-    g.ui.toast("Fizzle! Bombs can't swim...", 1.6);
+    g.ui.toast("Fizzle! Bombs can't swim.", 1.6);
     let sp = this.lastSafe;
     const gnd = g.level.groundBelow(sp.x, sp.z, sp.y + 0.5);
     if (!gnd || (g.world.waterY != null && gnd.top < g.world.waterY)) { const cp = g.world.checkpoints[g.save.checkpoint] || g.world.checkpoints.start; sp = cp.pos; }
@@ -89,6 +113,10 @@ export class Player {
 
   heal(n = 1) { this.hp = Math.min(this.maxHp, this.hp + n); this.game.ui.hud(); }
 
+  dust(n, spd = 2.5, col = [PAL.peach, 0xffffff, PAL.lime]) {
+    this.game.fx.emit({ x: this.pos.x, y: this.pos.y + 0.05, z: this.pos.z, count: n, color: col, speed: spd, life: 0.4, size: 0.38, flat: true });
+  }
+
   update(dt) {
     const g = this.game, inp = g.input, b = this.body, cam = g.cam;
     this.stateT += dt; this.invuln = Math.max(0, this.invuln - dt);
@@ -97,37 +125,39 @@ export class Player {
     const frozen = this.frozen;
     const mv = frozen ? { x: 0, y: 0 } : inp.moveVector();
     const mag = Math.min(1, Math.hypot(mv.x, mv.y));
-    // camera-relative direction
     const yaw = cam.yaw;
     const fx = -Math.sin(yaw), fz = -Math.cos(yaw), rx = Math.cos(yaw), rz = -Math.sin(yaw);
     let wx = fx * mv.y + rx * mv.x, wz = fz * mv.y + rz * mv.x;
     const wl = Math.hypot(wx, wz); if (wl > 0) { wx /= wl; wz /= wl; }
+    const inAng = wl > 0 ? Math.atan2(wx, wz) : this.facing;
     const P = (a) => !frozen && inp.pressed(a), H = (a) => !frozen && inp.held(a);
 
     if (P("jump")) this.jumpBuf = T.buffer; else this.jumpBuf = Math.max(0, this.jumpBuf - dt);
     if (b.grounded) this.coyote = T.coyote; else this.coyote = Math.max(0, this.coyote - dt);
-    this.poundJumpT = Math.max(0, this.poundJumpT - dt);
+    if (b.grounded) this.chainT = Math.max(0, this.chainT - dt);
 
     const st = this.state;
-    const sprint = H("sprint") && mag > 0.3;
     const hs = Math.hypot(this.vel.x, this.vel.z);
-    let targetSpeed = mag * (sprint ? T.sprint : T.run);
-    if (mag < 0.55 && !sprint) targetSpeed = mag * T.walk * 1.3;
+    const sm = this.speedMul;
+    let targetSpeed = mag * T.run * sm;
+    if (mag < 0.55) targetSpeed = mag * T.walk * 1.3;
 
-    const busy = ["poundspin", "poundfall", "poundland", "dive", "slide", "roll", "hurt", "wall"].includes(st);
-
-    // ---------- ground pound / dive input ----------
+    // ---------- midair actions ----------
     if (!b.grounded && P("pound") && !["poundspin", "poundfall", "dive", "hurt"].includes(st)) {
       this.setState("poundspin"); this.vel.set(0, 0, 0); g.audio.sfx("pound1");
     }
-    const diveNow = P("dive") || (st === "poundspin" && P("throw"));
-    if (diveNow && !this.usedDive && (!b.grounded || hs > 3) && !["dive", "slide", "hurt", "poundfall"].includes(st)) this.startDive(wl > 0 ? Math.atan2(wx, wz) : this.facing);
+    const diveNow = (!b.grounded && P("crouch")) || (st === "poundspin" && P("throw"));
+    if (diveNow && !this.usedDive && !["dive", "slide", "hurt", "poundfall", "wall"].includes(st)) this.startDive(inAng);
 
-    // ---------- cap throw ----------
-    if (P("throw") && st !== "poundspin" && st !== "dive" && st !== "slide" && st !== "hurt" && this.cap.state === "held") {
+    // ---------- cap throw (crouch + throw on the ground = roll instead) ----------
+    if (P("throw") && b.grounded && (st === "crouch" || st === "crouchwalk")) {
+      this.setState("roll"); this.facing = inAng; this.rollAngle = 0; g.audio.sfx("roll"); this.dust(10, 3);
+      const sp = Math.max(hs, T.rollSpeed * this.speedMul); this.vel.x = Math.sin(this.facing) * sp; this.vel.z = Math.cos(this.facing) * sp;
+      g.tutorialDone("roll"); this.trick("roll", "Roll");
+    } else if (P("throw") && !["poundspin", "dive", "slide", "hurt", "roll", "wall"].includes(this.state) && this.cap.state === "held") {
       this.cap.throw();
-      if (!b.grounded && this.vel.y < 3) this.vel.y = 3; // tiny midair float
-      if (st !== "roll") this.setState("throw");
+      if (!b.grounded) { if (this.vel.y < 3) this.vel.y = 3; this.setState("spinthrow"); this.trick("spinthrow", "Spin Throw"); }
+      else this.setState("throw");
     }
 
     // ---------- state logic ----------
@@ -141,36 +171,43 @@ export class Player {
         break;
       case "poundland":
         this.vel.x = damp(this.vel.x, 0, 20, dt); this.vel.z = damp(this.vel.z, 0, 20, dt);
-        if (this.stateT > 0.3) this.setState("idle");
-        if (this.jumpBuf > 0) { this.jumpBuf = 0; this.doJump(T.poundJump, "jump3"); g.audio.sfx("jump3"); this.flipSpin(); }
+        if (this.jumpBuf > 0) { this.jumpBuf = 0; this.doJump(T.poundJump, "jump3"); g.audio.sfx("jump3"); this.dust(16, 4); this.trick("poundjump", "Pound Jump"); }
+        else if (this.stateT > 0.3) this.setState("idle");
         break;
       case "dive":
-        // steer slightly
-        if (wl > 0) { const a = Math.atan2(wx, wz), d = angDiff(this.facing, a); this.facing += clamp(d, -2.2 * dt, 2.2 * dt); }
+        if (wl > 0) { const d = angDiff(this.facing, inAng); this.facing += clamp(d, -2.4 * dt, 2.4 * dt); }
         { const dsp = Math.max(Math.hypot(this.vel.x, this.vel.z), 4); this.vel.x = Math.sin(this.facing) * dsp; this.vel.z = Math.cos(this.facing) * dsp; }
         if (b.wall && b.wall.speed > 3) { // bonk
-          this.vel.set(b.wall.nx * 5, 6, b.wall.nz * 5); this.setState("hurt"); g.audio.sfx("enemyhit"); g.shake(0.2);
+          this.vel.set(b.wall.nx * 5, 6, b.wall.nz * 5); this.setState("bonk"); g.audio.sfx("enemyhit"); g.shake(0.2);
           g.fx.emit({ x: this.pos.x, y: this.pos.y + 0.6, z: this.pos.z, count: 8, color: 0xffffff, speed: 4, life: 0.4 });
         }
         break;
+      case "bonk":
+        if (b.grounded && this.stateT > 0.2) this.setState("idle");
+        break;
       case "slide": {
-        const k = Math.exp(-3.2 * dt); this.vel.x *= k; this.vel.z *= k;
-        if (this.stateT % 0.08 < dt) g.fx.emit({ x: this.pos.x, y: this.pos.y + 0.1, z: this.pos.z, count: 2, color: [PAL.peach, PAL.lime], speed: 1.5, up: 1.5, life: 0.4, size: 0.3 });
-        if (this.jumpBuf > 0 && this.stateT > 0.05) { this.jumpBuf = 0; const sp = Math.max(hs, 8); this.vel.x = Math.sin(this.facing) * sp; this.vel.z = Math.cos(this.facing) * sp; this.doJump(10.5, "jump"); g.audio.sfx("jump2"); this.usedDive = false; }
-        else if (hs < 1.5 || this.stateT > 0.9) this.setState("crouch");
+        const k = Math.exp(-3 * dt); this.vel.x *= k; this.vel.z *= k;
+        if (this.stateT % 0.07 < dt) this.dust(2, 1.5);
+        if (this.jumpBuf > 0 && this.stateT > 0.05) { this.jumpBuf = 0; const sp = Math.max(hs, 9); this.vel.x = Math.sin(this.facing) * sp; this.vel.z = Math.cos(this.facing) * sp; this.doJump(11, "jump"); g.audio.sfx("jump2"); this.usedDive = false; this.trick("hop", "Dive Hop"); }
+        else if (hs < 1.5 || this.stateT > 0.9) this.setState(H("crouch") ? "crouch" : "getup");
         if (!b.grounded && this.state === "slide") this.setState("fall");
         break;
       }
+      case "getup":
+        this.vel.x = damp(this.vel.x, 0, 12, dt); this.vel.z = damp(this.vel.z, 0, 12, dt);
+        if (this.stateT > 0.25 || this.jumpBuf > 0) this.setState("idle");
+        break;
       case "roll": {
         this.rollAngle = (this.rollAngle || 0) + hs * dt / 0.5;
-        if (wl > 0) { const a = Math.atan2(wx, wz), d = angDiff(this.facing, a); this.facing += clamp(d, -3 * dt, 3 * dt); }
-        const sp = this.stateT < 0.6 || H("pound") ? Math.max(hs, T.rollSpeed) : hs * Math.exp(-4 * dt);
+        if (wl > 0) { const d = angDiff(this.facing, inAng); this.facing += clamp(d, -3.2 * dt, 3.2 * dt); }
+        const keep = this.stateT < 0.55 || H("crouch");
+        const sp = keep ? Math.max(hs, T.rollSpeed * this.speedMul) : hs * Math.exp(-4 * dt);
         this.vel.x = Math.sin(this.facing) * sp; this.vel.z = Math.cos(this.facing) * sp;
-        if (this.stateT % 0.06 < dt) g.fx.emit({ x: this.pos.x, y: this.pos.y + 0.1, z: this.pos.z, count: 2, color: [PAL.peach, 0xffffff], speed: 1.2, up: 1, life: 0.35, size: 0.3 });
-        if (this.jumpBuf > 0) { this.jumpBuf = 0; this.doJump(11.5, "jump"); g.audio.sfx("jump2"); }
-        else if (P("pound") && this.stateT > 0.2) { this.stateT = 0; g.audio.sfx("roll"); }
-        else if (sp < 4 || (this.stateT > 0.6 && !H("pound") && sp < 8)) this.setState("idle");
-        if (b.wall && b.wall.speed > 2) { this.facing = Math.atan2(this.vel.x + b.wall.nx * sp, this.vel.z + b.wall.nz * sp); }
+        if (this.stateT % 0.05 < dt) this.dust(2, 1.2, [PAL.peach, 0xffffff]);
+        if (this.jumpBuf > 0) { this.jumpBuf = 0; this.vel.x *= 1.1; this.vel.z *= 1.1; this.doJump(12, "longjump"); g.audio.sfx("jump2"); this.trick("rolljump", "Roll Jump"); }
+        else if (P("throw") && this.stateT > 0.2) { this.stateT = 0; g.audio.sfx("roll"); this.dust(8, 3); }
+        else if (sp < 4 || (!keep && sp < 8)) this.setState("getup");
+        if (b.wall && b.wall.speed > 2) this.facing = Math.atan2(this.vel.x + b.wall.nx * sp, this.vel.z + b.wall.nz * sp);
         if (!b.grounded && this.coyote <= 0 && this.state === "roll") this.setState("fall");
         break;
       }
@@ -182,79 +219,35 @@ export class Player {
         const w = this.wallN;
         if (b.grounded) { this.setState("idle"); break; }
         if (!b.wall) { this.wallLost = (this.wallLost || 0) + dt; if (this.wallLost > 0.1) { this.setState("fall"); break; } } else this.wallLost = 0;
-        this.vel.y = Math.max(this.vel.y, -3.2);
-        this.vel.x = -w.nx * 2; this.vel.z = -w.nz * 2; // stay pressed against it
+        this.vel.y = Math.max(this.vel.y, -3);
+        this.vel.x = -w.nx * 2; this.vel.z = -w.nz * 2;
         this.facing = Math.atan2(-w.nx, -w.nz);
-        if (this.stateT % 0.1 < dt) g.fx.emit({ x: this.pos.x - w.nx * 0.4, y: this.pos.y + 0.5, z: this.pos.z - w.nz * 0.4, count: 1, color: 0xffffff, speed: 1, life: 0.3, size: 0.25 });
+        if (this.stateT % 0.08 < dt) g.fx.emit({ x: this.pos.x - w.nx * 0.4, y: this.pos.y + 0.5, z: this.pos.z - w.nz * 0.4, count: 1, color: 0xffffff, speed: 1, life: 0.3, size: 0.25 });
         if (this.jumpBuf > 0) {
           this.jumpBuf = 0; this.usedDouble = false;
           this.vel.set(w.nx * T.wallJumpOut, T.wallJumpUp, w.nz * T.wallJumpOut);
           this.facing = Math.atan2(w.nx, w.nz);
-          this.setState("jump"); this.airControlLock = 0.18;
+          this.setState("walljump"); this.airControlLock = 0.18;
           g.audio.sfx("walljump"); g.fx.emit({ x: this.pos.x, y: this.pos.y + 0.6, z: this.pos.z, count: 10, color: [0xffffff, PAL.lime], speed: 3, life: 0.4, size: 0.35 });
-        } else if (wl > 0 && wx * w.nx + wz * w.nz > 0.6 && this.stateT > 0.15) { this.setState("fall"); this.vel.x = w.nx * 3; this.vel.z = w.nz * 3; }
+          g.tutorialDone("walljump"); this.trick("walljump", "Wall Kick");
+        } else if (P("crouch")) { this.setState("fall"); this.vel.x = w.nx * 3; this.vel.z = w.nz * 3; }
         break;
       }
       default: {
-        // normal ground / air movement
-        if (b.grounded) {
-          if (wl > 0) {
-            const a = Math.atan2(wx, wz), d = angDiff(this.facing, a);
-            // quick 180 turn -> skid
-            if (Math.abs(d) > 2.6 && hs > 7) { this.setState("skid"); this.vel.multiplyScalar(0.5); }
-            this.facing += clamp(d, -T.turnRate * dt, T.turnRate * dt);
-            this.turn = clamp(d * 0.25, -0.3, 0.3);
-          }
-          const tvx = Math.sin(this.facing) * targetSpeed, tvz = Math.cos(this.facing) * targetSpeed;
-          const acc = mag > 0 ? T.accel : T.decel;
-          this.vel.x = approach(this.vel.x, wl > 0 ? tvx : 0, acc * dt);
-          this.vel.z = approach(this.vel.z, wl > 0 ? tvz : 0, acc * dt);
-          if (this.state === "skid") { if (this.stateT > 0.18) this.setState("idle"); }
-          else if (this.state === "land" && this.stateT < 0.12) { /* let the squash play */ }
-          else if (this.state !== "throw" || this.stateT > 0.3) this.setState(hs > 0.5 ? "run" : "idle");
-          if (H("pound") && P("pound") && hs > 4) { this.setState("roll"); g.audio.sfx("roll"); this.rollAngle = 0; }
-          else if (H("pound") && hs <= 4 && this.state !== "throw") this.setState("crouch");
-        } else {
-          this.airControlLock = Math.max(0, (this.airControlLock || 0) - dt);
-          if (wl > 0 && this.airControlLock <= 0) {
-            const maxAir = Math.max(sprint ? T.sprint : T.run, hs);
-            const tvx = wx * maxAir * mag, tvz = wz * maxAir * mag;
-            this.vel.x = approach(this.vel.x, tvx, T.airAccel * dt);
-            this.vel.z = approach(this.vel.z, tvz, T.airAccel * dt);
-            const a = Math.atan2(wx, wz); this.facing += clamp(angDiff(this.facing, a), -6 * dt, 6 * dt);
-          }
-          if (!["jump", "jump2", "jump3", "throw", "capbounce"].includes(this.state) || (this.state !== "throw" && this.vel.y < -2 && this.stateT > 0.45)) {
-            if (this.state !== "throw" || this.stateT > 0.3) this.setState("fall");
-          }
-          // wall slide when pushing into a wall while falling
-          if (b.wall && this.vel.y < 2 && !b.wall.s.noWallJump) {
-            const into = wl > 0 ? -(wx * b.wall.nx + wz * b.wall.nz) : 0;
-            if (into > 0.3 || hs > 5) { this.wallN = b.wall; this.wallLost = 0; this.setState("wall"); }
-          }
-          // double jump
-          if (this.jumpBuf > 0 && this.coyote <= 0 && !this.usedDouble && this.state !== "wall") {
-            this.jumpBuf = 0; this.usedDouble = true; this.doJump(T.jump2, "jump2"); g.audio.sfx("jump2");
-            g.fx.emit({ x: this.pos.x, y: this.pos.y, z: this.pos.z, count: 12, color: [PAL.mint, PAL.lime, 0xffffff], speed: 3, life: 0.45, size: 0.4, flat: true });
-            g.rings.spawn(this.pos.x, this.pos.y, this.pos.z, PAL.mint, 1.8, 0.35);
-          }
-        }
-        // ground jump (with coyote time + buffer)
-        if (this.jumpBuf > 0 && this.coyote > 0 && this.state !== "crouch") {
-          this.jumpBuf = 0; this.coyote = 0;
-          this.doJump(T.jump + (sprint ? 0.8 : 0), "jump"); g.audio.sfx("jump");
-          g.fx.emit({ x: this.pos.x, y: this.pos.y + 0.05, z: this.pos.z, count: 8, color: [PAL.lime, 0xffffff], speed: 2.5, life: 0.35, size: 0.35, flat: true });
-        } else if (this.jumpBuf > 0 && this.state === "crouch" && b.grounded) { // backflip
-          this.jumpBuf = 0; this.vel.x = -Math.sin(this.facing) * 4; this.vel.z = -Math.cos(this.facing) * 4; this.doJump(17, "jump2"); g.audio.sfx("jump3");
-        }
+        if (b.grounded) this.groundMove(dt, wl, inAng, mag, targetSpeed, hs, P, H);
+        else this.airMove(dt, wl, wx, wz, inAng, mag, hs, P, H);
       }
     }
 
-    // variable jump height + gravity
+    // gravity (hold jump to float a little higher)
     if (!["poundspin", "poundfall"].includes(this.state)) {
       let grav = G;
-      if (this.vel.y > 0 && !H("jump") && ["jump", "jump2"].includes(this.state)) grav *= 2.1;
-      if (this.state === "dive") grav = G * 0.75;
-      if (this.state === "throw" && !b.grounded && this.vel.y < 0) grav *= 0.55;
+      const rising = this.vel.y > 0;
+      if (rising && ["jump", "jump2", "djump"].includes(this.state)) grav *= H("jump") ? 0.9 : 2.2;
+      if (this.state === "dive") grav = G * 0.7;
+      if (this.state === "longjump") grav = G * 0.85;
+      if ((this.state === "throw" || this.state === "spinthrow") && !b.grounded && this.vel.y < 0) grav *= 0.5;
+      if (!rising && this.vel.y > -6 && !b.grounded) grav *= 0.8; // a floaty hang at the top of every jump
       this.vel.y = Math.max(TERMINAL, this.vel.y - grav * dt);
     }
 
@@ -262,9 +255,8 @@ export class Player {
     const wasAir = !b.grounded, vyBefore = this.vel.y;
     const landed = g.level.move(b, dt);
     if (landed && wasAir) this.onLand(vyBefore);
-    if (b.bump && this.state === "jump") this.vel.y = Math.min(this.vel.y, 0);
+    if (b.bump && AIR[this.state] != null) this.vel.y = Math.min(this.vel.y, 0);
 
-    // safe spot tracking for respawn
     if (b.grounded && b.ground && !b.ground.path && !b.ground.unsafe && !b.ground.hazard) {
       this.safeT += dt;
       if (this.safeT > 0.35) this.lastSafe.set(this.pos.x, this.pos.y, this.pos.z);
@@ -272,52 +264,166 @@ export class Player {
     if (b.grounded && b.ground && b.ground.hazard) this.hurt(this.pos.x - Math.sin(this.facing), this.pos.z - Math.cos(this.facing));
     if (b.grounded && b.ground && b.ground.bouncy) { this.vel.y = b.ground.bouncy; b.grounded = false; this.setState("jump3"); this.resetAir(); g.audio.sfx("capbounce"); g.fx.emit({ x: this.pos.x, y: this.pos.y, z: this.pos.z, count: 14, color: [PAL.pink, PAL.peach], speed: 4, life: 0.5, size: 0.4 }); }
 
-    // water / void
     if (g.world.waterY != null && this.pos.y < g.world.waterY - 0.6) this.fellOut(true);
     else if (this.pos.y < g.world.killY) this.fellOut(false);
 
-    // footsteps
-    if (this.state === "run" && b.grounded) {
-      this.phase += dt * (6 + hs * 1.15);
-      if (Math.floor(this.phase / Math.PI) !== Math.floor((this.phase - dt * (6 + hs * 1.15)) / Math.PI)) {
+    // footsteps + speed sparkles
+    if ((this.state === "run" || this.state === "crouchwalk") && b.grounded) {
+      const rate = 6 + hs * 1.1;
+      this.phase += dt * rate;
+      if (Math.floor(this.phase / Math.PI) !== Math.floor((this.phase - dt * rate) / Math.PI)) {
         g.audio.sfx("step", { pitch: 0.8 + Math.random() * 0.4 });
-        if (hs > 10) g.fx.emit({ x: this.pos.x, y: this.pos.y + 0.05, z: this.pos.z, count: 2, color: [PAL.peach, 0xffffff], speed: 1.2, up: 1, life: 0.35, size: 0.3 });
+        if (hs > 10) this.dust(2, 1.2, [PAL.peach, 0xffffff]);
       }
     }
-    if (sprint && b.grounded && this.stateT % 0.05 < dt) g.fx.emit({ x: this.pos.x, y: this.pos.y + 1.45, z: this.pos.z, count: 1, color: [0xfff1a8, PAL.peach], speed: 1, up: 2, life: 0.3, size: 0.2, gravity: -2 });
+    if (hs > 11 && b.grounded && this.stateT % 0.05 < dt) g.fx.emit({ x: this.pos.x, y: this.pos.y + 1.45, z: this.pos.z, count: 1, color: [0xfff1a8, PAL.peach], speed: 1, up: 2, life: 0.3, size: 0.2, gravity: -2 });
+    // speed lines when you're really moving
+    if (hs > 15 && Math.random() < dt * 60) { const k = 0.06; this.game.fx.emit({ x: this.pos.x + (Math.random() - 0.5) * 1.6, y: this.pos.y + 0.2 + Math.random() * 1.2, z: this.pos.z + (Math.random() - 0.5) * 1.6, count: 1, color: 0xffffff, speed: 0, dir: [-this.vel.x * k * 8, 0, -this.vel.z * k * 8], drag: 0, gravity: 0, life: 0.22, size: 0.18 + this.flow * 0.1 }); }
+    // trail sparkles on the big flips
+    if (["jump3", "backflip", "sidejump", "longjump"].includes(this.state) && Math.random() < dt * 40) g.fx.emit({ x: this.pos.x, y: this.pos.y + 0.6, z: this.pos.z, count: 1, color: [PAL.mint, PAL.pink, PAL.lime, 0xffffff], speed: 0.5, life: 0.5, size: 0.3, gravity: 0 });
+
+    // combo timer: the combo survives rolls, slides and quick touch-downs
+    const c = this.combo;
+    if (c.n > 0) {
+      const keeps = !b.grounded || ["roll", "slide", "poundland", "skid"].includes(this.state) || (this.state === "crouchwalk" && hs > 8) || this.chainT > 0;
+      if (keeps) c.groundT = 0; else { c.groundT += dt; if (c.groundT > 0.45) this.endCombo(); }
+    }
+    this.flow = damp(this.flow, Math.min(1, c.n / 8), c.n > 0 ? 3 : 1.2, dt);
 
     this.idleTime = this.state === "idle" ? this.idleTime + dt : 0;
-    if (this.idleTime > 14 && Math.random() < dt * 0.8) g.fx.emit({ x: this.pos.x + 0.3, y: this.pos.y + 1.4, z: this.pos.z, count: 1, color: 0xffffff, speed: 0.2, up: 0.8, gravity: -0.3, life: 1.5, size: 0.35, grow: 1 });
+    if (this.idleTime > 20 && Math.random() < dt * 0.8) g.fx.emit({ x: this.pos.x + 0.3, y: this.pos.y + 1.4, z: this.pos.z, count: 1, color: 0xffffff, speed: 0.2, up: 0.8, gravity: -0.3, life: 1.5, size: 0.35, grow: 1 });
 
     this.cap.update(dt);
-    this._place(dt, hs, sprint);
+    this._place(dt, hs);
+  }
+
+  groundMove(dt, wl, inAng, mag, targetSpeed, hs, P, H) {
+    const g = this.game, st = this.state;
+    // crouch, crouch-walk and the momentum slide when you crouch while running
+    if (H("crouch") && st !== "throw") {
+      if (st !== "crouch" && st !== "crouchwalk") { this.setState(hs > 7 ? "crouchwalk" : "crouch"); if (hs > 7) { g.audio.sfx("slide"); this.dust(6, 2); } }
+      if (wl > 0) { const d = angDiff(this.facing, inAng); this.facing += clamp(d, -8 * dt, 8 * dt); }
+      const tsp = wl > 0 ? mag * T.crouchWalk : 0;
+      const dec = hs > T.crouchWalk + 0.5 ? 14 : 40; // keep running momentum briefly
+      const nsp = approach(hs, tsp, dec * dt);
+      this.vel.x = Math.sin(this.facing) * nsp; this.vel.z = Math.cos(this.facing) * nsp;
+      this.setState(nsp > 0.6 ? "crouchwalk" : "crouch");
+      if (this.jumpBuf > 0) {
+        this.jumpBuf = 0;
+        if (nsp > 2.2) { // LONG JUMP
+          const sp = Math.max(T.longJumpSpeed * this.speedMul, hs * 1.1);
+          this.vel.x = Math.sin(this.facing) * sp; this.vel.z = Math.cos(this.facing) * sp;
+          this.doJump(T.longJumpUp, "longjump"); g.audio.sfx("dive"); this.dust(12, 3);
+          g.tutorialDone("longjump"); this.trick("longjump", "Long Jump");
+        } else { // BACKFLIP
+          this.vel.x = -Math.sin(this.facing) * 5; this.vel.z = -Math.cos(this.facing) * 5;
+          this.doJump(T.backflip, "backflip"); g.audio.sfx("jump3"); this.dust(10, 2.5);
+          g.tutorialDone("backflip"); this.trick("backflip", "Backflip");
+        }
+      }
+      return;
+    }
+    // skid: quickly reverse direction while running
+    if (st === "skid") {
+      this.vel.x = approach(this.vel.x, 0, 60 * dt); this.vel.z = approach(this.vel.z, 0, 60 * dt);
+      if (this.stateT % 0.04 < dt) this.dust(2, 2);
+      if (this.jumpBuf > 0) { // SIDE JUMP
+        this.jumpBuf = 0;
+        this.facing = this.skidTo;
+        this.vel.x = Math.sin(this.facing) * T.sideJumpSpeed; this.vel.z = Math.cos(this.facing) * T.sideJumpSpeed;
+        this.doJump(T.sideJump, "sidejump"); g.audio.sfx("jump3"); this.dust(12, 3);
+        g.tutorialDone("sidejump"); this.trick("sidejump", "Side Flip");
+        return;
+      }
+      if (this.stateT > 0.28) { this.facing = this.skidTo; this.setState("run"); }
+      return;
+    }
+    if (wl > 0) {
+      const d = angDiff(this.facing, inAng);
+      if (Math.abs(d) > 2.4 && hs > 6) { this.setState("skid"); this.skidTo = inAng; g.audio.sfx("slide"); return; }
+      const turn = T.turnRate / (1 + Math.max(0, hs - 12) * 0.08); // heavier turns at high speed
+      this.facing += clamp(d, -turn * dt, turn * dt);
+      this.turn = clamp(d * 0.25, -0.3, 0.3);
+    }
+    // MOMENTUM: if you're already going faster than a normal run (after a dive,
+    // long jump or roll), you keep most of that speed instead of braking hard
+    const carry = wl > 0 && hs > targetSpeed + 0.5;
+    const spd = carry ? approach(hs, targetSpeed, 9 * dt) : null;
+    if (carry) { this.vel.x = Math.sin(this.facing) * spd; this.vel.z = Math.cos(this.facing) * spd; }
+    else {
+      const tvx = Math.sin(this.facing) * targetSpeed, tvz = Math.cos(this.facing) * targetSpeed;
+      const acc = mag > 0 ? T.accel : T.decel;
+      this.vel.x = approach(this.vel.x, wl > 0 ? tvx : 0, acc * dt);
+      this.vel.z = approach(this.vel.z, wl > 0 ? tvz : 0, acc * dt);
+    }
+    if (st === "land" && this.stateT < 0.12) { /* let the squash play */ }
+    else if (st === "landheavy" && this.stateT < 0.22) { this.vel.x *= 0.85; this.vel.z *= 0.85; }
+    else if (st !== "throw" || this.stateT > 0.3) this.setState(hs > 0.5 ? "run" : "idle");
+    // ground jump: jump -> higher jump -> TRIPLE JUMP when chained while moving
+    if (this.jumpBuf > 0 && this.coyote > 0) {
+      this.jumpBuf = 0; this.coyote = 0;
+      const chained = this.chainT > 0 && hs > 5;
+      this.chain = chained ? Math.min(this.chain + 1, 2) : 0;
+      if (this.chain === 2) { this.doJump(T.jump3, "jump3"); g.audio.sfx("jump3"); this.dust(18, 4, [PAL.pink, PAL.mint, 0xffffff]); g.rings.spawn(this.pos.x, this.pos.y, this.pos.z, PAL.pink, 3, 0.4); g.tutorialDone("triple"); this.trick("triple", "Triple Jump"); }
+      else if (this.chain === 1) { this.doJump(T.jump2, "jump2"); g.audio.sfx("jump2"); this.dust(10, 3); this.trick("jump2", "Double Jump"); }
+      else { this.doJump(T.jump, "jump"); g.audio.sfx("jump"); this.dust(8, 2.5); }
+    }
+  }
+
+  airMove(dt, wl, wx, wz, inAng, mag, hs, P, H) {
+    const g = this.game, b = this.body;
+    this.airControlLock = Math.max(0, (this.airControlLock || 0) - dt);
+    const lj = this.state === "longjump";
+    if (wl > 0 && this.airControlLock <= 0) {
+      const maxAir = Math.max(T.run * this.speedMul, hs);
+      const acc = T.airAccel * (lj ? 0.35 : 1);
+      this.vel.x = approach(this.vel.x, wx * maxAir * mag, acc * dt);
+      this.vel.z = approach(this.vel.z, wz * maxAir * mag, acc * dt);
+      if (!["sidejump", "backflip"].includes(this.state)) this.facing += clamp(angDiff(this.facing, inAng), -6 * dt, 6 * dt);
+    }
+    const minT = AIR[this.state];
+    if (minT == null) { if (this.state !== "walljump" || this.stateT > 0.35) this.setState("fall"); }
+    else if (this.vel.y < -2 && this.stateT > minT) this.setState("fall");
+    // wall slide when pushing into a wall while falling
+    if (b.wall && this.vel.y < 2 && !b.wall.s.noWallJump && this.state !== "dive") {
+      const into = wl > 0 ? -(wx * b.wall.nx + wz * b.wall.nz) : 0;
+      if (into > 0.3 || hs > 5) { this.wallN = b.wall; this.wallLost = 0; this.setState("wall"); return; }
+    }
+    // double jump in midair
+    if (this.jumpBuf > 0 && this.coyote <= 0 && !this.usedDouble) {
+      this.jumpBuf = 0; this.usedDouble = true; this.doJump(T.dbl, "djump"); g.audio.sfx("jump2");
+      g.fx.emit({ x: this.pos.x, y: this.pos.y, z: this.pos.z, count: 12, color: [PAL.mint, PAL.lime, 0xffffff], speed: 3, life: 0.45, size: 0.4, flat: true });
+      g.rings.spawn(this.pos.x, this.pos.y, this.pos.z, PAL.mint, 1.8, 0.35);
+      g.tutorialDone("jump"); this.trick("djump", "Air Jump");
+    }
+    // coyote-time ground jump right after walking off a ledge
+    if (this.jumpBuf > 0 && this.coyote > 0) { this.jumpBuf = 0; this.coyote = 0; this.doJump(T.jump, "jump"); g.audio.sfx("jump"); }
   }
 
   doJump(v, anim) {
     this.vel.y = v; this.body.grounded = false; this.coyote = 0;
     this.setState(anim);
+    this.airJump = anim; // remembered through the fall, for the triple-jump chain
   }
-  flipSpin() {}
 
   startDive(angle) {
     const g = this.game;
     this.usedDive = true;
     this.facing = angle;
-    const hs = Math.max(T.diveSpeed, Math.hypot(this.vel.x, this.vel.z) * 0.9);
+    const hs = Math.max(T.diveSpeed * this.speedMul, Math.hypot(this.vel.x, this.vel.z) * 0.95);
     this.vel.set(Math.sin(angle) * hs, this.body.grounded ? 6.5 : T.diveUp, Math.cos(angle) * hs);
     this.body.grounded = false;
-    this.setState("dive");
+    this.setState("dive"); this.airJump = null;
     g.audio.sfx("dive"); g.input.rumble(0.3, 80);
     g.fx.emit({ x: this.pos.x, y: this.pos.y + 0.6, z: this.pos.z, count: 14, color: [0xffffff, PAL.mint, PAL.peach], speed: 3.5, life: 0.45, size: 0.4 });
-    g.tutorialDone("dive");
+    g.tutorialDone("dive"); this.trick("dive", "Dive");
   }
 
   capBounce() {
     const g = this.game;
     this.capBounces++;
     this.vel.y = T.capBounce + (g.hasUpgrade("spring") ? 2.2 : 0);
-    // keep a bit of the dive momentum but not all of it
-    const hs = Math.hypot(this.vel.x, this.vel.z), keep = Math.min(hs, 9) / (hs || 1);
+    const hs = Math.hypot(this.vel.x, this.vel.z), keep = Math.min(hs, 10 * this.speedMul) / (hs || 1);
     this.vel.x *= keep; this.vel.z *= keep;
     this.usedDive = false; this.usedDouble = false;
     this.setState("capbounce");
@@ -325,49 +431,51 @@ export class Player {
     const c = this.cap.mesh.position;
     g.fx.emit({ x: c.x, y: c.y, z: c.z, count: 22, color: [PAL.pink, PAL.mint, PAL.lime, 0xffffff], speed: 5, life: 0.6, size: 0.45 });
     g.rings.spawn(c.x, c.y, c.z, PAL.pink, 2.5, 0.4);
-    g.tutorialDone("capbounce");
+    g.tutorialDone("capbounce"); this.trick("capbounce", "Cap Bounce");
     g.stats.capBounces = (g.stats.capBounces || 0) + 1;
   }
 
   onLand(vy) {
-    const g = this.game;
+    const g = this.game, from = this.state;
     this.resetAir();
-    if (this.state === "poundfall") {
-      this.setState("poundland"); this.poundJumpT = 0.3;
+    if (from === "poundfall") {
+      this.setState("poundland");
       g.audio.sfx("pound"); g.shake(0.4); g.input.rumble(0.9, 160);
       g.rings.spawn(this.pos.x, this.pos.y, this.pos.z, 0xffffff, 4.5, 0.45);
       g.fx.emit({ x: this.pos.x, y: this.pos.y + 0.1, z: this.pos.z, count: 26, color: [PAL.peach, PAL.lime, 0xffffff], speed: 7, life: 0.5, size: 0.45, flat: true });
       g.onPound(this.pos.x, this.pos.y, this.pos.z);
-      g.tutorialDone("pound");
+      g.tutorialDone("pound"); this.trick("pound", "Ground Pound");
       return;
     }
-    if (this.state === "dive") {
-      this.setState("slide"); g.audio.sfx("slide");
-      g.fx.emit({ x: this.pos.x, y: this.pos.y + 0.1, z: this.pos.z, count: 12, color: [PAL.peach, 0xffffff], speed: 3, life: 0.4, size: 0.4, flat: true });
+    if (from === "dive" || (from === "longjump" && Math.hypot(this.vel.x, this.vel.z) > 8 && this.game.input.held("crouch"))) {
+      this.setState("slide"); g.audio.sfx("slide"); this.dust(12, 3);
       return;
     }
-    if (this.state === "hurt") return;
-    if (vy < -8) {
-      g.audio.sfx("land");
-      g.fx.emit({ x: this.pos.x, y: this.pos.y + 0.05, z: this.pos.z, count: Math.min(16, (-vy) | 0), color: [PAL.peach, 0xffffff, PAL.lime], speed: 2.5, life: 0.35, size: 0.35, flat: true });
-      if (vy < -22) g.shake(0.15);
+    if (from === "hurt" || from === "bonk") return;
+    // keep the triple-jump chain going if you land from jump 1 or 2 (even after it turned into a fall)
+    const aj = this.airJump; this.airJump = null;
+    if ((aj === "jump" || aj === "jump2") && (from === aj || from === "fall" || from === "throw" || from === "spinthrow")) this.chainT = T.chainWindow; else this.chain = 0;
+    if (from === "jump3" || from === "backflip" || from === "sidejump" || vy < -20) {
+      g.audio.sfx("land"); this.dust(Math.min(18, (-vy) | 0), 3); if (vy < -20) g.shake(0.15);
+      this.setState("landheavy");
+    } else if (vy < -8) {
+      g.audio.sfx("land"); this.dust(Math.min(14, (-vy) | 0), 2.5);
       this.setState("land");
     } else this.setState(Math.hypot(this.vel.x, this.vel.z) > 0.5 ? "run" : "idle");
   }
 
-  _place(dt, hs = 0, sprint = false) {
+  _place(dt, hs = 0) {
     const p = this.pos;
     this.root.position.copy(p);
-    const shown = this.state === "dive" || this.state === "slide" || this.state === "roll" ? this.facing : this.facing;
-    this.root.rotation.y = shown;
+    this.root.rotation.y = this.facing;
     let anim = this.state;
     if (anim === "land" && this.stateT > 0.14) anim = "idle";
+    if (anim === "run" && hs < 6.5) anim = "walk";
     this.model.update(dt, {
       state: anim, speed: hs / T.run, vy: this.vel.y, grounded: this.body.grounded, timer: this.stateT,
-      phase: this.phase, sprint, idleTime: this.idleTime, turn: this.turn || 0, rollAngle: this.rollAngle || 0,
+      phase: this.phase, sprint: hs > 11, idleTime: this.idleTime, turn: this.turn || 0, rollAngle: this.rollAngle || 0,
     });
     if (this.invuln <= 0) this.model.flash = 0;
-    // blob shadow on the ground below
     const gb = this.game.level.groundBelow(p.x, p.z, p.y + 0.3, 0.05);
     const water = this.game.world.waterY;
     let sy = gb ? gb.top : water ?? -100;

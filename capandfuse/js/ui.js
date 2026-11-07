@@ -30,11 +30,14 @@ export class UI {
     this.game = game; this.root = root;
     root.innerHTML = `
       <div class="cf-hud" id="cfHud" hidden>
-        <div class="cf-hp" id="cfHp"></div>
-        <div class="cf-counts"><div class="cf-pill" id="cfHearts"><i class="cf-ico heart"></i><b>0</b></div><div class="cf-pill" id="cfBits"><i class="cf-ico bit"></i><b>0</b></div></div>
-        <div class="cf-obj" id="cfObj"></div>
-        <div class="cf-boss" id="cfBoss" hidden><span>SHELLSHOCK</span><div><i id="cfBossFill"></i></div></div>
+        <div class="cf-taskbar">
+          <button class="cf-start" id="cfStart" title="Pause menu"><i class="cf-flag"></i>menu</button>
+          <div class="cf-task" id="cfObj"></div>
+          <div class="cf-tray"><span class="cf-hp" id="cfHp"></span><span class="cf-pill" id="cfHearts"><i class="cf-ico heart"></i><b>0</b></span><span class="cf-pill" id="cfBits"><i class="cf-ico bit"></i><b>0</b></span><span class="cf-clock" id="cfClock"></span></div>
+        </div>
+        <div class="cf-boss" id="cfBoss" hidden><span>Shellshock</span><div><i id="cfBossFill"></i></div></div>
       </div>
+      <div class="cf-combo" id="cfCombo" hidden><div class="cf-cn"><small>combo</small><b id="cfComboN">x2</b></div><div class="cf-ct" id="cfComboT"></div></div>
       <div class="cf-hint" id="cfHint" hidden></div>
       <div class="cf-prompt" id="cfPrompt" hidden></div>
       <div class="cf-toasts" id="cfToasts"></div>
@@ -50,6 +53,9 @@ export class UI {
     this.screen = $("#cfScreen", root);
     this.dialogEl = $("#cfDialog", root);
     $("#cfSkip", root).addEventListener("click", () => game.cut.skip());
+    $("#cfStart", root).addEventListener("click", () => game.pause());
+    const clock = () => { const c = $("#cfClock", root); if (c) c.textContent = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); };
+    clock(); setInterval(clock, 15000);
     this.toastBox = $("#cfToasts", root);
     this.current = null;
     root.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b && !b.disabled) game.audio.sfx("select"); });
@@ -70,6 +76,34 @@ export class UI {
     $("#cfBits b", this.root).textContent = g.save.bits;
     $("#cfObj", this.root).textContent = g.objective();
   }
+  // combo meter: shows the count and the last few tricks
+  combo(n, label, repeat) {
+    const el = $("#cfCombo", this.root);
+    clearTimeout(this._comboT);
+    if (n < 2 && !repeat) { // a single trick just flashes its name
+      el.hidden = false; el.classList.remove("end", "big"); el.classList.add("one");
+      $("#cfComboN", this.root).textContent = ""; $("#cfComboT", this.root).innerHTML = `<span>${esc(label)}</span>`;
+      this._comboT = setTimeout(() => (el.hidden = true), 900);
+      return;
+    }
+    el.hidden = false; el.classList.remove("end", "one"); el.classList.toggle("big", n >= 8);
+    const nEl = $("#cfComboN", this.root);
+    nEl.textContent = "x" + n;
+    nEl.classList.remove("pop"); void nEl.offsetWidth; nEl.classList.add("pop");
+    const t = $("#cfComboT", this.root);
+    const tag = document.createElement("span"); tag.textContent = label + (repeat ? " (again)" : ""); if (repeat) tag.className = "dull";
+    t.prepend(tag); while (t.children.length > 4) t.lastChild.remove();
+  }
+  comboEnd(n, bonus, dropped) {
+    const el = $("#cfCombo", this.root);
+    if (el.hidden) return;
+    el.classList.add("end"); el.classList.remove("one");
+    const t = $("#cfComboT", this.root);
+    if (dropped) t.innerHTML = `<span class="lost">Combo lost</span>`;
+    else if (bonus > 0) t.innerHTML = `<span class="win">x${n} combo! +${bonus} Sparkbits</span>`;
+    clearTimeout(this._comboT); this._comboT = setTimeout(() => (el.hidden = true), bonus > 0 ? 1800 : 700);
+  }
+
   bump(id) { const el = $(id, this.root); el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
   bossBar(k) { const b = $("#cfBoss", this.root); if (k == null) { b.hidden = true; return; } b.hidden = false; $("#cfBossFill", this.root).style.width = Math.max(0, k * 100) + "%"; }
 
@@ -89,7 +123,7 @@ export class UI {
   banner(top, sub, color = "#ff8b94") {
     const b = $("#cfBanner", this.root);
     $("#cfTitleCard", this.root).hidden = true;
-    b.innerHTML = `<small>${esc(top)}</small><b style="color:${color}">${esc(sub)}</b>`;
+    b.innerHTML = `<div class="xp-popup"><h2>${esc(top)}</h2><div class="xp-msg"><i class="cf-ico ${color === "#e0a93a" ? "relic" : "heart"} big"></i><b>${esc(sub)}</b></div></div>`;
     b.hidden = false; b.classList.remove("in"); void b.offsetWidth; b.classList.add("in");
     clearTimeout(this._banT); this._banT = setTimeout(() => (b.hidden = true), 3200);
   }
@@ -106,6 +140,10 @@ export class UI {
   open(html, cls = "") {
     this.screen.className = "cf-screen " + cls;
     this.screen.innerHTML = html; this.screen.hidden = false;
+    // Windows XP style close button on each window, wired to that window's Back/Done button
+    const back = this.screen.querySelector("#sBack, #stBack, #xBack, #hBack, #wBack, #cBack, #shBack, #pResume, #crBack");
+    const title = this.screen.querySelector(".cf-panel > h2");
+    if (back && title && !title.querySelector(".xp-x")) { const x = document.createElement("button"); x.className = "xp-x"; x.title = "Close"; x.setAttribute("aria-label", "Close"); x.addEventListener("click", () => back.click()); title.appendChild(x); }
     const first = this.screen.querySelector("button:not([disabled]), input");
     if (first && this.game.input.lastDevice === "pad") first.focus();
     return this.screen;
@@ -117,7 +155,7 @@ export class UI {
   confirm(text, yes = "Yes", no = "Cancel") {
     return new Promise((res) => {
       const c = $("#cfConfirm", this.root);
-      c.innerHTML = `<div class="cf-card cf-pop"><p>${text}</p><div class="cf-row"><button class="cf-btn danger" data-a="1">${esc(yes)}</button><button class="cf-btn" data-a="0">${esc(no)}</button></div></div>`;
+      c.innerHTML = `<div class="cf-card cf-pop"><h2>Cap &amp; Fuse</h2><div class="xp-msg"><i class="xp-icon warn"></i><p>${text}</p></div><div class="cf-row center"><button class="cf-btn" data-a="1">${esc(yes)}</button><button class="cf-btn" data-a="0">${esc(no)}</button></div></div>`;
       c.hidden = false;
       c.onclick = (e) => { const b = e.target.closest("button"); if (!b) return; c.hidden = true; c.onclick = null; res(b.dataset.a === "1"); };
       const nb = c.querySelectorAll("button")[1]; if (nb) nb.focus();
@@ -127,12 +165,14 @@ export class UI {
   landing() {
     this.current = "landing";
     const s = this.open(`
-      <div class="cf-landing">
-        <h1 class="cf-logo"><span class="c1">CAP</span><span class="amp">&amp;</span><span class="c2">FUSE</span></h1>
-        <p class="cf-tag">A little bomb. A very old hat. A whole lot of bouncing.</p>
-        <button class="cf-play" id="cfPlay">&#9654; PLAY</button>
-        <p class="cf-small">Keyboard &amp; mouse or a controller. Sound on for the full experience!</p>
-      </div>`, "clear");
+      <div class="xp-welcome">
+        <div class="xp-wtop"></div>
+        <div class="xp-wmid">
+          <div class="xp-wleft"><div class="xp-wlogo">Cap <span>&amp;</span> Fuse</div><p>To begin, click Play</p></div>
+          <div class="xp-wright"><button class="xp-user" id="cfPlay"><img src="/capandfuse/art/fuse-clay.png" alt=""><span>Play</span></button></div>
+        </div>
+        <div class="xp-wbot"><span>Keyboard and mouse, or a controller</span></div>
+      </div>`, "clear full");
     this.on("#cfPlay", () => this.game.onPlay());
     $("#cfPlay", s).focus();
   }
@@ -140,17 +180,21 @@ export class UI {
   mainMenu(hasSave) {
     this.current = "main";
     this.open(`
-      <div class="cf-menu-wrap">
-        <h1 class="cf-logo small"><span class="c1">CAP</span><span class="amp">&amp;</span><span class="c2">FUSE</span></h1>
-        <div class="cf-menu">
-          ${hasSave ? `<button class="cf-btn big" id="mContinue">Continue</button>` : ""}
-          <button class="cf-btn big" id="mNew">New Game</button>
-          <button class="cf-btn" id="mSaves">Save Files</button>
-          <button class="cf-btn" id="mSettings">Settings</button>
-          <button class="cf-btn" id="mExtras">Extras</button>
-          <button class="cf-btn" id="mCredits">Credits</button>
+      <div class="xp-start cf-pop">
+        <div class="xp-shead"><img src="/capandfuse/art/fuse-clay.png" alt=""><b>Cap &amp; Fuse</b></div>
+        <div class="xp-scols">
+          <div class="xp-sleft">
+            ${hasSave ? `<button class="cf-btn xp-item" id="mContinue"><i class="xp-ico play"></i><span><b>Continue</b><small>Pick up where you left off</small></span></button>` : ""}
+            <button class="cf-btn xp-item" id="mNew"><i class="xp-ico new"></i><span><b>New Game</b><small>Start Chapter 1</small></span></button>
+            <button class="cf-btn xp-item" id="mSaves"><i class="xp-ico folder"></i><span><b>Save Files</b></span></button>
+          </div>
+          <div class="xp-sright">
+            <button class="cf-btn xp-item" id="mSettings"><i class="xp-ico gear"></i><span>Settings</span></button>
+            <button class="cf-btn xp-item" id="mExtras"><i class="xp-ico note"></i><span>Extras</span></button>
+            <button class="cf-btn xp-item" id="mCredits"><i class="xp-ico info"></i><span>Credits</span></button>
+          </div>
         </div>
-        <p class="cf-ver">Chapter 1: Blossom Bay &middot; v1.0</p>
+        <div class="xp-sfoot"><span>Version 1.1</span><a class="xp-exit" href="/games"><i></i>Exit</a></div>
       </div>`, "clear left");
     this.on("#mContinue", () => this.game.continueGame());
     this.on("#mNew", () => this.game.newGameFlow());
@@ -210,7 +254,8 @@ export class UI {
         <p class="cf-dim">Click a key to change it, then press the new key or mouse button.</p>
         <div class="cf-keys">${keyRows}</div>
         <div class="cf-row"><button class="cf-btn tiny" id="stResetKeys">Reset keys</button></div>
-        <p class="cf-dim">Controller: Left stick move &middot; Right stick camera &middot; A jump &middot; X/Y throw cap &middot; B talk &middot; LB/LT ground pound (then X to dive) &middot; RB/RT sprint &middot; Start pause</p>
+        <p class="cf-dim">Controller: left stick move, right stick camera, A jump, X/Y throw cap, LB/LT crouch and dive, RB/RT ground pound, B talk, Start pause.</p>
+        <p class="cf-dim">Mac tip: Cmd + W still closes the tab, so the game asks first.</p>
       </div>
       <div class="cf-tabpane" data-pane="access" hidden>
         <label class="cf-check"><input type="checkbox" id="stCaps" ${st.captions ? "checked" : ""}> Subtitles for sounds (e.g. "[Thunder rumbles]")</label>
@@ -251,9 +296,9 @@ export class UI {
   extras() {
     this.current = "extras";
     const s = this.open(`<div class="cf-panel"><h2>Extras</h2>
-      <h3>Sound Test</h3><p class="cf-dim">Every song in Cap &amp; Fuse, including themes for worlds still to come.</p>
+      <h3>Sound Test</h3>
       <div class="cf-tracks">${TRACK_ORDER.map((k, i) => `<button class="cf-btn tiny track" data-t="${k}">${String(i + 1).padStart(2, "0")} &middot; ${esc(TRACKS[k].title)}</button>`).join("")}</div>
-      <h3>Version Notes</h3><p class="cf-dim"><b>v1.0</b> &middot; Chapter 1: Blossom Bay is here! Explore, find the Sparkhearts and face Shellshock.</p>
+      <h3>Version Notes</h3><p class="cf-dim"><b>1.1</b> New moves and controls, smoother performance, new look.<br><b>1.0</b> Chapter 1: Blossom Bay.</p>
       <div class="cf-row center"><button class="cf-btn" id="xControls">How to Play</button><button class="cf-btn" id="xBack">Back</button></div></div>`);
     s.querySelectorAll("[data-t]").forEach((b) => b.addEventListener("click", () => {
       s.querySelectorAll(".track").forEach((x) => x.classList.remove("on")); b.classList.add("on");
@@ -269,18 +314,19 @@ export class UI {
       <div class="cf-howto">
         <div><b>Move</b> ${k("forward")} ${k("left")} ${k("back")} ${k("right")}</div>
         <div><b>Camera</b> Mouse (click the game to lock the pointer) or ${k("camLeft")} ${k("camRight")}</div>
-        <div><b>Jump</b> ${k("jump")} &middot; press again in the air to <b>double jump</b></div>
-        <div><b>Sprint</b> hold ${k("sprint")}</div>
-        <div><b>Throw cap</b> ${k("throw")} &middot; hold to keep it hovering</div>
-        <div><b>Cap bounce</b> jump into your hovering cap in midair</div>
-        <div><b>Dive</b> ${k("dive")} &middot; or ground pound then throw. Dive into your cap to bounce again!</div>
-        <div><b>Ground pound</b> ${k("pound")} in the air &middot; jump right after landing for a <b>super jump</b></div>
-        <div><b>Roll</b> ${k("pound")} while running &middot; tap again to keep rolling</div>
-        <div><b>Backflip</b> hold ${k("pound")} standing still, then jump</div>
+        <div><b>Jump</b> ${k("jump")} &middot; again in the air to double jump</div>
+        <div><b>Triple jump</b> three jumps in a row while running</div>
+        <div><b>Crouch</b> hold ${k("crouch")}</div>
+        <div><b>Long jump</b> crouch while moving, then ${k("jump")}</div>
+        <div><b>Backflip</b> crouch standing still, then ${k("jump")}</div>
+        <div><b>Side jump</b> turn around while running, then ${k("jump")}</div>
+        <div><b>Dive</b> ${k("crouch")} in the air</div>
+        <div><b>Throw cap</b> ${k("throw")} &middot; hold to keep it hovering &middot; jump into it to bounce</div>
+        <div><b>Roll</b> crouch, then ${k("throw")}</div>
+        <div><b>Ground pound</b> ${k("pound")} in the air &middot; jump as you land for a super jump</div>
         <div><b>Wall jump</b> jump while sliding down a wall</div>
         <div><b>Talk</b> ${k("interact")} &middot; <b>Pause</b> ${k("pause")}</div>
       </div>
-      <p class="cf-dim"><b>Pro combo:</b> jump &rarr; throw cap &rarr; dive into it &rarr; bounce &rarr; double jump &rarr; dive. Covers huge gaps!</p>
       <div class="cf-row center"><button class="cf-btn" id="hBack">Back</button></div></div>`);
     this.on("#hBack", back);
   }
@@ -367,8 +413,8 @@ export class UI {
 
   gameOver() {
     this.current = "gameover";
-    this.open(`<div class="cf-panel narrow cf-pop cf-center"><h2 class="cf-sad">Fuse fizzled!</h2><p>Don't worry, he's tougher than he looks.</p>
-      <div class="cf-menu"><button class="cf-btn big" id="goRetry">Try Again</button><button class="cf-btn" id="goQuit">Quit to Title</button></div></div>`, "dim");
+    this.open(`<div class="cf-panel narrow cf-pop"><h2>Cap &amp; Fuse</h2><div class="xp-msg"><i class="xp-icon err"></i><p>Fuse fizzled.</p></div>
+      <div class="cf-row center"><button class="cf-btn" id="goRetry">Try Again</button><button class="cf-btn" id="goQuit">Quit to Title</button></div></div>`, "dim");
     this.on("#goRetry", () => this.game.retry());
     this.on("#goQuit", () => this.game.quitToTitle());
   }
@@ -387,15 +433,11 @@ export class UI {
     const s = this.open(`<div class="cf-credits"><div class="cf-roll" id="cfRoll">
       <h1 class="cf-logo small"><span class="c1">CAP</span><span class="amp">&amp;</span><span class="c2">FUSE</span></h1>
       <h3>Chapter 1: Blossom Bay</h3>
-      <p><small>Concept, Direction &amp; Game Design</small>Cole</p>
-      <p><small>Starring</small>Fuse, a little bomb with a big cap</p>
-      <p><small>Featuring</small>Grandma Wick &middot; Mayor Pip &middot; Coco &middot; Nell &middot; Dot &middot; Sailor Bo &middot; Old Sal</p>
-      <p><small>And introducing</small>Shellshock, who found a home after all<br>Grizzle, who was never really the villain</p>
-      <p><small>Original 8-bit Soundtrack</small>12 original chiptunes, played live on a little NES-style sound chip</p>
-      <p><small>Built with</small>three.js (MIT License) &middot; Web Audio</p>
-      <p><small>Playtesters</small>Everyone who jumps into their cap for the first time</p>
-      <p><small>Special Thanks</small>You, for playing!</p>
-      <h3>See you in the clouds.</h3>
+      <p><small>A game by</small>Cole</p>
+      <p><small>Cast</small>Fuse &middot; Grandma Wick &middot; Mayor Pip &middot; Coco &middot; Nell &middot; Dot &middot; Sailor Bo &middot; Old Sal &middot; Shellshock &middot; Grizzle</p>
+      <p><small>Music</small>Cole</p>
+      <p><small>Built with</small>three.js (MIT License)</p>
+      <h3>Thanks for playing</h3>
     </div><button class="cf-btn cf-credskip" id="crBack">${afterGame ? "Keep Exploring" : "Back"}</button></div>`, "credits");
     const roll = $("#cfRoll", s);
     roll.style.animationDuration = "38s";
@@ -425,7 +467,7 @@ export class Dialog {
     const l = this.queue.shift();
     if (!l) { this.close(); return; }
     const sp = SPEAKERS[l.who] || SPEAKERS.sign;
-    this.nameEl.textContent = sp.name; this.nameEl.style.background = sp.color;
+    this.nameEl.textContent = l.who === "sign" ? "" : sp.name;
     this.nameEl.hidden = l.who === "sign";
     this.full = l.text; this.shown = 0; this.voice = sp.voice; this.textEl.textContent = "";
     this.cur = l;

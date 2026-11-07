@@ -2,7 +2,7 @@
 // his shell. Make him slam his claw into the sand (or charge into a rock),
 // then cap-bounce up onto his shell and ground pound the glowing gem.
 import * as THREE from "../vendor/three.module.min.js";
-import { PAL, toon, basic, mesh, damp, clamp, angDiff, textSprite } from "./fx.js";
+import { PAL, toon, basic, mesh, damp, clamp, angDiff, textSprite, mergeStatic } from "./fx.js";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const SPH = new THREE.SphereGeometry(1, 20, 14);
@@ -64,6 +64,12 @@ export class Shellshock {
     // sleep bubble
     this.zz = textSprite("Z z z", { color: "#fff", stroke: "#3d4166", height: 0.8 }); this.zz.position.set(0, 7.5, 1); g.add(this.zz);
 
+    // merge the static parts (moving limbs, eyes and the gem stay separate)
+    for (const l of this.legs) l.userData.dynamic = true;
+    for (const e of this.eyes) { e.st.userData.dynamic = true; e.eye.userData.keep = true; e.pu.userData.keep = true; }
+    for (const c of this.claws) c.arm.userData.dynamic = true;
+    this.shell.userData.dynamic = true; this.gem.userData.keep = true; this.mouth.userData.keep = true;
+    mergeStatic(this.inner);
     // collision: body + standable shell top
     const lv = game.level;
     this.bodySolid = lv.addCyl(this.pos.x, this.pos.z, 2.4, this.pos.y, this.pos.y + 3.6, { unsafe: true, noWallJump: true });

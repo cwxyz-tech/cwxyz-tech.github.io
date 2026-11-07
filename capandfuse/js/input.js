@@ -3,22 +3,23 @@
 
 export const ACTIONS = {
   forward: "Move forward", back: "Move back", left: "Move left", right: "Move right",
-  jump: "Jump", sprint: "Sprint", throw: "Throw cap", dive: "Dive",
-  pound: "Ground pound / roll", interact: "Talk / interact", pause: "Pause",
+  jump: "Jump", crouch: "Crouch / dive (in the air)", throw: "Throw cap",
+  pound: "Ground pound", interact: "Talk", pause: "Pause",
   camLeft: "Turn camera left", camRight: "Turn camera right",
 };
+export const KEYS_VERSION = 2;
 
 export const DEFAULT_KEYS = {
   forward: ["KeyW", "ArrowUp"], back: ["KeyS", "ArrowDown"], left: ["KeyA", "ArrowLeft"], right: ["KeyD", "ArrowRight"],
-  jump: ["Space"], sprint: ["ShiftLeft", "ShiftRight"], throw: ["KeyF", "Mouse0"], dive: ["KeyQ", "Mouse2"],
-  pound: ["ControlLeft", "ControlRight", "KeyC"], interact: ["KeyE"], pause: ["Escape", "KeyP"],
+  jump: ["Space"], crouch: ["ShiftLeft", "ShiftRight"], throw: ["ControlLeft", "ControlRight", "MetaLeft", "MetaRight", "Mouse0"],
+  pound: ["KeyQ", "Mouse2"], interact: ["KeyE"], pause: ["Escape", "KeyP"],
   camLeft: ["KeyJ"], camRight: ["KeyL"],
 };
 
 export function keyLabel(code) {
   if (!code) return "-";
   const map = { Space: "Space", ShiftLeft: "L Shift", ShiftRight: "R Shift", ControlLeft: "L Ctrl", ControlRight: "R Ctrl",
-    Mouse0: "Left Click", Mouse1: "Middle Click", Mouse2: "Right Click", Escape: "Esc", ArrowUp: "Up", ArrowDown: "Down",
+    Mouse0: "Left Click", Mouse1: "Middle Click", Mouse2: "Right Click", MetaLeft: "Cmd", MetaRight: "R Cmd", Escape: "Esc", ArrowUp: "Up", ArrowDown: "Down",
     ArrowLeft: "Left", ArrowRight: "Right", AltLeft: "L Alt", AltRight: "R Alt", Enter: "Enter", Tab: "Tab" };
   if (map[code]) return map[code];
   if (code.startsWith("Key")) return code.slice(3);
@@ -48,7 +49,11 @@ export class Input {
       this.down.add(e.code);
       this.lastDevice = "keyboard";
     });
-    addEventListener("keyup", (e) => { this.down.delete(e.code); });
+    addEventListener("keyup", (e) => {
+      this.down.delete(e.code);
+      // macOS swallows key-ups while Cmd is held, so let go of everything when Cmd comes up
+      if (e.key === "Meta") this.down.clear();
+    });
     addEventListener("blur", () => { this.down.clear(); });
     canvas.addEventListener("mousedown", (e) => {
       const code = "Mouse" + e.button;
@@ -69,7 +74,7 @@ export class Input {
   }
 
   _isGameKey(code) {
-    for (const a in this.keys) if (this.keys[a].includes(code)) return true;
+    for (const a in this.keys) if (this.keys[a] && this.keys[a].includes(code)) return true;
     return code === "Tab";
   }
 
@@ -86,7 +91,7 @@ export class Input {
   releaseLock() { if (document.pointerLockElement) document.exitPointerLock(); }
 
   // Gamepad buttons per action (standard mapping)
-  static PAD = { jump: [0], interact: [1], throw: [2, 3], pound: [4, 6], sprint: [5, 7], pause: [9], dive: [] };
+  static PAD = { jump: [0], interact: [1], throw: [2, 3], crouch: [4, 6], pound: [5, 7], pause: [9] };
 
   poll() {
     const pads = navigator.getGamepads ? navigator.getGamepads() : [];

@@ -29,6 +29,7 @@ export class CamRig {
       cam.position.lerpVectors(c.from, c.to, k);
       this.tmp.lerpVectors(c.lf, c.lt, k);
       cam.lookAt(this.tmp);
+      this._fov(55, dt);
       this._shake(dt);
       return;
     }
@@ -61,7 +62,11 @@ export class CamRig {
     this.target.x += (tx - this.target.x) * fk; this.target.z += (tz - this.target.z) * fk;
     this.target.y += (ty - this.target.y) * (force ? 1 : 1 - Math.exp(-7 * dt));
 
-    const dist = this.dist * (g.zoomOut || 1);
+    // speed makes the camera pull back and widen a little: you feel fast
+    const sp = Math.hypot(p.vel.x, p.vel.z), flow = p.flow || 0;
+    this._fov(55 + Math.min(12, Math.max(0, sp - 12) * 0.9) + flow * 3, dt);
+    this.speedPull = damp(this.speedPull || 0, Math.min(1, Math.max(0, sp - 12) / 10), 3, dt);
+    const dist = this.dist * (g.zoomOut || 1) * (1 + this.speedPull * 0.14 + flow * 0.06);
     const cx = this.target.x + Math.sin(this.yaw) * Math.cos(this.pitch) * dist;
     const cz = this.target.z + Math.cos(this.yaw) * Math.cos(this.pitch) * dist;
     const cy = this.target.y + Math.sin(this.pitch) * dist;
@@ -73,6 +78,10 @@ export class CamRig {
     if (force) cam.position.copy(want); else cam.position.lerp(want, 1 - Math.exp(-(fd < 0.98 ? 20 : 14) * dt));
     cam.lookAt(this.target);
     this._shake(dt);
+  }
+  _fov(target, dt) {
+    const c = this.camera, f = damp(c.fov, target, 4, dt);
+    if (Math.abs(f - c.fov) > 0.02) { c.fov = f; c.updateProjectionMatrix(); }
   }
   _shake(dt) {
     if (this.shakeAmt > 0) {

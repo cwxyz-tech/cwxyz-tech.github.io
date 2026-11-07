@@ -175,3 +175,69 @@ export const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 export const lerp = (a, b, t) => a + (b - a) * t;
 export const damp = (a, b, lambda, dt) => lerp(a, b, 1 - Math.exp(-lambda * dt));
 export function angDiff(a, b) { let d = b - a; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2; return d; }
+
+// ---------------- performance helpers ----------------
+// World color saturation (the Bay loses color when the Sparkhearts scatter).
+// Done inside every material's shader instead of a CSS filter on the canvas,
+// which forced the browser to re-composite the whole screen every frame.
+export const SAT = { value: 1 };
+THREE.Material.prototype.onBeforeCompile = function (shader) {
+  shader.uniforms.uSat = SAT;
+  shader.fragmentShader = "uniform float uSat;\n" + shader.fragmentShader.replace(
+    "#include <dithering_fragment>",
+    "#include <dithering_fragment>\n  gl_FragColor.rgb = mix(vec3(dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114))), gl_FragColor.rgb, uSat);");
+};
+export const SAT_GLSL = "gl_FragColor.rgb = mix(vec3(dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114))), gl_FragColor.rgb, uSat);";
+
+// Merge every static mesh under `root` into one mesh per material, so the
+// GPU draws a whole house (or the whole island) in a handful of calls.
+// Objects with userData.dynamic keep moving on their own and are merged
+// separately inside themselves.
+const EMPTY = new THREE.BufferGeometry();
+EMPTY.setAttribute("position", new THREE.BufferAttribute(new Float32Array(0), 3));
+export function mergeStatic(root) {
+  root.updateMatrixWorld(true);
+  const inv = new THREE.Matrix4().copy(root.matrixWorld).invert();
+  const groups = new Map(), victims = [];
+  const visit = (o, top) => {
+    for (const c of o.children.slice()) {
+      if (c.userData.dynamic && c !== top) { mergeStatic(c); continue; }
+      if (c.isMesh && !c.isInstancedMesh && !c.isSkinnedMesh && c.material && !Array.isArray(c.material) && !c.userData.keep &&
+          !(c.material.map) && !c.material.isShaderMaterial && !c.material.transparent && c.visible) {
+        const key = c.material.uuid + (c.castShadow ? "s" : "") + (c.receiveShadow ? "r" : "");
+        if (!groups.has(key)) groups.set(key, { mat: c.material, cast: c.castShadow, recv: c.receiveShadow, geos: [] });
+        const m = new THREE.Matrix4().multiplyMatrices(inv, c.matrixWorld);
+        let geo = c.geometry.index ? c.geometry.toNonIndexed() : c.geometry.clone();
+        for (const name of Object.keys(geo.attributes)) if (name !== "position" && name !== "normal") geo.deleteAttribute(name);
+        if (!geo.attributes.normal) geo.computeVertexNormals();
+        geo.applyMatrix4(m);
+        groups.get(key).geos.push(geo);
+        victims.push(c);
+      }
+      if (!c.isMesh || c.children.length) visit(c, top);
+    }
+  };
+  visit(root, root);
+  let merged = 0;
+  for (const g of groups.values()) {
+    if (g.geos.length < 2) { continue; }
+    let n = 0; for (const geo of g.geos) n += geo.attributes.position.count;
+    const pos = new Float32Array(n * 3), nor = new Float32Array(n * 3);
+    let o = 0;
+    for (const geo of g.geos) { pos.set(geo.attributes.position.array, o * 3); nor.set(geo.attributes.normal.array, o * 3); o += geo.attributes.position.count; geo.dispose(); }
+    const out = new THREE.BufferGeometry();
+    out.setAttribute("position", new THREE.BufferAttribute(pos, 3)); out.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
+    out.computeBoundingSphere();
+    const mm = new THREE.Mesh(out, g.mat); mm.castShadow = g.cast; mm.receiveShadow = g.recv; mm.userData.merged = true;
+    root.add(mm); merged++;
+    g.done = true;
+  }
+  // remove the originals that were merged
+  for (const c of victims) {
+    const key = c.material.uuid + (c.castShadow ? "s" : "") + (c.receiveShadow ? "r" : "");
+    const g = groups.get(key);
+    if (g && g.done && c.children.length === 0) c.parent.remove(c);
+    else if (g && g.done) c.geometry = EMPTY; // keep it as a parent for its children, but draw nothing
+  }
+  return merged;
+}

@@ -1,6 +1,9 @@
 // Collectibles, checkpoints, NPCs and enemies for Blossom Bay.
 import * as THREE from "../vendor/three.module.min.js";
-import { PAL, toon, basic, mesh, textSprite, damp, clamp, angDiff } from "./fx.js";
+import { PAL, toon, basic, mesh, textSprite, damp, clamp, angDiff, mergeStatic } from "./fx.js";
+
+// mark moving parts, then merge everything else in a model into a few meshes
+function bake(root, dynamic = [], keep = []) { for (const d of dynamic) if (d) d.userData.dynamic = true; for (const k of keep) if (k) k.userData.keep = true; mergeStatic(root); }
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const SPH = new THREE.SphereGeometry(1, 16, 12);
@@ -285,6 +288,7 @@ export function buildNPC(kind) {
     }
   }
   g.userData = { ...g.userData, body, eyes: eyeList, voice, height };
+  bake(body, eyeList, [g.userData.flame]);
   return g;
 }
 
@@ -351,7 +355,7 @@ class Enemy {
     g.stats.enemies = (g.stats.enemies || 0) + 1;
     if (this.onDefeat) this.onDefeat(this);
   }
-  stompBounce() { const p = this.game.player; p.vel.y = 13; p.body.grounded = false; p.setState("jump"); p.resetAir(); this.game.audio.sfx("stomp"); }
+  stompBounce() { const p = this.game.player; p.vel.y = 14; p.body.grounded = false; p.setState("jump"); p.resetAir(); this.game.audio.sfx("stomp"); p.trick("stomp", "Stomp"); }
   ground() { const gr = this.game.level.groundBelow(this.pos.x, this.pos.z, this.pos.y + 0.6, 0.3); return gr ? gr.top : this.home.y; }
   deathAnim(dt) {
     this.dead += dt;
@@ -415,6 +419,7 @@ export class Gullbomb extends Enemy {
     this.wings = [];
     for (const sx of [-1, 1]) { const w = new THREE.Group(); w.position.set(sx * 0.3, 0.08, 0); const wm = mesh(SPH, toon(0xdfe6f2), sx * 0.55, 0, 0); wm.scale.set(0.6, 0.06, 0.28); w.add(wm); const tip = mesh(SPH, toon(0x3d4166), sx * 1.05, 0, -0.02); tip.scale.set(0.14, 0.05, 0.18); w.add(tip); this.g.add(w); this.wings.push(w); }
     const e = eyes(this.g, 0.34, 0.66, 0.11, 0.7);
+    bake(this.g, [...this.wings, ...e]);
     const brow = mesh(new THREE.BoxGeometry(0.3, 0.04, 0.04), basic(0x1d1f33), 0, 0.45, 0.68, false); brow.rotation.z = 0.0; this.g.add(brow);
     this.ang = Math.random() * 6; this.state = "circle"; this.r = 0.7; this.h = 0.8; this.swoopT = 0; this.cool = 2;
   }
@@ -466,6 +471,7 @@ export class PearlClam extends Enemy {
     for (let i = 0; i < 5; i++) { const r = mesh(new THREE.TorusGeometry(0.75, 0.025, 4, 16, Math.PI), toon(0xffffff), 0, 0, 0.7); r.rotation.y = (i - 2) * 0.3; r.rotation.x = 0; this.lid.add(r); }
     const inner = mesh(SPH, toon(0xffe0ea), 0, 0.45, 0); inner.scale.set(0.55, 0.12, 0.55); this.g.add(inner);
     this.ee = eyes(this.g, 0.62, 0.35, 0.16, 1); this.ee.forEach((e) => (e.visible = false));
+    bake(this.g, [this.lid, ...this.ee]);
     this.pearls = []; this.cycle = Math.random() * 2; this.open = 0; this.r = 0.85; this.h = 0.9;
   }
   update(dt) {
@@ -525,6 +531,7 @@ export class Shellback extends Enemy {
     const belly = mesh(new THREE.CylinderGeometry(0.72, 0.72, 0.12, 16), toon(PAL.peach), 0, 0.34, 0); this.inner.add(belly);
     for (const sx of [-1, 1]) { const cl = mesh(SPH, toon(PAL.coral), sx * 0.85, 0.5, 0.35); cl.scale.set(0.22, 0.16, 0.2); this.inner.add(cl); for (let k = 0; k < 3; k++) { const l = mesh(new THREE.CylinderGeometry(0.04, 0.03, 0.42, 5), toon(PAL.coral), sx * (0.5 + k * 0.08), 0.18, -0.2 + k * 0.2); l.rotation.z = sx * 0.8; this.inner.add(l); } }
     this.ee = eyes(this.inner, 0.62, 0.62, 0.16, 1);
+    bake(this.inner, this.ee);
     this.flipped = 0; this.dir = 1; this.r = 0.8; this.h = 1.0;
   }
   update(dt) {
@@ -569,7 +576,7 @@ export class Urchin {
     this.g = new THREE.Group(); this.g.position.copy(pos); game.scene.add(this.g);
     const core = mesh(SPH, toon(0x8a6fb8), 0, 0.5, 0); core.scale.setScalar(0.42); this.g.add(core);
     for (let i = 0; i < 22; i++) { const a = i * 2.39, h = ((i * 0.618) % 1) * 2 - 1, r = Math.sqrt(1 - h * h); const sp = mesh(new THREE.ConeGeometry(0.07, 0.45, 5), toon(0xd6c4f0), Math.cos(a) * r * 0.45, 0.5 + h * 0.45, Math.sin(a) * r * 0.45); sp.lookAt(V(Math.cos(a) * r, 0.5 + h, Math.sin(a) * r).multiplyScalar(3)); sp.rotateX(Math.PI / 2); this.g.add(sp); }
-    eyes(this.g, 0.62, 0.38, 0.13, 0.9);
+    bake(this.g, eyes(this.g, 0.62, 0.38, 0.13, 0.9));
   }
   update(dt) {
     this.t += dt; this.g.rotation.y = Math.sin(this.t) * 0.3; this.g.scale.setScalar(1 + Math.sin(this.t * 4) * 0.04);
