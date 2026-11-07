@@ -11,7 +11,7 @@ export const CAPS = {
   relic: { name: "Capwright Crown", dome: PAL.gold, band: PAL.mint, brim: 0xf5c04a, star: PAL.pink, price: -1 }, // from relics
 };
 export const BODIES = {
-  classic: { name: "Classic Fuse", body: PAL.ink, price: 0 },
+  classic: { name: "Classic Fuse", body: 0x34449a, price: 0 },
   rose: { name: "Rose Fuse", body: 0xc76b86, price: 100 },
   seafoam: { name: "Seafoam Fuse", body: 0x3f8f8a, price: 100 },
   midnight: { name: "Midnight Fuse", body: 0x22233a, price: 150 },
@@ -67,18 +67,17 @@ export class FuseModel {
 
     // face
     this.face = new THREE.Group(); body.add(this.face);
-    const eyeW = basic(0xffffff), pupilM = basic(0x1d1f33), cheekM = toon(PAL.pink);
+    const eyeW = basic(0x0d0e1a), pupilM = basic(0x0d0e1a);
     this.eyes = [];
     for (const sx of [-1, 1]) {
       const eye = new THREE.Group(); eye.position.set(0.16 * sx, 0.1, 0.41); eye.rotation.y = 0.32 * sx;
       const white = mesh(SPH, eyeW, 0, 0, 0, false, false); white.scale.set(0.12, 0.16, 0.06);
       const pupil = mesh(SPH, pupilM, 0, -0.01, 0.045, false, false); pupil.scale.set(0.075, 0.105, 0.03);
       const glint = mesh(SPH, eyeW, 0.025 * sx, 0.04, 0.07, false, false); glint.scale.set(0.028, 0.034, 0.01);
+      pupil.visible = false; glint.visible = false; // solid black eyes
       eye.add(white, pupil, glint);
       eye.userData = { pupil, white, glint };
       this.face.add(eye); this.eyes.push(eye);
-      const cheek = mesh(SPH, cheekM, 0.28 * sx, -0.06, 0.37, false, false); cheek.scale.set(0.07, 0.04, 0.03); cheek.rotation.y = 0.6 * sx;
-      this.face.add(cheek);
     }
     // mouths
     this.mouths = {};
@@ -91,7 +90,6 @@ export class FuseModel {
     const flat = mesh(new THREE.BoxGeometry(0.1, 0.02, 0.02), basic(0x1d1f33), 0, -0.08, 0.47, false, false); this.mouths.flat = flat;
     const frown = mesh(new THREE.TorusGeometry(0.06, 0.016, 6, 14, Math.PI), basic(0x1d1f33), 0, -0.11, 0.465, false, false); this.mouths.frown = frown;
     for (const k in this.mouths) { this.face.add(this.mouths[k]); this.mouths[k].visible = false; }
-    this.mouths.smile.visible = true;
 
     // cap
     this.capHolder = new THREE.Group(); this.capHolder.position.set(0, 0.38, 0.02); this.capHolder.rotation.x = -0.18;
@@ -145,7 +143,7 @@ export class FuseModel {
       case "worried": m = "frown"; eyeS = 1; pupS = 0.8; break;
     }
     if (talking) m = Math.sin(this.t * 22) > 0 ? "open" : (name === "sad" || name === "worried" ? "frown" : "smile");
-    for (const k in this.mouths) this.mouths[k].visible = k === m;
+    for (const k in this.mouths) this.mouths[k].visible = false; // Fuse has no mouth
     const b = 1 - this.blink;
     for (const e of this.eyes) {
       e.scale.y = Math.max(0.06, eyeS * b);

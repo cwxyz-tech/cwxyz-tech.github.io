@@ -22,11 +22,10 @@
   background: radial-gradient(circle at 50% 40%, #fff3e6 0, var(--peach) 45%, var(--coral) 100%); transition: opacity .6s; }
 #cfLoader.done { opacity: 0; pointer-events: none; }
 .cf-loadfuse { position: relative; width: 120px; height: 130px; animation: cf-hop .9s ease-in-out infinite; }
-.cf-loadfuse .b { position: absolute; left: 10px; bottom: 0; width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #5a5f8c, var(--ink) 60%); }
+.cf-loadfuse .b { position: absolute; left: 10px; bottom: 0; width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #5868b8, #34449a 60%); }
 .cf-loadfuse .cap { position: absolute; left: 22px; top: 6px; width: 76px; height: 38px; border-radius: 40px 40px 6px 6px; background: var(--pink); box-shadow: 18px 30px 0 -14px #ff7a86; }
 .cf-loadfuse .cap::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 7px; background: var(--mint); }
-.cf-loadfuse .e { position: absolute; top: 62px; width: 16px; height: 22px; border-radius: 50%; background: #fff; }
-.cf-loadfuse .e::after { content: ""; position: absolute; left: 4px; top: 5px; width: 9px; height: 13px; border-radius: 50%; background: #1d1f33; }
+.cf-loadfuse .e { position: absolute; top: 62px; width: 14px; height: 22px; border-radius: 50%; background: #0d0e1a; }
 .cf-loadfuse .e.l { left: 40px; } .cf-loadfuse .e.r { left: 66px; }
 .cf-loadfuse .fz { position: absolute; left: 70px; top: -6px; width: 6px; height: 18px; border-radius: 3px; background: #dba57f; transform: rotate(30deg); }
 .cf-loadfuse .sp { position: absolute; left: 76px; top: -16px; width: 14px; height: 14px; border-radius: 50%; background: #fff1a8; box-shadow: 0 0 14px 6px #ffd56b; animation: cf-flick .12s steps(2) infinite; }
