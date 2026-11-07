@@ -11,7 +11,7 @@ const fmtDate = (t) => { try { return new Date(t).toLocaleString(undefined, { mo
 
 export const WORLDS = [
   { id: "blossom", name: "Blossom Bay", blurb: "A sunny coastal paradise. Where it all begins.", color: "#a8e6cf" },
-  { id: "candy", name: "Candy Cloud Kingdom", blurb: "Grizzle fled up here. Coming in Chapter 2.", color: "#ffd3b6" },
+  { id: "candy", name: "Candy Cloud Kingdom", blurb: "Grizzle carried the Great Sparkheart up here. Coming in Chapter 2.", color: "#ffd3b6" },
   { id: "ember", name: "Ember City", blurb: "A clanky, colorful machine city. Coming later.", color: "#ffaaa5" },
   { id: "forest", name: "The Forgotten Forest", blurb: "Glowing plants and old secrets. Coming later.", color: "#dcedc1" },
   { id: "summit", name: "Starfall Summit", blurb: "The mountain at the top of the sky. Coming later.", color: "#ff8b94" },
@@ -390,7 +390,7 @@ export class UI {
       <p><small>Concept, Direction &amp; Game Design</small>Cole</p>
       <p><small>Starring</small>Fuse, a little bomb with a big cap</p>
       <p><small>Featuring</small>Grandma Wick &middot; Mayor Pip &middot; Coco &middot; Nell &middot; Dot &middot; Sailor Bo &middot; Old Sal</p>
-      <p><small>And introducing</small>Shellshock, who found a home after all<br>Grizzle the Gloomcloud, who still has the Great Sparkheart</p>
+      <p><small>And introducing</small>Shellshock, who found a home after all<br>Grizzle, keeper of Nimbus Hollow, who carries the Great Sparkheart for his people</p>
       <p><small>Original 8-bit Soundtrack</small>12 original chiptunes, played live on a little NES-style sound chip</p>
       <p><small>Built with</small>three.js (MIT License) &middot; Web Audio</p>
       <p><small>Playtesters</small>Everyone who jumps into their cap for the first time</p>

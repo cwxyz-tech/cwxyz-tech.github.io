@@ -660,7 +660,7 @@ class Game {
         break;
       case "sal":
         L("sal", "Mmmrrph... Old Sal's been sitting by this waterfall for forty years.");
-        L("sal", ["Funny thing... sometimes I hear an echo coming from BEHIND the water.", "See that skinny gap by the cliff? Young'uns jump back and forth up it, wall to wall.", "Lost something up high? Throw your cap and jump on it. Works for hats. Works for bombs."][Math.floor(this.time / 7) % 3]);
+        L("sal", ["Funny thing... sometimes I hear an echo coming from BEHIND the water.", "See that skinny gap by the cliff? Young'uns jump back and forth up it, wall to wall.", "Lost something up high? Throw your cap and jump on it. Works for hats. Works for bombs.", "My grandpappy talked about Nimbus Hollow, a town up in the clouds. Used to see its lights twinkle at night. Haven't seen them in a hundred years."][Math.floor(this.time / 7) % 4]);
         break;
     }
     await this.dialog.play(lines);
