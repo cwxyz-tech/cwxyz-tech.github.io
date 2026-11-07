@@ -1,0 +1,17 @@
+<script>/* opened straight from /pages/? send it to the real page, behind the terms */ if (location.pathname.indexOf("/pages/") === 0) location.replace("/" + location.pathname.slice(7).replace(/\.html$/, "").replace(/^(home|404)$/, "").replace(/^[\/\\]+/, ""));</script>
+<link rel="stylesheet" href="/capandfuse/game.css?v=1">
+<div id="cfGame">
+  <canvas id="cfCanvas" aria-label="Cap and Fuse game"></canvas>
+  <div id="cfUI"></div>
+  <div id="cfFps" hidden></div>
+  <div id="cfSaving" aria-hidden="true">Saving&hellip;</div>
+  <a id="cfExit" href="/games" title="Back to the games">&#10005;</a>
+  <noscript><p class="cf-noscript">Cap &amp; Fuse needs JavaScript turned on.</p></noscript>
+  <div id="cfLoader">
+    <div class="cf-loadfuse" aria-hidden="true"><i class="b"></i><i class="cap"></i><i class="e l"></i><i class="e r"></i><i class="fz"></i><i class="sp"></i></div>
+    <div class="cf-loadlogo">CAP <span>&amp;</span> FUSE</div>
+    <div class="cf-loadbar"><i id="cfLoadBar"></i></div>
+    <div id="cfLoadText">Loading...</div>
+  </div>
+</div>
+<script type="module" src="/capandfuse/js/main.js?v=1"></script>
