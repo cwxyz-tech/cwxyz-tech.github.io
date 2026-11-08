@@ -2,7 +2,7 @@
 // his shell. Make him slam his claw into the sand (or charge into a rock),
 // then cap-bounce up onto his shell and ground pound the glowing gem.
 import * as THREE from "../vendor/three.module.min.js";
-import { PAL, toon, basic, mesh, damp, clamp, angDiff, textSprite, mergeStatic, rbox } from "./fx.js?v=15";
+import { PAL, toon, basic, mesh, damp, clamp, angDiff, textSprite, mergeStatic, rbox } from "./fx.js?v=16";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const SPH = new THREE.SphereGeometry(1, 20, 14);
@@ -16,23 +16,23 @@ export class Shellshock {
     const g = (this.g = new THREE.Group()); g.position.copy(this.pos); game.scene.add(g);
     this.inner = new THREE.Group(); g.add(this.inner);
     // body
-    const body = mesh(SPH, toon(PAL.coral), 0, 1.6, 0.6); body.scale.set(2.0, 1.3, 1.6); this.inner.add(body);
-    const belly = mesh(SPH, toon(PAL.peach), 0, 1.3, 1.6); belly.scale.set(1.4, 0.9, 0.7); this.inner.add(belly);
+    const body = mesh(SPH, toon(0xe8675e), 0, 1.6, 0.6); body.scale.set(2.0, 1.3, 1.6); this.inner.add(body);
+    const belly = mesh(SPH, toon(0xf6a48c), 0, 1.3, 1.6); belly.scale.set(1.4, 0.9, 0.7); this.inner.add(belly);
     // legs
     this.legs = [];
     for (const sx of [-1, 1]) for (let k = 0; k < 3; k++) {
       const l = new THREE.Group(); l.position.set(sx * 1.6, 1.0, -0.2 + k * 0.8);
-      const seg = mesh(new THREE.CylinderGeometry(0.16, 0.12, 1.6, 6), toon(PAL.pink), sx * 0.5, -0.4, 0); seg.rotation.z = sx * 1.0; l.add(seg);
+      const seg = mesh(new THREE.CylinderGeometry(0.16, 0.12, 1.6, 8), toon(0xd9564f), sx * 0.5, -0.4, 0); seg.rotation.z = sx * 1.0; l.add(seg);
       this.inner.add(l); this.legs.push(l);
     }
     // eye stalks
     this.eyes = [];
     for (const sx of [-1, 1]) {
       const st = new THREE.Group(); st.position.set(sx * 0.7, 2.6, 1.5);
-      st.add(mesh(new THREE.CylinderGeometry(0.1, 0.14, 1.0, 8), toon(PAL.coral), 0, 0.5, 0));
+      st.add(mesh(new THREE.CylinderGeometry(0.1, 0.14, 1.0, 8), toon(0xe8675e), 0, 0.5, 0));
       const eye = mesh(SPH, basic(0xffffff), 0, 1.1, 0); eye.scale.setScalar(0.38); st.add(eye);
       const pu = mesh(SPH, basic(0x1d1f33), 0, 1.08, 0.3); pu.scale.set(0.18, 0.22, 0.1); st.add(pu);
-      const brow = mesh(rbox(0.6, 0.12, 0.12), toon(0x7a3a4a), sx * 0.05, 1.5, 0.2); brow.rotation.z = -sx * 0.45; st.add(brow);
+      const brow = mesh(rbox(0.66, 0.16, 0.16), toon(0x3a2430), sx * 0.05, 1.45, 0.2); brow.rotation.z = sx * 0.45; st.add(brow);
       this.inner.add(st); this.eyes.push({ st, pu, eye });
     }
     // mouth
@@ -41,25 +41,25 @@ export class Shellshock {
     this.claws = [];
     for (const sx of [-1, 1]) {
       const arm = new THREE.Group(); arm.position.set(sx * 2.0, 1.8, 1.4);
-      const up = mesh(new THREE.CylinderGeometry(0.28, 0.32, 1.6, 8), toon(PAL.pink), 0, 0, 0.8); up.rotation.x = Math.PI / 2; arm.add(up);
+      const up = mesh(new THREE.CylinderGeometry(0.28, 0.32, 1.6, 10), toon(0xe0605a), 0, 0, 0.8); up.rotation.x = Math.PI / 2; arm.add(up);
       const claw = new THREE.Group(); claw.position.set(0, 0, 1.8); arm.add(claw);
-      const big = mesh(SPH, toon(PAL.pink), 0, 0.15, 0.5); big.scale.set(0.8, 0.55, 0.95); claw.add(big);
-      const pinch = mesh(SPH, toon(0xff7a86), 0, -0.45, 0.7); pinch.scale.set(0.55, 0.3, 0.75); claw.add(pinch);
+      const big = mesh(SPH, toon(0xe8675e), 0, 0.15, 0.5); big.scale.set(0.8, 0.55, 0.95); claw.add(big);
+      const pinch = mesh(SPH, toon(0xf08a78), 0, -0.45, 0.7); pinch.scale.set(0.55, 0.3, 0.75); claw.add(pinch);
       this.inner.add(arm); this.claws.push({ arm, claw, sx });
     }
     // the big spiral shell
     this.shell = new THREE.Group(); this.shell.position.set(0, 2.4, -0.6); this.inner.add(this.shell);
     for (let i = 0; i < 6; i++) {
       const r = 2.2 - i * 0.32;
-      const tor = mesh(new THREE.TorusGeometry(r, 0.55 - i * 0.05, 10, 28), toon(i % 2 ? PAL.cream : PAL.peach), 0, 0.4 + i * 0.55, 0);
+      const tor = mesh(new THREE.TorusGeometry(r, 0.55 - i * 0.05, 10, 28), toon(i % 2 ? 0xfaf0e2 : 0xefdcc6), 0, 0.4 + i * 0.55, 0);
       tor.rotation.x = Math.PI / 2; this.shell.add(tor);
     }
-    const fill = mesh(new THREE.ConeGeometry(2.3, 3.4, 24), toon(PAL.peach), 0, 1.6, 0); this.shell.add(fill);
-    const topPlate = mesh(new THREE.CylinderGeometry(1.4, 1.5, 0.3, 20), toon(PAL.coral), 0, 3.55, 0); this.shell.add(topPlate);
+    const fill = mesh(new THREE.ConeGeometry(2.3, 3.4, 24), toon(0xefdcc6), 0, 1.6, 0); this.shell.add(fill);
+    const topPlate = mesh(new THREE.CylinderGeometry(1.4, 1.5, 0.3, 20), toon(0xfaf0e2), 0, 3.55, 0); this.shell.add(topPlate);
     // gem holding the Bay's Sparkheart
-    this.gemMat = new THREE.MeshToonMaterial({ color: PAL.pink, emissive: 0xff5f70, emissiveIntensity: 0.5 });
+    this.gemMat = new THREE.MeshToonMaterial({ color: 0xf08ad8, emissive: 0xd05ec0, emissiveIntensity: 0.55 }); this.gemMat.defines = { CF_GLOSS: "", CF_SMOOTH: "" };
     this.gem = mesh(new THREE.OctahedronGeometry(0.6, 0), this.gemMat, 0, 4.1, 0); this.shell.add(this.gem);
-    this.gemGlow = new THREE.Mesh(SPH, new THREE.MeshBasicMaterial({ color: PAL.pink, transparent: true, opacity: 0.25, depthWrite: false }));
+    this.gemGlow = new THREE.Mesh(SPH, new THREE.MeshBasicMaterial({ color: 0xf6a8e6, transparent: true, opacity: 0.25, depthWrite: false }));
     this.gemGlow.scale.setScalar(1.1); this.gemGlow.position.y = 4.1; this.shell.add(this.gemGlow);
     // sleep bubble
     this.zz = textSprite("Z z z", { color: "#fff", stroke: "#3d4166", height: 0.8 }); this.zz.position.set(0, 7.5, 1); g.add(this.zz);
@@ -137,7 +137,7 @@ export class Shellshock {
     this.zz.position.y = 7.5 + Math.sin(this.t * 1.5) * 0.3;
     // gem glow when it can be hit
     const vul = this.vulnerable();
-    this.gemMat.color.set(vul ? PAL.mint : PAL.pink); this.gemMat.emissive.set(vul ? PAL.mint : 0xff5f70);
+    this.gemMat.color.set(vul ? PAL.mint : 0xf08ad8); this.gemMat.emissive.set(vul ? PAL.mint : 0xd05ec0);
     this.gemGlow.material.color.set(vul ? PAL.mint : PAL.pink);
     this.gemGlow.scale.setScalar((vul ? 1.5 : 1.1) + Math.sin(this.t * 8) * 0.12);
     this.gem.rotation.y += dt * 2;

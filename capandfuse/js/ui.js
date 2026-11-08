@@ -1,8 +1,8 @@
 // All menus and overlays (built as HTML on top of the 3D canvas).
-import { ACTIONS, keyLabel } from "./input.js?v=15";
-import { SPEAKERS } from "./story.js?v=15";
-import { CAPS, BODIES } from "./fuse.js?v=15";
-import { TRACKS, TRACK_ORDER } from "./audio.js?v=15";
+import { ACTIONS, keyLabel } from "./input.js?v=16";
+import { SPEAKERS } from "./story.js?v=16";
+import { CAPS, BODIES } from "./fuse.js?v=16";
+import { TRACKS, TRACK_ORDER } from "./audio.js?v=16";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const cloneJSON = (o) => JSON.parse(JSON.stringify(o));
@@ -169,8 +169,8 @@ export class UI {
       <div class="xp-welcome">
         <div class="xp-wtop"></div>
         <div class="xp-wmid">
-          <div class="xp-wleft"><div class="xp-wlogo">Cap <span>&amp;</span> Fuse</div><p>To begin, click Play</p></div>
-          <div class="xp-wright"><button class="xp-user" id="cfPlay"><img src="/capandfuse/art/fuse-clay.png" alt=""><span>Play</span></button></div>
+          <div class="xp-wleft"><img class="xp-cover" src="/capandfuse/art/cover.jpg" alt="Cap &amp; Fuse, Chapter 1"><p>To begin, click Play</p></div>
+          <div class="xp-wright"><button class="xp-user" id="cfPlay"><img src="/capandfuse/art/fuse-avatar.jpg" alt=""><span>Play</span></button></div>
         </div>
         <div class="xp-wbot"><span>Keyboard and mouse, or a controller</span></div>
       </div>`, "clear full");
@@ -182,7 +182,7 @@ export class UI {
     this.current = "main";
     this.open(`
       <div class="xp-start cf-pop">
-        <div class="xp-shead"><img src="/capandfuse/art/fuse-clay.png" alt=""><b>Cap &amp; Fuse</b></div>
+        <div class="xp-shead"><img src="/capandfuse/art/fuse-avatar.jpg" alt=""><b>Cap &amp; Fuse</b></div>
         <div class="xp-scols">
           <div class="xp-sleft">
             ${hasSave ? `<button class="cf-btn xp-item" id="mContinue"><i class="xp-ico play"></i><span><b>Continue</b><small>Pick up where you left off</small></span></button>` : ""}
@@ -195,7 +195,7 @@ export class UI {
             <button class="cf-btn xp-item" id="mCredits"><i class="xp-ico info"></i><span>Credits</span></button>
           </div>
         </div>
-        <div class="xp-sfoot"><span>Version 1.4</span><a class="xp-exit" href="/games"><i></i>Exit</a></div>
+        <div class="xp-sfoot"><span>Version 1.5</span><a class="xp-exit" href="/games"><i></i>Exit</a></div>
       </div>`, "clear left");
     this.on("#mContinue", () => this.game.continueGame());
     this.on("#mNew", () => this.game.newGameFlow());
@@ -299,7 +299,7 @@ export class UI {
     const s = this.open(`<div class="cf-panel"><h2>Extras</h2>
       <h3>Sound Test</h3>
       <div class="cf-tracks">${TRACK_ORDER.map((k, i) => `<button class="cf-btn tiny track" data-t="${k}">${String(i + 1).padStart(2, "0")} &middot; ${esc(TRACKS[k].title)}</button>`).join("")}</div>
-      <h3>Version Notes</h3><p class="cf-dim"><b>1.4</b> New look: softer lighting, rounded shapes, painted signs, glossy dim-blue Fuse. Balance pass. Crouch in the air dives while moving and ground pounds while still.<br><b>1.3</b> Runs much faster, especially in Safari. New Auto graphics setting. Camera follows Fuse after loading a save.<br><b>1.2</b> Balance changes and Shellshock fixes.<br><b>1.1</b> New moves and controls, smoother performance, new look.<br><b>1.0</b> Chapter 1: Blossom Bay.</p>
+      <h3>Version Notes</h3><p class="cf-dim"><b>1.5</b> Clay look to match the cover art: sculpted surfaces, sunset sky, blossom trees, new Grizzle and Shellshock.<br><b>1.4</b> New look: softer lighting, rounded shapes, painted signs, glossy dim-blue Fuse. Balance pass. Crouch in the air dives while moving and ground pounds while still.<br><b>1.3</b> Runs much faster, especially in Safari. New Auto graphics setting. Camera follows Fuse after loading a save.<br><b>1.2</b> Balance changes and Shellshock fixes.<br><b>1.1</b> New moves and controls, smoother performance, new look.<br><b>1.0</b> Chapter 1: Blossom Bay.</p>
       <div class="cf-row center"><button class="cf-btn" id="xControls">How to Play</button><button class="cf-btn" id="xBack">Back</button></div></div>`);
     s.querySelectorAll("[data-t]").forEach((b) => b.addEventListener("click", () => {
       s.querySelectorAll(".track").forEach((x) => x.classList.remove("on")); b.classList.add("on");

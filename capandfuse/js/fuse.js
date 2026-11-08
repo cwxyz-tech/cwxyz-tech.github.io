@@ -1,7 +1,7 @@
 // Fuse: the little bomb hero. Model is built from simple shapes and animated
 // procedurally (squash, stretch, swings, flips) so every move has character.
 import * as THREE from "../vendor/three.module.min.js";
-import { PAL, toon, basic, mesh, damp, lerp, clamp } from "./fx.js?v=15";
+import { PAL, toon, basic, mesh, damp, lerp, clamp } from "./fx.js?v=16";
 
 export const CAPS = {
   classic: { name: "Classic Cap", dome: PAL.pink, band: PAL.mint, brim: 0xff7a86, star: PAL.lime, price: 0 },
@@ -11,7 +11,7 @@ export const CAPS = {
   relic: { name: "Capwright Crown", dome: PAL.gold, band: PAL.mint, brim: 0xf5c04a, star: PAL.pink, price: -1 }, // from relics
 };
 export const BODIES = {
-  classic: { name: "Classic Fuse", body: 0x56699a, price: 0 },
+  classic: { name: "Classic Fuse", body: 0x4d5196, price: 0 },
   rose: { name: "Rose Fuse", body: 0xc76b86, price: 100 },
   seafoam: { name: "Seafoam Fuse", body: 0x3f8f8a, price: 100 },
   midnight: { name: "Midnight Fuse", body: 0x22233a, price: 150 },

@@ -1,17 +1,17 @@
 // CAP & FUSE: game boot, main loop and all the glue between systems.
 import * as THREE from "../vendor/three.module.min.js";
-import { Input, keyLabel, KEYS_VERSION } from "./input.js?v=15";
-import { AudioSys } from "./audio.js?v=15";
-import * as Save from "./save.js?v=15";
-import { PAL, Particles, Rings, toon, basic, mesh, textSprite, damp, ease, SAT, RES, mergeStatic, rbox } from "./fx.js?v=15";
-import { FuseModel, CAPS, BODIES } from "./fuse.js?v=15";
-import { Player } from "./player.js?v=15";
-import { CamRig } from "./camera.js?v=15";
-import { buildBlossomBay } from "./world.js?v=15";
-import { Bits, Sparkheart, Relic, HealthHeart, Checkpoint, NPC, Bloblet, Gullbomb, PearlClam, Shellback, Urchin } from "./actors.js?v=15";
-import { Shellshock } from "./boss.js?v=15";
-import { Cutscenes } from "./story.js?v=15";
-import { UI, Dialog, UPGRADES } from "./ui.js?v=15";
+import { Input, keyLabel, KEYS_VERSION } from "./input.js?v=16";
+import { AudioSys } from "./audio.js?v=16";
+import * as Save from "./save.js?v=16";
+import { PAL, Particles, Rings, toon, basic, mesh, textSprite, damp, ease, SAT, RES, CLAY, mergeStatic, rbox } from "./fx.js?v=16";
+import { FuseModel, CAPS, BODIES } from "./fuse.js?v=16";
+import { Player } from "./player.js?v=16";
+import { CamRig } from "./camera.js?v=16";
+import { buildBlossomBay } from "./world.js?v=16";
+import { Bits, Sparkheart, Relic, HealthHeart, Checkpoint, NPC, Bloblet, Gullbomb, PearlClam, Shellback, Urchin } from "./actors.js?v=16";
+import { Shellshock } from "./boss.js?v=16";
+import { Cutscenes } from "./story.js?v=16";
+import { UI, Dialog, UPGRADES } from "./ui.js?v=16";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const DEFAULT_SETTINGS = { music: 0.7, sfx: 0.8, muteMusic: false, muteSfx: false, quality: "auto", camSens: 1, invertY: false, captions: true, reducedShake: false, reducedFlash: false, textSpeed: 1, showFps: false, keys: null };
@@ -79,8 +79,8 @@ class Game {
     this.cam = new CamRig(this.camera, this);
 
     // lights
-    this.hemi = new THREE.HemisphereLight(0xdff7ff, 0xffd3b6, 1.25); this.scene.add(this.hemi);
-    const sun = (this.sun = new THREE.DirectionalLight(0xfff1e0, 1.9));
+    this.hemi = new THREE.HemisphereLight(0xf3dcf0, 0xffcfb0, 1.25); this.scene.add(this.hemi);
+    const sun = (this.sun = new THREE.DirectionalLight(0xffe6cc, 1.9));
     sun.position.set(30, 50, 20); sun.castShadow = true;
     const sc = sun.shadow.camera; sc.left = sc.bottom = -30; sc.right = sc.top = 30; sc.near = 1; sc.far = 160;
     sun.shadow.bias = -0.0015; sun.shadow.normalBias = 0.09;
@@ -158,8 +158,9 @@ class Game {
         this.sun.castShadow = shadows; this.sun.shadow.mapSize.set(size, size);
         if (this.sun.shadow.map) { this.sun.shadow.map.dispose(); this.sun.shadow.map = null; }
       }
-      if (this.renderer.shadowMap.enabled !== shadows) {
-        this.renderer.shadowMap.enabled = shadows;
+      const clay = lv <= 1;
+      if (this.renderer.shadowMap.enabled !== shadows || CLAY.on !== clay) {
+        this.renderer.shadowMap.enabled = shadows; CLAY.on = clay;
         this.scene && this.scene.traverse((o) => { if (o.material && o.material.needsUpdate !== undefined && !o.isPoints) o.material.needsUpdate = true; });
       }
       this.renderer.shadowMap.needsUpdate = true;

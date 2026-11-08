@@ -1,6 +1,6 @@
 // Collectibles, checkpoints, NPCs and enemies for Blossom Bay.
 import * as THREE from "../vendor/three.module.min.js";
-import { PAL, toon, basic, mesh, textSprite, damp, clamp, angDiff, mergeStatic, rbox } from "./fx.js?v=15";
+import { PAL, toon, basic, mesh, textSprite, damp, clamp, angDiff, mergeStatic, rbox } from "./fx.js?v=16";
 
 // mark moving parts, then merge everything else in a model into a few meshes
 function bake(root, dynamic = [], keep = []) { for (const d of dynamic) if (d) d.userData.dynamic = true; for (const k of keep) if (k) k.userData.keep = true; mergeStatic(root); }
@@ -15,7 +15,7 @@ export class Bits {
   constructor(game, max = 400) {
     this.game = game; this.list = [];
     const geo = new THREE.OctahedronGeometry(0.32, 0); geo.scale(1, 1.3, 0.55);
-    this.mat = new THREE.MeshToonMaterial({ color: PAL.gold, emissive: 0xffb36b, emissiveIntensity: 0.35 }); this.mat.defines = { CF_GLOSS: "" };
+    this.mat = new THREE.MeshToonMaterial({ color: PAL.gold, emissive: 0xffb36b, emissiveIntensity: 0.35 }); this.mat.defines = { CF_GLOSS: "", CF_SMOOTH: "" };
     this.im = new THREE.InstancedMesh(geo, this.mat, max);
     this.im.count = 0; this.im.castShadow = true; this.im.frustumCulled = false;
     game.scene.add(this.im);
@@ -90,7 +90,7 @@ export class Sparkheart {
     this.g = new THREE.Group(); this.g.position.copy(pos); game.scene.add(this.g);
     const mat = this.taken ? new THREE.MeshToonMaterial({ color: 0xffffff, transparent: true, opacity: 0.45, emissive: PAL.mint, emissiveIntensity: 0.4 })
       : new THREE.MeshToonMaterial({ color: PAL.pink, emissive: 0xff5f70, emissiveIntensity: 0.45 });
-    mat.defines = { CF_GLOSS: "" };
+    mat.defines = { CF_GLOSS: "", CF_SMOOTH: "" };
     this.h = mesh(heartGeometry(), mat); this.h.scale.setScalar(0.7); this.g.add(this.h);
     const halo = new THREE.Mesh(SPH, new THREE.MeshBasicMaterial({ color: this.taken ? PAL.mint : PAL.peach, transparent: true, opacity: 0.22, depthWrite: false }));
     halo.scale.setScalar(1.25); this.g.add(halo); this.halo = halo;

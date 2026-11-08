@@ -91,6 +91,8 @@
 .xp-wlogo { font-family: var(--title-font); font-size: clamp(36px, 6vw, 64px); font-weight: bold; font-style: italic; text-shadow: 2px 2px 3px rgba(0,0,0,.35); }
 .xp-wlogo span { color: #f7a421; }
 .xp-wleft p { margin: 6px 0 0; font-size: 15px; color: #e6eeff; }
+.xp-cover { display: block; margin-left: auto; height: min(52vh, 460px); aspect-ratio: 2 / 3; object-fit: cover; border: 3px solid #fff; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+@media (max-width: 640px) { .xp-cover { height: 34vh; } }
 .xp-wright { grid-column: 3; grid-row: 1; padding-left: 30px; }
 .xp-user { display: flex; align-items: center; gap: 14px; background: none; border: 0; cursor: pointer; padding: 8px 18px 8px 8px; border-radius: 8px; font: inherit; color: #fff; font-size: 22px; }
 .xp-user img { width: 72px; height: 72px; object-fit: contain; border: 2px solid #fff; border-radius: 6px; background: #c7d6f5; box-shadow: 0 0 0 2px #f7a421; }

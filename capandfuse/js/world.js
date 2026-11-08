@@ -1,8 +1,8 @@
 // Blossom Bay: the first world. Builds the scenery (sky, sea, island, village,
 // lighthouse, waterfall cave, floating Sky Steps, boss cove) and its collision.
 import * as THREE from "../vendor/three.module.min.js";
-import { PAL, toon, basic, mesh, textSprite, SAT_GLSL, mergeStatic, rbox, signBoard } from "./fx.js?v=15";
-import { Level } from "./physics.js?v=15";
+import { PAL, toon, basic, mesh, textSprite, SAT_GLSL, mergeStatic, rbox, signBoard } from "./fx.js?v=16";
+import { Level } from "./physics.js?v=16";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 
@@ -10,12 +10,12 @@ const V = (x, y, z) => new THREE.Vector3(x, y, z);
 function skyDome() {
   const mat = new THREE.ShaderMaterial({
     side: THREE.BackSide, depthWrite: false, fog: false,
-    uniforms: { top: { value: new THREE.Color(0x9ed8ee) }, mid: { value: new THREE.Color(0xd4f0ea) }, hor: { value: new THREE.Color(0xffd3b6) }, sun: { value: new THREE.Vector3(0.4, 0.35, -0.85).normalize() } },
+    uniforms: { top: { value: new THREE.Color(0xb59ad6) }, mid: { value: new THREE.Color(0xf0b6cc) }, hor: { value: new THREE.Color(0xffcf9e) }, sun: { value: new THREE.Vector3(0.45, 0.06, -0.89).normalize() } },
     vertexShader: `varying vec3 vP; void main(){ vP = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
     fragmentShader: `uniform vec3 top, mid, hor, sun; varying vec3 vP;
       void main(){ float h = vP.y; vec3 c = mix(hor, mid, smoothstep(-0.02, 0.18, h)); c = mix(c, top, smoothstep(0.18, 0.7, h));
-        float s = max(0.0, dot(vP, sun)); c += vec3(1.0,0.95,0.85) * (pow(s, 400.0) * 1.2 + pow(s, 12.0) * 0.18);
-        if (h < 0.0) c = mix(hor, vec3(0.99,0.72,0.70), smoothstep(0.0, -0.3, h));
+        float s = max(0.0, dot(vP, sun)); c += vec3(1.0,0.86,0.55) * (smoothstep(0.9985, 0.999, s) * 0.9 + pow(s, 30.0) * 0.35 + pow(s, 4.0) * 0.12);
+        if (h < 0.0) c = mix(hor, vec3(0.98,0.72,0.74), smoothstep(0.0, -0.3, h));
         gl_FragColor = vec4(c, 1.0); ${SAT_GLSL} }`,
   });
   const m = new THREE.Mesh(new THREE.SphereGeometry(900, 32, 16), mat);
@@ -100,20 +100,52 @@ function house(wall, roof, w = 5, d = 5, h = 3.5) {
   return g;
 }
 
+// lumpy hand-squashed pebble (the lumps depend only on position, so seams line up)
+const rockGeos = [];
+function lumpyGeo(seed) {
+  const g = new THREE.SphereGeometry(1, 12, 8), p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+    const k = 1 + 0.16 * Math.sin(x * 3.1 + seed) * Math.cos(z * 2.7 + seed * 1.7) + 0.08 * Math.sin(y * 4.3 + seed * 0.6);
+    p.setXYZ(i, x * k, y * k * 0.92, z * k);
+  }
+  g.computeVertexNormals();
+  return g;
+}
 function rock(s = 1, color = PAL.stone) {
-  const geo = new THREE.DodecahedronGeometry(s, 0);
+  if (!rockGeos.length) for (let i = 0; i < 4; i++) rockGeos.push(lumpyGeo(i * 2.3 + 1));
+  const geo = rockGeos[(Math.random() * 4) | 0].clone(); geo.scale(s, s, s);
   const m = mesh(geo, toon(color));
   m.scale.set(1, 0.7 + Math.random() * 0.3, 1); m.rotation.set(Math.random(), Math.random() * 6, Math.random() * 0.3);
   return m;
 }
 
 function cloud(s = 1) {
-  const g = new THREE.Group(), m = toon(0xffffff);
+  const g = new THREE.Group(), m = toon(0xfff0f3);
   const n = 5 + ((Math.random() * 3) | 0);
   for (let i = 0; i < n; i++) {
     const r = (1.2 + Math.random() * 1.4) * s;
     const b = mesh(new THREE.SphereGeometry(r, 12, 8), m, (i - n / 2) * 1.5 * s, Math.random() * s, (Math.random() - 0.5) * 2 * s, false, false);
     b.scale.y = 0.7; g.add(b);
+  }
+  return g;
+}
+
+// fluffy pink blossom tree (the trees that give Blossom Bay its name)
+function blossomTree(h = 4.5) {
+  const g = new THREE.Group();
+  const bark = toon(0x8f5f4a), pinks = [toon(0xf6a9c6), toon(0xf9c3d8), toon(0xee93b6)];
+  const trunk = mesh(new THREE.CylinderGeometry(0.2, 0.34, h * 0.62, 9), bark, 0, h * 0.31, 0); g.add(trunk);
+  for (const [a, l] of [[0.6, 1.3], [-0.7, 1.1], [2.4, 1.0]]) {
+    const br = mesh(new THREE.CylinderGeometry(0.08, 0.14, l, 7), bark, Math.sin(a) * 0.35, h * 0.62 + 0.3, Math.cos(a) * 0.35);
+    br.rotation.set(Math.cos(a) * 0.7, 0, -Math.sin(a) * 0.7); g.add(br);
+  }
+  const n = 7;
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2 + Math.random() * 0.4, rr = i === 0 ? 0 : 0.9 + Math.random() * 0.5;
+    const r = (i === 0 ? 1.35 : 0.85 + Math.random() * 0.35);
+    const b = mesh(new THREE.SphereGeometry(r, 14, 10), pinks[i % 3], Math.cos(a) * rr, h * 0.78 + (i === 0 ? 0.5 : Math.random() * 0.7), Math.sin(a) * rr);
+    b.scale.y = 0.85; g.add(b);
   }
   return g;
 }
@@ -125,8 +157,8 @@ export function buildBlossomBay(scene) {
   const anim = []; // things that move every frame
   const W = { level, root, anim, waterY: 0, killY: -20, name: "Blossom Bay", id: "blossom" };
 
-  scene.background = new THREE.Color(0xffd3b6);
-  scene.fog = new THREE.Fog(0xffe2cf, 70, 330);
+  scene.background = new THREE.Color(0xf6c0c4);
+  scene.fog = new THREE.Fog(0xf8cdc8, 70, 330);
   const sky = skyDome(); root.add(sky); W.sky = sky;
 
   // sea
@@ -138,7 +170,7 @@ export function buildBlossomBay(scene) {
   const floor = mesh(new THREE.CircleGeometry(62, 48), toon(0xf7c9ad), 0, -1.6, 0, false, false); floor.rotation.x = -Math.PI / 2; root.add(floor);
 
   // ---- main island ----
-  const sandM = toon(PAL.peach, { ground: true }), grassM = toon(PAL.mint, { ground: true }), grass2 = toon(PAL.lime, { ground: true });
+  const sandM = toon(0xffd9bd, { ground: true }), grassM = toon(0x9fd89c, { ground: true }), grass2 = toon(0xc9e8a6, { ground: true });
   const beach = mesh(new THREE.CylinderGeometry(46, 48, 4, 72), sandM, 0, 0.45 - 2, 0); root.add(beach);
   level.addCyl(0, 0, 46, -3.55, 0.45, { name: "beach" });
   const rim = mesh(new THREE.CylinderGeometry(40, 41.5, 4, 72), toon(0xc8eeb6), 0, 0.72 - 2, 0); root.add(rim);
@@ -242,7 +274,7 @@ export function buildBlossomBay(scene) {
   bloom(-6, 1, 12); bloom(18, 1, 6); bloom(-26, 1, 6, 24);
 
   // ---- lighthouse cliff (east) ----
-  const cliffM = PAL.stone;
+  const cliffM = 0xc7a58e;
   const cliff = mesh(rbox(16, 10, 16), toon(cliffM), 28, 2, -6); root.add(cliff);
   level.addBox(28, 2, -6, 16, 10, 16);
   const cliffTop = mesh(rbox(16.4, 0.5, 16.4), grassM, 28, 7.05, -6); root.add(cliffTop);
@@ -279,7 +311,7 @@ export function buildBlossomBay(scene) {
   tower.add(mesh(rbox(1.2, 2, 0.3), toon(PAL.woodDark), 0, 1, 2.35));
 
   // ---- waterfall cliff + hidden cave (west) ----
-  const wcM = 0xe6d5c8;
+  const wcM = 0xc9ab95;
   solidBox(-34.5, 3.5, -10, 7, 13, 12, wcM);   // x -38..-31
   solidBox(-24.5, 3.5, -10, 5, 13, 12, wcM);   // x -27..-22
   solidBox(-29, 7, -10, 4, 6, 12, wcM, { camThrough: false });       // above the tunnel (y 4..10)
@@ -357,6 +389,10 @@ export function buildBlossomBay(scene) {
   W.palms = [];
   for (const [x, z] of palms) {
     const d = Math.hypot(x, z), y = d > 40 ? 0.45 : d > 38 ? 0.72 : 1;
+    if (d < 34) { // inland: blossom trees
+      const t = blossomTree(4.2 + Math.random() * 1.2); t.position.set(x, y, z); t.rotation.y = Math.random() * 6; root.add(t);
+      level.addCyl(x, z, 0.34, y, y + 3); continue;
+    }
     const p = palm(4.5 + Math.random() * 2.5, (Math.random() - 0.5) * 0.6); p.position.set(x, y, z); p.rotation.y = Math.random() * 6; root.add(p);
     level.addCyl(x, z, 0.32, y, y + 5); W.palms.push(p);
   }

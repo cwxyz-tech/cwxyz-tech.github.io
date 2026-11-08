@@ -2,8 +2,8 @@
 // jump, a real triple jump, midair double jump, wall jump, roll, ground pound,
 // DIVE and the signature cap throw + cap bounce.
 import * as THREE from "../vendor/three.module.min.js";
-import { FuseModel, buildCap } from "./fuse.js?v=15";
-import { PAL, blobShadow, damp, clamp, angDiff, lerp } from "./fx.js?v=15";
+import { FuseModel, buildCap } from "./fuse.js?v=16";
+import { PAL, blobShadow, damp, clamp, angDiff, lerp } from "./fx.js?v=16";
 
 // lower gravity + bigger launch speeds = faster and floatier than before
 const G = 30, TERMINAL = -24;

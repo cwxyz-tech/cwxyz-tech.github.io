@@ -1,7 +1,7 @@
 // Story: dialogue lines and in-engine cutscenes. Every cutscene can be skipped;
 // skipping fast-forwards through the steps so the game state always ends right.
 import * as THREE from "../vendor/three.module.min.js";
-import { PAL, toon, basic, mesh, ease, rbox } from "./fx.js?v=15";
+import { PAL, toon, basic, mesh, ease, rbox } from "./fx.js?v=16";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const SPH = new THREE.SphereGeometry(1, 20, 14);
@@ -24,31 +24,37 @@ export const SPEAKERS = {
 export function buildGrizzle(mood = "stern") {
   const sad = mood === "sad";
   const g = new THREE.Group();
-  const cm = toon(0x8c7fb8), cm2 = toon(0x6f6399);
-  for (let i = 0; i < 7; i++) {
-    const a = (i / 7) * Math.PI * 2, b = mesh(SPH, i % 2 ? cm : cm2, Math.cos(a) * 0.9, Math.sin(i * 1.7) * 0.25, Math.sin(a) * 0.55);
-    b.scale.setScalar(0.65 + (i % 3) * 0.12); g.add(b);
-  }
-  const core = mesh(SPH, cm, 0, 0.15, 0.1); core.scale.set(1.1, 0.95, 0.9); g.add(core);
+  // a heavy, dark thundercloud of squashed clay puffs
+  const cm = toon(0x5e5878), cm2 = toon(0x4d4766), cm3 = toon(0x6b6587);
+  const puffs = [[0, 0.1, 0, 1.15], [-1.0, -0.05, -0.1, 0.8], [1.0, -0.05, -0.1, 0.85], [-0.55, 0.6, -0.2, 0.75], [0.6, 0.62, -0.25, 0.8], [-1.6, -0.25, -0.3, 0.55], [1.65, -0.2, -0.3, 0.6], [0, -0.45, -0.1, 0.8], [0.05, 0.95, -0.45, 0.6]];
+  puffs.forEach(([x, y, z, r], i) => { const b = mesh(SPH, [cm, cm2, cm3][i % 3], x, y, z); b.scale.set(r, r * 0.86, r * 0.9); g.add(b); });
+  // eyes: pale, glowing and narrowed under heavy brows (worried and soft when sad)
+  const eyeM = new THREE.MeshToonMaterial({ color: 0xfff0c2, emissive: 0xffe3a0, emissiveIntensity: 0.55 });
+  const lidM = cm2;
   for (const sx of [-1, 1]) {
-    const e = mesh(SPH, basic(0xfff1a8), sx * 0.32, 0.25, 0.9, false); e.scale.set(0.18, 0.12, 0.06); g.add(e);
-    const p = mesh(SPH, basic(0x1d1f33), sx * 0.32, 0.23, 0.95, false); p.scale.set(0.07, 0.08, 0.03); g.add(p);
-    const brow = mesh(rbox(0.34, 0.07, 0.06), basic(0x2a2440), sx * 0.3, 0.42, 0.94, false); brow.rotation.z = sad ? -sx * 0.35 : sx * 0.45; g.add(brow); // stern V or worried slant
+    const e = mesh(SPH, eyeM, sx * 0.4, 0.22, 1.02, false); e.scale.set(0.24, sad ? 0.2 : 0.15, 0.08); g.add(e);
+    const lid = mesh(SPH, lidM, sx * 0.4, sad ? 0.42 : 0.33, 1.05, false); lid.scale.set(0.3, 0.13, 0.1);
+    lid.rotation.z = sad ? -sx * 0.3 : sx * 0.42; g.add(lid);
+    const brow = mesh(rbox(0.46, 0.11, 0.12, 0.05), toon(0x2e2944), sx * 0.38, sad ? 0.55 : 0.47, 1.08, false);
+    brow.rotation.z = sad ? -sx * 0.38 : sx * 0.5; g.add(brow);
   }
-  if (sad) { const frown = mesh(new THREE.TorusGeometry(0.14, 0.035, 6, 14, Math.PI), basic(0x2a2440), 0, -0.12, 0.95, false); g.add(frown); } // a small, tired frown
-  else { const line = mesh(rbox(0.34, 0.06, 0.05), basic(0x2a2440), 0, -0.08, 0.96, false); line.rotation.z = 0.12; g.add(line); } // a hard, unreadable line
-  // tiny crown
-  const crown = mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.2, 5, 1, true), toon(PAL.gold, { params: { side: THREE.DoubleSide } }), 0.1, 1.05, 0); g.add(crown);
-  for (let i = 0; i < 5; i++) { const a = (i / 5) * Math.PI * 2, s = mesh(new THREE.ConeGeometry(0.06, 0.18, 4), toon(PAL.gold), 0.1 + Math.cos(a) * 0.28, 1.22, Math.sin(a) * 0.28); g.add(s); }
-  // lightning wand
-  const wand = new THREE.Group(); wand.position.set(1.2, 0, 0.3); g.add(wand);
-  wand.add(mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.9, 6), toon(0x4a4060), 0, -0.2, 0));
-  const bolt = mesh(new THREE.OctahedronGeometry(0.22), new THREE.MeshToonMaterial({ color: 0xfff1a8, emissive: 0xffe066, emissiveIntensity: 0.8 }), 0, 0.35, 0); bolt.scale.y = 1.8; wand.add(bolt);
+  if (sad) { const frown = mesh(new THREE.TorusGeometry(0.15, 0.04, 8, 16, Math.PI), toon(0x2e2944), 0, -0.2, 1.05, false); g.add(frown); }
+  else { const frown = mesh(new THREE.TorusGeometry(0.22, 0.045, 8, 16, Math.PI), toon(0x2e2944), 0, -0.22, 1.08, false); frown.scale.y = 0.55; g.add(frown); }
+  // zigzag lightning bolts hanging under the cloud
+  const boltM = new THREE.MeshToonMaterial({ color: 0xffd65c, emissive: 0xffc23a, emissiveIntensity: 0.7 });
+  const bs = new THREE.Shape(); bs.moveTo(0, 0); bs.lineTo(0.3, 0); bs.lineTo(0.12, -0.38); bs.lineTo(0.32, -0.38); bs.lineTo(-0.08, -0.95); bs.lineTo(0.04, -0.5); bs.lineTo(-0.16, -0.5); bs.closePath();
+  const boltGeo = new THREE.ExtrudeGeometry(bs, { depth: 0.08, bevelEnabled: true, bevelSize: 0.03, bevelThickness: 0.03, bevelSegments: 2 });
+  const bolts = [];
+  for (const [x, z, s] of [[-0.75, 0.4, 0.8], [0.85, 0.35, 0.95], [0.1, 0.2, 0.6]]) { const b = mesh(boltGeo, boltM, x, -0.85, z, false); b.scale.setScalar(s); g.add(b); bolts.push(b); }
   // raindrops
   const drops = [];
-  for (let i = 0; i < 8; i++) { const d = mesh(SPH, basic(0x9fb7e8), (Math.random() - 0.5) * 1.6, -0.8, (Math.random() - 0.5) * 0.8, false); d.scale.set(0.04, 0.1, 0.04); g.add(d); drops.push(d); }
+  for (let i = 0; i < 8; i++) { const d = mesh(SPH, basic(0x9fb7e8), (Math.random() - 0.5) * 2.2, -0.9, (Math.random() - 0.5) * 0.8, false); d.scale.set(0.04, 0.1, 0.04); g.add(d); drops.push(d); }
   g.userData.drops = drops;
-  g.userData.tick = (t) => { for (const d of drops) { d.position.y -= 0.05; if (d.position.y < -2.5) d.position.y = -0.7; } g.position.y += Math.sin(t * 2) * 0.004; };
+  g.userData.tick = (t) => {
+    for (const d of drops) { d.position.y -= 0.05; if (d.position.y < -2.5) d.position.y = -0.8; }
+    bolts.forEach((b, i) => { b.visible = Math.sin(t * 3 + i * 2.1) > -0.6; });
+    g.position.y += Math.sin(t * 2) * 0.004;
+  };
   return g;
 }
 

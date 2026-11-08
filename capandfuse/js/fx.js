@@ -4,7 +4,7 @@ import * as THREE from "../vendor/three.module.min.js";
 export const PAL = {
   mint: 0xa8e6cf, lime: 0xdcedc1, peach: 0xffd3b6, coral: 0xffaaa5, pink: 0xff8b94,
   ink: 0x3d4166, inkDark: 0x2a2d4a, white: 0xfffaf4, cream: 0xfff3e6, wood: 0xdba57f, woodDark: 0xb07a5a,
-  stone: 0xeadfd6, sea: 0x6fd3c6, seaDeep: 0x3fb3b0, leaf: 0x7fd6a8, leafDark: 0x5cbf91, gold: 0xffd56b, sky: 0xbff0ea,
+  stone: 0xd9c4b0, sea: 0x6fd3c6, seaDeep: 0x3fb3b0, leaf: 0x7fd6a8, leafDark: 0x5cbf91, gold: 0xffd56b, sky: 0xbff0ea,
 };
 
 let gradient;
@@ -210,7 +210,7 @@ const LIT_FRAG = `
   #if NUM_DIR_LIGHTS > 0
     vec3 cfH = normalize(directionalLights[0].direction + cfV);
     float cfS = max(dot(normal, cfH), 0.0);
-    outgoingLight += directionalLights[0].color * (smoothstep(0.985, 0.995, cfS) * 0.32 + pow(cfS, 14.0) * 0.06);
+    outgoingLight += directionalLights[0].color * (smoothstep(0.985, 0.995, cfS) * 0.16 + pow(cfS, 14.0) * 0.05);
     outgoingLight += vec3(0.75, 0.85, 1.0) * pow(1.0 - cfNV, 2.0) * 0.12;
   #endif
   #endif
@@ -223,12 +223,36 @@ const LIT_FRAG = `
   }
 #endif
 `;
+// Clay look: every lit surface gets hand-sculpted lumps and faint fingerprint
+// ripples, done as a bump in the shader (no textures to download). Turned off
+// on low graphics.
+export const CLAY = { on: true };
+const CLAY_FRAG = `
+  { vec3 cfp = vCfO * 2.4;
+    float cfh = cfNoise3(cfp) * 0.62 + cfNoise3(cfp * 2.7 + 3.1) * 0.26;
+    float cfr = sin((cfNoise3(vCfO * 1.1 + 9.0) * 4.0 + dot(vCfO, vec3(0.31, 0.53, 0.17)) * 1.6) * 6.2831 * 1.4) * 0.5 + 0.5;
+    float cfd = length(vViewPosition);
+    cfh = cfh * 0.02 * smoothstep(40.0, 6.0, cfd) + cfr * 0.0012 * smoothstep(7.0, 2.0, cfd); // fine marks only up close (no shimmer far away)
+    vec3 sx = dFdx(-vViewPosition), sy = dFdy(-vViewPosition);
+    vec3 r1 = cross(sy, normal), r2 = cross(normal, sx);
+    float det = dot(sx, r1);
+    vec3 grad = sign(det) * (dFdx(cfh) * r1 + dFdy(cfh) * r2);
+    normal = normalize(abs(det) * normal - grad * 1.0);
+  }
+`;
+const NOISE3 = `
+float cfH3(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
+float cfNoise3(vec3 x){ vec3 i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(mix(cfH3(i), cfH3(i + vec3(1,0,0)), f.x), mix(cfH3(i + vec3(0,1,0)), cfH3(i + vec3(1,1,0)), f.x), f.y),
+             mix(mix(cfH3(i + vec3(0,0,1)), cfH3(i + vec3(1,0,1)), f.x), mix(cfH3(i + vec3(0,1,1)), cfH3(i + vec3(1,1,1)), f.x), f.y), f.z); }
+`;
 const NOISE = `
 float cfHash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
 float cfNoise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 * f);
   return mix(mix(cfHash(i), cfHash(i + vec2(1, 0)), u.x), mix(cfHash(i + vec2(0, 1)), cfHash(i + vec2(1, 1)), u.x), u.y); }
 `;
 // every toon material shares the same soft shading ramp, even ones made without it
+THREE.Material.prototype.customProgramCacheKey = function () { return "cf" + (CLAY.on ? 1 : 0); };
 THREE.Object3D.prototype.onBeforeRender = function (r, s, c, g, m) {
   if (m && m.isMeshToonMaterial && !m.gradientMap) { m.gradientMap = gradientMap(); m.needsUpdate = true; }
 };
@@ -241,6 +265,12 @@ THREE.Material.prototype.onBeforeCompile = function (shader) {
       shader.vertexShader = "varying vec3 vCfW;\n" + shader.vertexShader.replace("#include <project_vertex>",
         "#include <project_vertex>\n  { vec4 cfw = vec4(transformed, 1.0);\n  #ifdef USE_INSTANCING\n  cfw = instanceMatrix * cfw;\n  #endif\n  vCfW = (modelMatrix * cfw).xyz; }");
       fs = "varying vec3 vCfW;\n" + NOISE + fs;
+    }
+    if (CLAY.on && !(this.defines && this.defines.CF_SMOOTH !== undefined)) {
+      // object-space position, scaled to world size, so the clay sticks to moving things
+      shader.vertexShader = "varying vec3 vCfO;\n" + shader.vertexShader.replace("#include <project_vertex>",
+        "#include <project_vertex>\n  vCfO = position * vec3(length(modelMatrix[0].xyz), length(modelMatrix[1].xyz), length(modelMatrix[2].xyz));");
+      fs = "varying vec3 vCfO;\n" + NOISE3 + fs.replace("#include <normal_fragment_maps>", "#include <normal_fragment_maps>\n" + CLAY_FRAG);
     }
     fs = fs.replace("#include <opaque_fragment>", LIT_FRAG + "#include <opaque_fragment>");
   }
