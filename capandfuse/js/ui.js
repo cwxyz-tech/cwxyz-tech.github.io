@@ -1,8 +1,8 @@
 // All menus and overlays (built as HTML on top of the 3D canvas).
-import { ACTIONS, keyLabel } from "./input.js";
-import { SPEAKERS } from "./story.js";
-import { CAPS, BODIES } from "./fuse.js";
-import { TRACKS, TRACK_ORDER } from "./audio.js";
+import { ACTIONS, keyLabel } from "./input.js?v=11";
+import { SPEAKERS } from "./story.js?v=11";
+import { CAPS, BODIES } from "./fuse.js?v=11";
+import { TRACKS, TRACK_ORDER } from "./audio.js?v=11";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const cloneJSON = (o) => JSON.parse(JSON.stringify(o));

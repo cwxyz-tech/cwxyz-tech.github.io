@@ -1,17 +1,17 @@
 // CAP & FUSE: game boot, main loop and all the glue between systems.
 import * as THREE from "../vendor/three.module.min.js";
-import { Input, keyLabel, KEYS_VERSION } from "./input.js";
-import { AudioSys } from "./audio.js";
-import * as Save from "./save.js";
-import { PAL, Particles, Rings, toon, basic, mesh, textSprite, damp, ease, SAT, mergeStatic } from "./fx.js";
-import { FuseModel, CAPS, BODIES } from "./fuse.js";
-import { Player } from "./player.js";
-import { CamRig } from "./camera.js";
-import { buildBlossomBay } from "./world.js";
-import { Bits, Sparkheart, Relic, HealthHeart, Checkpoint, NPC, Bloblet, Gullbomb, PearlClam, Shellback, Urchin } from "./actors.js";
-import { Shellshock } from "./boss.js";
-import { Cutscenes } from "./story.js";
-import { UI, Dialog, UPGRADES } from "./ui.js";
+import { Input, keyLabel, KEYS_VERSION } from "./input.js?v=11";
+import { AudioSys } from "./audio.js?v=11";
+import * as Save from "./save.js?v=11";
+import { PAL, Particles, Rings, toon, basic, mesh, textSprite, damp, ease, SAT, mergeStatic } from "./fx.js?v=11";
+import { FuseModel, CAPS, BODIES } from "./fuse.js?v=11";
+import { Player } from "./player.js?v=11";
+import { CamRig } from "./camera.js?v=11";
+import { buildBlossomBay } from "./world.js?v=11";
+import { Bits, Sparkheart, Relic, HealthHeart, Checkpoint, NPC, Bloblet, Gullbomb, PearlClam, Shellback, Urchin } from "./actors.js?v=11";
+import { Shellshock } from "./boss.js?v=11";
+import { Cutscenes } from "./story.js?v=11";
+import { UI, Dialog, UPGRADES } from "./ui.js?v=11";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const DEFAULT_SETTINGS = { music: 0.7, sfx: 0.8, muteMusic: false, muteSfx: false, quality: "high", camSens: 1, invertY: false, captions: true, reducedShake: false, reducedFlash: false, textSpeed: 1, showFps: false, keys: null };
