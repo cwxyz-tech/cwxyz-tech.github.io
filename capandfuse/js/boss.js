@@ -2,7 +2,7 @@
 // his shell. Make him slam his claw into the sand (or charge into a rock),
 // then cap-bounce up onto his shell and ground pound the glowing gem.
 import * as THREE from "../vendor/three.module.min.js";
-import { PAL, toon, basic, mesh, damp, clamp, angDiff, textSprite, mergeStatic } from "./fx.js?v=14";
+import { PAL, toon, basic, mesh, damp, clamp, angDiff, textSprite, mergeStatic, rbox } from "./fx.js?v=15";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const SPH = new THREE.SphereGeometry(1, 20, 14);
@@ -32,7 +32,7 @@ export class Shellshock {
       st.add(mesh(new THREE.CylinderGeometry(0.1, 0.14, 1.0, 8), toon(PAL.coral), 0, 0.5, 0));
       const eye = mesh(SPH, basic(0xffffff), 0, 1.1, 0); eye.scale.setScalar(0.38); st.add(eye);
       const pu = mesh(SPH, basic(0x1d1f33), 0, 1.08, 0.3); pu.scale.set(0.18, 0.22, 0.1); st.add(pu);
-      const brow = mesh(new THREE.BoxGeometry(0.6, 0.12, 0.12), toon(0x7a3a4a), sx * 0.05, 1.5, 0.2); brow.rotation.z = -sx * 0.45; st.add(brow);
+      const brow = mesh(rbox(0.6, 0.12, 0.12), toon(0x7a3a4a), sx * 0.05, 1.5, 0.2); brow.rotation.z = -sx * 0.45; st.add(brow);
       this.inner.add(st); this.eyes.push({ st, pu, eye });
     }
     // mouth

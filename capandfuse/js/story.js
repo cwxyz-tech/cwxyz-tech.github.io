@@ -1,7 +1,7 @@
 // Story: dialogue lines and in-engine cutscenes. Every cutscene can be skipped;
 // skipping fast-forwards through the steps so the game state always ends right.
 import * as THREE from "../vendor/three.module.min.js";
-import { PAL, toon, basic, mesh, ease } from "./fx.js?v=14";
+import { PAL, toon, basic, mesh, ease, rbox } from "./fx.js?v=15";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const SPH = new THREE.SphereGeometry(1, 20, 14);
@@ -33,10 +33,10 @@ export function buildGrizzle(mood = "stern") {
   for (const sx of [-1, 1]) {
     const e = mesh(SPH, basic(0xfff1a8), sx * 0.32, 0.25, 0.9, false); e.scale.set(0.18, 0.12, 0.06); g.add(e);
     const p = mesh(SPH, basic(0x1d1f33), sx * 0.32, 0.23, 0.95, false); p.scale.set(0.07, 0.08, 0.03); g.add(p);
-    const brow = mesh(new THREE.BoxGeometry(0.34, 0.07, 0.06), basic(0x2a2440), sx * 0.3, 0.42, 0.94, false); brow.rotation.z = sad ? -sx * 0.35 : sx * 0.45; g.add(brow); // stern V or worried slant
+    const brow = mesh(rbox(0.34, 0.07, 0.06), basic(0x2a2440), sx * 0.3, 0.42, 0.94, false); brow.rotation.z = sad ? -sx * 0.35 : sx * 0.45; g.add(brow); // stern V or worried slant
   }
   if (sad) { const frown = mesh(new THREE.TorusGeometry(0.14, 0.035, 6, 14, Math.PI), basic(0x2a2440), 0, -0.12, 0.95, false); g.add(frown); } // a small, tired frown
-  else { const line = mesh(new THREE.BoxGeometry(0.34, 0.06, 0.05), basic(0x2a2440), 0, -0.08, 0.96, false); line.rotation.z = 0.12; g.add(line); } // a hard, unreadable line
+  else { const line = mesh(rbox(0.34, 0.06, 0.05), basic(0x2a2440), 0, -0.08, 0.96, false); line.rotation.z = 0.12; g.add(line); } // a hard, unreadable line
   // tiny crown
   const crown = mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.2, 5, 1, true), toon(PAL.gold, { params: { side: THREE.DoubleSide } }), 0.1, 1.05, 0); g.add(crown);
   for (let i = 0; i < 5; i++) { const a = (i / 5) * Math.PI * 2, s = mesh(new THREE.ConeGeometry(0.06, 0.18, 4), toon(PAL.gold), 0.1 + Math.cos(a) * 0.28, 1.22, Math.sin(a) * 0.28); g.add(s); }

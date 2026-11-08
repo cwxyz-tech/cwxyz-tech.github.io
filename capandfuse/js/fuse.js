@@ -1,7 +1,7 @@
 // Fuse: the little bomb hero. Model is built from simple shapes and animated
 // procedurally (squash, stretch, swings, flips) so every move has character.
 import * as THREE from "../vendor/three.module.min.js";
-import { PAL, toon, basic, mesh, damp, lerp, clamp } from "./fx.js?v=14";
+import { PAL, toon, basic, mesh, damp, lerp, clamp } from "./fx.js?v=15";
 
 export const CAPS = {
   classic: { name: "Classic Cap", dome: PAL.pink, band: PAL.mint, brim: 0xff7a86, star: PAL.lime, price: 0 },
@@ -11,13 +11,13 @@ export const CAPS = {
   relic: { name: "Capwright Crown", dome: PAL.gold, band: PAL.mint, brim: 0xf5c04a, star: PAL.pink, price: -1 }, // from relics
 };
 export const BODIES = {
-  classic: { name: "Classic Fuse", body: 0x34449a, price: 0 },
+  classic: { name: "Classic Fuse", body: 0x56699a, price: 0 },
   rose: { name: "Rose Fuse", body: 0xc76b86, price: 100 },
   seafoam: { name: "Seafoam Fuse", body: 0x3f8f8a, price: 100 },
   midnight: { name: "Midnight Fuse", body: 0x22233a, price: 150 },
 };
 
-const SPH = new THREE.SphereGeometry(1, 28, 20);
+const SPH = new THREE.SphereGeometry(1, 28, 20), SPH_HI = new THREE.SphereGeometry(1, 48, 32);
 const ease3 = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
 
 export function buildCap(style = "classic") {
@@ -52,10 +52,10 @@ export class FuseModel {
     const body = (this.body = new THREE.Group());
     body.position.y = 0.58;
     root.add(body);
-    this.bodyMat = toon(BODIES[opts.body || "classic"].body, { unique: true });
-    const ball = mesh(SPH, this.bodyMat); ball.scale.setScalar(0.5); body.add(ball);
+    this.bodyMat = toon(BODIES[opts.body || "classic"].body, { unique: true, gloss: true });
+    const ball = mesh(SPH_HI, this.bodyMat); ball.scale.setScalar(0.5); ball.receiveShadow = false; body.add(ball);
     const shine = mesh(SPH, basic(0xffffff, { transparent: true, opacity: 0.55 }), -0.2, 0.22, 0.28, false, false);
-    shine.scale.set(0.09, 0.06, 0.04); shine.rotation.z = 0.6; body.add(shine);
+    shine.scale.set(0.09, 0.06, 0.04); shine.rotation.z = 0.6; shine.visible = false; body.add(shine); // real highlight now comes from the gloss shader
     // metal collar + fuse
     const collar = mesh(new THREE.CylinderGeometry(0.14, 0.17, 0.12, 16), toon(0xc9c3d6), 0, 0.5, 0); body.add(collar);
     const curve = new THREE.CatmullRomCurve3([new THREE.Vector3(0, 0.55, 0), new THREE.Vector3(0.02, 0.7, -0.04), new THREE.Vector3(0.12, 0.8, -0.1), new THREE.Vector3(0.2, 0.84, -0.06)]);

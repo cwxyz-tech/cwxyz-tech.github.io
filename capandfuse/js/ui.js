@@ -1,8 +1,8 @@
 // All menus and overlays (built as HTML on top of the 3D canvas).
-import { ACTIONS, keyLabel } from "./input.js?v=14";
-import { SPEAKERS } from "./story.js?v=14";
-import { CAPS, BODIES } from "./fuse.js?v=14";
-import { TRACKS, TRACK_ORDER } from "./audio.js?v=14";
+import { ACTIONS, keyLabel } from "./input.js?v=15";
+import { SPEAKERS } from "./story.js?v=15";
+import { CAPS, BODIES } from "./fuse.js?v=15";
+import { TRACKS, TRACK_ORDER } from "./audio.js?v=15";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const cloneJSON = (o) => JSON.parse(JSON.stringify(o));
@@ -195,7 +195,7 @@ export class UI {
             <button class="cf-btn xp-item" id="mCredits"><i class="xp-ico info"></i><span>Credits</span></button>
           </div>
         </div>
-        <div class="xp-sfoot"><span>Version 1.3</span><a class="xp-exit" href="/games"><i></i>Exit</a></div>
+        <div class="xp-sfoot"><span>Version 1.4</span><a class="xp-exit" href="/games"><i></i>Exit</a></div>
       </div>`, "clear left");
     this.on("#mContinue", () => this.game.continueGame());
     this.on("#mNew", () => this.game.newGameFlow());
@@ -255,7 +255,7 @@ export class UI {
         <p class="cf-dim">Click a key to change it, then press the new key or mouse button.</p>
         <div class="cf-keys">${keyRows}</div>
         <div class="cf-row"><button class="cf-btn tiny" id="stResetKeys">Reset keys</button></div>
-        <p class="cf-dim">Controller: left stick move, right stick camera, A jump, X/Y throw cap, LB/LT crouch and dive, RB/RT ground pound, B talk, Start pause.</p>
+        <p class="cf-dim">Controller: left stick move, right stick camera, A jump, X/Y throw cap, LB/LT crouch (in the air: dive while moving, ground pound while still), RB/RT ground pound, B talk, Start pause.</p>
         <p class="cf-dim">Mac tip: Cmd + W still closes the tab, so the game asks first.</p>
       </div>
       <div class="cf-tabpane" data-pane="access" hidden>
@@ -299,7 +299,7 @@ export class UI {
     const s = this.open(`<div class="cf-panel"><h2>Extras</h2>
       <h3>Sound Test</h3>
       <div class="cf-tracks">${TRACK_ORDER.map((k, i) => `<button class="cf-btn tiny track" data-t="${k}">${String(i + 1).padStart(2, "0")} &middot; ${esc(TRACKS[k].title)}</button>`).join("")}</div>
-      <h3>Version Notes</h3><p class="cf-dim"><b>1.3</b> Runs much faster, especially in Safari. New Auto graphics setting. Camera follows Fuse after loading a save.<br><b>1.2</b> Balance changes and Shellshock fixes.<br><b>1.1</b> New moves and controls, smoother performance, new look.<br><b>1.0</b> Chapter 1: Blossom Bay.</p>
+      <h3>Version Notes</h3><p class="cf-dim"><b>1.4</b> New look: softer lighting, rounded shapes, painted signs, glossy dim-blue Fuse. Balance pass. Crouch in the air dives while moving and ground pounds while still.<br><b>1.3</b> Runs much faster, especially in Safari. New Auto graphics setting. Camera follows Fuse after loading a save.<br><b>1.2</b> Balance changes and Shellshock fixes.<br><b>1.1</b> New moves and controls, smoother performance, new look.<br><b>1.0</b> Chapter 1: Blossom Bay.</p>
       <div class="cf-row center"><button class="cf-btn" id="xControls">How to Play</button><button class="cf-btn" id="xBack">Back</button></div></div>`);
     s.querySelectorAll("[data-t]").forEach((b) => b.addEventListener("click", () => {
       s.querySelectorAll(".track").forEach((x) => x.classList.remove("on")); b.classList.add("on");
@@ -321,10 +321,10 @@ export class UI {
         <div><b>Long jump</b> crouch while moving, then ${k("jump")}</div>
         <div><b>Backflip</b> crouch standing still, then ${k("jump")}</div>
         <div><b>Side jump</b> turn around while running, then ${k("jump")}</div>
-        <div><b>Dive</b> ${k("crouch")} in the air</div>
+        <div><b>Dive</b> ${k("crouch")} in the air while moving</div>
         <div><b>Throw cap</b> ${k("throw")} &middot; hold to keep it hovering &middot; jump into it to bounce</div>
         <div><b>Roll</b> crouch, then ${k("throw")}</div>
-        <div><b>Ground pound</b> ${k("pound")} in the air &middot; jump as you land for a super jump</div>
+        <div><b>Ground pound</b> ${k("crouch")} in the air while holding still (or ${k("pound")}) &middot; jump as you land for a super jump</div>
         <div><b>Wall jump</b> jump while sliding down a wall</div>
         <div><b>Talk</b> ${k("interact")} &middot; <b>Pause</b> ${k("pause")}</div>
       </div>

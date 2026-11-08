@@ -2,16 +2,16 @@
 // jump, a real triple jump, midair double jump, wall jump, roll, ground pound,
 // DIVE and the signature cap throw + cap bounce.
 import * as THREE from "../vendor/three.module.min.js";
-import { FuseModel, buildCap } from "./fuse.js?v=14";
-import { PAL, blobShadow, damp, clamp, angDiff, lerp } from "./fx.js?v=14";
+import { FuseModel, buildCap } from "./fuse.js?v=15";
+import { PAL, blobShadow, damp, clamp, angDiff, lerp } from "./fx.js?v=15";
 
 // lower gravity + bigger launch speeds = faster and floatier than before
 const G = 30, TERMINAL = -24;
 const T = {
   walk: 7, run: 10, crouchWalk: 4, accel: 60, decel: 48, airAccel: 28, turnRate: 15,
-  jump: 13, jump2: 15.8, jump3: 19.5, dbl: 12.2, chainWindow: 0.24,
-  longJumpUp: 10, longJumpSpeed: 15.5, sideJump: 18.5, sideJumpSpeed: 4.5, backflip: 19.5,
-  poundJump: 19, capBounce: 15.5, wallJumpUp: 13.5, wallJumpOut: 9.5,
+  jump: 13, jump2: 15.8, jump3: 19.5, dbl: 11.5, chainWindow: 0.24,
+  longJumpUp: 10, longJumpSpeed: 15.5, sideJump: 17.5, sideJumpSpeed: 4.5, backflip: 18.5,
+  poundJump: 19, capBounce: 14.8, wallJumpUp: 13.5, wallJumpOut: 9.5,
   diveSpeed: 15, diveUp: 6, rollSpeed: 14, coyote: 0.12, buffer: 0.14,
 };
 // airborne states that keep their animation until they start falling
@@ -143,10 +143,13 @@ export class Player {
     if (mag < 0.55) targetSpeed = mag * T.walk * 1.3;
 
     // ---------- midair actions ----------
-    if (!b.grounded && P("pound") && !["poundspin", "poundfall", "dive", "hurt"].includes(st)) {
+    // crouch in the air: dive if you're steering somewhere, ground pound if you're holding still
+    const airCrouch = !b.grounded && P("crouch");
+    const moving = mag > 0.3;
+    if (!b.grounded && (P("pound") || (airCrouch && !moving)) && !["poundspin", "poundfall", "dive", "hurt", "wall"].includes(st)) {
       this.setState("poundspin"); this.vel.set(0, 0, 0); g.audio.sfx("pound1");
     }
-    const diveNow = (!b.grounded && P("crouch")) || (st === "poundspin" && P("throw"));
+    const diveNow = (airCrouch && moving) || (st === "poundspin" && P("throw"));
     if (diveNow && !this.usedDive && !["dive", "slide", "hurt", "poundfall", "wall"].includes(st)) this.startDive(inAng);
 
     // ---------- cap throw (crouch + throw on the ground = roll instead) ----------

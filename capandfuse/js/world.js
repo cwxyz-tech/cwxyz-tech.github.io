@@ -1,8 +1,8 @@
 // Blossom Bay: the first world. Builds the scenery (sky, sea, island, village,
 // lighthouse, waterfall cave, floating Sky Steps, boss cove) and its collision.
 import * as THREE from "../vendor/three.module.min.js";
-import { PAL, toon, basic, mesh, textSprite, SAT_GLSL, mergeStatic } from "./fx.js?v=14";
-import { Level } from "./physics.js?v=14";
+import { PAL, toon, basic, mesh, textSprite, SAT_GLSL, mergeStatic, rbox, signBoard } from "./fx.js?v=15";
+import { Level } from "./physics.js?v=15";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 
@@ -84,18 +84,18 @@ function palm(h = 6, lean = 0.2) {
 
 function house(wall, roof, w = 5, d = 5, h = 3.5) {
   const g = new THREE.Group();
-  g.add(mesh(new THREE.BoxGeometry(w, h, d), toon(wall), 0, h / 2, 0));
+  g.add(mesh(rbox(w, h, d), toon(wall), 0, h / 2, 0));
   const r = mesh(new THREE.ConeGeometry(Math.max(w, d) * 0.78, h * 0.75, 4), toon(roof), 0, h + h * 0.37, 0);
   r.rotation.y = Math.PI / 4; r.scale.z = d / w; g.add(r);
-  const door = mesh(new THREE.BoxGeometry(1.1, 1.9, 0.12), toon(PAL.woodDark), 0, 0.95, d / 2 + 0.03); g.add(door);
+  const door = mesh(rbox(1.1, 1.9, 0.12), toon(PAL.woodDark), 0, 0.95, d / 2 + 0.03); g.add(door);
   const knob = mesh(new THREE.SphereGeometry(0.07, 6, 6), toon(PAL.gold), 0.35, 0.95, d / 2 + 0.1); g.add(knob);
   for (const sx of [-1, 1]) {
-    const win = mesh(new THREE.BoxGeometry(0.9, 0.9, 0.1), basic(0xfff6c9), sx * w * 0.3, h * 0.62, d / 2 + 0.03, false); g.add(win);
-    const fr = mesh(new THREE.BoxGeometry(1.05, 0.12, 0.14), toon(PAL.white), sx * w * 0.3, h * 0.62 - 0.5, d / 2 + 0.05); g.add(fr);
-    const box = mesh(new THREE.BoxGeometry(1.0, 0.28, 0.35), toon(PAL.woodDark), sx * w * 0.3, h * 0.62 - 0.62, d / 2 + 0.2); g.add(box);
+    const win = mesh(rbox(0.9, 0.9, 0.1), basic(0xfff6c9), sx * w * 0.3, h * 0.62, d / 2 + 0.03, false); g.add(win);
+    const fr = mesh(rbox(1.05, 0.12, 0.14), toon(PAL.white), sx * w * 0.3, h * 0.62 - 0.5, d / 2 + 0.05); g.add(fr);
+    const box = mesh(rbox(1.0, 0.28, 0.35), toon(PAL.woodDark), sx * w * 0.3, h * 0.62 - 0.62, d / 2 + 0.2); g.add(box);
     for (let f = 0; f < 3; f++) g.add(mesh(new THREE.SphereGeometry(0.13, 6, 5), toon([PAL.pink, PAL.peach, PAL.coral][f]), sx * w * 0.3 - 0.3 + f * 0.3, h * 0.62 - 0.42, d / 2 + 0.22));
   }
-  const ch = mesh(new THREE.BoxGeometry(0.6, 1.4, 0.6), toon(PAL.stone), w * 0.25, h + h * 0.55, -d * 0.15); g.add(ch);
+  const ch = mesh(rbox(0.6, 1.4, 0.6), toon(PAL.stone), w * 0.25, h + h * 0.55, -d * 0.15); g.add(ch);
   g.userData.chimney = V(w * 0.25, h + h * 0.55 + 0.8, -d * 0.15);
   return g;
 }
@@ -138,7 +138,7 @@ export function buildBlossomBay(scene) {
   const floor = mesh(new THREE.CircleGeometry(62, 48), toon(0xf7c9ad), 0, -1.6, 0, false, false); floor.rotation.x = -Math.PI / 2; root.add(floor);
 
   // ---- main island ----
-  const sandM = toon(PAL.peach), grassM = toon(PAL.mint), grass2 = toon(PAL.lime);
+  const sandM = toon(PAL.peach, { ground: true }), grassM = toon(PAL.mint, { ground: true }), grass2 = toon(PAL.lime, { ground: true });
   const beach = mesh(new THREE.CylinderGeometry(46, 48, 4, 72), sandM, 0, 0.45 - 2, 0); root.add(beach);
   level.addCyl(0, 0, 46, -3.55, 0.45, { name: "beach" });
   const rim = mesh(new THREE.CylinderGeometry(40, 41.5, 4, 72), toon(0xc8eeb6), 0, 0.72 - 2, 0); root.add(rim);
@@ -150,7 +150,7 @@ export function buildBlossomBay(scene) {
     const p = mesh(new THREE.CircleGeometry(r, 24), grass2, x, 1.01, z, false, true); p.rotation.x = -Math.PI / 2; root.add(p);
   }
   // sandy path from home to plaza to the north dock
-  const pathM = toon(0xffe4cc);
+  const pathM = toon(0xffe4cc, { ground: true });
   for (let i = 0; i < 30; i++) {
     const z = 26 - i * 2.1, x = Math.sin(i * 0.35) * 1.5;
     const s = mesh(new THREE.CircleGeometry(1.25 + Math.sin(i) * 0.2, 12), pathM, x, 1.015, z, false, true); s.rotation.x = -Math.PI / 2; root.add(s);
@@ -158,7 +158,7 @@ export function buildBlossomBay(scene) {
 
   // ---- props helper with collision ----
   const solidBox = (x, y, z, sx, sy, sz, color, o = {}) => {
-    const m = mesh(new THREE.BoxGeometry(sx, sy, sz), toon(color), x, y, z); root.add(m);
+    const m = mesh(rbox(sx, sy, sz), toon(color), x, y, z); root.add(m);
     const s = level.addBox(x, y, z, sx, sy, sz, { mesh: m, ...o });
     return s;
   };
@@ -171,17 +171,17 @@ export function buildBlossomBay(scene) {
   // ---- Fuse's home ----
   const home = house(PAL.lime, PAL.pink, 6, 5, 3.6); home.position.set(-7, 1, 26); root.add(home);
   level.addBox(-7, 1 + 1.8, 26, 6, 3.6, 5); level.addBox(-7, 1 + 3.6 + 0.6, 26, 4.4, 1.2, 3.6);
-  const sign = textSprite("Fuse's House", { bg: "#fff3e6", color: "#ff8b94", height: 0.6 }); sign.position.set(-7, 6.3, 28.8); root.add(sign);
+  const sign = signBoard("Fuse's House", { bg: "#fff3e6", color: "#e8707c", height: 0.5 }); sign.position.set(-7, 4.05, 28.6); root.add(sign);
   // hammock between two palms
   const p1 = palm(5, 0.1); p1.position.set(1, 1, 30); root.add(p1); level.addCyl(1, 30, 0.35, 1, 6);
   const p2 = palm(5.2, -0.1); p2.position.set(6, 1, 31); p2.rotation.y = Math.PI; root.add(p2); level.addCyl(6, 31, 0.35, 1, 6);
   const ham = mesh(new THREE.CylinderGeometry(0.6, 0.6, 4.6, 12, 1, true, 0, Math.PI), toon(PAL.coral, { params: { side: THREE.DoubleSide } }), 3.5, 2.2, 30.5);
   ham.rotation.set(0, 0.2, Math.PI / 2); ham.rotation.order = "YXZ"; root.add(ham); W.hammock = V(3.5, 2.05, 30.5);
   // mailbox + fence
-  const mb = mesh(new THREE.BoxGeometry(0.5, 0.45, 0.7), toon(PAL.pink), -2.8, 2.1, 28.5); root.add(mb);
+  const mb = mesh(rbox(0.5, 0.45, 0.7), toon(PAL.pink), -2.8, 2.1, 28.5); root.add(mb);
   root.add(mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.1, 6), toon(PAL.wood), -2.8, 1.55, 28.5));
-  for (let i = 0; i < 9; i++) { const f = mesh(new THREE.BoxGeometry(0.16, 0.9, 0.16), toon(PAL.white), -11.5 + i * 1.1, 1.45, 30.5); root.add(f); }
-  root.add(mesh(new THREE.BoxGeometry(9.5, 0.12, 0.1), toon(PAL.white), -7.1, 1.75, 30.5));
+  for (let i = 0; i < 9; i++) { const f = mesh(rbox(0.16, 0.9, 0.16), toon(PAL.white), -11.5 + i * 1.1, 1.45, 30.5); root.add(f); }
+  root.add(mesh(rbox(9.5, 0.12, 0.1), toon(PAL.white), -7.1, 1.75, 30.5));
   level.addBox(-7.1, 1.45, 30.5, 9.6, 0.9, 0.3);
 
   // ---- tutorial crates near home ----
@@ -196,7 +196,7 @@ export function buildBlossomBay(scene) {
 
   // ---- village plaza ----
   const plaza = mesh(new THREE.CylinderGeometry(9, 9, 0.1, 40), toon(0xfff0e0), 0, 1.04, 6, false, true); root.add(plaza);
-  for (let i = 0; i < 16; i++) { const a = (i / 16) * Math.PI * 2, t = mesh(new THREE.BoxGeometry(1.6, 0.06, 0.6), toon(i % 2 ? PAL.coral : PAL.mint), Math.cos(a) * 8.4, 1.1, 6 + Math.sin(a) * 8.4, false); t.rotation.y = -a; root.add(t); }
+  for (let i = 0; i < 16; i++) { const a = (i / 16) * Math.PI * 2, t = mesh(rbox(1.6, 0.06, 0.6), toon(i % 2 ? PAL.coral : PAL.mint), Math.cos(a) * 8.4, 1.1, 6 + Math.sin(a) * 8.4, false); t.rotation.y = -a; root.add(t); }
   solidCyl(0, 6, 3, 1, 1.8, PAL.stone, { seg: 32 });
   const fw = mesh(new THREE.CylinderGeometry(2.7, 2.7, 0.1, 32), basic(0x9ff0dc), 0, 1.72, 6, false); root.add(fw);
   solidCyl(0, 6, 0.55, 1.8, 3.4, PAL.coral);
@@ -223,10 +223,10 @@ export function buildBlossomBay(scene) {
   }
   // shop stall
   const stall = new THREE.Group(); stall.position.set(11, 1, 9); root.add(stall);
-  stall.add(mesh(new THREE.BoxGeometry(3.4, 1.1, 1.4), toon(PAL.wood), 0, 0.55, 0));
+  stall.add(mesh(rbox(3.4, 1.1, 1.4), toon(PAL.wood), 0, 0.55, 0));
   for (const sx of [-1.6, 1.6]) stall.add(mesh(new THREE.CylinderGeometry(0.09, 0.09, 2.6, 6), toon(PAL.white), sx, 1.3, -0.6));
-  for (let i = 0; i < 6; i++) { const st = mesh(new THREE.BoxGeometry(0.62, 0.08, 2.2), toon(i % 2 ? PAL.pink : PAL.white), -1.55 + i * 0.62, 2.65, -0.1); st.rotation.x = 0.25; stall.add(st); }
-  const shopSign = textSprite("Coco's Caps & Charms", { bg: "#ff8b94", color: "#fff", height: 0.5 }); shopSign.position.set(11, 4.4, 9); root.add(shopSign);
+  for (let i = 0; i < 6; i++) { const st = mesh(rbox(0.62, 0.08, 2.2), toon(i % 2 ? PAL.pink : PAL.white), -1.55 + i * 0.62, 2.65, -0.1); st.rotation.x = 0.25; stall.add(st); }
+  const shopSign = signBoard("Coco's Caps & Charms", { bg: "#ff8b94", color: "#fffaf4", height: 0.4 }); shopSign.position.set(11, 4.2, 8.3); root.add(shopSign);
   level.addBox(11, 1.55, 9, 3.4, 1.1, 1.4);
 
   // bouncy flower near the plaza (big coral bloom)
@@ -243,13 +243,13 @@ export function buildBlossomBay(scene) {
 
   // ---- lighthouse cliff (east) ----
   const cliffM = PAL.stone;
-  const cliff = mesh(new THREE.BoxGeometry(16, 10, 16), toon(cliffM), 28, 2, -6); root.add(cliff);
+  const cliff = mesh(rbox(16, 10, 16), toon(cliffM), 28, 2, -6); root.add(cliff);
   level.addBox(28, 2, -6, 16, 10, 16);
-  const cliffTop = mesh(new THREE.BoxGeometry(16.4, 0.5, 16.4), grassM, 28, 7.05, -6); root.add(cliffTop);
+  const cliffTop = mesh(rbox(16.4, 0.5, 16.4), grassM, 28, 7.05, -6); root.add(cliffTop);
   // stairs up the cliff
   for (let i = 0; i < 16; i++) {
     const h = 0.375 * (i + 1);
-    const st = mesh(new THREE.BoxGeometry(0.82, h, 3.2), toon(i % 2 ? 0xf3e6dc : PAL.stone), 7.4 + i * 0.8, 1 + h / 2, -2.4); root.add(st);
+    const st = mesh(rbox(0.82, h, 3.2), toon(i % 2 ? 0xf3e6dc : PAL.stone), 7.4 + i * 0.8, 1 + h / 2, -2.4); root.add(st);
     level.addBox(7.4 + i * 0.8, 1 + h / 2, -2.4, 0.82, h, 3.2);
   }
   // lighthouse tower
@@ -276,7 +276,7 @@ export function buildBlossomBay(scene) {
     W.spiral.push(s);
   }
   // little door + keeper's porch
-  tower.add(mesh(new THREE.BoxGeometry(1.2, 2, 0.3), toon(PAL.woodDark), 0, 1, 2.35));
+  tower.add(mesh(rbox(1.2, 2, 0.3), toon(PAL.woodDark), 0, 1, 2.35));
 
   // ---- waterfall cliff + hidden cave (west) ----
   const wcM = 0xe6d5c8;
@@ -284,9 +284,9 @@ export function buildBlossomBay(scene) {
   solidBox(-24.5, 3.5, -10, 5, 13, 12, wcM);   // x -27..-22
   solidBox(-29, 7, -10, 4, 6, 12, wcM, { camThrough: false });       // above the tunnel (y 4..10)
   solidBox(-29, 1.5, -15.5, 4, 3, 1, wcM);     // tunnel back wall
-  const capTop = mesh(new THREE.BoxGeometry(16.4, 0.5, 12.4), grassM, -30, 10.05, -10); root.add(capTop);
+  const capTop = mesh(rbox(16.4, 0.5, 12.4), grassM, -30, 10.05, -10); root.add(capTop);
   // cave glow inside
-  const caveFloor = mesh(new THREE.BoxGeometry(4, 0.05, 11), toon(0xd8c2e8), -29, 1.03, -10, false); root.add(caveFloor);
+  const caveFloor = mesh(rbox(4, 0.05, 11), toon(0xd8c2e8), -29, 1.03, -10, false); root.add(caveFloor);
   W.crystals = [];
   for (let i = 0; i < 7; i++) {
     const c = mesh(new THREE.OctahedronGeometry(0.35 + Math.random() * 0.3), new THREE.MeshToonMaterial({ color: [PAL.mint, PAL.pink, PAL.lime][i % 3], emissive: [PAL.mint, PAL.pink, PAL.lime][i % 3], emissiveIntensity: 0.6, gradientMap: null }), -30.6 + (i % 2) * 3.2, 1.4 + Math.random() * 2, -6 - i * 1.3, false);
@@ -301,7 +301,7 @@ export function buildBlossomBay(scene) {
   W.waterfallBase = V(-29, 1.2, -3.2);
   // wall-jump chimney up to the cliff top
   solidBox(-19.4, 3.5, -8, 2, 13, 4, wcM);
-  const wjSign = textSprite("Wall Jump!", { bg: "#a8e6cf", color: "#3d4166", stroke: "#fff", height: 0.55 }); wjSign.position.set(-20.6, 2.6, -5.4); root.add(wjSign);
+  const wjSign = signBoard("Wall Jump!", { bg: "#a8e6cf", color: "#3d4166", height: 0.5, post: 1.2 }); wjSign.position.set(-21.2, 2.45, -5.2); root.add(wjSign);
 
   // ---- north dock + floating Sky Steps ----
   solidBox(0, 0.3, -48, 3.2, 0.6, 8, PAL.wood);
@@ -322,7 +322,7 @@ export function buildBlossomBay(scene) {
   // secret relic rock off to the side of step 3
   const secret = islet(-16, 10.5, -92, 1.4);
   // sign at the dock
-  const skySign = textSprite("Sky Steps", { bg: "#dcedc1", color: "#ff8b94", height: 0.6 }); skySign.position.set(0, 3.2, -44.5); root.add(skySign);
+  const skySign = signBoard("Sky Steps", { bg: "#dcedc1", color: "#e8707c", height: 0.55, post: 1.6 }); skySign.position.set(-2.3, 2.5, -43.6); root.add(skySign);
   // warp ring back home on the last step
   W.warpRing = V(29, 11.8, -86);
   const warp = mesh(new THREE.TorusGeometry(1.2, 0.18, 10, 32), new THREE.MeshToonMaterial({ color: PAL.mint, emissive: PAL.mint, emissiveIntensity: 0.6, gradientMap: null }), 29, 12.3, -86, false); root.add(warp);
@@ -344,12 +344,12 @@ export function buildBlossomBay(scene) {
   // the gate (opens with 4 Sparkhearts)
   const gate = new THREE.Group(); gate.position.set(-46, 0.6, 0); root.add(gate);
   for (const z of [-2.6, 2.6]) gate.add(mesh(new THREE.CylinderGeometry(0.5, 0.6, 5, 10), toon(PAL.coral), 0, 2.5, z));
-  gate.add(mesh(new THREE.BoxGeometry(1, 0.8, 6.4), toon(PAL.pink), 0, 5.2, 0));
-  const barrier = mesh(new THREE.BoxGeometry(0.4, 4.6, 4.8), new THREE.MeshToonMaterial({ color: PAL.pink, transparent: true, opacity: 0.55, emissive: PAL.pink, emissiveIntensity: 0.5, gradientMap: null }), 0, 2.3, 0, false); gate.add(barrier);
+  gate.add(mesh(rbox(1, 0.8, 6.4), toon(PAL.pink), 0, 5.2, 0));
+  const barrier = mesh(rbox(0.4, 4.6, 4.8), new THREE.MeshToonMaterial({ color: PAL.pink, transparent: true, opacity: 0.55, emissive: PAL.pink, emissiveIntensity: 0.5, gradientMap: null }), 0, 2.3, 0, false); gate.add(barrier);
   level.addCyl(-46, -2.6, 0.6, 0, 5.6); level.addCyl(-46, 2.6, 0.6, 0, 5.6);
   W.gateSolid = level.addBox(-46, 3, 0, 0.6, 6, 4.8, { name: "gate" });
   W.gateMesh = barrier;
-  const gateSign = textSprite("Shell Cove: 4 Sparkhearts to enter", { bg: "#fff3e6", color: "#ff8b94", height: 0.45 }); gateSign.position.set(-44.5, 6.6, 0); root.add(gateSign); W.gateSign = gateSign;
+  const gateSign = signBoard("Shell Cove: 4 Sparkhearts to enter", { bg: "#fff3e6", color: "#e8707c", height: 0.42, post: 0.35 }); gateSign.position.set(-46, 6.0, 0); gateSign.rotation.y = Math.PI / 2; gateSign.userData.dynamic = true; root.add(gateSign); W.gateSign = gateSign;
   anim.push((t) => { barrier.material.opacity = 0.45 + Math.sin(t * 3) * 0.12; });
 
   // ---- scenery dressing ----

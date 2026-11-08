@@ -10,9 +10,15 @@ export const PAL = {
 let gradient;
 export function gradientMap() {
   if (gradient) return gradient;
-  const data = new Uint8Array([90, 90, 90, 255, 170, 170, 170, 255, 225, 225, 225, 255, 255, 255, 255, 255]);
-  gradient = new THREE.DataTexture(data, 4, 1, THREE.RGBAFormat);
-  gradient.minFilter = gradient.magFilter = THREE.NearestFilter;
+  // soft cel shading: a gentle shadow side with one smooth light/dark edge,
+  // instead of hard bands
+  const N = 32, data = new Uint8Array(N * 4);
+  for (let i = 0; i < N; i++) {
+    const t = i / (N - 1), e = Math.min(1, Math.max(0, (t - 0.3) / 0.28)), k = e * e * (3 - 2 * e);
+    const v = Math.round(255 * (0.5 + 0.5 * k)); data.set([v, v, v, 255], i * 4);
+  }
+  gradient = new THREE.DataTexture(data, N, 1, THREE.RGBAFormat);
+  gradient.minFilter = gradient.magFilter = THREE.LinearFilter;
   gradient.needsUpdate = true;
   return gradient;
 }
@@ -21,6 +27,8 @@ export function toon(color, opts = {}) {
   const key = color + JSON.stringify(opts);
   if (!opts.unique && matCache.has(key)) return matCache.get(key);
   const m = new THREE.MeshToonMaterial({ color, gradientMap: gradientMap(), ...opts.params });
+  if (opts.gloss) m.defines = { ...(m.defines || {}), CF_GLOSS: "" };
+  if (opts.ground) m.defines = { ...(m.defines || {}), CF_GROUND: "" };
   if (opts.emissive) { m.emissive = new THREE.Color(opts.emissive); m.emissiveIntensity = opts.ei ?? 0.6; }
   if (!opts.unique) matCache.set(key, m);
   return m;
@@ -181,13 +189,63 @@ export function angDiff(a, b) { let d = b - a; while (d > Math.PI) d -= Math.PI 
 // Done inside every material's shader instead of a CSS filter on the canvas,
 // which forced the browser to re-composite the whole screen every frame.
 export const SAT = { value: 1 };
-THREE.Material.prototype.onBeforeCompile = function (shader) {
-  shader.uniforms.uSat = SAT;
-  shader.fragmentShader = "uniform float uSat;\n" + shader.fragmentShader.replace(
-    "#include <dithering_fragment>",
-    "#include <dithering_fragment>\n  gl_FragColor.rgb = mix(vec3(dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114))), gl_FragColor.rgb, uSat);");
+export const RES = { value: new THREE.Vector2(1280, 720) };
+// final look applied in every shader: saturation, a gentle contrast curve and a soft vignette
+export const SAT_GLSL = `gl_FragColor.rgb = mix(vec3(dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114))), gl_FragColor.rgb, uSat);
+  { vec3 cfc = clamp(gl_FragColor.rgb, 0.0, 1.0); gl_FragColor.rgb = mix(cfc, cfc * cfc * (3.0 - 2.0 * cfc), 0.14);
+    vec2 cfq = gl_FragCoord.xy / uRes - 0.5; gl_FragColor.rgb *= 1.0 - dot(cfq, cfq) * 0.32; }`;
+// Lit (toon) materials also get: a rim light that outlines shapes against the sky,
+// an optional glossy highlight (Fuse, gems, coins), and optional soft color
+// variation on the ground so big fields don't look flat.
+const LIT_FRAG = `
+#ifdef CF_LIT
+  { // one lighting model for everything: warm where the sun hits, cool lavender in shade
+    float cfL = dot(outgoingLight, vec3(0.3, 0.59, 0.11)) / max(0.03, dot(diffuseColor.rgb, vec3(0.3, 0.59, 0.11)));
+    outgoingLight *= mix(vec3(0.88, 0.87, 1.07), vec3(1.04, 1.0, 0.95), smoothstep(0.9, 1.6, cfL));
+    vec3 cfV = normalize(vViewPosition);
+    float cfNV = clamp(dot(normal, cfV), 0.0, 1.0);
+    float cfRim = pow(1.0 - cfNV, 3.0) * smoothstep(-0.2, 0.6, normal.y + 0.35);
+    outgoingLight += vec3(1.0, 0.95, 0.88) * cfRim * (0.12 + 0.3 * dot(diffuseColor.rgb, vec3(0.33)));
+  #ifdef CF_GLOSS
+  #if NUM_DIR_LIGHTS > 0
+    vec3 cfH = normalize(directionalLights[0].direction + cfV);
+    float cfS = max(dot(normal, cfH), 0.0);
+    outgoingLight += directionalLights[0].color * (smoothstep(0.985, 0.995, cfS) * 0.32 + pow(cfS, 14.0) * 0.06);
+    outgoingLight += vec3(0.75, 0.85, 1.0) * pow(1.0 - cfNV, 2.0) * 0.12;
+  #endif
+  #endif
+  #ifdef CF_GROUND
+    vec2 cfp = vCfW.xz;
+    float cfn = cfNoise(cfp * 0.12) * 0.55 + cfNoise(cfp * 0.6) * 0.3 + cfNoise(cfp * 2.4) * 0.15;
+    outgoingLight *= 0.9 + 0.18 * cfn;
+    outgoingLight += vec3(0.06, 0.05, -0.02) * smoothstep(0.55, 0.85, cfNoise(cfp * 0.07 + 7.3));
+  #endif
+  }
+#endif
+`;
+const NOISE = `
+float cfHash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+float cfNoise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(mix(cfHash(i), cfHash(i + vec2(1, 0)), u.x), mix(cfHash(i + vec2(0, 1)), cfHash(i + vec2(1, 1)), u.x), u.y); }
+`;
+// every toon material shares the same soft shading ramp, even ones made without it
+THREE.Object3D.prototype.onBeforeRender = function (r, s, c, g, m) {
+  if (m && m.isMeshToonMaterial && !m.gradientMap) { m.gradientMap = gradientMap(); m.needsUpdate = true; }
 };
-export const SAT_GLSL = "gl_FragColor.rgb = mix(vec3(dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114))), gl_FragColor.rgb, uSat);";
+THREE.Material.prototype.onBeforeCompile = function (shader) {
+  shader.uniforms.uSat = SAT; shader.uniforms.uRes = RES;
+  let fs = "uniform float uSat;\nuniform vec2 uRes;\n" + shader.fragmentShader;
+  if (this.isMeshToonMaterial) {
+    shader.defines = shader.defines || {}; shader.defines.CF_LIT = "";
+    if (this.defines && this.defines.CF_GROUND !== undefined) {
+      shader.vertexShader = "varying vec3 vCfW;\n" + shader.vertexShader.replace("#include <project_vertex>",
+        "#include <project_vertex>\n  { vec4 cfw = vec4(transformed, 1.0);\n  #ifdef USE_INSTANCING\n  cfw = instanceMatrix * cfw;\n  #endif\n  vCfW = (modelMatrix * cfw).xyz; }");
+      fs = "varying vec3 vCfW;\n" + NOISE + fs;
+    }
+    fs = fs.replace("#include <opaque_fragment>", LIT_FRAG + "#include <opaque_fragment>");
+  }
+  shader.fragmentShader = fs.replace("#include <dithering_fragment>", "#include <dithering_fragment>\n  " + SAT_GLSL);
+};
 
 // Merge every static mesh under `root` into one mesh per material, so the
 // GPU draws a whole house (or the whole island) in a handful of calls.
@@ -240,4 +298,59 @@ export function mergeStatic(root) {
     else if (g && g.done) c.geometry = EMPTY; // keep it as a parent for its children, but draw nothing
   }
   return merged;
+}
+
+// ---------------- shared shape language ----------------
+// Every block in the game uses softly rounded edges (no sharp default cubes),
+// so houses, crates, steps and props all read as one hand-made set.
+const rboxCache = new Map();
+export function rbox(w, h, d, radius) {
+  const r = Math.max(0.005, Math.min(radius ?? Math.min(0.3, 0.05 + Math.min(w, h, d) * 0.06), Math.min(w, h, d) * 0.22));
+  const key = [w, h, d, r].map((v) => v.toFixed(3)).join(",");
+  if (rboxCache.has(key)) return rboxCache.get(key);
+  const geo = new THREE.BoxGeometry(1, 1, 1, 5, 5, 5);
+  const half = [w / 2, h / 2, d / 2];
+  const coords = (hh) => [-hh, -hh + r * 0.29, -hh + r, hh - r, hh - r * 0.29, hh];
+  const C = half.map(coords), inner = half.map((hh) => hh - r);
+  const p = geo.attributes.position, n = geo.attributes.normal;
+  const v = new THREE.Vector3(), c = new THREE.Vector3();
+  for (let i = 0; i < p.count; i++) {
+    const a = [p.getX(i), p.getY(i), p.getZ(i)].map((u, k) => C[k][Math.round((u + 0.5) * 5)]);
+    v.set(a[0], a[1], a[2]);
+    c.set(Math.max(-inner[0], Math.min(inner[0], a[0])), Math.max(-inner[1], Math.min(inner[1], a[1])), Math.max(-inner[2], Math.min(inner[2], a[2])));
+    v.sub(c); const len = v.length() || 1; v.multiplyScalar(1 / len);
+    n.setXYZ(i, v.x, v.y, v.z);
+    p.setXYZ(i, c.x + v.x * r, c.y + v.y * r, c.z + v.z * r);
+  }
+  geo.deleteAttribute("uv");
+  geo.computeBoundingBox(); geo.computeBoundingSphere();
+  rboxCache.set(key, geo);
+  return geo;
+}
+
+// Painted wooden sign board, readable from both sides (replaces floating labels).
+export function signBoard(text, opts = {}) {
+  const fs = 64, font = `bold ${fs}px "Arial Rounded MT Bold", ui-rounded, "Trebuchet MS", sans-serif`;
+  const c = document.createElement("canvas"), x = c.getContext("2d");
+  x.font = font; const tw = Math.ceil(x.measureText(text).width);
+  c.width = tw + 90; c.height = fs + 54;
+  x.fillStyle = opts.bg || "#fff3e6"; x.fillRect(0, 0, c.width, c.height);
+  // a few soft brush strokes so the paint doesn't look printed
+  for (let i = 0; i < 26; i++) { x.fillStyle = `rgba(${i % 2 ? "255,255,255" : "120,80,60"},${0.03 + Math.random() * 0.04})`; x.fillRect(0, Math.random() * c.height, c.width, 2 + Math.random() * 5); }
+  x.font = font; x.textAlign = "center"; x.textBaseline = "middle";
+  x.fillStyle = opts.color || "#3d4166"; x.fillText(text, c.width / 2, c.height / 2 + 3);
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+  const h = opts.height || 0.6, w = (h * c.width) / c.height;
+  const g = new THREE.Group();
+  const wood = toon(PAL.woodDark);
+  g.add(mesh(rbox(w + 0.22, h + 0.22, 0.14, 0.06), wood, 0, 0, 0));
+  const face = new THREE.MeshToonMaterial({ map: tex, gradientMap: gradientMap() });
+  for (const side of [1, -1]) {
+    const pl = new THREE.Mesh(new THREE.PlaneGeometry(w, h), face);
+    pl.position.z = 0.072 * side; if (side < 0) pl.rotation.y = Math.PI;
+    pl.receiveShadow = true; g.add(pl);
+  }
+  if (opts.post) for (const sx of [-1, 1]) g.add(mesh(rbox(0.14, opts.post, 0.14, 0.04), wood, sx * (w / 2 - 0.1), -opts.post / 2 - h / 2, -0.0));
+  g.userData.keep = false;
+  return g;
 }

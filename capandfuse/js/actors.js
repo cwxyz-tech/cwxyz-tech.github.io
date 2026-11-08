@@ -1,6 +1,6 @@
 // Collectibles, checkpoints, NPCs and enemies for Blossom Bay.
 import * as THREE from "../vendor/three.module.min.js";
-import { PAL, toon, basic, mesh, textSprite, damp, clamp, angDiff, mergeStatic } from "./fx.js?v=14";
+import { PAL, toon, basic, mesh, textSprite, damp, clamp, angDiff, mergeStatic, rbox } from "./fx.js?v=15";
 
 // mark moving parts, then merge everything else in a model into a few meshes
 function bake(root, dynamic = [], keep = []) { for (const d of dynamic) if (d) d.userData.dynamic = true; for (const k of keep) if (k) k.userData.keep = true; mergeStatic(root); }
@@ -15,7 +15,7 @@ export class Bits {
   constructor(game, max = 400) {
     this.game = game; this.list = [];
     const geo = new THREE.OctahedronGeometry(0.32, 0); geo.scale(1, 1.3, 0.55);
-    this.mat = new THREE.MeshToonMaterial({ color: PAL.gold, emissive: 0xffb36b, emissiveIntensity: 0.35 });
+    this.mat = new THREE.MeshToonMaterial({ color: PAL.gold, emissive: 0xffb36b, emissiveIntensity: 0.35 }); this.mat.defines = { CF_GLOSS: "" };
     this.im = new THREE.InstancedMesh(geo, this.mat, max);
     this.im.count = 0; this.im.castShadow = true; this.im.frustumCulled = false;
     game.scene.add(this.im);
@@ -90,6 +90,7 @@ export class Sparkheart {
     this.g = new THREE.Group(); this.g.position.copy(pos); game.scene.add(this.g);
     const mat = this.taken ? new THREE.MeshToonMaterial({ color: 0xffffff, transparent: true, opacity: 0.45, emissive: PAL.mint, emissiveIntensity: 0.4 })
       : new THREE.MeshToonMaterial({ color: PAL.pink, emissive: 0xff5f70, emissiveIntensity: 0.45 });
+    mat.defines = { CF_GLOSS: "" };
     this.h = mesh(heartGeometry(), mat); this.h.scale.setScalar(0.7); this.g.add(this.h);
     const halo = new THREE.Mesh(SPH, new THREE.MeshBasicMaterial({ color: this.taken ? PAL.mint : PAL.peach, transparent: true, opacity: 0.22, depthWrite: false }));
     halo.scale.setScalar(1.25); this.g.add(halo); this.halo = halo;
@@ -243,7 +244,7 @@ export function buildNPC(kind) {
       }
       eyeList = [];
       for (const sx of [-1, 1]) { const e = new THREE.Group(); e.position.set(sx * 0.18, 1.25, 0.15); const w = mesh(SPH, basic(0xffffff)); w.scale.setScalar(0.1); const p = mesh(SPH, basic(0x1d1f33), 0, 0, 0.07); p.scale.setScalar(0.05); e.add(w, p); body.add(e); eyeList.push(e); }
-      const apron = mesh(new THREE.BoxGeometry(0.5, 0.35, 0.05), toon(0xffffff), 0, 0.45, 0.45); body.add(apron);
+      const apron = mesh(rbox(0.5, 0.35, 0.05), toon(0xffffff), 0, 0.45, 0.45); body.add(apron);
       smile(body, 0.62, 0.45, 0.08);
       voice = 520; height = 1.4; break;
     }
@@ -255,7 +256,7 @@ export function buildNPC(kind) {
       for (const sx of [-1, 1]) { const ring = mesh(new THREE.TorusGeometry(0.15, 0.02, 6, 16), basic(0xb07a5a), sx * 0.17, 1.05, 0.46, false, false); body.add(ring); }
       const beak = mesh(new THREE.ConeGeometry(0.06, 0.15, 6), toon(PAL.gold), 0, 0.88, 0.48); beak.rotation.x = Math.PI / 2 + 0.3; body.add(beak);
       const cap = mesh(new THREE.CylinderGeometry(0.28, 0.32, 0.18, 16), toon(0x6b7fc2), 0, 1.5, 0); body.add(cap);
-      body.add(mesh(new THREE.BoxGeometry(0.4, 0.04, 0.2), toon(0x3d4166), 0, 1.42, 0.3));
+      body.add(mesh(rbox(0.4, 0.04, 0.2), toon(0x3d4166), 0, 1.42, 0.3));
       voice = 600; height = 1.8; break;
     }
     case "dot": { // Dot, a tiny puffball kid
@@ -372,7 +373,7 @@ export class Bloblet extends Enemy {
     this.body = mesh(SPH, mat, 0, 0.45, 0); this.body.scale.set(0.6, 0.48, 0.6); this.g.add(this.body);
     const core = mesh(SPH, toon(PAL.leafDark), 0, 0.42, 0); core.scale.setScalar(0.22); this.g.add(core);
     this.eyes = eyes(this.g, 0.6, 0.5, 0.18, 1.2);
-    const brow = mesh(new THREE.BoxGeometry(0.4, 0.05, 0.05), basic(0x1d1f33), 0, 0.78, 0.5, false); brow.rotation.z = 0; this.g.add(brow); this.brow = brow;
+    const brow = mesh(rbox(0.4, 0.05, 0.05), basic(0x1d1f33), 0, 0.78, 0.5, false); brow.rotation.z = 0; this.g.add(brow); this.brow = brow;
     this.hop = 0; this.state = "wander"; this.r = 0.6; this.h = 0.95; this.target = this.home.clone();
   }
   update(dt) {
@@ -420,7 +421,7 @@ export class Gullbomb extends Enemy {
     for (const sx of [-1, 1]) { const w = new THREE.Group(); w.position.set(sx * 0.3, 0.08, 0); const wm = mesh(SPH, toon(0xdfe6f2), sx * 0.55, 0, 0); wm.scale.set(0.6, 0.06, 0.28); w.add(wm); const tip = mesh(SPH, toon(0x3d4166), sx * 1.05, 0, -0.02); tip.scale.set(0.14, 0.05, 0.18); w.add(tip); this.g.add(w); this.wings.push(w); }
     const e = eyes(this.g, 0.34, 0.66, 0.11, 0.7);
     bake(this.g, [...this.wings, ...e]);
-    const brow = mesh(new THREE.BoxGeometry(0.3, 0.04, 0.04), basic(0x1d1f33), 0, 0.45, 0.68, false); brow.rotation.z = 0.0; this.g.add(brow);
+    const brow = mesh(rbox(0.3, 0.04, 0.04), basic(0x1d1f33), 0, 0.45, 0.68, false); brow.rotation.z = 0.0; this.g.add(brow);
     this.ang = Math.random() * 6; this.state = "circle"; this.r = 0.7; this.h = 0.8; this.swoopT = 0; this.cool = 2;
   }
   update(dt) {
@@ -442,7 +443,7 @@ export class Gullbomb extends Enemy {
     } else if (this.state === "warn") {
       this.swoopT += dt; this.facing = Math.atan2(p.pos.x - this.pos.x, p.pos.z - this.pos.z);
       this.pos.y += dt * 2; this.g.rotation.x = -0.4;
-      if (this.swoopT > 0.6) { this.state = "swoop"; this.swoopT = 0; const d = V(p.pos.x - this.pos.x, p.pos.y + 0.6 - this.pos.y, p.pos.z - this.pos.z).normalize(); this.vel.copy(d.multiplyScalar(14)); }
+      if (this.swoopT > 0.75) { this.state = "swoop"; this.swoopT = 0; const d = V(p.pos.x - this.pos.x, p.pos.y + 0.6 - this.pos.y, p.pos.z - this.pos.z).normalize(); this.vel.copy(d.multiplyScalar(13)); }
     } else if (this.state === "swoop") {
       this.swoopT += dt; this.pos.addScaledVector(this.vel, dt); this.g.rotation.x = 0.5;
       if (this.swoopT > 1.3 || this.game.level.pointInside(this.pos.x, this.pos.y, this.pos.z, 0.3)) { this.state = "rise"; this.swoopT = 0; }
@@ -508,7 +509,7 @@ export class PearlClam extends Enemy {
     const g = this.game, p = g.player;
     const m = mesh(SPH, new THREE.MeshToonMaterial({ color: 0xfff7f2, emissive: 0xffd3e0, emissiveIntensity: 0.4 }), this.pos.x, this.pos.y + 0.6, this.pos.z, true, false); m.scale.setScalar(0.25);
     g.scene.add(m);
-    const v = V(p.pos.x - this.pos.x, p.pos.y + 0.6 - (this.pos.y + 0.6), p.pos.z - this.pos.z).normalize().multiplyScalar(9);
+    const v = V(p.pos.x - this.pos.x, p.pos.y + 0.6 - (this.pos.y + 0.6), p.pos.z - this.pos.z).normalize().multiplyScalar(8);
     this.pearls.push({ m, v, t: 0, alive: true });
     g.audio.sfx("pop", { pitch: 0.7 });
   }

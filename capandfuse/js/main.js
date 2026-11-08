@@ -1,17 +1,17 @@
 // CAP & FUSE: game boot, main loop and all the glue between systems.
 import * as THREE from "../vendor/three.module.min.js";
-import { Input, keyLabel, KEYS_VERSION } from "./input.js?v=14";
-import { AudioSys } from "./audio.js?v=14";
-import * as Save from "./save.js?v=14";
-import { PAL, Particles, Rings, toon, basic, mesh, textSprite, damp, ease, SAT, mergeStatic } from "./fx.js?v=14";
-import { FuseModel, CAPS, BODIES } from "./fuse.js?v=14";
-import { Player } from "./player.js?v=14";
-import { CamRig } from "./camera.js?v=14";
-import { buildBlossomBay } from "./world.js?v=14";
-import { Bits, Sparkheart, Relic, HealthHeart, Checkpoint, NPC, Bloblet, Gullbomb, PearlClam, Shellback, Urchin } from "./actors.js?v=14";
-import { Shellshock } from "./boss.js?v=14";
-import { Cutscenes } from "./story.js?v=14";
-import { UI, Dialog, UPGRADES } from "./ui.js?v=14";
+import { Input, keyLabel, KEYS_VERSION } from "./input.js?v=15";
+import { AudioSys } from "./audio.js?v=15";
+import * as Save from "./save.js?v=15";
+import { PAL, Particles, Rings, toon, basic, mesh, textSprite, damp, ease, SAT, RES, mergeStatic, rbox } from "./fx.js?v=15";
+import { FuseModel, CAPS, BODIES } from "./fuse.js?v=15";
+import { Player } from "./player.js?v=15";
+import { CamRig } from "./camera.js?v=15";
+import { buildBlossomBay } from "./world.js?v=15";
+import { Bits, Sparkheart, Relic, HealthHeart, Checkpoint, NPC, Bloblet, Gullbomb, PearlClam, Shellback, Urchin } from "./actors.js?v=15";
+import { Shellshock } from "./boss.js?v=15";
+import { Cutscenes } from "./story.js?v=15";
+import { UI, Dialog, UPGRADES } from "./ui.js?v=15";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const DEFAULT_SETTINGS = { music: 0.7, sfx: 0.8, muteMusic: false, muteSfx: false, quality: "auto", camSens: 1, invertY: false, captions: true, reducedShake: false, reducedFlash: false, textSpeed: 1, showFps: false, keys: null };
@@ -60,7 +60,7 @@ class Game {
     // Safari (WebKit) runs WebGL slower than Chrome, and Retina screens have 4x the pixels,
     // so those start one step lower and skip MSAA (a 2x screen is already smooth)
     this.isSafari = /^((?!chrome|chromium|crios|fxios|edg|android).)*safari/i.test(navigator.userAgent);
-    const msaa = !this.safeMode && !this.isSafari && devicePixelRatio < 2;
+    const msaa = !this.safeMode; // MSAA is cheap on Apple and most desktop GPUs
     let r;
     try { r = this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: msaa, powerPreference: "high-performance", stencil: false }); }
     catch (e) { throw new Error("WebGL couldn't start (" + (e && e.message) + ")"); }
@@ -82,8 +82,8 @@ class Game {
     this.hemi = new THREE.HemisphereLight(0xdff7ff, 0xffd3b6, 1.25); this.scene.add(this.hemi);
     const sun = (this.sun = new THREE.DirectionalLight(0xfff1e0, 1.9));
     sun.position.set(30, 50, 20); sun.castShadow = true;
-    const sc = sun.shadow.camera; sc.left = sc.bottom = -36; sc.right = sc.top = 36; sc.near = 1; sc.far = 160;
-    sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.04;
+    const sc = sun.shadow.camera; sc.left = sc.bottom = -30; sc.right = sc.top = 30; sc.near = 1; sc.far = 160;
+    sun.shadow.bias = -0.0015; sun.shadow.normalBias = 0.09;
     this.scene.add(sun, sun.target);
 
     const stored = await Save.readSettings();
@@ -142,6 +142,7 @@ class Game {
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h; this.camera.updateProjectionMatrix();
     this.fx.setScale(h * this.renderer.getPixelRatio());
+    const db = this.renderer.getDrawingBufferSize(this._db || (this._db = new THREE.Vector2())); RES.value.copy(db);
   }
 
   applySettings() {
@@ -335,7 +336,7 @@ class Game {
 
     // X marks the spot
     const xs = new THREE.Group(); xs.position.copy(W.xSpot).add(V(0, 0.03, 0));
-    for (const a of [Math.PI / 4, -Math.PI / 4]) { const bar = mesh(new THREE.BoxGeometry(2.4, 0.04, 0.45), toon(PAL.coral), 0, 0, 0, false); bar.rotation.y = a; xs.add(bar); }
+    for (const a of [Math.PI / 4, -Math.PI / 4]) { const bar = mesh(rbox(2.4, 0.04, 0.45), toon(PAL.coral), 0, 0, 0, false); bar.rotation.y = a; xs.add(bar); }
     xs.visible = !sv.hearts.includes("xspot"); this.scene.add(xs); this.extra.push(xs); this.xMark = xs;
 
     // Dot's kite on top of the tall rock
@@ -370,8 +371,8 @@ class Game {
       { id: "jump", pos: V(6, 1, 19), r: 4, html: () => `<b>Jump</b> ${this.k("jump")} &middot; press again in the air to <b>double jump</b> &middot; jump 3 times in a row while running for a <b>triple jump</b>` },
       { id: "capbounce", pos: V(9.6, 5, 15), r: 3, html: () => `<b>Throw your cap</b> ${this.k("throw")}, then jump into it in midair to <b>bounce</b>! Hold ${this.k("throw")} to make it hover longer.` },
       { id: "walljump", pos: V(-14.3, 1, 18), r: 4, html: () => `<b>Wall jump</b>: jump into a wall, then press ${this.k("jump")} again while sliding down it.` },
-      { id: "dive", pos: V(0, 0.5, -46), r: 6, html: () => `<b>Dive</b>: press ${this.k("crouch")} in the air. Dive into your cap to bounce again.` },
-      { id: "pound", pos: W.xSpot, r: 5, html: () => `<b>Ground pound</b>: press ${this.k("pound")} in the air. Jump right as you land for a super jump!` },
+      { id: "dive", pos: V(0, 0.5, -46), r: 6, html: () => `<b>Dive</b>: press ${this.k("crouch")} in the air while moving. Dive into your cap to bounce again.` },
+      { id: "pound", pos: W.xSpot, r: 5, html: () => `<b>Ground pound</b>: press ${this.k("crouch")} in the air while holding still. Jump right as you land for a super jump!` },
       { id: "flip", pos: V(34, 0.45, 17), r: 9, html: () => `Shellbacks are too hard to stomp. <b>Hit them with your cap</b> to flip them first!` },
       { id: "longjump", pos: V(1, 1, 12), r: 3.5, html: () => `<b>Long jump</b>: hold ${this.k("crouch")} while moving, then ${this.k("jump")} &middot; <b>Backflip</b>: hold ${this.k("crouch")} standing still, then ${this.k("jump")}` },
       { id: "sidejump", pos: V(-4, 1, 3), r: 4, html: () => `<b>Side jump</b>: while running, turn around and press ${this.k("jump")} &middot; <b>Roll</b>: ${this.k("crouch")} + ${this.k("throw")}` },
@@ -914,8 +915,13 @@ class Game {
 
   updateSun(focus) {
     const s = this.sun;
-    s.position.set(focus.x + 30, focus.y + 50, focus.z + 20);
-    s.target.position.copy(focus);
+    // move the shadow area in whole shadow-map texels so shadow edges never shimmer
+    if (!this._sunB) { const d = new THREE.Vector3(-30, -50, -20).normalize(), r = new THREE.Vector3().crossVectors(d, new THREE.Vector3(0, 1, 0)).normalize(); this._sunB = { d, r, u: new THREE.Vector3().crossVectors(r, d), f: new THREE.Vector3() }; }
+    const B = this._sunB, sc = s.shadow.camera, tx = (sc.right - sc.left) / (s.shadow.mapSize.x || 1024);
+    const a = Math.round(focus.dot(B.r) / tx) * tx, b = Math.round(focus.dot(B.u) / tx) * tx, c = focus.dot(B.d);
+    const f = B.f.copy(B.r).multiplyScalar(a).addScaledVector(B.u, b).addScaledVector(B.d, c);
+    s.position.set(f.x + 30, f.y + 50, f.z + 20);
+    s.target.position.copy(f);
   }
 
   shake(a) { this.cam.shake(a); }
