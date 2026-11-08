@@ -2,17 +2,17 @@
 // jump, a real triple jump, midair double jump, wall jump, roll, ground pound,
 // DIVE and the signature cap throw + cap bounce.
 import * as THREE from "../vendor/three.module.min.js";
-import { FuseModel, buildCap } from "./fuse.js?v=11";
-import { PAL, blobShadow, damp, clamp, angDiff, lerp } from "./fx.js?v=11";
+import { FuseModel, buildCap } from "./fuse.js?v=12";
+import { PAL, blobShadow, damp, clamp, angDiff, lerp } from "./fx.js?v=12";
 
 // lower gravity + bigger launch speeds = faster and floatier than before
 const G = 30, TERMINAL = -24;
 const T = {
-  walk: 8, run: 12.5, crouchWalk: 4.5, accel: 70, decel: 52, airAccel: 34, turnRate: 16,
+  walk: 7, run: 10, crouchWalk: 4, accel: 60, decel: 48, airAccel: 28, turnRate: 15,
   jump: 13, jump2: 15.8, jump3: 19.5, dbl: 12.2, chainWindow: 0.24,
-  longJumpUp: 10, longJumpSpeed: 19, sideJump: 18.5, sideJumpSpeed: 5, backflip: 19.5,
+  longJumpUp: 10, longJumpSpeed: 15.5, sideJump: 18.5, sideJumpSpeed: 4.5, backflip: 19.5,
   poundJump: 19, capBounce: 15.5, wallJumpUp: 13.5, wallJumpOut: 9.5,
-  diveSpeed: 17.5, diveUp: 6, rollSpeed: 17, coyote: 0.12, buffer: 0.14,
+  diveSpeed: 15, diveUp: 6, rollSpeed: 14, coyote: 0.12, buffer: 0.14,
 };
 // airborne states that keep their animation until they start falling
 const AIR = { jump: 0.4, jump2: 0.45, jump3: 0.6, djump: 0.45, longjump: 0.7, sidejump: 0.6, backflip: 0.6, throw: 0.3, spinthrow: 0.35, capbounce: 0.45 };
@@ -50,7 +50,7 @@ export class Player {
   endCombo() {
     const c = this.combo, g = this.game;
     if (c.n >= 3) {
-      const bonus = Math.min(60, Math.round(c.n * c.n * 0.5));
+      const bonus = Math.min(30, Math.round(c.n * (c.n - 1) / 2)); // 3 -> 3, 5 -> 10, 8+ -> 28-30
       g.addBits(bonus); g.audio.sfx("buy");
       g.fx.emit({ x: this.pos.x, y: this.pos.y + 1.2, z: this.pos.z, count: 20, color: [PAL.gold, 0xffffff, PAL.peach], speed: 4, up: 3, life: 0.6, size: 0.35 });
       g.ui.comboEnd(c.n, bonus);
@@ -58,7 +58,7 @@ export class Player {
     } else g.ui.comboEnd(c.n, 0);
     c.n = 0; c.last = null; c.tricks = []; c.groundT = 0;
   }
-  get speedMul() { return 1 + this.flow * 0.32; }
+  get speedMul() { return 1 + this.flow * 0.2; }
 
   resetAir() { this.usedDouble = false; this.usedDive = false; this.capBounces = 0; }
   get pos() { return this.body.pos; }
@@ -276,9 +276,9 @@ export class Player {
         if (hs > 10) this.dust(2, 1.2, [PAL.peach, 0xffffff]);
       }
     }
-    if (hs > 11 && b.grounded && this.stateT % 0.05 < dt) g.fx.emit({ x: this.pos.x, y: this.pos.y + 1.45, z: this.pos.z, count: 1, color: [0xfff1a8, PAL.peach], speed: 1, up: 2, life: 0.3, size: 0.2, gravity: -2 });
+    if (hs > 10.5 && b.grounded && this.stateT % 0.05 < dt) g.fx.emit({ x: this.pos.x, y: this.pos.y + 1.45, z: this.pos.z, count: 1, color: [0xfff1a8, PAL.peach], speed: 1, up: 2, life: 0.3, size: 0.2, gravity: -2 });
     // speed lines when you're really moving
-    if (hs > 15 && Math.random() < dt * 60) { const k = 0.06; this.game.fx.emit({ x: this.pos.x + (Math.random() - 0.5) * 1.6, y: this.pos.y + 0.2 + Math.random() * 1.2, z: this.pos.z + (Math.random() - 0.5) * 1.6, count: 1, color: 0xffffff, speed: 0, dir: [-this.vel.x * k * 8, 0, -this.vel.z * k * 8], drag: 0, gravity: 0, life: 0.22, size: 0.18 + this.flow * 0.1 }); }
+    if (hs > 13 && Math.random() < dt * 60) { const k = 0.06; this.game.fx.emit({ x: this.pos.x + (Math.random() - 0.5) * 1.6, y: this.pos.y + 0.2 + Math.random() * 1.2, z: this.pos.z + (Math.random() - 0.5) * 1.6, count: 1, color: 0xffffff, speed: 0, dir: [-this.vel.x * k * 8, 0, -this.vel.z * k * 8], drag: 0, gravity: 0, life: 0.22, size: 0.18 + this.flow * 0.1 }); }
     // trail sparkles on the big flips
     if (["jump3", "backflip", "sidejump", "longjump"].includes(this.state) && Math.random() < dt * 40) g.fx.emit({ x: this.pos.x, y: this.pos.y + 0.6, z: this.pos.z, count: 1, color: [PAL.mint, PAL.pink, PAL.lime, 0xffffff], speed: 0.5, life: 0.5, size: 0.3, gravity: 0 });
 
@@ -341,7 +341,7 @@ export class Player {
     if (wl > 0) {
       const d = angDiff(this.facing, inAng);
       if (Math.abs(d) > 2.4 && hs > 6) { this.setState("skid"); this.skidTo = inAng; g.audio.sfx("slide"); return; }
-      const turn = T.turnRate / (1 + Math.max(0, hs - 12) * 0.08); // heavier turns at high speed
+      const turn = T.turnRate / (1 + Math.max(0, hs - 10) * 0.08); // heavier turns at high speed
       this.facing += clamp(d, -turn * dt, turn * dt);
       this.turn = clamp(d * 0.25, -0.3, 0.3);
     }
@@ -470,10 +470,10 @@ export class Player {
     this.root.rotation.y = this.facing;
     let anim = this.state;
     if (anim === "land" && this.stateT > 0.14) anim = "idle";
-    if (anim === "run" && hs < 6.5) anim = "walk";
+    if (anim === "run" && hs < 5.5) anim = "walk";
     this.model.update(dt, {
       state: anim, speed: hs / T.run, vy: this.vel.y, grounded: this.body.grounded, timer: this.stateT,
-      phase: this.phase, sprint: hs > 11, idleTime: this.idleTime, turn: this.turn || 0, rollAngle: this.rollAngle || 0,
+      phase: this.phase, sprint: hs > 10.5, idleTime: this.idleTime, turn: this.turn || 0, rollAngle: this.rollAngle || 0,
     });
     if (this.invuln <= 0) this.model.flash = 0;
     const gb = this.game.level.groundBelow(p.x, p.z, p.y + 0.3, 0.05);

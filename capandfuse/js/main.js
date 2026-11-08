@@ -1,17 +1,17 @@
 // CAP & FUSE: game boot, main loop and all the glue between systems.
 import * as THREE from "../vendor/three.module.min.js";
-import { Input, keyLabel, KEYS_VERSION } from "./input.js?v=11";
-import { AudioSys } from "./audio.js?v=11";
-import * as Save from "./save.js?v=11";
-import { PAL, Particles, Rings, toon, basic, mesh, textSprite, damp, ease, SAT, mergeStatic } from "./fx.js?v=11";
-import { FuseModel, CAPS, BODIES } from "./fuse.js?v=11";
-import { Player } from "./player.js?v=11";
-import { CamRig } from "./camera.js?v=11";
-import { buildBlossomBay } from "./world.js?v=11";
-import { Bits, Sparkheart, Relic, HealthHeart, Checkpoint, NPC, Bloblet, Gullbomb, PearlClam, Shellback, Urchin } from "./actors.js?v=11";
-import { Shellshock } from "./boss.js?v=11";
-import { Cutscenes } from "./story.js?v=11";
-import { UI, Dialog, UPGRADES } from "./ui.js?v=11";
+import { Input, keyLabel, KEYS_VERSION } from "./input.js?v=12";
+import { AudioSys } from "./audio.js?v=12";
+import * as Save from "./save.js?v=12";
+import { PAL, Particles, Rings, toon, basic, mesh, textSprite, damp, ease, SAT, mergeStatic } from "./fx.js?v=12";
+import { FuseModel, CAPS, BODIES } from "./fuse.js?v=12";
+import { Player } from "./player.js?v=12";
+import { CamRig } from "./camera.js?v=12";
+import { buildBlossomBay } from "./world.js?v=12";
+import { Bits, Sparkheart, Relic, HealthHeart, Checkpoint, NPC, Bloblet, Gullbomb, PearlClam, Shellback, Urchin } from "./actors.js?v=12";
+import { Shellshock } from "./boss.js?v=12";
+import { Cutscenes } from "./story.js?v=12";
+import { UI, Dialog, UPGRADES } from "./ui.js?v=12";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const DEFAULT_SETTINGS = { music: 0.7, sfx: 0.8, muteMusic: false, muteSfx: false, quality: "high", camSens: 1, invertY: false, captions: true, reducedShake: false, reducedFlash: false, textSpeed: 1, showFps: false, keys: null };
@@ -509,6 +509,7 @@ class Game {
 
   onBossHit(hp) {
     this.audio.intensity = 3 - hp;
+    if (this.player.hp < this.player.maxHp) { const hh = new HealthHeart(this, V(this.world.arena.x + 7, 1.4, (Math.random() - 0.5) * 8)); hh.respawn = 1e9; this.actors.push(hh); this.bossHearts = (this.bossHearts || []).concat(hh); }
     this.ui.toast(hp === 2 ? "He's getting angry!" : "One more hit!", 1.8);
   }
   async onBossDefeated() {
@@ -546,6 +547,8 @@ class Game {
     if (lost) this.ui.toast(`Dropped ${lost} Sparkbits...`, 2);
   }
   resetBoss() {
+    for (const hh of this.bossHearts || []) { this.scene.remove(hh.g); this.actors = this.actors.filter((x) => x !== hh); }
+    this.bossHearts = [];
     this.scene.remove(this.boss.g); this.level.remove(this.boss.bodySolid); this.level.remove(this.boss.topSolid);
     for (const w of this.boss.waves) this.scene.remove(w.m); for (const b of this.boss.bombs) this.scene.remove(b.m); for (const w of this.boss.warns) this.scene.remove(w.m);
     this.boss = new Shellshock(this, V(this.world.arena.x, 0.5, this.world.arena.z));
@@ -621,6 +624,13 @@ class Game {
       this.ui.showHud(true);
     } else if (name === "bossOutro") {
       this.ui.showHud(true);
+      { // put the reward between the crab and the bridge so it's never stuck inside him
+        const h = this.hearts.find((x) => x.id === "boss"), b = this.boss.pos, c = this.world.arena;
+        let dx = -46 - b.x, dz = 0 - b.z; const d = Math.hypot(dx, dz) || 1; dx /= d; dz /= d;
+        let hx = b.x + dx * 4.5, hz = b.z + dz * 4.5;
+        const dc = Math.hypot(hx - c.x, hz - c.z); if (dc > 11) { hx = c.x + (hx - c.x) * 11 / dc; hz = c.z + (hz - c.z) * 11 / dc; }
+        if (h) h.home.set(hx, 2, hz);
+      }
       this.revealHeart("boss", this.boss.pos.clone().add(V(0, 6, 0)));
       this.audio.play("blossom", 2);
     } else if (name === "chapterEnd") {
@@ -678,7 +688,7 @@ class Game {
         if (H("rings")) L("bo", "Ribbit! Fastest bomb on the beach! Want to race again just for fun? Talk to me twice!");
         if (this.race) { L("bo", "Go go go!"); break; }
         if (!H("rings") || sv.story.quests.raceAgain) {
-          L("bo", "Ahoy! It's the Beach Ring Dash! Run through all 6 gold rings in 18 seconds."); L("bo", "Sprint, dive, double jump, whatever it takes! Ready? GO!");
+          L("bo", "Ahoy! It's the Beach Ring Dash! Run through all 6 gold rings in 16 seconds."); L("bo", "Long jumps, dives, whatever it takes! Ready? GO!");
           await this.dialog.play(lines); n.talking = false; this.player.frozen = false; this.startRace(); return;
         }
         sv.story.quests.raceAgain = true;
@@ -693,7 +703,7 @@ class Game {
   }
 
   startRace() {
-    const r = (this.race = { time: 18, got: 0, started: false });
+    const r = (this.race = { time: 16, got: 0, started: false });
     for (const ring of this.raceRings) { ring.got = false; ring.m.visible = true; ring.m.material.color.set(PAL.gold); }
     this.ui.toast("GO!", 1); this.audio.sfx("notify");
     r.started = true;
@@ -855,6 +865,7 @@ class Game {
       if (p.state === "wall" && p.stateT > 0.1 && p.vel.y > 0) this.tutorialDone("walljump");
       if (p.state === "jump" && p.airControlLock > 0) this.tutorialDone("walljump");
 
+      if (this.bossActive && p.pos.x > -47) { this.resetBoss(); this.ui.toast("Shellshock went back to sleep.", 2); }
       // the boss fight starts when you step into Shell Cove
       if (!this.save.story.boss && !this.bossActive && p.pos.x < -52.5 && p.grounded && !this.boss.dead) {
         if (!this.save.story.bossIntro) this.cut.run("bossIntro");

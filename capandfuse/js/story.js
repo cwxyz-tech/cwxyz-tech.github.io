@@ -1,7 +1,7 @@
 // Story: dialogue lines and in-engine cutscenes. Every cutscene can be skipped;
 // skipping fast-forwards through the steps so the game state always ends right.
 import * as THREE from "../vendor/three.module.min.js";
-import { PAL, toon, basic, mesh, ease } from "./fx.js?v=11";
+import { PAL, toon, basic, mesh, ease } from "./fx.js?v=12";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const SPH = new THREE.SphereGeometry(1, 20, 14);

@@ -2,7 +2,7 @@
 // his shell. Make him slam his claw into the sand (or charge into a rock),
 // then cap-bounce up onto his shell and ground pound the glowing gem.
 import * as THREE from "../vendor/three.module.min.js";
-import { PAL, toon, basic, mesh, damp, clamp, angDiff, textSprite, mergeStatic } from "./fx.js?v=11";
+import { PAL, toon, basic, mesh, damp, clamp, angDiff, textSprite, mergeStatic } from "./fx.js?v=12";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const SPH = new THREE.SphereGeometry(1, 20, 14);
@@ -171,11 +171,11 @@ export class Shellshock {
           g.audio.sfx("boom"); g.shake(0.6); g.input.rumble(1, 250);
           g.fx.emit({ x: cp.x, y: this.center.y + 0.2, z: cp.z, count: 40, color: [PAL.peach, 0xffffff, PAL.lime], speed: 8, up: 4, life: 0.7, size: 0.55 });
           this.wave(cp.x, cp.z);
-          if (4 - this.hp >= 2) setTimeout(() => this.active && !this.dead && this.wave(cp.x, cp.z), 450);
+          if (4 - this.hp >= 2) this.pendingWave = { t: 0.45, x: cp.x, z: cp.z };
         }
         if (this.st > 0.5) {
           this.slammed = false;
-          if (this.stuckAfter) { this.state = "stuck"; this.st = 0; g.audio.sfx("gasp", { pitch: 0.5, caption: "[Shellshock's claw is stuck!]" }); g.ui.toast("His claw is stuck! Cap-bounce onto his shell!", 2.2); }
+          if (this.stuckAfter) { this.state = "stuck"; this.st = 0; g.audio.sfx("gasp", { pitch: 0.5, caption: "[Shellshock's claw is stuck!]" }); g.ui.toast("His claw is stuck! Get on his shell and ground pound the gem!", 2.4); }
           else { this.state = "recover"; this.st = 0; }
         }
         break;
@@ -190,7 +190,7 @@ export class Shellshock {
         c.arm.rotation.x = 0.75 + Math.sin(this.t * 30) * 0.05;
         this.inner.rotation.z = Math.sin(this.t * 18) * 0.03;
         if (this.st % 0.3 < dt) g.fx.emit({ x: this.pos.x, y: this.center.y + 0.3, z: this.pos.z + 3, count: 3, color: PAL.peach, speed: 2, up: 2, life: 0.4, size: 0.4 });
-        if (this.st > [0, 3.6, 3.0, 2.6][4 - this.hp]) { this.state = "recover"; this.st = 0; this.inner.rotation.z = 0; this.shakeOff(); }
+        if (this.st > [0, 3.8, 3.2, 2.7][4 - this.hp]) { this.state = "recover"; this.st = 0; this.inner.rotation.z = 0; this.shakeOff(); }
         break;
       }
       case "chargeWind": {
@@ -217,7 +217,7 @@ export class Shellshock {
       case "dizzy": {
         this.inner.rotation.y = Math.sin(this.t * 6) * 0.15;
         for (const s of this.stars) { s.a += dt * 3; s.m.position.set(Math.cos(s.a) * 1.5, 8 + Math.sin(s.a * 2) * 0.2, Math.sin(s.a) * 1.5); s.m.rotation.y += dt * 4; }
-        if (this.st > [0, 3.4, 2.9, 2.5][4 - this.hp]) { this.clearStars(); this.inner.rotation.y = 0; this.state = "returnHome"; this.st = 0; this.shakeOff(); }
+        if (this.st > [0, 3.6, 3.0, 2.6][4 - this.hp]) { this.clearStars(); this.inner.rotation.y = 0; this.state = "returnHome"; this.st = 0; this.shakeOff(); }
         break;
       }
       case "returnHome": {
@@ -267,6 +267,7 @@ export class Shellshock {
 
   updateHazards(dt) {
     const g = this.game, p = g.player;
+    if (this.pendingWave) { this.pendingWave.t -= dt; if (this.pendingWave.t <= 0) { const w = this.pendingWave; this.pendingWave = null; this.wave(w.x, w.z); } }
     for (const w of this.waves) {
       w.r += dt * 9.5 * this.speedK;
       w.m.scale.set(w.r, w.r, 1);
@@ -299,11 +300,17 @@ export class Shellshock {
   }
   clearStars() { for (const s of this.stars) this.g.remove(s.m); this.stars = []; }
 
+  // direction from a point toward the middle of the cove (so Fuse never gets flung into the sea)
+  inward(x, z, fallback) {
+    const dx = this.center.x - x, dz = this.center.z - z, d = Math.hypot(dx, dz);
+    if (d < 2) return fallback;
+    return Math.atan2(dx, dz);
+  }
   shakeOff() {
     const p = this.game.player;
     if (p.body.ground === this.topSolid) {
-      const dx = p.pos.x - this.pos.x, dz = p.pos.z - this.pos.z, d = Math.hypot(dx, dz) || 1;
-      p.vel.set((dx / d) * 9 || 9, 12, (dz / d) * 9); p.body.grounded = false; p.setState("jump");
+      const a = this.inward(this.pos.x, this.pos.z, this.facing + Math.PI);
+      p.vel.set(Math.sin(a) * 7, 12, Math.cos(a) * 7); p.body.grounded = false; p.setState("jump");
       this.game.audio.sfx("roar");
     }
   }
@@ -341,8 +348,8 @@ export class Shellshock {
     g.fx.emit({ x: this.pos.x, y: this.pos.y + 6.2, z: this.pos.z, count: 50, color: [PAL.pink, PAL.mint, 0xffffff, PAL.gold], speed: 9, life: 0.8, size: 0.6 });
     g.rings.spawn(this.pos.x, this.pos.y + 6, this.pos.z, PAL.mint, 5, 0.5);
     // launch Fuse off safely
-    const a = this.facing + Math.PI;
-    p.vel.set(Math.sin(a) * 10, 15, Math.cos(a) * 10); p.body.grounded = false; p.setState("jump3"); p.resetAir();
+    const a = this.inward(this.pos.x, this.pos.z, this.facing + Math.PI);
+    p.vel.set(Math.sin(a) * 6.5, 15, Math.cos(a) * 6.5); p.body.grounded = false; p.setState("jump3"); p.resetAir();
     g.ui.bossBar(this.hp / 3);
     if (this.hp <= 0) { this.die(); return; }
     this.state = "hurt"; this.st = 0;
@@ -352,7 +359,7 @@ export class Shellshock {
 
   die() {
     const g = this.game;
-    this.dead = true; this.deadT = 0; this.active = false;
+    this.dead = true; this.deadT = 0; this.active = false; this.pendingWave = null;
     for (const w of this.waves) g.scene.remove(w.m); this.waves = [];
     for (const b of this.bombs) g.scene.remove(b.m); this.bombs = [];
     for (const w of this.warns) g.scene.remove(w.m); this.warns = [];
@@ -376,7 +383,7 @@ export class Shellshock {
     // shell top sits over the back of the shell
     const tx = this.pos.x - Math.sin(this.facing) * 0.6, tz = this.pos.z - Math.cos(this.facing) * 0.6;
     ts.dx = tx - ts.x; ts.dz = tz - ts.z; ts.dy = 0; ts.x = tx; ts.z = tz;
-    if (this.dead) { bs.enabled = this.deadT < 3; ts.enabled = false; }
+    if (this.dead) { bs.enabled = true; ts.enabled = true; }
   }
   gemWorld() { return this.gem.getWorldPosition(V(0, 0, 0)); }
 }

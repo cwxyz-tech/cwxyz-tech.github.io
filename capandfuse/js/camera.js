@@ -1,7 +1,7 @@
 // Third-person orbit camera that follows Fuse, eases behind him when he runs,
 // keeps a calm height while he jumps, and never goes inside walls.
 import * as THREE from "../vendor/three.module.min.js";
-import { damp, clamp, angDiff, lerp, ease } from "./fx.js?v=11";
+import { damp, clamp, angDiff, lerp, ease } from "./fx.js?v=12";
 
 export class CamRig {
   constructor(camera, game) {
@@ -64,8 +64,8 @@ export class CamRig {
 
     // speed makes the camera pull back and widen a little: you feel fast
     const sp = Math.hypot(p.vel.x, p.vel.z), flow = p.flow || 0;
-    this._fov(55 + Math.min(12, Math.max(0, sp - 12) * 0.9) + flow * 3, dt);
-    this.speedPull = damp(this.speedPull || 0, Math.min(1, Math.max(0, sp - 12) / 10), 3, dt);
+    this._fov(55 + Math.min(10, Math.max(0, sp - 10.5) * 0.9) + flow * 3, dt);
+    this.speedPull = damp(this.speedPull || 0, Math.min(1, Math.max(0, sp - 10.5) / 8), 3, dt);
     const dist = this.dist * (g.zoomOut || 1) * (1 + this.speedPull * 0.14 + flow * 0.06);
     const cx = this.target.x + Math.sin(this.yaw) * Math.cos(this.pitch) * dist;
     const cz = this.target.z + Math.cos(this.yaw) * Math.cos(this.pitch) * dist;
