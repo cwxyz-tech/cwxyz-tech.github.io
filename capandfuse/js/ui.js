@@ -1,8 +1,8 @@
 // All menus and overlays (built as HTML on top of the 3D canvas).
-import { ACTIONS, keyLabel } from "./input.js?v=13";
-import { SPEAKERS } from "./story.js?v=13";
-import { CAPS, BODIES } from "./fuse.js?v=13";
-import { TRACKS, TRACK_ORDER } from "./audio.js?v=13";
+import { ACTIONS, keyLabel } from "./input.js?v=14";
+import { SPEAKERS } from "./story.js?v=14";
+import { CAPS, BODIES } from "./fuse.js?v=14";
+import { TRACKS, TRACK_ORDER } from "./audio.js?v=14";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const cloneJSON = (o) => JSON.parse(JSON.stringify(o));
@@ -120,7 +120,7 @@ export class UI {
     clearTimeout(this._capT); this._capT = setTimeout(() => (c.hidden = true), 1800);
   }
   hint(html) { const h = $("#cfHint", this.root); if (!html) { h.hidden = true; this._hint = null; return; } if (this._hint === html) return; this._hint = html; h.innerHTML = html; h.hidden = false; h.classList.remove("in"); void h.offsetWidth; h.classList.add("in"); }
-  prompt(text) { const p = $("#cfPrompt", this.root); if (!text) { p.hidden = true; return; } p.innerHTML = text; p.hidden = false; }
+  prompt(text) { if (text === this._prompt) return; this._prompt = text; const p = $("#cfPrompt", this.root); if (!text) { p.hidden = true; return; } p.innerHTML = text; p.hidden = false; }
   banner(top, sub, color = "#ff8b94") {
     const b = $("#cfBanner", this.root);
     $("#cfTitleCard", this.root).hidden = true;
@@ -195,7 +195,7 @@ export class UI {
             <button class="cf-btn xp-item" id="mCredits"><i class="xp-ico info"></i><span>Credits</span></button>
           </div>
         </div>
-        <div class="xp-sfoot"><span>Version 1.2.1</span><a class="xp-exit" href="/games"><i></i>Exit</a></div>
+        <div class="xp-sfoot"><span>Version 1.3</span><a class="xp-exit" href="/games"><i></i>Exit</a></div>
       </div>`, "clear left");
     this.on("#mContinue", () => this.game.continueGame());
     this.on("#mNew", () => this.game.newGameFlow());
@@ -245,7 +245,7 @@ export class UI {
         <label class="cf-check"><input type="checkbox" id="stMuteS" ${st.muteSfx ? "checked" : ""}> Mute sound effects</label>
       </div>
       <div class="cf-tabpane" data-pane="video" hidden>
-        <label class="cf-sel">Graphics quality <select id="stQuality"><option value="low">Low (fastest)</option><option value="medium">Medium</option><option value="high">High (prettiest)</option></select></label>
+        <label class="cf-sel">Graphics quality <select id="stQuality"><option value="auto">Auto (recommended)</option><option value="low">Low (fastest)</option><option value="medium">Medium</option><option value="high">High (prettiest)</option></select></label>
         <label class="cf-check"><input type="checkbox" id="stFull" ${document.fullscreenElement || document.webkitFullscreenElement ? "checked" : ""}> Fullscreen</label>
         <label class="cf-check"><input type="checkbox" id="stFps" ${st.showFps ? "checked" : ""}> Show frame rate</label>
       </div>
@@ -274,7 +274,7 @@ export class UI {
     range("#stMusic", "music"); range("#stSfx", "sfx"); range("#stSens", "camSens", 100, "%");
     const check = (id, key) => $(id, s).addEventListener("change", (e) => { st[key] = e.target.checked; g.applySettings(); });
     check("#stMuteM", "muteMusic"); check("#stMuteS", "muteSfx"); check("#stInv", "invertY"); check("#stCaps", "captions"); check("#stShake", "reducedShake"); check("#stFlash", "reducedFlash"); check("#stFps", "showFps");
-    $("#stQuality", s).addEventListener("change", (e) => { st.quality = e.target.value; st.qualityChosen = true; g.applySettings(); });
+    $("#stQuality", s).addEventListener("change", (e) => { st.quality = e.target.value; st.qualityChosen = e.target.value !== "auto"; g.applySettings(); });
     $("#stText", s).addEventListener("change", (e) => { st.textSpeed = +e.target.value; g.applySettings(); });
     $("#stFull", s).addEventListener("change", (e) => g.setFullscreen(e.target.checked));
     s.querySelectorAll("[data-key]").forEach((b) => b.addEventListener("click", () => {
@@ -299,7 +299,7 @@ export class UI {
     const s = this.open(`<div class="cf-panel"><h2>Extras</h2>
       <h3>Sound Test</h3>
       <div class="cf-tracks">${TRACK_ORDER.map((k, i) => `<button class="cf-btn tiny track" data-t="${k}">${String(i + 1).padStart(2, "0")} &middot; ${esc(TRACKS[k].title)}</button>`).join("")}</div>
-      <h3>Version Notes</h3><p class="cf-dim"><b>1.2.1</b> The camera follows Fuse again after loading a save.<br><b>1.2</b> Balance changes and Shellshock fixes.<br><b>1.1</b> New moves and controls, smoother performance, new look.<br><b>1.0</b> Chapter 1: Blossom Bay.</p>
+      <h3>Version Notes</h3><p class="cf-dim"><b>1.3</b> Runs much faster, especially in Safari. New Auto graphics setting. Camera follows Fuse after loading a save.<br><b>1.2</b> Balance changes and Shellshock fixes.<br><b>1.1</b> New moves and controls, smoother performance, new look.<br><b>1.0</b> Chapter 1: Blossom Bay.</p>
       <div class="cf-row center"><button class="cf-btn" id="xControls">How to Play</button><button class="cf-btn" id="xBack">Back</button></div></div>`);
     s.querySelectorAll("[data-t]").forEach((b) => b.addEventListener("click", () => {
       s.querySelectorAll(".track").forEach((x) => x.classList.remove("on")); b.classList.add("on");

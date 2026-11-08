@@ -1,6 +1,6 @@
 // Collectibles, checkpoints, NPCs and enemies for Blossom Bay.
 import * as THREE from "../vendor/three.module.min.js";
-import { PAL, toon, basic, mesh, textSprite, damp, clamp, angDiff, mergeStatic } from "./fx.js?v=13";
+import { PAL, toon, basic, mesh, textSprite, damp, clamp, angDiff, mergeStatic } from "./fx.js?v=14";
 
 // mark moving parts, then merge everything else in a model into a few meshes
 function bake(root, dynamic = [], keep = []) { for (const d of dynamic) if (d) d.userData.dynamic = true; for (const k of keep) if (k) k.userData.keep = true; mergeStatic(root); }

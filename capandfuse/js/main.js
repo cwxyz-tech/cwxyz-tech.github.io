@@ -1,20 +1,20 @@
 // CAP & FUSE: game boot, main loop and all the glue between systems.
 import * as THREE from "../vendor/three.module.min.js";
-import { Input, keyLabel, KEYS_VERSION } from "./input.js?v=13";
-import { AudioSys } from "./audio.js?v=13";
-import * as Save from "./save.js?v=13";
-import { PAL, Particles, Rings, toon, basic, mesh, textSprite, damp, ease, SAT, mergeStatic } from "./fx.js?v=13";
-import { FuseModel, CAPS, BODIES } from "./fuse.js?v=13";
-import { Player } from "./player.js?v=13";
-import { CamRig } from "./camera.js?v=13";
-import { buildBlossomBay } from "./world.js?v=13";
-import { Bits, Sparkheart, Relic, HealthHeart, Checkpoint, NPC, Bloblet, Gullbomb, PearlClam, Shellback, Urchin } from "./actors.js?v=13";
-import { Shellshock } from "./boss.js?v=13";
-import { Cutscenes } from "./story.js?v=13";
-import { UI, Dialog, UPGRADES } from "./ui.js?v=13";
+import { Input, keyLabel, KEYS_VERSION } from "./input.js?v=14";
+import { AudioSys } from "./audio.js?v=14";
+import * as Save from "./save.js?v=14";
+import { PAL, Particles, Rings, toon, basic, mesh, textSprite, damp, ease, SAT, mergeStatic } from "./fx.js?v=14";
+import { FuseModel, CAPS, BODIES } from "./fuse.js?v=14";
+import { Player } from "./player.js?v=14";
+import { CamRig } from "./camera.js?v=14";
+import { buildBlossomBay } from "./world.js?v=14";
+import { Bits, Sparkheart, Relic, HealthHeart, Checkpoint, NPC, Bloblet, Gullbomb, PearlClam, Shellback, Urchin } from "./actors.js?v=14";
+import { Shellshock } from "./boss.js?v=14";
+import { Cutscenes } from "./story.js?v=14";
+import { UI, Dialog, UPGRADES } from "./ui.js?v=14";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
-const DEFAULT_SETTINGS = { music: 0.7, sfx: 0.8, muteMusic: false, muteSfx: false, quality: "high", camSens: 1, invertY: false, captions: true, reducedShake: false, reducedFlash: false, textSpeed: 1, showFps: false, keys: null };
+const DEFAULT_SETTINGS = { music: 0.7, sfx: 0.8, muteMusic: false, muteSfx: false, quality: "auto", camSens: 1, invertY: false, captions: true, reducedShake: false, reducedFlash: false, textSpeed: 1, showFps: false, keys: null };
 
 const HEARTS = [
   { id: "lighthouse", name: "Top of the Lighthouse", hint: "Climb the steps that wind around Nell's lighthouse.", pos: V(31, 22.4, -5.7) },
@@ -57,12 +57,16 @@ class Game {
     // reloads a page that uses too much graphics memory, which looks like endless loading
     const touch = navigator.maxTouchPoints > 0 && (/iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1));
     this.safeMode = /[?&]safe=1/.test(location.search) || touch;
+    // Safari (WebKit) runs WebGL slower than Chrome, and Retina screens have 4x the pixels,
+    // so those start one step lower and skip MSAA (a 2x screen is already smooth)
+    this.isSafari = /^((?!chrome|chromium|crios|fxios|edg|android).)*safari/i.test(navigator.userAgent);
+    const msaa = !this.safeMode && !this.isSafari && devicePixelRatio < 2;
     let r;
-    try { r = this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: !this.safeMode, powerPreference: "high-performance" }); }
+    try { r = this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: msaa, powerPreference: "high-performance", stencil: false }); }
     catch (e) { throw new Error("WebGL couldn't start (" + (e && e.message) + ")"); }
     r.outputColorSpace = THREE.SRGBColorSpace;
     r.toneMapping = THREE.NeutralToneMapping; r.toneMappingExposure = 1.0;
-    r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
+    r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFShadowMap; r.shadowMap.autoUpdate = false;
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(55, 1, 0.1, 1200);
     this.input = new Input(this.canvas);
@@ -84,7 +88,9 @@ class Game {
 
     const stored = await Save.readSettings();
     if (stored) Object.assign(this.settings, stored);
-    if (this.safeMode && !this.settings.qualityChosen) this.settings.quality = "low";
+    if (!this.settings.qualityChosen || !["auto", "high", "medium", "low"].includes(this.settings.quality)) { this.settings.quality = "auto"; this.settings.qualityChosen = false; }
+    // auto graphics: where on the ladder to start (0 high .. 3 lowest)
+    this.gfxLevel = this.safeMode ? 2 : this.isSafari || devicePixelRatio >= 2 ? 1 : 0;
     if (this.settings.keysVersion !== KEYS_VERSION) { this.settings.keys = null; this.settings.keysVersion = KEYS_VERSION; } // new control scheme
     // closing the tab by accident (Cmd+W while throwing your cap) asks first
     addEventListener("beforeunload", (e) => { if (this.mode === "play" || this.mode === "paused") { e.preventDefault(); e.returnValue = ""; } });
@@ -142,12 +148,21 @@ class Game {
     const s = this.settings;
     if (this.audio) this.audio.setVolumes({ musicVol: s.music, sfxVol: s.sfx, musicMuted: s.muteMusic, sfxMuted: s.muteSfx });
     if (this.renderer) {
-      const pr = s.quality === "low" ? 1 : s.quality === "medium" ? Math.min(1.5, devicePixelRatio) : Math.min(2, devicePixelRatio);
-      this.renderer.setPixelRatio(pr);
-      const shadows = s.quality !== "low";
-      if (this.sun) { this.sun.castShadow = shadows; this.sun.shadow.mapSize.set(s.quality === "high" ? 2048 : 1024, s.quality === "high" ? 2048 : 1024); if (this.sun.shadow.map) { this.sun.shadow.map.dispose(); this.sun.shadow.map = null; } }
-      this.renderer.shadowMap.enabled = shadows;
-      this.scene && this.scene.traverse((o) => { if (o.material && o.material.needsUpdate !== undefined && !o.isPoints) o.material.needsUpdate = true; });
+      const lv = s.quality === "auto" ? (this.gfxLevel ?? 0) : { high: 0, medium: 1, low: 2 }[s.quality] ?? 1;
+      const dpr = devicePixelRatio || 1;
+      const pr = [Math.min(1.75, dpr), Math.min(1.25, dpr), 1, 0.75][lv];
+      if (Math.abs(this.renderer.getPixelRatio() - pr) > 0.01) this.renderer.setPixelRatio(pr);
+      const shadows = lv <= 1, size = lv === 0 ? 2048 : 1024;
+      if (this.sun && (this.sun.castShadow !== shadows || this.sun.shadow.mapSize.x !== size)) {
+        this.sun.castShadow = shadows; this.sun.shadow.mapSize.set(size, size);
+        if (this.sun.shadow.map) { this.sun.shadow.map.dispose(); this.sun.shadow.map = null; }
+      }
+      if (this.renderer.shadowMap.enabled !== shadows) {
+        this.renderer.shadowMap.enabled = shadows;
+        this.scene && this.scene.traverse((o) => { if (o.material && o.material.needsUpdate !== undefined && !o.isPoints) o.material.needsUpdate = true; });
+      }
+      this.renderer.shadowMap.needsUpdate = true;
+      this.appliedLevel = lv;
       this.resize();
     }
     if (this.input) this.input.setKeys(s.keys);
@@ -739,31 +754,43 @@ class Game {
     requestAnimationFrame((t) => this.loop(t));
     let dt = (now - this.last) / 1000; this.last = now;
     if (!(dt > 0)) dt = 0.016;
-    dt = Math.min(dt, 1 / 30);
+    const rawDt = dt;
+    dt = Math.min(dt, 1 / 15);
     this.input.poll();
-    try { this.update(dt); } catch (e) { console.error(e); }
+    // a slow frame is split into two steps so the game keeps real speed instead of
+    // slowing down; button presses only count in the first step
+    const steps = dt > 1 / 40 ? 2 : 1;
+    for (let i = 0; i < steps; i++) {
+      try { this.update(dt / steps); } catch (e) { console.error(e); }
+      if (i < steps - 1) this.input.endFrame();
+    }
+    // the sun's shadows only need redrawing 30 times a second
+    this.frameN = (this.frameN || 0) + 1;
+    if (this.renderer.shadowMap.enabled && (this.frameN & 1)) this.renderer.shadowMap.needsUpdate = true;
     this.renderer.render(this.scene, this.camera);
     this.input.endFrame();
-    this.autoQuality(now);
+    this.autoQuality(now, rawDt);
     this.fpsAcc = (this.fpsAcc || 0) + dt; this.fpsN = (this.fpsN || 0) + 1;
     if (this.fpsAcc > 0.5) { const f = document.getElementById("cfFps"); if (f && !f.hidden) f.textContent = Math.round(this.fpsN / this.fpsAcc) + " fps"; this.fpsAcc = 0; this.fpsN = 0; }
   }
 
-  // if the computer is struggling, step graphics down once (unless the player chose a quality)
-  autoQuality(now) {
-    if (this.settings.qualityChosen || this._aqDone) return;
-    if (!this._aq) { this._aq = { t0: now, n: 0 }; return; }
-    const a = this._aq; a.n++;
-    if (now - a.t0 < 4000) return;
-    const fps = a.n / ((now - a.t0) / 1000);
-    if (fps < 40 && this.settings.quality !== "low") {
-      this.settings.quality = fps < 24 ? "low" : this.settings.quality === "high" ? "medium" : "low";
+  // auto graphics: watch the frame rate while playing and step down when the computer
+  // is struggling. It never steps back up in the same visit, so it can't flicker.
+  autoQuality(now, dt) {
+    if (this.settings.quality !== "auto" || this.mode !== "play" || (this.cut && this.cut.active)) { this._aq = null; return; }
+    if (!(dt > 0) || dt > 0.25) { this._aq = null; return; } // tab was hidden or a hitch: don't count it
+    if (!this._aq) { this._aq = { t: 0, n: 0, wait: 1.5 }; return; }
+    const a = this._aq;
+    if (a.wait > 0) { a.wait -= dt; return; } // let shaders warm up first
+    a.t += dt; a.n++;
+    if (a.t < 2.5) return;
+    const fps = a.n / a.t;
+    this._aq = { t: 0, n: 0, wait: 0 };
+    if (fps < 47 && this.gfxLevel < 3) {
+      this.gfxLevel += fps < 28 && this.gfxLevel < 2 ? 2 : 1;
+      this._aq.wait = 1.5;
       this.applySettings();
-      a.t0 = now; a.n = 0; // measure again at the new setting
-      if (this.settings.quality === "low") this._aqDone = true;
-      return;
     }
-    this._aqDone = true;
   }
 
   update(dt) {

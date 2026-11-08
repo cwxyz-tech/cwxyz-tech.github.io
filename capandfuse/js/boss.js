@@ -2,7 +2,7 @@
 // his shell. Make him slam his claw into the sand (or charge into a rock),
 // then cap-bounce up onto his shell and ground pound the glowing gem.
 import * as THREE from "../vendor/three.module.min.js";
-import { PAL, toon, basic, mesh, damp, clamp, angDiff, textSprite, mergeStatic } from "./fx.js?v=13";
+import { PAL, toon, basic, mesh, damp, clamp, angDiff, textSprite, mergeStatic } from "./fx.js?v=14";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const SPH = new THREE.SphereGeometry(1, 20, 14);

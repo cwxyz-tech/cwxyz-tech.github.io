@@ -1,5 +1,5 @@
 <script>/* opened straight from /pages/? send it to the real page, behind the terms */ if (location.pathname.indexOf("/pages/") === 0) location.replace("/" + location.pathname.slice(7).replace(/\.html$/, "").replace(/^(home|404)$/, "").replace(/^[\/\\]+/, ""));</script>
-<link rel="stylesheet" href="/capandfuse/game.css?v=13">
+<link rel="stylesheet" href="/capandfuse/game.css?v=14">
 <div id="cfGame">
   <canvas id="cfCanvas" aria-label="Cap and Fuse game"></canvas>
   <div id="cfUI"></div>
@@ -40,4 +40,4 @@
   setTimeout(function () { if (!window.cfGame) show(errs.length ? "Cap & Fuse hit an error while loading." : "Cap & Fuse is taking too long to start."); }, 20000);
 })();
 </script>
-<script type="module" src="/capandfuse/js/main.js?v=13"></script>
+<script type="module" src="/capandfuse/js/main.js?v=14"></script>

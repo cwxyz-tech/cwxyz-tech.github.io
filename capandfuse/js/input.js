@@ -153,5 +153,5 @@ export class Input {
     try { if (p && p.vibrationActuator) p.vibrationActuator.playEffect("dual-rumble", { duration: ms, strongMagnitude: strength, weakMagnitude: strength * 0.6 }); } catch (e) {}
   }
 
-  endFrame() { this.pressedFrame.clear(); this.mouseDX = 0; this.mouseDY = 0; }
+  endFrame() { this.pressedFrame.clear(); if (this.padPressed) this.padPressed.clear(); this.mouseDX = 0; this.mouseDY = 0; }
 }

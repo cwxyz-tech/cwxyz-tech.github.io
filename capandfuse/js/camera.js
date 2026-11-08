@@ -1,7 +1,7 @@
 // Third-person orbit camera that follows Fuse, eases behind him when he runs,
 // keeps a calm height while he jumps, and never goes inside walls.
 import * as THREE from "../vendor/three.module.min.js";
-import { damp, clamp, angDiff, lerp, ease } from "./fx.js?v=13";
+import { damp, clamp, angDiff, lerp, ease } from "./fx.js?v=14";
 
 export class CamRig {
   constructor(camera, game) {
