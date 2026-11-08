@@ -1,8 +1,8 @@
 // All menus and overlays (built as HTML on top of the 3D canvas).
-import { ACTIONS, keyLabel } from "./input.js?v=12";
-import { SPEAKERS } from "./story.js?v=12";
-import { CAPS, BODIES } from "./fuse.js?v=12";
-import { TRACKS, TRACK_ORDER } from "./audio.js?v=12";
+import { ACTIONS, keyLabel } from "./input.js?v=13";
+import { SPEAKERS } from "./story.js?v=13";
+import { CAPS, BODIES } from "./fuse.js?v=13";
+import { TRACKS, TRACK_ORDER } from "./audio.js?v=13";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const cloneJSON = (o) => JSON.parse(JSON.stringify(o));
@@ -195,7 +195,7 @@ export class UI {
             <button class="cf-btn xp-item" id="mCredits"><i class="xp-ico info"></i><span>Credits</span></button>
           </div>
         </div>
-        <div class="xp-sfoot"><span>Version 1.2</span><a class="xp-exit" href="/games"><i></i>Exit</a></div>
+        <div class="xp-sfoot"><span>Version 1.2.1</span><a class="xp-exit" href="/games"><i></i>Exit</a></div>
       </div>`, "clear left");
     this.on("#mContinue", () => this.game.continueGame());
     this.on("#mNew", () => this.game.newGameFlow());
@@ -299,7 +299,7 @@ export class UI {
     const s = this.open(`<div class="cf-panel"><h2>Extras</h2>
       <h3>Sound Test</h3>
       <div class="cf-tracks">${TRACK_ORDER.map((k, i) => `<button class="cf-btn tiny track" data-t="${k}">${String(i + 1).padStart(2, "0")} &middot; ${esc(TRACKS[k].title)}</button>`).join("")}</div>
-      <h3>Version Notes</h3><p class="cf-dim"><b>1.2</b> Balance changes and Shellshock fixes.<br><b>1.1</b> New moves and controls, smoother performance, new look.<br><b>1.0</b> Chapter 1: Blossom Bay.</p>
+      <h3>Version Notes</h3><p class="cf-dim"><b>1.2.1</b> The camera follows Fuse again after loading a save.<br><b>1.2</b> Balance changes and Shellshock fixes.<br><b>1.1</b> New moves and controls, smoother performance, new look.<br><b>1.0</b> Chapter 1: Blossom Bay.</p>
       <div class="cf-row center"><button class="cf-btn" id="xControls">How to Play</button><button class="cf-btn" id="xBack">Back</button></div></div>`);
     s.querySelectorAll("[data-t]").forEach((b) => b.addEventListener("click", () => {
       s.querySelectorAll(".track").forEach((x) => x.classList.remove("on")); b.classList.add("on");

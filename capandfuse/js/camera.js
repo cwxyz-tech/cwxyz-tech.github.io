@@ -1,7 +1,7 @@
 // Third-person orbit camera that follows Fuse, eases behind him when he runs,
 // keeps a calm height while he jumps, and never goes inside walls.
 import * as THREE from "../vendor/three.module.min.js";
-import { damp, clamp, angDiff, lerp, ease } from "./fx.js?v=12";
+import { damp, clamp, angDiff, lerp, ease } from "./fx.js?v=13";
 
 export class CamRig {
   constructor(camera, game) {
@@ -12,7 +12,7 @@ export class CamRig {
     this.cine = null;
     this.tmp = new THREE.Vector3();
   }
-  snap(p, yaw) { this.yaw = yaw ?? this.yaw; this.target.set(p.x, p.y + 1.3, p.z); this.focusY = p.y; this.update(0.0001, true); }
+  snap(p, yaw) { this.cine = null; this.yaw = yaw ?? this.yaw; this.target.set(p.x, p.y + 1.3, p.z); this.focusY = p.y; this.update(0.0001, true); }
   shake(a) { if (!this.game.settings.reducedShake) this.shakeAmt = Math.max(this.shakeAmt, a); else this.shakeAmt = Math.max(this.shakeAmt, a * 0.2); }
 
   // cinematic shot: from/to positions and look targets over time

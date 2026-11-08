@@ -1,8 +1,8 @@
 // Blossom Bay: the first world. Builds the scenery (sky, sea, island, village,
 // lighthouse, waterfall cave, floating Sky Steps, boss cove) and its collision.
 import * as THREE from "../vendor/three.module.min.js";
-import { PAL, toon, basic, mesh, textSprite, SAT_GLSL, mergeStatic } from "./fx.js?v=12";
-import { Level } from "./physics.js?v=12";
+import { PAL, toon, basic, mesh, textSprite, SAT_GLSL, mergeStatic } from "./fx.js?v=13";
+import { Level } from "./physics.js?v=13";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 
